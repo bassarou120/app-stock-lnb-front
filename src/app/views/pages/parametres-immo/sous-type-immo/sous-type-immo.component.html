@@ -1,0 +1,304 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Paramètres Stock</a></li>
+    <li class="breadcrumb-item active" aria-current="page">sous type d'Immobilisation</li>
+  </ol>
+</nav>
+
+<!-- Alerte pour ajout avec succès -->
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Sous Type d'Immobilisation Ajouté avec succès
+</ngb-alert>
+<!-- Alerte pour ajout avec succès -->
+
+<!-- Alerte pour mofifier avec succès -->
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Sous Type d'Immobilisation Modifié avec succès
+</ngb-alert>
+<!-- Alerte pour mofifier avec succès -->
+
+<!-- Alerte pour supprimer avec succès -->
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Sous Type d'Immobilisation Supprimé avec succès
+</ngb-alert>
+<!-- Alerte pour supprimer avec succès -->
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Sous Types d'Immobilisation</h4>
+          <p class="text-secondary">Liste des Sous Types d'Immobilisation</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_sousTypeImmo">
+          Ajouter
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Sous Types d'Immobilisation</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Sous Type d'Immobilisation" prop="libelle"></ngx-datatable-column>
+            <ngx-datatable-column name="Type Immobilisation">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.type_immo?.libelle_typeImmo || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Compte" prop="compte"></ngx-datatable-column>
+            <ngx-datatable-column name="Date de création" prop="created_at">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right">
+                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#edit_sousTypeImmo" (click)="getEditForm(row)">
+                      <i class="feather icon-edit me-2"></i> Modifier
+                    </button>
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#delete_sousTypeImmo" (click)="getDeleteForm(row)">
+                      <i class="feather icon-trash-2 me-2"></i> Supprimer
+                    </button>
+
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add soustype Immo Modal -->
+<div id="add_sousTypeImmo" class="modal fade" tabindex="-1" aria-labelledby="addsousTypeImmoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addsousTypeImmoLabel">Ajouter un Sous Type d'Immobilisation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addSousTypeImmo" (ngSubmit)="onClickSubmitAddSousTypeImmo()" novalidate>
+          <!-- Nom du soustypeImmo -->
+          <div class="mb-3">
+            <label for="soustypeImmoName" class="form-label">Nom du Sous Type d'Immobilisation</label>
+            <input type="text" class="form-control" id="soustypeImmoName"
+              placeholder="Entrez le nom du Sous Type d'Immobilisation" autocomplete="off"
+              [class.invalid]="addSousTypeImmo.get('libelle')?.invalid && addSousTypeImmo.get('libelle')?.touched"
+              formControlName="libelle">
+            <div *ngIf="addSousTypeImmo.get('libelle')?.invalid && addSousTypeImmo.get('libelle')?.touched">
+              <small *ngIf="addSousTypeImmo.get('libelle')?.invalid && addSousTypeImmo.get('libelle')?.touched"
+                class="text-danger"> *le nom du Sous Type d'Immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Sélectionner un Type Immo -->
+          <div class="mb-3">
+            <label for="soustypeImmoType" class="form-label">Type d'Immobilisation</label>
+
+            <ng-container *ngIf="typeImmos && typeImmos.length > 0; else noTypeImmo">
+              <ng-select [items]="typeImmos" bindLabel="libelle_typeImmo" bindValue="id" formControlName="id_type_immo"
+                [clearable]="true" placeholder="Sélectionnez le Type d'Immobilisation">
+              </ng-select>
+
+              <div *ngIf="addSousTypeImmo.get('id_type_immo')?.invalid && addSousTypeImmo.get('id_type_immo')?.touched">
+                <small class="text-danger"> *Le Type d'Immobilisation est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun type d'immobilisation n'existe -->
+            <ng-template #noTypeImmo>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Type d'Immobilisation. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+
+          <!-- Compte du Type d'Immobilisation -->
+          <div class="mb-3">
+            <label for="soustypeImmoCompte" class="form-label">Compte du Type d'Immobilisation</label>
+            <input type="text" class="form-control" id="soustypeImmoCompte" placeholder="2000" autocomplete="off"
+              [class.invalid]="addSousTypeImmo.get('compte')?.invalid && addSousTypeImmo.get('compte')?.touched"
+              formControlName="compte">
+            <div *ngIf="addSousTypeImmo.get('compte')?.invalid && addSousTypeImmo.get('compte')?.touched">
+              <small *ngIf="addSousTypeImmo.get('compte')?.invalid && addSousTypeImmo.get('compte')?.touched"
+                class="text-danger"> *le Compte du Type d'Immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Add sous Type d'Immobilisation Modal -->
+
+
+
+
+<!-- Edit soustype Immo Modal -->
+<div id="edit_sousTypeImmo" class="modal fade" tabindex="-1" aria-labelledby="editsousTypeImmoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editsousTypeImmoLabel">Modifier un Sous Type d'Immobilisation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editSousTypeImmo" (ngSubmit)="onClickSubmitEditSousTypeImmo()"
+          novalidate>
+          <!-- Nom du soustypeImmo -->
+          <div class="mb-3">
+            <label for="soustypeImmoName" class="form-label">Nom du Sous Type d'Immobilisation</label>
+            <input type="text" class="form-control" id="soustypeImmoName"
+              placeholder="Entrez le nom du Sous Type d'Immobilisation" autocomplete="off"
+              [class.invalid]="editSousTypeImmo.get('libelle')?.invalid && editSousTypeImmo.get('libelle')?.touched"
+              formControlName="libelle">
+            <div *ngIf="editSousTypeImmo.get('libelle')?.invalid && editSousTypeImmo.get('libelle')?.touched">
+              <small *ngIf="editSousTypeImmo.get('libelle')?.invalid && editSousTypeImmo.get('libelle')?.touched"
+                class="text-danger"> *le nom du Sous Type d'Immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Sélectionner un Type Immo -->
+          <div class="mb-3">
+            <label for="soustypeImmoType" class="form-label">Type d'Immobilisation</label>
+
+            <ng-container *ngIf="typeImmos && typeImmos.length > 0; else noTypeImmo">
+              <ng-select [items]="typeImmos" bindLabel="libelle_typeImmo" bindValue="id" formControlName="id_type_immo"
+                [clearable]="true" placeholder="Sélectionnez le Type d'Immobilisation">
+              </ng-select>
+
+              <div
+                *ngIf="editSousTypeImmo.get('id_type_immo')?.invalid && editSousTypeImmo.get('id_type_immo')?.touched">
+                <small class="text-danger"> *Le Type d'Immobilisation est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun type d'immobilisation n'existe -->
+            <ng-template #noTypeImmo>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Type d'Immobilisation. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+
+          <!-- Compte du Type d'Immobilisation -->
+          <div class="mb-3">
+            <label for="soustypeImmoCompte" class="form-label">Compte du Type d'Immobilisation</label>
+            <input type="text" class="form-control" id="soustypeImmoCompte" placeholder="2000" autocomplete="off"
+              [class.invalid]="editSousTypeImmo.get('compte')?.invalid && editSousTypeImmo.get('compte')?.touched"
+              formControlName="compte">
+            <div *ngIf="editSousTypeImmo.get('compte')?.invalid && editSousTypeImmo.get('compte')?.touched">
+              <small *ngIf="editSousTypeImmo.get('compte')?.invalid && editSousTypeImmo.get('compte')?.touched"
+                class="text-danger"> *le Compte du Type d'Immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Edit sous Type d'Immobilisation Modal -->
+
+
+
+<!-- delete sous Type d'Immobilisation Modal -->
+<div id="delete_sousTypeImmo" class="modal fade" tabindex="-1" aria-labelledby="deletesousTypeImmoLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="deletesousTypeImmoLabel">Suppression Sous Type Immobilisation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteSousTypeImmo"
+          (ngSubmit)="onClickSubmitDeleteSousTypeImmo()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce Sous Type d'Immobilisation ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete sous Type d'Immobilisation Modal -->

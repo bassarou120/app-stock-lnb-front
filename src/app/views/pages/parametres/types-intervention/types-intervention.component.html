@@ -1,0 +1,279 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Paramètres</a></li>
+    <li class="breadcrumb-item active" aria-current="page">types d'intervention</li>
+  </ol>
+</nav>
+
+<!-- Alerte pour ajout avec succès -->
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Type d'Intervention Ajouté avec succès
+</ngb-alert>
+<!-- Alerte pour ajout avec succès -->
+
+<!-- Alerte pour mofifier avec succès -->
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Type d'Intervention Modifié avec succès
+</ngb-alert>
+<!-- Alerte pour mofifier avec succès -->
+
+<!-- Alerte pour supprimer avec succès -->
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Type d'Intervention Supprimé avec succès
+</ngb-alert>
+<!-- Alerte pour supprimer avec succès -->
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des types d'intervention</h4>
+          <p class="text-secondary">Liste des types d'intervention</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_typeIntervention">
+          Ajouter
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des types d'intervention</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Type d'intervention" prop="libelle_type_intervention"></ngx-datatable-column>
+            <ngx-datatable-column name="Pour les véhicules seul" prop="applicable_seul_vehicule">
+              <ng-template ngx-datatable-cell-template let-value="value">
+                {{ value ? 'Oui' : 'Non' }}
+              </ng-template>
+            </ngx-datatable-column>            
+            <ngx-datatable-column name="Observations" prop="observation"></ngx-datatable-column>
+            <ngx-datatable-column name="Date de création" prop="created_at">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right">
+                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#edit_typeIntervention" (click)="getEditForm(row)">
+                      <i class="feather icon-edit me-2"></i> Modifier
+                    </button>
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#delete_typeIntervention" (click)="getDeleteForm(row)">
+                      <i class="feather icon-trash-2 me-2"></i> Supprimer
+                    </button>
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add typeIntervention Modal -->
+<div id="add_typeIntervention" class="modal fade" tabindex="-1" aria-labelledby="addTypeInterventionLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTypeInterventionLabel">Ajouter un type d'Intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addTypeIntervention" (ngSubmit)="onClickSubmitAddTypeIntervention()"
+          novalidate>
+          <!-- Nom typeIntervention  -->
+          <div class="mb-3">
+            <label for="typeInterventionName" class="form-label">Nom du Type d'Intervention</label>
+            <input type="text" class="form-control" id="typeInterventionName"
+              placeholder="Entrez le type d'Intervention" autocomplete="off"
+              [class.invalid]="addTypeIntervention.get('libelle_type_intervention')?.invalid && addTypeIntervention.get('libelle_type_intervention')?.touched"
+              formControlName="libelle_type_intervention">
+            <div
+              *ngIf="addTypeIntervention.get('libelle_type_intervention')?.invalid && addTypeIntervention.get('libelle_type_intervention')?.touched">
+              <small
+                *ngIf="addTypeIntervention.get('libelle_type_intervention')?.invalid && addTypeIntervention.get('libelle_type_intervention')?.touched"
+                class="text-danger"> *le type d'Intervention est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- observation -->
+          <div class="mb-3">
+            <label for="typeInterventionObservation" class="form-label">Commentaire</label>
+            <textarea class="form-control" id="typeInterventionObservation" rows="5"
+              [class.invalid]="addTypeIntervention.get('observation')?.invalid && addTypeIntervention.get('observation')?.touched"
+              placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
+            <div
+              *ngIf="addTypeIntervention.get('observation')?.invalid && addTypeIntervention.get('observation')?.touched">
+              <small
+                *ngIf="addTypeIntervention.get('observation')?.invalid && addTypeIntervention.get('observation')?.touched"
+                class="text-danger"> *l' observation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- applicable aux véhicules seuls -->
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="checkChecked"
+              [checked]="addTypeIntervention.get('applicable_seul_vehicule')?.value === 1"
+              (change)="onCheckboxChange($event)">
+            <label class="form-check-label" for="checkChecked">
+              applicable aux véhicules seuls
+            </label>
+            <i class="feather icon-alert-circle ms-3" [ngbTooltip]="'Si vous cochez ce type d\'intervention, il sera applicable aux véhicules uniquement'"></i>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Add type_intervention Modal -->
+
+
+<!-- Edit typeIntervention Modal -->
+<div id="edit_typeIntervention" class="modal fade" tabindex="-1" aria-labelledby="editTypeInterventionLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addTypeInterventionLabel">Modifier un type d'Intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editTypeIntervention" (ngSubmit)="onClickSubmitEditTypeIntervention()"
+          novalidate>
+          <!-- Nom typeIntervention  -->
+          <div class="mb-3">
+            <label for="typeInterventionName" class="form-label">Nom du Type d'Intervention</label>
+            <input type="text" class="form-control" id="typeInterventionName"
+              placeholder="Entrez le type d'Intervention" autocomplete="off"
+              [class.invalid]="editTypeIntervention.get('libelle_type_intervention')?.invalid && editTypeIntervention.get('libelle_type_intervention')?.touched"
+              formControlName="libelle_type_intervention">
+            <div
+              *ngIf="editTypeIntervention.get('libelle_type_intervention')?.invalid && editTypeIntervention.get('libelle_type_intervention')?.touched">
+              <small
+                *ngIf="editTypeIntervention.get('libelle_type_intervention')?.invalid && editTypeIntervention.get('libelle_type_intervention')?.touched"
+                class="text-danger"> *le type d'Intervention est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- observation -->
+          <div class="mb-3">
+            <label for="typeInterventionObservation" class="form-label">Commentaire</label>
+            <textarea class="form-control" id="typeInterventionObservation" rows="5"
+              [class.invalid]="editTypeIntervention.get('observation')?.invalid && editTypeIntervention.get('observation')?.touched"
+              placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
+            <div
+              *ngIf="editTypeIntervention.get('observation')?.invalid && editTypeIntervention.get('observation')?.touched">
+              <small
+                *ngIf="editTypeIntervention.get('observation')?.invalid && editTypeIntervention.get('observation')?.touched"
+                class="text-danger"> *l' observation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- applicable aux véhicules seuls -->
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="checkCheckedEdit"
+              [checked]="editTypeIntervention.get('applicable_seul_vehicule')?.value === 1"
+              (change)="onCheckboxEditChange($event)">
+            <label class="form-check-label" for="checkCheckedEdit">
+              applicable aux véhicules seuls
+            </label>
+            <i class="feather icon-alert-circle ms-3" [ngbTooltip]="'Si vous cochez ce type d\'intervention, il sera applicable aux véhicules uniquement'"></i>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Add type_intervention Modal -->
+
+<!-- delete Type Intervention Modal -->
+<div id="delete_typeIntervention" class="modal fade" tabindex="-1" aria-labelledby="deleteTypeIntervention" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTypeInterventionLabel">Suppression type d'Intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteTypeIntervention"  (ngSubmit)="onClickSubmitDeleteTypeIntervention()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce type d'Intervention ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete typeIntervention Modal -->

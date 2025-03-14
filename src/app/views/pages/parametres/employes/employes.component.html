@@ -1,0 +1,294 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Paramètres</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Liste des Employés</li>
+  </ol>
+</nav>
+
+<!-- Alerte pour ajout avec succès -->
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Employé  Ajouté avec succès
+</ngb-alert>
+<!-- Alerte pour ajout avec succès -->
+
+<!-- Alerte pour mofifier avec succès -->
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Employé  Mofifié avec succès
+</ngb-alert>
+<!-- Alerte pour mofifier avec succès -->
+
+<!-- Alerte pour supprimer avec succès -->
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Employé  Supprimé avec succès
+</ngb-alert>
+<!-- Alerte pour supprimer avec succès -->
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Employés</h4>
+          <p class="text-secondary">Liste des Employés</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_employe">
+          Ajouter
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Employés</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Nom" prop="nom"></ngx-datatable-column>
+            <ngx-datatable-column name="Prénom" prop="prenom"></ngx-datatable-column>
+            <ngx-datatable-column name="Téléphone" prop="telephone"></ngx-datatable-column>
+            <ngx-datatable-column name="Email" prop="email"></ngx-datatable-column>
+            <ngx-datatable-column name="Date de création" prop="created_at">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right">
+                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_employe" (click)="getEditForm(row)">
+                      <i class="feather icon-edit me-2"></i> Modifier
+                    </button>
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_employe" (click)="getDeleteForm(row)">
+                      <i class="feather icon-trash-2 me-2"></i> Supprimer
+                    </button>
+
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add employe Modal -->
+<div id="add_employe" class="modal fade" tabindex="-1" aria-labelledby="addEmployeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEmployeLabel">Ajouter un Employé</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addEmploye" (ngSubmit)="onClickSubmitAddEmploye()" novalidate>
+          <!-- Nom employé -->
+          <div class="mb-3">
+            <label for="employeName" class="form-label">Nom de l'employé</label>
+            <input type="text" class="form-control" id="employeName" placeholder="Entrez le nom de l'employé"
+              autocomplete="off"
+              [class.invalid]="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched"
+              formControlName="nom">
+            <div *ngIf="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched">
+              <small *ngIf="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched"
+                class="text-danger"> *le nom du l'employé est obligatoire</small>
+            </div>
+          </div>
+          <!-- prenom employé -->
+          <div class="mb-3">
+            <label for="employePrenom" class="form-label">Prénom de l'employé</label>
+            <input type="text" class="form-control" id="employePrenom" placeholder="Entrez le prénom de l'employé"
+              autocomplete="off"
+              [class.invalid]="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched"
+              formControlName="prenom">
+            <div *ngIf="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched">
+              <small *ngIf="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched"
+                class="text-danger"> *le prenom du l'employé est obligatoire</small>
+            </div>
+          </div>
+          <!-- telephone employé -->
+          <div class="mb-3">
+            <label for="employeTelephone" class="form-label">Numéro de l'employé</label>
+            <input type="text" class="form-control" id="employeTelephone" placeholder="+229 0197010203"
+              autocomplete="off"
+              [class.invalid]="addEmploye.get('telephone')?.invalid && addEmploye.get('telephone')?.touched"
+              formControlName="telephone">
+            <div *ngIf="addEmploye.get('telephone')?.invalid && addEmploye.get('telephone')?.touched">
+              <small *ngIf="addEmploye.get('telephone')?.invalid && addEmploye.get('telephone')?.touched"
+                class="text-danger"> *le telephone de l'employé est obligatoire</small>
+            </div>
+          </div>
+          <!-- adresse email employe -->
+          <div class="mb-3">
+            <label for="employeEmail" class="form-label">Adresse Mail de l'employé</label>
+            <input type="text" class="form-control" id="employeEmail" placeholder="exemple@gmail.com"
+              autocomplete="off"
+              [class.invalid]="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched"
+              formControlName="email">
+            <div *ngIf="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched">
+              <small *ngIf="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched"
+                class="text-danger"> *l'adresse du fournisseur est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Add employe Modal -->
+
+
+
+
+<!-- edit employe Modal -->
+<div id="edit_employe" class="modal fade" tabindex="-1" aria-labelledby="editEmployeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEmployeLabel">Modification Employé</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editEmploye" (ngSubmit)="onClickSubmitEditEmploye()" novalidate>
+          <!-- Nom de l'employe -->
+          <div class="mb-3">
+            <input type="hidden" formControlName="id">
+            <label for="employeName" class="form-label">Nom de l'employé</label>
+            <input type="text" class="form-control" id="employeName" placeholder="Entrez le nom de l'employé"
+              autocomplete="off"
+              [class.invalid]="editEmploye.get('nom')?.invalid && editEmploye.get('nom')?.touched"
+              formControlName="nom">
+            <div *ngIf="editEmploye.get('nom')?.invalid && editEmploye.get('nom')?.touched">
+              <small *ngIf="editEmploye.get('nom')?.invalid && editEmploye.get('nom')?.touched"
+                class="text-danger"> *le nom de l'employe est obligatoire</small>
+            </div>
+          </div>
+          <!-- Nom de l'employe -->
+          <div class="mb-3">
+            <input type="hidden" formControlName="id">
+            <label for="employePrenom" class="form-label">Prénom de l'employé</label>
+            <input type="text" class="form-control" id="employePrenom" placeholder="Prénom de l'employé"
+              autocomplete="off"
+              [class.invalid]="editEmploye.get('prenom')?.invalid && editEmploye.get('prenom')?.touched"
+              formControlName="prenom">
+            <div *ngIf="editEmploye.get('prenom')?.invalid && editEmploye.get('prenom')?.touched">
+              <small *ngIf="editEmploye.get('prenom')?.invalid && editEmploye.get('prenom')?.touched"
+                class="text-danger"> *le prénom de l'employe est obligatoire</small>
+            </div>
+          </div>
+          <!-- Telephone de la Employe -->
+          <div class="mb-3">
+            <label for="employeTelephone" class="form-label">Numéro de Téléphone de l'employé</label>
+            <input type="text" class="form-control" id="employeTelephone" placeholder="+2290197010203"
+              autocomplete="off"
+              [class.invalid]="editEmploye.get('telephone')?.invalid && editEmploye.get('telephone')?.touched"
+              formControlName="telephone">
+            <div *ngIf="editEmploye.get('telephone')?.invalid && editEmploye.get('telephone')?.touched">
+              <small *ngIf="editEmploye.get('telephone')?.invalid && editEmploye.get('telephone')?.touched"
+                class="text-danger"> *le telephone est obligatoire</small>
+            </div>
+          </div>
+          <!-- Adresse email Employe -->
+          <div class="mb-3">
+            <label for="employeEmail" class="form-label">Adresse de l'Employe</label>
+            <input type="text" class="form-control" id="employeEmail" placeholder="Cotonou"
+              autocomplete="off"
+              [class.invalid]="editEmploye.get('email')?.invalid && editEmploye.get('email')?.touched"
+              formControlName="email">
+            <div *ngIf="editEmploye.get('email')?.invalid && editEmploye.get('email')?.touched">
+              <small *ngIf="editEmploye.get('email')?.invalid && editEmploye.get('email')?.touched"
+                class="text-danger"> *l'adresse email de l'employé est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /edit Employe Modal -->
+
+
+
+
+<!-- delete Employe Modal -->
+<div id="delete_employe" class="modal fade" tabindex="-1" aria-labelledby="deleteEmployeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteEmployeLabel">Suppression Employé</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteEmploye"  (ngSubmit)="onClickSubmitDeleteEmploye()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce Employé ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete employe Modal -->

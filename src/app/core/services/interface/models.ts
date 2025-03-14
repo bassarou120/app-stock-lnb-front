@@ -1,0 +1,115 @@
+export interface apiResultFormat {
+  data: Array<any>;
+  totalData: number;
+}
+
+export interface Commune {
+  id: number;
+  libelle_commune: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CouponTicket {
+  id: number;
+  libelle: string;
+  valeur: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface Marque {
+  id: number;
+  libelle: string;
+  created_at: string;
+  updated_at: string;
+}
+export interface StatusImmo {
+  id: number;
+  libelle_status_immo: string;
+  created_at: string;
+  updated_at: string;
+}
+export interface Bureau {
+  id: number;
+  libelle_bureau: string;
+  valeur: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface Magazin {
+  id: number;
+  libelle_magazin: string;
+  localisation: string;
+  created_at: string;
+  updated_at: string;
+}
+export interface TypeImmo {
+  id: number;
+  libelle_typeImmo: string;
+  compte: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface SousTypeImmo {
+  id: number;
+  id_type_immo: number;
+  libelle: string;
+  compte: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface GroupeTypeImmo {
+  id: number;
+  id_sous_type_immo: number;
+  libelle: string;
+  compte: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface TypeAffectation {
+  id: number;
+  libelle_type_affectation: string;
+  valeur: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CompagniePetroliere {
+  id: number;
+  libelle: string;
+  adresse: string;
+  created_at: string;
+  updated_at: string;
+}
+export interface Fournisseur {
+  id: number;
+  nom: string;
+  telephone: string;
+  adresse: string;
+  created_at: string;
+  updated_at: string;
+}
+export interface Employe {
+  id: number;
+  nom: string;
+  telephone: string;
+  email: string;
+  created_at: string;
+  updated_at: string;
+}
+export interface TypeIntervention {
+  id: number;
+  libelle_type_intervention: string;
+  applicable_seul_vehicule: boolean;
+  observation: string;
+  created_at: string;
+  updated_at: string;
+}
+export interface TypeMouvement {
+  id: number;
+  libelle_type_mouvement: string;
+  valeur: string;
+  created_at: string;
+  updated_at: string;
+}

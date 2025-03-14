@@ -1,0 +1,244 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Paramètres Stock</a></li>
+    <li class="breadcrumb-item active" aria-current="page">type d'affectation</li>
+  </ol>
+</nav>
+
+<!-- Alerte pour ajout avec succès -->
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Type d'Affectation Ajouté avec succès
+</ngb-alert>
+<!-- Alerte pour ajout avec succès -->
+
+<!-- Alerte pour mofifier avec succès -->
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Type d'Affectation Mofifié avec succès
+</ngb-alert>
+<!-- Alerte pour mofifier avec succès -->
+
+<!-- Alerte pour supprimer avec succès -->
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Type d'Affectation Supprimé avec succès
+</ngb-alert>
+<!-- Alerte pour supprimer avec succès -->
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Types d'Affectation</h4>
+          <p class="text-secondary">Liste des types d'affectation</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_typeAffectation">
+          Ajouter
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Types d'Affectation</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Type d'Affectation" prop="libelle_type_affectation"></ngx-datatable-column>
+            <ngx-datatable-column name="Valeur" prop="valeur"></ngx-datatable-column>
+            <ngx-datatable-column name="Date de création" prop="created_at">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right">
+                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_typeAffectation" (click)="getEditForm(row)">
+                      <i class="feather icon-edit me-2"></i> Modifier
+                    </button>
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_typeAffectation" (click)="getDeleteForm(row)">
+                      <i class="feather icon-trash-2 me-2"></i> Supprimer
+                    </button>
+
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add type Affectation Modal -->
+<div id="add_typeAffectation" class="modal fade" tabindex="-1" aria-labelledby="addtypeAffectationLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addtypeAffectationLabel">Ajouter un type d'Affectation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addTypeAffectation" (ngSubmit)="onClickSubmitAddTypeAffectation()" novalidate>
+          <!-- Nom du typeAffectation -->
+          <div class="mb-3">
+            <label for="typeAffectationName" class="form-label">Nom du type d'Affectation</label>
+            <input type="text" class="form-control" id="typeAffectationName" placeholder="Entrez le nom du type d'Affectation"
+              autocomplete="off"
+              [class.invalid]="addTypeAffectation.get('libelle_type_affectation')?.invalid && addTypeAffectation.get('libelle_type_affectation')?.touched"
+              formControlName="libelle_type_affectation">
+            <div *ngIf="addTypeAffectation.get('libelle_type_affectation')?.invalid && addTypeAffectation.get('libelle_type_affectation')?.touched">
+              <small *ngIf="addTypeAffectation.get('libelle_type_affectation')?.invalid && addTypeAffectation.get('libelle_type_affectation')?.touched"
+                class="text-danger"> *le nom du type d'Affectation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Valeur du coupon -->
+          <div class="mb-3">
+            <label for="typeAffectationValeur" class="form-label">Valeur du type d'Affectation</label>
+            <input type="text" class="form-control" id="typeAffectationValeur" placeholder="2000"
+              autocomplete="off"
+              [class.invalid]="addTypeAffectation.get('valeur')?.invalid && addTypeAffectation.get('valeur')?.touched"
+              formControlName="valeur">
+            <div *ngIf="addTypeAffectation.get('valeur')?.invalid && addTypeAffectation.get('valeur')?.touched">
+              <small *ngIf="addTypeAffectation.get('valeur')?.invalid && addTypeAffectation.get('valeur')?.touched"
+                class="text-danger"> *la valeur du type d'Affectation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Add typeAffectation Modal -->
+
+
+
+
+<!-- edit typeAffectation Modal -->
+<div id="edit_typeAffectation" class="modal fade" tabindex="-1" aria-labelledby="edittypeAffectationLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="edittypeAffectationLabel">Modification type d'Affectation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editTypeAffectation" (ngSubmit)="onClickSubmitEditTypeAffectation()" novalidate>
+          <!-- Nom du typeAffectation -->
+          <div class="mb-3">
+            <input type="hidden" formControlName="id">
+            <label for="typeAffectationName" class="form-label">Nom du type d'Affectation</label>
+            <input type="text" class="form-control" id="typeAffectationName" placeholder="Entrez le nom du type Affectation"
+              autocomplete="off"
+              [class.invalid]="editTypeAffectation.get('libelle_type_affectation')?.invalid && editTypeAffectation.get('libelle_type_affectation')?.touched"
+              formControlName="libelle_type_affectation">
+            <div *ngIf="editTypeAffectation.get('libelle_type_affectation')?.invalid && editTypeAffectation.get('libelle_type_affectation')?.touched">
+              <small *ngIf="editTypeAffectation.get('libelle_type_affectation')?.invalid && editTypeAffectation.get('libelle_type_affectation')?.touched"
+                class="text-danger"> *le nom du type d'Affectation est obligatoire</small>
+            </div>
+          </div>
+          <!-- Valeur du coupon -->
+          <div class="mb-3">
+            <label for="typeAffectationValeur" class="form-label">Valeur du type d'Affectation</label>
+            <input type="text" class="form-control" id="typeAffectationValeur" placeholder="2000"
+              autocomplete="off"
+              [class.invalid]="editTypeAffectation.get('valeur')?.invalid && editTypeAffectation.get('valeur')?.touched"
+              formControlName="valeur">
+            <div *ngIf="editTypeAffectation.get('valeur')?.invalid && editTypeAffectation.get('valeur')?.touched">
+              <small *ngIf="editTypeAffectation.get('valeur')?.invalid && editTypeAffectation.get('valeur')?.touched"
+                class="text-danger"> *la valeur est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /edit typeAffectation Modal -->
+
+
+
+
+<!-- delete typeAffectation Modal -->
+<div id="delete_typeAffectation" class="modal fade" tabindex="-1" aria-labelledby="deletetypeAffectationLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="edittypeAffectationLabel">Suppression type d'Affectation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteTypeAffectation"  (ngSubmit)="onClickSubmitDeleteTypeAffectation()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce type d'Affectation ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete typeAffectation Modal -->
