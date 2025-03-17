@@ -1,16 +1,18 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
-import { EmployesService } from '../../../../core/services/employes/employes.service';
-import { Employe } from '../../../../core/services/interface/models';
+import { ArticleService } from '../../../core/services/articles/articles.service';
+import { Categorie, Article } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { FormsModule } from '@angular/forms';
+import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 declare var bootstrap: any;
 
 @Component({
-  selector: 'app-employes',
+  selector: 'app-articles',
   standalone: true,
   imports: [
     RouterLink,
@@ -18,63 +20,69 @@ declare var bootstrap: any;
     ReactiveFormsModule,
     CommonModule,
     NgbAlertModule,
-    NgbDropdownModule
+    NgbDropdownModule,
+    FormsModule,
+    MyNgSelectComponent,
+    
   ],
-  templateUrl: 'employes.component.html'
+  templateUrl: 'articles.component.html'
 })
-export class EmployesComponent implements OnInit {
+export class ArticlesComponent implements OnInit {
 
-  rows: Employe[] = [];
-  temp: Employe[] = [];
+  rows: Article[] = [];
+  temp: Article[] = [];
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
+
+  categories: Categorie[] = []; // Liste des types d'immos
+  selectedCategorieId: number | null = null; // ID sélectionné
 
   alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
   alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
   alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
-  public addEmploye!: FormGroup ;
-  public editEmploye!: FormGroup ;
-  public deleteEmploye!: FormGroup ;
+  public addArticle!: FormGroup ;
+  public editArticle!: FormGroup ;
+  public deleteArticle!: FormGroup ;
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private employeService: EmployesService, private formBuilder: FormBuilder,) {}
+  constructor(private articleService: ArticleService,private formBuilder: FormBuilder,) {}
 
   ngOnInit(): void {
-    this.loadEmployes();
-    this.addEmploye = this.formBuilder.group({
-      nom: ["", [Validators.required]],
-      prenom: ["", [Validators.required]],
-      telephone: ["", [Validators.required]],
-      email: ["", []],
+    this.loadCategories();
+    this.loadArticles();
+    this.addArticle = this.formBuilder.group({
+      libelle: ["", [Validators.required]],
+      id_cat: [null, [Validators.required]],
+      description: ["" ,[Validators.required]],
    });
-    this.editEmploye  = this.formBuilder.group({
+    this.editArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
-      nom: ["", [Validators.required]],
-      prenom: ["", [Validators.required]],
-      telephone: ["", [Validators.required]],
-      email: ["", []],
+      libelle: ["", [Validators.required]],
+      id_cat: [null, [Validators.required]],
+      description: ["" ,[Validators.required]],
    });
-    this.deleteEmploye  = this.formBuilder.group({
+    this.deleteArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
    });
   }
-  onClickSubmitAddEmploye () {
-  console.log(this.addEmploye.value);
+
+  onClickSubmitAddArticle() {
+  console.log(this.addArticle.value);
   const spinner = document.querySelector('.spinner-border');
 
-  if (this.addEmploye.valid) {
+  if (this.addArticle.valid) {
     if (spinner) spinner.classList.remove('d-none');
-    this.employeService.saveEmploye(this.addEmploye.value).subscribe(
+    this.articleService.saveArticle(this.addArticle.value).subscribe(
       (data: any) => {
-        this.loadEmployes();
+        this.loadArticles();
         if (spinner) spinner.classList.add('d-none');
-        this.addEmploye.reset();
+        this.addArticle.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('add_employe');
+        const modal = document.getElementById('add_article');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
@@ -91,7 +99,7 @@ export class EmployesComponent implements OnInit {
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de l\'ajout du employe :', error);
+        console.error('Erreur lors de l\'ajout de l\'Article :', error);
         if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
       }
@@ -102,21 +110,21 @@ export class EmployesComponent implements OnInit {
   }
 }
 
-onClickSubmitEditEmploye (){
-  console.log(this.editEmploye.value);
+onClickSubmitEditArticle(){
+  console.log(this.editArticle.value);
   const spinner = document.querySelector('.spinnerModif');
 
-  if (this.editEmploye.valid) {
+  if (this.editArticle.valid) {
     if (spinner) spinner.classList.remove('d-none');
-    const id = this.editEmploye.value.id;
-    this.employeService.editEmploye(this.editEmploye.value).subscribe(
+    const id = this.editArticle.value.id;
+    this.articleService.editArticle(this.editArticle.value).subscribe(
       (data: any) => {
-        this.loadEmployes();
+        this.loadArticles();
         if (spinner) spinner.classList.add('d-none');
-        this.editEmploye.reset();
+        this.editArticle.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('edit_employe');
+        const modal = document.getElementById('edit_article');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
@@ -133,7 +141,7 @@ onClickSubmitEditEmploye (){
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de la modification de l\'employe :', error);
+        console.error('Erreur lors de la modification de l\'Article :', error);
         if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
       }
@@ -144,20 +152,20 @@ onClickSubmitEditEmploye (){
   }
 }
 
-onClickSubmitDeleteEmploye (){
-  console.log(this.deleteEmploye.value);
+onClickSubmitDeleteArticle(){
+  console.log(this.deleteArticle.value);
   const spinner = document.querySelector('.spinnerDelete');
 
-  if (this.deleteEmploye.valid) {
+  if (this.deleteArticle.valid) {
     if (spinner) spinner.classList.remove('d-none');
-    this.employeService.deleteEmploye(this.deleteEmploye.value).subscribe(
+    this.articleService.deleteArticle(this.deleteArticle.value).subscribe(
       (data: any) => {
-        this.loadEmployes();
+        this.loadArticles();
         if (spinner) spinner.classList.add('d-none');
-        this.deleteEmploye.reset();
+        this.deleteArticle.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('delete_employe');
+        const modal = document.getElementById('delete_article');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
@@ -174,7 +182,7 @@ onClickSubmitDeleteEmploye (){
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de la supression de Employe  :', error);
+        console.error('Erreur lors de la supression de l\'Article :', error);
         if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
       }
@@ -185,17 +193,27 @@ onClickSubmitDeleteEmploye (){
   }
 }
 
+loadCategories(): void {
+  this.articleService.getAllCategories().subscribe({
+    next: (data) => {
+      this.categories = data; // Stocker la liste des categories
+    },
+    error: (err) => {
+      console.error("Erreur lors du chargement des categories :", err);
+    }
+  });
+}
 
 
-loadEmployes(): void {
-    this.employeService.getAllEmployes().subscribe(
-      (data: Employe[]) => {
+loadArticles(): void {
+    this.articleService.getAllArticles().subscribe(
+      (data: Article[]) => {
         this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
         this.rows = data;
         this.loadingIndicator = false;
       },
       error => {
-        console.error('Erreur lors du chargement des Employes', error);
+        console.error('Erreur lors du chargement des Articles', error);
         this.loadingIndicator = false;
       }
     );
@@ -204,29 +222,27 @@ loadEmployes(): void {
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(employe =>
-      employe.nom.toLowerCase().includes(val)
+    this.rows = this.temp.filter(article =>
+      article.libelle.toLowerCase().includes(val)
     );
 
     this.table.offset = 0;
   }
 
   getEditForm(row: any){
-    this.editEmploye.patchValue({
+    this.editArticle.patchValue({
      id:row.id,
-     nom:row.nom,
-     prenom:row.prenom,
-     telephone:row.telephone,
-     email:row.email
-
+     id_cat:row.id_cat,
+     libelle:row.libelle,
+     description:row.description,
     })
   }
 
   getDeleteForm(row: any){
-    this.deleteEmploye.patchValue({
+    this.deleteArticle.patchValue({
      id:row.id,
     })
   }
-}
+ }
 
 

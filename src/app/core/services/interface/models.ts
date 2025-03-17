@@ -113,3 +113,20 @@ export interface TypeMouvement {
   created_at: string;
   updated_at: string;
 }
+export interface Categorie {
+  id: number;
+  libelle_categorie_article: string;
+  valeur: string;
+  taux: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Article {
+  id: number;
+  id_cat: number;
+  libelle: string;
+  description: number;
+  created_at: string;
+  updated_at: string;
+}

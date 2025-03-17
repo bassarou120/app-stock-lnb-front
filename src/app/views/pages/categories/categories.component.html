@@ -1,25 +1,24 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink=".">Paramètres</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Types de mouvement</li>
+    <li class="breadcrumb-item"><a routerLink=".">Catégories</a></li>
   </ol>
 </nav>
 
 <!-- Alerte pour ajout avec succès -->
 <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Type Mouvement Ajoutée avec succès
+  Catégorie Ajoutée avec succès
 </ngb-alert>
 <!-- Alerte pour ajout avec succès -->
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Type Mouvement Modifiée avec succès
+  Catégorie Mofifiée avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
 <!-- Alerte pour supprimer avec succès -->
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Type Mouvement Supprimée avec succès
+  Catégorie Supprimée avec succès
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
@@ -28,11 +27,11 @@
     <div class="card">
       <div class="card-body d-flex justify-content-between">
         <div>
-          <h4 class="card-title">Liste des Types  de Mouvement</h4>
-          <p class="text-secondary">Liste des Types de Mouvement </p>
+          <h4 class="card-title">Liste des Catégories d'Article</h4>
+          <p class="text-secondary">Liste des Catégories d'Article</p>
         </div>
         <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-          data-bs-target="#add_typeMouvement">
+          data-bs-target="#add_categorie">
           Ajouter
         </button>
 
@@ -47,7 +46,7 @@
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
-        <h6 class="card-title">Liste des Types de Mouvement</h6>
+        <h6 class="card-title">Liste des Catégories d'Article</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
             <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
@@ -63,7 +62,8 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Nom" prop="libelle_type_mouvement"></ngx-datatable-column>
+            <ngx-datatable-column name="Catégorie" prop="libelle_categorie_article"></ngx-datatable-column>
+            <ngx-datatable-column name="Taux" prop="taux"></ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -74,10 +74,10 @@
                 <div ngbDropdown container="body" placement="bottom-right">
                   <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_typeMouvement" (click)="getEditForm(row)">
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_categorie" (click)="getEditForm(row)">
                       <i class="feather icon-edit me-2"></i> Modifier
                     </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_typeMouvement" (click)="getDeleteForm(row)">
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_categorie" (click)="getDeleteForm(row)">
                       <i class="feather icon-trash-2 me-2"></i> Supprimer
                     </button>
 
@@ -93,29 +93,42 @@
 </div>
 
 
-<!-- Add TypeMouvement Modal -->
-<div id="add_typeMouvement" class="modal fade" tabindex="-1" aria-labelledby="addTypeMouvementLabel" aria-hidden="true">
+<!-- Add Categorie Modal -->
+<div id="add_categorie" class="modal fade" tabindex="-1" aria-labelledby="addCategorieLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="addTypeMouvementLabel">Ajouter un Type de Mouvement</h5>
+        <h5 class="modal-title" id="addCategorieLabel">Ajouter une Categorie</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="addTypeMouvement" (ngSubmit)="onClickSubmitAddTypeMouvement()" novalidate>
-          <!-- Nom du TypeMouvement -->
+        <form class="forms-sample" [formGroup]="addCategorie" (ngSubmit)="onClickSubmitAddCategorie()" novalidate>
+          <!-- Nom du Categorie -->
           <div class="mb-3">
-            <label for="typeMouvementName" class="form-label">Type de Mouvement</label>
-            <input type="text" class="form-control" id="typeMouvementName" placeholder="Entrez le nom du Type de Mouvement"
+            <label for="categorieName" class="form-label">Categorie</label>
+            <input type="text" class="form-control" id="categorieName" placeholder="Entrez la Categorie"
               autocomplete="off"
-              [class.invalid]="addTypeMouvement.get('libelle_type_mouvement')?.invalid && addTypeMouvement.get('libelle_type_mouvement')?.touched"
-              formControlName="libelle_type_mouvement">
-            <div *ngIf="addTypeMouvement.get('libelle_type_mouvement')?.invalid && addTypeMouvement.get('libelle_type_mouvement')?.touched">
-              <small *ngIf="addTypeMouvement.get('libelle_type_mouvement')?.invalid && addTypeMouvement.get('libelle_type_mouvement')?.touched"
-                class="text-danger"> *le nom est obligatoire</small>
+              [class.invalid]="addCategorie.get('libelle_categorie_article')?.invalid && addCategorie.get('libelle_categorie_article')?.touched"
+              formControlName="libelle_categorie_article">
+            <div *ngIf="addCategorie.get('libelle_categorie_article')?.invalid && addCategorie.get('libelle_categorie_article')?.touched">
+              <small *ngIf="addCategorie.get('libelle_categorie_article')?.invalid && addCategorie.get('libelle_categorie_article')?.touched"
+                class="text-danger"> *le nom de la Categorie est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- taux du caategorie-->
+          <div class="mb-3">
+            <label for="categorieTaux" class="form-label">Taux</label>
+            <input type="text" class="form-control" id="categorieTaux" placeholder="0"
+              autocomplete="off"
+              [class.invalid]="addCategorie.get('taux')?.invalid && addCategorie.get('taux')?.touched"
+              formControlName="taux">
+            <div *ngIf="addCategorie.get('taux')?.invalid && addCategorie.get('taux')?.touched">
+              <small *ngIf="addCategorie.get('taux')?.invalid && addCategorie.get('taux')?.touched"
+                class="text-danger"> *le taux est obligatoire</small>
             </div>
           </div>
 
@@ -133,35 +146,47 @@
     </div>
   </div>
 </div>
-<!-- /Add type_mouvement Modal -->
+<!-- /Add categorie Modal -->
 
 
 
 
-<!-- edit TypeMouvement Modal -->
-<div id="edit_typeMouvement" class="modal fade" tabindex="-1" aria-labelledby="editTypeMouvementLabel" aria-hidden="true">
+<!-- edit Categorie Modal -->
+<div id="edit_categorie" class="modal fade" tabindex="-1" aria-labelledby="editCategorieLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="editTypeMouvementLabel">Modification Type de Mouvement</h5>
+        <h5 class="modal-title" id="editCategorieLabel">Modification Categorie</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="editTypeMouvement" (ngSubmit)="onClickSubmitEditTypeMouvement()" novalidate>
-          <!-- Nom du Type Mouvement -->
+        <form class="forms-sample" [formGroup]="editCategorie" (ngSubmit)="onClickSubmitEditCategorie()" novalidate>
+          <!-- Nom du Categorie -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="typeMouvementName" class="form-label">Type de Mouvement</label>
-            <input type="text" class="form-control" id="typeMouvementName" placeholder="Entrez le nom du Type de Mouvement"
+            <label for="categorieName" class="form-label">Categorie</label>
+            <input type="text" class="form-control" id="categorieName" placeholder="Entrez la Categorie"
               autocomplete="off"
-              [class.invalid]="editTypeMouvement.get('libelle_type_mouvement')?.invalid && editTypeMouvement.get('libelle_type_mouvement')?.touched"
-              formControlName="libelle_type_mouvement">
-            <div *ngIf="editTypeMouvement.get('libelle_type_mouvement')?.invalid && editTypeMouvement.get('libelle_type_mouvement')?.touched">
-              <small *ngIf="editTypeMouvement.get('libelle_type_mouvement')?.invalid && editTypeMouvement.get('libelle_type_mouvement')?.touched"
-                class="text-danger"> *le nom est obligatoire</small>
+              [class.invalid]="editCategorie.get('libelle_categorie_article')?.invalid && editCategorie.get('libelle_categorie_article')?.touched"
+              formControlName="libelle_categorie_article">
+            <div *ngIf="editCategorie.get('libelle_categorie_article')?.invalid && editCategorie.get('libelle_categorie_article')?.touched">
+              <small *ngIf="editCategorie.get('libelle_categorie_article')?.invalid && editCategorie.get('libelle_categorie_article')?.touched"
+                class="text-danger"> *la Categorie est obligatoire</small>
+            </div>
+          </div>
+          <!-- Taux du coupon -->
+          <div class="mb-3">
+            <label for="categorieTaux" class="form-label">Taux</label>
+            <input type="text" class="form-control" id="categorieTaux" placeholder="0"
+              autocomplete="off"
+              [class.invalid]="editCategorie.get('taux')?.invalid && editCategorie.get('taux')?.touched"
+              formControlName="taux">
+            <div *ngIf="editCategorie.get('taux')?.invalid && editCategorie.get('taux')?.touched">
+              <small *ngIf="editCategorie.get('taux')?.invalid && editCategorie.get('taux')?.touched"
+                class="text-danger"> *le taux est obligatoire</small>
             </div>
           </div>
 
@@ -179,26 +204,26 @@
     </div>
   </div>
 </div>
-<!-- /edit TypeMouvement Modal -->
+<!-- /edit categorie Modal -->
 
 
 
 
-<!-- delete TypeMouvement Modal -->
-<div id="delete_typeMouvement" class="modal fade" tabindex="-1" aria-labelledby="deleteTypeMouvementLabel" aria-hidden="true">
+<!-- delete categorie Modal -->
+<div id="delete_categorie" class="modal fade" tabindex="-1" aria-labelledby="deleteCategorieLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="editTypeMouvementLabel">Suppression Type de Mouvement</h5>
+        <h5 class="modal-title" id="editCategorieLabel">Suppression Categorie</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="deleteTypeMouvement"  (ngSubmit)="onClickSubmitDeleteTypeMouvement()">
+        <form class="forms-sample" [formGroup]="deleteCategorie"  (ngSubmit)="onClickSubmitDeleteCategorie()">
           <div class="mb-3">
-            <p class="text-secondary">Voulez-vous vraiment supprimer ce Type de Mouvement ?</p>
+            <p class="text-secondary">Voulez-vous vraiment supprimer cette Categorie ?</p>
           </div>
           <input type="hidden" formControlName="id">
           <!-- Boutons centrés -->
@@ -215,4 +240,4 @@
     </div>
   </div>
 </div>
-<!-- /delete TypeMouvement Modal -->
+<!-- /delete categorie  Modal -->

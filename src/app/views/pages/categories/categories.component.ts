@@ -1,8 +1,8 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
-import { EmployesService } from '../../../../core/services/employes/employes.service';
-import { Employe } from '../../../../core/services/interface/models';
+import { CategorieService } from '../../../core/services/categories/categories.service';
+import { Categorie } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
@@ -10,7 +10,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 
 @Component({
-  selector: 'app-employes',
+  selector: 'app-categories',
   standalone: true,
   imports: [
     RouterLink,
@@ -20,12 +20,12 @@ declare var bootstrap: any;
     NgbAlertModule,
     NgbDropdownModule
   ],
-  templateUrl: 'employes.component.html'
+  templateUrl: 'categories.component.html'
 })
-export class EmployesComponent implements OnInit {
+export class CategorieComponent implements OnInit {
 
-  rows: Employe[] = [];
-  temp: Employe[] = [];
+  rows: Categorie[] = [];
+  temp: Categorie[] = [];
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
@@ -34,47 +34,45 @@ export class EmployesComponent implements OnInit {
   alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
   alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
-  public addEmploye!: FormGroup ;
-  public editEmploye!: FormGroup ;
-  public deleteEmploye!: FormGroup ;
+  public addCategorie!: FormGroup ;
+  public editCategorie!: FormGroup ;
+  public deleteCategorie!: FormGroup ;
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private employeService: EmployesService, private formBuilder: FormBuilder,) {}
+  constructor(private categorieService: CategorieService, private formBuilder: FormBuilder,) {}
 
   ngOnInit(): void {
-    this.loadEmployes();
-    this.addEmploye = this.formBuilder.group({
-      nom: ["", [Validators.required]],
-      prenom: ["", [Validators.required]],
-      telephone: ["", [Validators.required]],
-      email: ["", []],
+    this.loadCategories();
+    this.addCategorie = this.formBuilder.group({
+      libelle_categorie_article: ["", [Validators.required]],
+      valeur: ["" ,[]],
+      taux: ["" ,[Validators.required]],
    });
-    this.editEmploye  = this.formBuilder.group({
+    this.editCategorie = this.formBuilder.group({
       id: [0, [Validators.required]],
-      nom: ["", [Validators.required]],
-      prenom: ["", [Validators.required]],
-      telephone: ["", [Validators.required]],
-      email: ["", []],
+      libelle_categorie_article: ["", [Validators.required]],
+      valeur: ["" ,[]],
+      taux: ["" ,[Validators.required]],
    });
-    this.deleteEmploye  = this.formBuilder.group({
+    this.deleteCategorie = this.formBuilder.group({
       id: [0, [Validators.required]],
    });
   }
-  onClickSubmitAddEmploye () {
-  console.log(this.addEmploye.value);
+  onClickSubmitAddCategorie() {
+  console.log(this.addCategorie.value);
   const spinner = document.querySelector('.spinner-border');
 
-  if (this.addEmploye.valid) {
+  if (this.addCategorie.valid) {
     if (spinner) spinner.classList.remove('d-none');
-    this.employeService.saveEmploye(this.addEmploye.value).subscribe(
+    this.categorieService.saveCategorie(this.addCategorie.value).subscribe(
       (data: any) => {
-        this.loadEmployes();
+        this.loadCategories();
         if (spinner) spinner.classList.add('d-none');
-        this.addEmploye.reset();
+        this.addCategorie.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('add_employe');
+        const modal = document.getElementById('add_categorie');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
@@ -91,7 +89,7 @@ export class EmployesComponent implements OnInit {
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de l\'ajout du employe :', error);
+        console.error('Erreur lors de l\'ajout de la Categorie :', error);
         if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
       }
@@ -102,21 +100,21 @@ export class EmployesComponent implements OnInit {
   }
 }
 
-onClickSubmitEditEmploye (){
-  console.log(this.editEmploye.value);
+onClickSubmitEditCategorie(){
+  console.log(this.editCategorie.value);
   const spinner = document.querySelector('.spinnerModif');
 
-  if (this.editEmploye.valid) {
+  if (this.editCategorie.valid) {
     if (spinner) spinner.classList.remove('d-none');
-    const id = this.editEmploye.value.id;
-    this.employeService.editEmploye(this.editEmploye.value).subscribe(
+    const id = this.editCategorie.value.id;
+    this.categorieService.editCategorie(this.editCategorie.value).subscribe(
       (data: any) => {
-        this.loadEmployes();
+        this.loadCategories();
         if (spinner) spinner.classList.add('d-none');
-        this.editEmploye.reset();
+        this.editCategorie.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('edit_employe');
+        const modal = document.getElementById('edit_categorie');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
@@ -133,7 +131,7 @@ onClickSubmitEditEmploye (){
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de la modification de l\'employe :', error);
+        console.error('Erreur lors de la modification du Categorie :', error);
         if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
       }
@@ -144,20 +142,20 @@ onClickSubmitEditEmploye (){
   }
 }
 
-onClickSubmitDeleteEmploye (){
-  console.log(this.deleteEmploye.value);
+onClickSubmitDeleteCategorie(){
+  console.log(this.deleteCategorie.value);
   const spinner = document.querySelector('.spinnerDelete');
 
-  if (this.deleteEmploye.valid) {
+  if (this.deleteCategorie.valid) {
     if (spinner) spinner.classList.remove('d-none');
-    this.employeService.deleteEmploye(this.deleteEmploye.value).subscribe(
+    this.categorieService.deleteCategorie(this.deleteCategorie.value).subscribe(
       (data: any) => {
-        this.loadEmployes();
+        this.loadCategories();
         if (spinner) spinner.classList.add('d-none');
-        this.deleteEmploye.reset();
+        this.deleteCategorie.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('delete_employe');
+        const modal = document.getElementById('delete_categorie');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
@@ -174,7 +172,7 @@ onClickSubmitDeleteEmploye (){
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de la supression de Employe  :', error);
+        console.error('Erreur lors de la supression du Categorie :', error);
         if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
       }
@@ -187,15 +185,15 @@ onClickSubmitDeleteEmploye (){
 
 
 
-loadEmployes(): void {
-    this.employeService.getAllEmployes().subscribe(
-      (data: Employe[]) => {
+loadCategories(): void {
+    this.categorieService.getAllCategories().subscribe(
+      (data: Categorie[]) => {
         this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
         this.rows = data;
         this.loadingIndicator = false;
       },
       error => {
-        console.error('Erreur lors du chargement des Employes', error);
+        console.error('Erreur lors du chargement des Categories', error);
         this.loadingIndicator = false;
       }
     );
@@ -204,26 +202,24 @@ loadEmployes(): void {
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(employe =>
-      employe.nom.toLowerCase().includes(val)
+    this.rows = this.temp.filter(categorie =>
+      categorie.libelle_categorie_article.toLowerCase().includes(val)
     );
 
     this.table.offset = 0;
   }
 
   getEditForm(row: any){
-    this.editEmploye.patchValue({
+    this.editCategorie.patchValue({
      id:row.id,
-     nom:row.nom,
-     prenom:row.prenom,
-     telephone:row.telephone,
-     email:row.email
-
+     libelle_categorie_article:row.libelle_categorie_article,
+     valeur:row.valeur,
+     taux:row.taux,
     })
   }
 
   getDeleteForm(row: any){
-    this.deleteEmploye.patchValue({
+    this.deleteCategorie.patchValue({
      id:row.id,
     })
   }

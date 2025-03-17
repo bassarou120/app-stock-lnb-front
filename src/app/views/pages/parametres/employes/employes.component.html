@@ -118,7 +118,7 @@
               formControlName="nom">
             <div *ngIf="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched">
               <small *ngIf="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched"
-                class="text-danger"> *le nom du l'employé est obligatoire</small>
+                class="text-danger"> *le nom de l'employé est obligatoire</small>
             </div>
           </div>
           <!-- prenom employé -->
@@ -130,7 +130,7 @@
               formControlName="prenom">
             <div *ngIf="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched">
               <small *ngIf="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched"
-                class="text-danger"> *le prenom du l'employé est obligatoire</small>
+                class="text-danger"> *le prenom de l'employé est obligatoire</small>
             </div>
           </div>
           <!-- telephone employé -->
@@ -154,7 +154,7 @@
               formControlName="email">
             <div *ngIf="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched">
               <small *ngIf="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched"
-                class="text-danger"> *l'adresse du fournisseur est obligatoire</small>
+                class="text-danger"> *l'adresse mail de l'employé est obligatoire</small>
             </div>
           </div>
 

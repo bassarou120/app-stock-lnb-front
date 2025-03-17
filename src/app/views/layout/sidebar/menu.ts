@@ -345,11 +345,30 @@ export const MENU: MenuItem[] = [
   {
     label: 'Articles',
     icon: 'monitor',
-    link: '/dashboard'
+    link: '/articles'
   },
   {
     label: 'Catégories',
     icon: 'box',
+    link: '/categories'
+  },
+  {
+    label: 'Mouvement Stock',
+    icon: 'maximize-2',
+    subItems: [
+      {
+        label: 'Entrées de Stock',
+        link: '/parametres-stock/bureaux',
+      },
+      {
+        label: 'Sorties de Stock',
+        link: '/parametres-stock/bureaux',
+      },
+    ]
+  },
+  {
+    label: 'Etat de Stock',
+    icon: 'bar-chart-2',
     link: '/dashboard'
   },
   {

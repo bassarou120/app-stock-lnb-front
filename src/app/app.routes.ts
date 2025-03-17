@@ -11,8 +11,16 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       {
+        path: 'articles',
+        loadChildren: () => import('./views/pages/articles/articles.routes')
+      },
+      {
         path: 'dashboard',
         loadChildren: () => import('./views/pages/dashboard/dashboard.routes')
+      },
+      {
+        path: 'categories',
+        loadChildren: () => import('./views/pages/categories/categories.routes')
       },
       {
         path: 'parametres',
