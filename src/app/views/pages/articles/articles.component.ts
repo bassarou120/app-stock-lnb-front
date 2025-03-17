@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ArticleService } from '../../../core/services/articles/articles.service';
 import { Categorie, Article } from '../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule,FormArray  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -53,11 +53,8 @@ export class ArticlesComponent implements OnInit {
   ngOnInit(): void {
     this.loadCategories();
     this.loadArticles();
-    this.addArticle = this.formBuilder.group({
-      libelle: ["", [Validators.required]],
-      id_cat: [null, [Validators.required]],
-      description: ["" ,[Validators.required]],
-   });
+    this.initForm();
+
     this.editArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
       libelle: ["", [Validators.required]],
@@ -69,46 +66,120 @@ export class ArticlesComponent implements OnInit {
    });
   }
 
-  onClickSubmitAddArticle() {
-  console.log(this.addArticle.value);
-  const spinner = document.querySelector('.spinner-border');
-
-  if (this.addArticle.valid) {
-    if (spinner) spinner.classList.remove('d-none');
-    this.articleService.saveArticle(this.addArticle.value).subscribe(
-      (data: any) => {
-        this.loadArticles();
-        if (spinner) spinner.classList.add('d-none');
-        this.addArticle.reset();
-
-        // Fermer le modal manuellement
-        const modal = document.getElementById('add_article');
-        // @ts-ignore - pour éviter les erreurs TypeScript
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
-
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
-        setTimeout(() => {
-          this.alertAjoutVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
-
-          // Utilisation de la transition pour faire apparaitre l'alerte
-          setTimeout(() => {
-            this.alertAjoutVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-      },
-      (error: any) => {
-        console.error('Erreur lors de l\'ajout de l\'Article :', error);
-        if (spinner) spinner.classList.add('d-none');
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      }
-    );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+  initForm(): void {
+    this.addArticle = this.formBuilder.group({
+      articles: this.formBuilder.array([this.createArticleFormGroup()])
+    });
   }
-}
+  // Getter pour accéder facilement au FormArray
+  get articlesArray(): FormArray {
+    return this.addArticle.get('articles') as FormArray;
+  }
+  // Méthode pour créer un groupe de formulaire pour un seul article
+  createArticleFormGroup(): FormGroup {
+    return this.formBuilder.group({
+      libelle: ['', [Validators.required]],
+      id_cat: [null, [Validators.required]],
+      description: ['', [Validators.required]]
+    });
+  }
+  // Ajouter un nouveau groupe d'article
+  addNewArticle(): void {
+    this.articlesArray.push(this.createArticleFormGroup());
+  }
+  // Supprimer un article
+  removeArticle(index: number): void {
+    if (this.articlesArray.length > 1) {
+      this.articlesArray.removeAt(index);
+    }
+  }
+  onClickSubmitAddArticles(): void {
+    console.log(this.addArticle.value);
+    const spinner = document.querySelector('.spinner-border');
+
+    if (this.addArticle.valid) {
+      if (spinner) spinner.classList.remove('d-none');
+      
+      // Convertir le FormArray en un tableau d'articles à envoyer
+      const articlesToSave = this.articlesArray.value;
+      
+      // Créer un observable pour sauvegarder tous les articles
+      this.articleService.saveMultipleArticles(articlesToSave).subscribe(
+        (data: any) => {
+          this.loadArticles();
+          if (spinner) spinner.classList.add('d-none');
+          this.initForm(); // Réinitialiser le formulaire avec un seul article vide
+
+          // Fermer le modal manuellement
+          const modal = document.getElementById('add_article');
+          // @ts-ignore - pour éviter les erreurs TypeScript
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
+
+          // Attendre que le modal soit fermé avant d'afficher l'alerte
+          setTimeout(() => {
+            this.alertAjoutVisible = true;
+            console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+
+            // Utilisation de la transition pour faire apparaitre l'alerte
+            setTimeout(() => {
+              this.alertAjoutVisible = false;
+            }, 2000); // L'alerte disparaît après 2 secondes
+          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+        },
+        (error: any) => {
+          console.error('Erreur lors de l\'ajout des Articles :', error);
+          if (spinner) spinner.classList.add('d-none');
+          alert('Une erreur s\'est produite. Veuillez réessayer.');
+        }
+      );
+    } else {
+      if (spinner) spinner.classList.add('d-none');
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+    }
+  }
+
+
+//   onClickSubmitAddArticle() {
+//   console.log(this.addArticle.value);
+//   const spinner = document.querySelector('.spinner-border');
+
+//   if (this.addArticle.valid) {
+//     if (spinner) spinner.classList.remove('d-none');
+//     this.articleService.saveArticle(this.addArticle.value).subscribe(
+//       (data: any) => {
+//         this.loadArticles();
+//         if (spinner) spinner.classList.add('d-none');
+//         this.addArticle.reset();
+
+//         // Fermer le modal manuellement
+//         const modal = document.getElementById('add_article');
+//         // @ts-ignore - pour éviter les erreurs TypeScript
+//         const bsModal = bootstrap.Modal.getInstance(modal);
+//         bsModal?.hide();
+
+//         // Attendre que le modal soit fermé avant d'afficher l'alerte
+//         setTimeout(() => {
+//           this.alertAjoutVisible = true;
+//           console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+
+//           // Utilisation de la transition pour faire apparaitre l'alerte
+//           setTimeout(() => {
+//             this.alertAjoutVisible = false;
+//           }, 2000); // L'alerte disparaît après 2 secondes
+//         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+//       },
+//       (error: any) => {
+//         console.error('Erreur lors de l\'ajout de l\'Article :', error);
+//         if (spinner) spinner.classList.add('d-none');
+//         alert('Une erreur s\'est produite. Veuillez réessayer.');
+//       }
+//     );
+//   } else {
+//     if (spinner) spinner.classList.add('d-none');
+//     alert("Désolé, le formulaire n'est pas bien renseigné");
+//   }
+// }
 
 onClickSubmitEditArticle(){
   console.log(this.editArticle.value);

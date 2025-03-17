@@ -99,22 +99,121 @@
   </div>
 </div>
 
-
 <!-- Add article Immo Modal -->
 <div id="add_article" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="addArticleLabel">Ajouter un Article</h5>
+        <h5 class="modal-title" id="addArticleLabel">Ajouter plusieurs Articles</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticle()" novalidate>
+        <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticles()" novalidate>
+          
+          <!-- En-têtes du tableau -->
+          <div class="row mb-2 fw-bold">
+            <div class="col-4">Article</div>
+            <div class="col-3">Catégorie</div>
+            <div class="col-4">Description</div>
+            <div class="col-1">Action</div>
+          </div>
+          
+          <!-- Formulaire dynamique pour les articles -->
+          <div formArrayName="articles">
+            <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i" class="row mb-3 align-items-center">
+              
+              <!-- Nom de l'article -->
+              <div class="col-4">
+                <input type="text" class="form-control" placeholder="Nom de l'Article" 
+                  formControlName="libelle"
+                  [class.is-invalid]="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched">
+                <div *ngIf="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched" class="invalid-feedback">
+                  Le nom de l'Article est obligatoire
+                </div>
+              </div>
+              
+              <!-- Sélection de catégorie -->
+              <div class="col-3">
+                <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
+                  <ng-select [items]="categories" 
+                    bindLabel="libelle_categorie_article" 
+                    bindValue="id" 
+                    formControlName="id_cat"
+                    [clearable]="true" 
+                    placeholder="Sélectionner la catégorie">
+                  </ng-select>
+                  <div *ngIf="articleForm.get('id_cat')?.invalid && articleForm.get('id_cat')?.touched" class="text-danger small">
+                    La catégorie est obligatoire
+                  </div>
+                </ng-container>
+                <ng-template #noCategorie>
+                  <div class="alert alert-danger p-1 small">
+                    <i class="feather icon-alert-circle"></i> Aucune catégorie disponible
+                  </div>
+                </ng-template>
+              </div>
+              
+              <!-- Description -->
+              <div class="col-4">
+                <input type="text" class="form-control" placeholder="Description" 
+                  formControlName="description"
+                  [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
+                <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched" class="invalid-feedback">
+                  La description est obligatoire
+                </div>
+              </div>
+              
+              <!-- Bouton de suppression -->
+              <div class="col-1">
+                <button type="button" class="btn btn-outline-danger btn-sm" 
+                  (click)="removeArticle(i)" 
+                  [disabled]="articlesArray.length === 1">
+                  <i class="feather icon-trash-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Bouton pour ajouter un nouvel article -->
+          <div class="d-flex justify-content-start mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="addNewArticle()">
+              <i class="feather icon-plus"></i>
+            </button>
+          </div>
+
+          <!-- Boutons d'actions -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Enregistrer les articles
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add article Immo Modal -->
+<!-- <div id="add_article" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content"> -->
+      <!-- En-tête du modal -->
+      <!-- <div class="modal-header">
+        <h5 class="modal-title" id="addArticleLabel">Ajouter un Article</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div> -->
+
+      <!-- Contenu du modal -->
+      <!-- <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticle()" novalidate> -->
           <!-- Nom de l'article -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="articleName" class="form-label">Article</label>
             <input type="text" class="form-control" id="articleName"
               placeholder="Entrez le nom de l'Article" autocomplete="off"
@@ -124,10 +223,10 @@
               <small *ngIf="addArticle.get('libelle')?.invalid && addArticle.get('libelle')?.touched"
                 class="text-danger"> *le nom de l'Article est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
           <!-- Sélectionner une catégorie -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="categorie" class="form-label">Catégorie</label>
 
             <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
@@ -138,19 +237,19 @@
               <div *ngIf="addArticle.get('id_cat')?.invalid && addArticle.get('id_cat')?.touched">
                 <small class="text-danger"> *La catégorie est obligatoire</small>
               </div>
-            </ng-container>
+            </ng-container> -->
 
             <!-- Message si aucun type d'immobilisation n'existe -->
-            <ng-template #noCategorie>
+            <!-- <ng-template #noCategorie>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucune Catégorie d'article. Veuillez en créer.
               </div>
             </ng-template>
-          </div>
+          </div> -->
 
           <!-- description -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="articleDescription" class="form-label">Description</label>
             <textarea class="form-control" id="articleDescription" rows="5"
               [class.invalid]="addArticle.get('description')?.invalid && addArticle.get('description')?.touched"
@@ -161,10 +260,10 @@
                 *ngIf="addArticle.get('description')?.invalid && addArticle.get('description')?.touched"
                 class="text-danger"> *la description est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
           <!-- Boutons centrés -->
-          <div class="d-flex justify-content-center gap-2">
+          <!-- <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary">
               <div class="spinner-border spinner-border-sm text-light d-none" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -176,7 +275,7 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- /Add Article Modal -->
 

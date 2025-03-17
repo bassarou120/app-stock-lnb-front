@@ -45,4 +45,8 @@ export class ArticleService  {
         )
       );
     }
+  // Nouvelle méthode pour sauvegarder plusieurs articles
+  saveMultipleArticles(articles: Article[]): Observable<any> {
+    return this.http.post<any>(`${this.url}/articles/batch`, { articles });
+  }
 }
