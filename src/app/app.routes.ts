@@ -23,6 +23,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/categories/categories.routes')
       },
       {
+        path: 'mouvement-stock',
+        loadChildren: () => import('./views/pages/mouvement-stock/mouvement-stock.routes')
+      },
+      {
         path: 'parametres',
         loadChildren: () => import('./views/pages/parametres/parametres.routes')
       },

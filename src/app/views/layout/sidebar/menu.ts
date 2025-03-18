@@ -358,18 +358,18 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         label: 'Entrées de Stock',
-        link: '/parametres-stock/bureaux',
+        link: '/mouvement-stock/entrees',
       },
       {
         label: 'Sorties de Stock',
-        link: '/parametres-stock/bureaux',
+        link: '/mouvement-stock/sorties',
       },
     ]
   },
   {
     label: 'Etat de Stock',
     icon: 'bar-chart-2',
-    link: '/dashboard'
+    link: '/etat-de-stock'
   },
   {
     label: 'Gestion de Immo',

@@ -130,3 +130,14 @@ export interface Article {
   created_at: string;
   updated_at: string;
 }
+
+export interface MouvementStock {
+  id: number;
+  id_Article: number;
+  description: string;
+  id_type_mouvement: number;
+  qte: number;
+  date_mouvement: string;
+  created_at: string;
+  updated_at: string;
+}

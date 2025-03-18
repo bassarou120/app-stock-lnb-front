@@ -112,7 +112,7 @@
       <!-- Contenu du modal -->
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticles()" novalidate>
-          
+
           <!-- En-têtes du tableau -->
           <div class="row mb-2 fw-bold">
             <div class="col-4">Article</div>
@@ -120,29 +120,29 @@
             <div class="col-4">Description</div>
             <div class="col-1">Action</div>
           </div>
-          
+
           <!-- Formulaire dynamique pour les articles -->
           <div formArrayName="articles">
             <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i" class="row mb-3 align-items-center">
-              
+
               <!-- Nom de l'article -->
               <div class="col-4">
-                <input type="text" class="form-control" placeholder="Nom de l'Article" 
+                <input type="text" class="form-control" placeholder="Nom de l'Article"
                   formControlName="libelle"
                   [class.is-invalid]="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched">
                 <div *ngIf="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched" class="invalid-feedback">
                   Le nom de l'Article est obligatoire
                 </div>
               </div>
-              
+
               <!-- Sélection de catégorie -->
               <div class="col-3">
                 <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
-                  <ng-select [items]="categories" 
-                    bindLabel="libelle_categorie_article" 
-                    bindValue="id" 
+                  <ng-select [items]="categories"
+                    bindLabel="libelle_categorie_article"
+                    bindValue="id"
                     formControlName="id_cat"
-                    [clearable]="true" 
+                    [clearable]="true"
                     placeholder="Sélectionner la catégorie">
                   </ng-select>
                   <div *ngIf="articleForm.get('id_cat')?.invalid && articleForm.get('id_cat')?.touched" class="text-danger small">
@@ -155,28 +155,28 @@
                   </div>
                 </ng-template>
               </div>
-              
+
               <!-- Description -->
               <div class="col-4">
-                <input type="text" class="form-control" placeholder="Description" 
+                <input type="text" class="form-control" placeholder="Description"
                   formControlName="description"
                   [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
                 <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched" class="invalid-feedback">
                   La description est obligatoire
                 </div>
               </div>
-              
+
               <!-- Bouton de suppression -->
               <div class="col-1">
-                <button type="button" class="btn btn-outline-danger btn-sm" 
-                  (click)="removeArticle(i)" 
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                  (click)="removeArticle(i)"
                   [disabled]="articlesArray.length === 1">
                   <i class="feather icon-trash-2"></i>
                 </button>
               </div>
             </div>
           </div>
-          
+
           <!-- Bouton pour ajouter un nouvel article -->
           <div class="d-flex justify-content-start mb-3">
             <button type="button" class="btn btn-outline-primary btn-sm" (click)="addNewArticle()">
@@ -189,7 +189,7 @@
             <button type="submit" class="btn btn-primary">
               <div class="spinner-border spinner-border-sm text-light d-none" role="status">
                 <span class="visually-hidden">Loading...</span>
-              </div> Enregistrer les articles
+              </div> Enrégistrer les articles
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>
