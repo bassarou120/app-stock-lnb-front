@@ -31,11 +31,16 @@
           <h4 class="card-title">Liste des Mouvements d'Entrées</h4>
           <p class="text-secondary">Liste des Mouvements d'Entrées<p>
         </div>
-        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-          data-bs-target="#add_entree">
-          Ajouter
-        </button>
-
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+            data-bs-target="#add_entree">
+            Ajouter un <i data-feather="chevron-left"></i>
+          </button>
+          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+            data-bs-target="#add_entree">
+            Ajouter plusieurs <i data-feather="chevrons-left"></i>
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -71,6 +76,11 @@
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
             <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
+            <ngx-datatable-column name="Fournisseur">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.fournisseur?.nom || 'Non défini' }}
+              </ng-template>
+            </ngx-datatable-column>
             <!-- <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -118,7 +128,7 @@
 
           <!-- Sélectionner un article -->
           <div class="mb-3">
-            <label for="entree" class="form-label"><Article></Article></label>
+            <label for="entree" class="form-label">Article</label>
 
             <ng-container *ngIf="articles && articles.length > 0; else noArticle">
               <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
@@ -135,6 +145,29 @@
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un fournisseur -->
+          <div class="mb-3">
+            <label for="fournisseur" class="form-label">Fournisseur</label>
+
+            <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
+              <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
+                [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+              </ng-select>
+
+              <div *ngIf="addEntree.get('id_fournisseur')?.invalid && addEntree.get('id_fournisseur')?.touched">
+                <small class="text-danger"> *Le fournisseur est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun Fournisseur n'existe -->
+            <ng-template #noFournisseur>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
               </div>
             </ng-template>
           </div>
@@ -234,6 +267,29 @@
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un fournisseur -->
+          <div class="mb-3">
+            <label for="fournisseur" class="form-label">Fournisseur</label>
+
+            <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
+              <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
+                [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+              </ng-select>
+
+              <div *ngIf="editEntree.get('id_fournisseur')?.invalid && editEntree.get('id_fournisseur')?.touched">
+                <small class="text-danger"> *Le fournisseur est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun Fournisseur n'existe -->
+            <ng-template #noFournisseur>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
               </div>
             </ng-template>
           </div>

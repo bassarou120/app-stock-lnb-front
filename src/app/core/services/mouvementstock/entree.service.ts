@@ -3,7 +3,7 @@ import { Observable} from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
-import { MouvementStock, Article } from "../interface/models";
+import { MouvementStock, Article, Fournisseur } from "../interface/models";
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -42,6 +42,16 @@ export class MouvementStockService  {
       ).pipe(
         map((response: { success: boolean; message: string; data: { data: Article[] } }) =>
           response.data.data // On récupère uniquement le tableau de Article
+        )
+      );
+    }
+
+  getAllFournisseurs(): Observable<Fournisseur[]> {
+      return this.http.get<{ success: boolean; message: string; data: { data: Fournisseur[] } }>(
+        `${this.url}/fournisseurs`
+      ).pipe(
+        map((response: { success: boolean; message: string; data: { data: Fournisseur[] } }) =>
+          response.data.data // On récupère uniquement le tableau de fournisseurs
         )
       );
     }

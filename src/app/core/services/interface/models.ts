@@ -134,6 +134,7 @@ export interface Article {
 export interface MouvementStock {
   id: number;
   id_Article: number;
+  id_fournisseur: number;
   description: string;
   id_type_mouvement: number;
   qte: number;

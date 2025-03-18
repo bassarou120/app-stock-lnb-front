@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementStockService } from '../../../../core/services/mouvementstock/entree.service';
-import { MouvementStock, Article } from '../../../../core/services/interface/models';
+import { MouvementStock, Article, Fournisseur } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
@@ -37,6 +37,7 @@ export class EntreeComponent implements OnInit {
   ColumnMode = ColumnMode;
 
   articles: Article[] = []; // Liste des types articles
+  fournisseurs: Fournisseur[] = []; // Liste des types Fournisseurs
   selectedTypeImmoId: number | null = null; // ID sélectionné
 
   alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
@@ -53,9 +54,11 @@ export class EntreeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadArticles();
+    this.loadFournisseurs();
     this.loadEntrees();
     this.addEntree = this.formBuilder.group({
       id_Article: [null, [Validators.required]],
+      id_fournisseur: [null, [Validators.required]],
       description: ["", [Validators.required]],
       qte: [1, [Validators.required]],
       date_mouvement: ["" ,[Validators.required]],
@@ -63,6 +66,7 @@ export class EntreeComponent implements OnInit {
     this.editEntree = this.formBuilder.group({
       id: [0, [Validators.required]],
       id_Article: [null, [Validators.required]],
+      id_fournisseur: [null, [Validators.required]],
       description: ["", [Validators.required]],
       qte: [1, [Validators.required]],
       date_mouvement: ["" ,[Validators.required]],
@@ -214,6 +218,16 @@ loadArticles(): void {
     }
   });
 }
+loadFournisseurs(): void {
+  this.entreeService.getAllFournisseurs().subscribe({
+    next: (data) => {
+      this.fournisseurs = data; // Stocker la liste des fournisseurs
+    },
+    error: (err) => {
+      console.error("Erreur lors du chargement des fournisseurs :", err);
+    }
+  });
+}
 
 
 loadEntrees(): void {
@@ -244,6 +258,7 @@ loadEntrees(): void {
     this.editEntree.patchValue({
      id:row.id,
      id_Article:row.id_Article,
+     id_fournisseur:row.id_fournisseur,
      description:row.description,
      qte:row.qte,
      date_mouvement:this.convertToNgbDate(row.date_mouvement),
