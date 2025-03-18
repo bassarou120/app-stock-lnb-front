@@ -70,11 +70,12 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
-            <ngx-datatable-column name="Date de création" prop="created_at">
+            <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
-            </ngx-datatable-column>
+            </ngx-datatable-column> -->
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right">
@@ -166,15 +167,18 @@
           </div>
 
           <!--  date_mouvement -->
-          <div class="mb-3">
-            <label for="date_mouvement" class="form-label">Date du mouvement</label>
-            <input type="text" class="form-control" id="date_mouvement" placeholder="2025-09-23" autocomplete="off"
-              [class.invalid]="addEntree.get('date_mouvement')?.invalid && addEntree.get('date_mouvement')?.touched"
-              formControlName="date_mouvement">
-            <div *ngIf="addEntree.get('date_mouvement')?.invalid && addEntree.get('date_mouvement')?.touched">
-              <small *ngIf="addEntree.get('date_mouvement')?.invalid && addEntree.get('date_mouvement')?.touched"
-                class="text-danger"> *la date du mouvement est obligatoire</small>
-            </div>
+          <label for="date_mouvement" class="form-label">Date du mouvement</label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
+              <i data-feather="calendar" appFeatherIcon></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
+                name="dpAdd" [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker"
+                formControlName="date_mouvement">
+          </div>
+
+          <div *ngIf="addEntree.get('date_mouvement')?.invalid && addEntree.get('date_mouvement')?.touched">
+            <small class="text-danger"> *la date du mouvement est obligatoire</small>
           </div>
 
 
@@ -262,16 +266,20 @@
           </div>
 
           <!--  date_mouvement -->
-          <div class="mb-3">
-            <label for="date_mouvement" class="form-label">Date du mouvement</label>
-            <input type="text" class="form-control" id="date_mouvement" placeholder="2025-09-23" autocomplete="off"
-              [class.invalid]="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched"
-              formControlName="date_mouvement">
-            <div *ngIf="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched">
-              <small *ngIf="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched"
-                class="text-danger"> *la date du mouvement est obligatoire</small>
-            </div>
+          <label for="date_mouvement" class="form-label">Date du mouvement</label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
+              <i data-feather="calendar" appFeatherIcon></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
+                name="dpEdit" [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker"
+                formControlName="date_mouvement">
           </div>
+
+          <div *ngIf="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched">
+            <small class="text-danger"> *la date du mouvement est obligatoire</small>
+          </div>
+
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">

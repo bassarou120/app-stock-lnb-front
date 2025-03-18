@@ -1,12 +1,12 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementStockService } from '../../../../core/services/mouvementstock/entree.service';
 import { MouvementStock, Article } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
-import { NgbAlertModule, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 declare var bootstrap: any;
@@ -29,6 +29,7 @@ declare var bootstrap: any;
 })
 export class EntreeComponent implements OnInit {
 
+  currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: MouvementStock[] = [];
   temp: MouvementStock[] = [];
   loadingIndicator = true;
@@ -77,7 +78,11 @@ export class EntreeComponent implements OnInit {
 
   if (this.addEntree.valid) {
     if (spinner) spinner.classList.remove('d-none');
-    this.entreeService.saveMouvementStockEntree(this.addEntree.value).subscribe(
+    const formData = {
+      ...this.addEntree.value,
+      date_mouvement: this.formatDate(this.addEntree.value.date_mouvement), // Convertir la date
+    };
+    this.entreeService.saveMouvementStockEntree(formData).subscribe(
       (data: any) => {
         this.loadEntrees();
         if (spinner) spinner.classList.add('d-none');
@@ -119,7 +124,11 @@ onClickSubmitEditEntree(){
   if (this.editEntree.valid) {
     if (spinner) spinner.classList.remove('d-none');
     const id = this.editEntree.value.id;
-    this.entreeService.editMouvementStockEntree(this.editEntree.value).subscribe(
+    const formData = {
+      ...this.editEntree.value,
+      date_mouvement: this.formatDate(this.editEntree.value.date_mouvement), // Convertir la date
+    };
+    this.entreeService.editMouvementStockEntree(formData).subscribe(
       (data: any) => {
         this.loadEntrees();
         if (spinner) spinner.classList.add('d-none');
@@ -237,7 +246,7 @@ loadEntrees(): void {
      id_Article:row.id_Article,
      description:row.description,
      qte:row.qte,
-     date_mouvement:row.date_mouvement,
+     date_mouvement:this.convertToNgbDate(row.date_mouvement),
     })
   }
 
@@ -246,6 +255,26 @@ loadEntrees(): void {
      id:row.id,
     })
   }
+
+  formatDate(date: NgbDateStruct): string {
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
+    const day = date.day.toString().padStart(2, '0');
+    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+  }
+
+
+// Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+convertToNgbDate(dateString: string): NgbDateStruct | null {
+  if (!dateString) return null;
+  const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+  return {
+    year: +parts[0],
+    month: +parts[1],
+    day: +parts[2],
+  };
+}
+
  }
 
 
