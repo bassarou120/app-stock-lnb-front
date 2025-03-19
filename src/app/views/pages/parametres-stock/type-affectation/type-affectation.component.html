@@ -73,7 +73,7 @@
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle [disabled]="row.libelle_type_affectation === 'Affectation d\'Article' || row.libelle_type_affectation === 'Affectation d\'Immobilisation'"></button>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                     <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_typeAffectation" (click)="getEditForm(row)">
                       <i class="feather icon-edit me-2"></i> Modifier
