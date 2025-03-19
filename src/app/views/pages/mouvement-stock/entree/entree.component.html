@@ -29,7 +29,8 @@
       <div class="card-body d-flex justify-content-between">
         <div>
           <h4 class="card-title">Liste des Mouvements d'Entrées</h4>
-          <p class="text-secondary">Liste des Mouvements d'Entrées<p>
+          <p class="text-secondary">Liste des Mouvements d'Entrées
+          <p>
         </div>
         <div class="d-flex gap-2">
           <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
@@ -37,7 +38,7 @@
             Ajouter un <i data-feather="chevron-left"></i>
           </button>
           <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-            data-bs-target="#add_entree">
+            data-bs-target="#add_entree_multiple">
             Ajouter plusieurs <i data-feather="chevrons-left"></i>
           </button>
         </div>
@@ -191,11 +192,10 @@
           <div class="mb-3">
             <label for="qte" class="form-label">Quantité</label>
             <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched"
-              formControlName="qte">
+              [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" formControlName="qte">
             <div *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched">
-              <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched"
-                class="text-danger"> *la qte est obligatoire</small>
+              <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" class="text-danger"> *la qte
+                est obligatoire</small>
             </div>
           </div>
 
@@ -203,11 +203,10 @@
           <label for="date_mouvement" class="form-label">Date du mouvement</label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
-              <i data-feather="calendar" appFeatherIcon></i>
+              <i data-feather="calendar"></i>
             </button>
-            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
-                name="dpAdd" [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker"
-                formControlName="date_mouvement">
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date_mouvement">
           </div>
 
           <div *ngIf="addEntree.get('date_mouvement')?.invalid && addEntree.get('date_mouvement')?.touched">
@@ -246,11 +245,12 @@
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="editEntree" (ngSubmit)="onClickSubmitEditEntree()"
-          novalidate>
-           <!-- Sélectionner un article -->
-           <div class="mb-3">
-            <label for="entree" class="form-label"><Article></Article></label>
+        <form class="forms-sample" [formGroup]="editEntree" (ngSubmit)="onClickSubmitEditEntree()" novalidate>
+          <!-- Sélectionner un article -->
+          <div class="mb-3">
+            <label for="entree" class="form-label">
+              <Article></Article>
+            </label>
 
             <ng-container *ngIf="articles && articles.length > 0; else noArticleEdit">
               <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
@@ -313,11 +313,10 @@
           <div class="mb-3">
             <label for="qte" class="form-label">Quantité</label>
             <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched"
-              formControlName="qte">
+              [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" formControlName="qte">
             <div *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched">
-              <small *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched"
-                class="text-danger"> *la qte est obligatoire</small>
+              <small *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" class="text-danger"> *la
+                qte est obligatoire</small>
             </div>
           </div>
 
@@ -325,11 +324,10 @@
           <label for="date_mouvement" class="form-label">Date du mouvement</label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
-              <i data-feather="calendar" appFeatherIcon></i>
+              <i data-feather="calendar"></i>
             </button>
-            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
-                name="dpEdit" [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker"
-                formControlName="date_mouvement">
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
+              [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_mouvement">
           </div>
 
           <div *ngIf="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched">
@@ -357,8 +355,7 @@
 
 
 <!-- delete mouvement Modal -->
-<div id="delete_entree" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel"
-  aria-hidden="true">
+<div id="delete_entree" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <!-- En-tête du modal -->
@@ -369,8 +366,7 @@
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="deleteEntree"
-          (ngSubmit)="onClickSubmitDeleteEntree()">
+        <form class="forms-sample" [formGroup]="deleteEntree" (ngSubmit)="onClickSubmitDeleteEntree()">
           <div class="mb-3">
             <p class="text-secondary">Voulez-vous vraiment supprimer ce Mouvement ?</p>
           </div>
@@ -390,3 +386,166 @@
   </div>
 </div>
 <!-- /delete mouvement Modal -->
+
+
+
+<!-- Add mouvement entrée multiple -->
+<div id="add_entree_multiple" class="modal fade" tabindex="-1" aria-labelledby="addEntreeMultipleLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEntreeMultipleLabel">Ajouter plusieurs Mouvements d'entrée</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addEntreeMultipleForm" (ngSubmit)="onClickSubmitAddEntreeMultiple()"
+          novalidate>
+
+          <!-- Informations communes -->
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <!-- Sélectionner un fournisseur -->
+              <div class="mb-3">
+                <label for="fournisseur" class="form-label">Fournisseur</label>
+                <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
+                  <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
+                    [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+                  </ng-select>
+                  <div
+                    *ngIf="addEntreeMultipleForm.get('id_fournisseur')?.invalid && addEntreeMultipleForm.get('id_fournisseur')?.touched">
+                    <small class="text-danger"> *Le fournisseur est obligatoire</small>
+                  </div>
+                </ng-container>
+                <ng-template #noFournisseur>
+                  <div class="alert alert-danger"
+                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                    <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <!-- Numéro de numero_borderau -->
+              <div class="mb-3">
+                <label for="numero_borderau" class="form-label">Numéro de Bordereau</label>
+                <input type="text" class="form-control" id="numero_borderau"
+                  placeholder="Entrez le numéro du bordereau" autocomplete="off"
+                  [class.invalid]="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched"
+                  formControlName="numero_borderau">
+                <div
+                  *ngIf="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched">
+                  <small class="text-danger"> *Le numéro de bordereau est obligatoire</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date commune du mouvement -->
+          <div class="mb-3">
+            <label for="date_mouvement" class="form-label">Date du mouvement</label>
+            <div class="input-group">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAddMultiple.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAddMultiple"
+                [(ngModel)]="currentDate" ngbDatepicker #dAddMultiple="ngbDatepicker" formControlName="date_mouvement">
+            </div>
+            <div
+              *ngIf="addEntreeMultipleForm.get('date_mouvement')?.invalid && addEntreeMultipleForm.get('date_mouvement')?.touched">
+              <small class="text-danger"> *La date du mouvement est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Pièces jointes -->
+          <div class="mb-3">
+            <label for="piece_jointe_mouvement" class="form-label">Pièces jointes</label>
+            <input type="file" class="form-control" id="piece_jointe_mouvement" multiple (change)="onFileSelected($event)"
+              formControlName="piece_jointe_mouvement">
+            <div class="mb-2">
+            </div>
+            <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small>
+          </div>
+
+          <div class="mb-5">
+          </div>
+          <hr>
+
+          <!-- Liste des articles -->
+          <h6 class="mb-3">Articles à ajouter</h6>
+
+          <div formArrayName="articles">
+            <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i"
+              class="card mb-3 p-3">
+
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong>Article {{i + 1}}</strong>
+                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeArticle(i)"
+                  *ngIf="articlesArray.length > 1">
+                  <i class="feather icon-trash-2"></i>
+                </button>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <!-- Sélection d'article -->
+                  <div class="mb-3">
+                    <label class="form-label">Article</label>
+                    <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
+                      [clearable]="true" placeholder="Sélectionnez l'Article">
+                    </ng-select>
+                    <div *ngIf="articleForm.get('id_Article')?.invalid && articleForm.get('id_Article')?.touched">
+                      <small class="text-danger">*L'Article est obligatoire</small>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <!-- Quantité -->
+                  <div class="mb-3">
+                    <label class="form-label">Quantité</label>
+                    <input type="number" class="form-control" placeholder="1" formControlName="qte" min="1">
+                    <div *ngIf="articleForm.get('qte')?.invalid && articleForm.get('qte')?.touched">
+                      <small class="text-danger">*La quantité est obligatoire</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-0">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="2" formControlName="description"
+                  placeholder="Entrez la description ici..."></textarea>
+                <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
+                  <small class="text-danger">*La description est obligatoire</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton pour ajouter un article -->
+          <div class="d-flex justify-content-start mb-4">
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArticle()">
+              <i data-feather="plus" appFeatherIcon></i> Ajouter un autre article
+            </button>
+          </div>
+
+          <!-- Boutons d'action -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="!addEntreeMultipleForm.valid">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

@@ -342,16 +342,16 @@ export const MENU: MenuItem[] = [
     label: 'Gestion de Stock',
     isTitle: true
   },
-  {
-    label: 'Articles',
-    icon: 'monitor',
-    link: '/articles'
-  },
-  {
-    label: 'Catégories',
-    icon: 'box',
-    link: '/categories'
-  },
+  // {
+  //   label: 'Articles',
+  //   icon: 'monitor',
+  //   link: '/articles'
+  // },
+  // {
+  //   label: 'Catégories',
+  //   icon: 'box',
+  //   link: '/categories'
+  // },
   {
     label: 'Mouvement Stock',
     icon: 'maximize-2',
@@ -378,11 +378,6 @@ export const MENU: MenuItem[] = [
   {
     label: 'Articles',
     icon: 'monitor',
-    link: '/dashboard'
-  },
-  {
-    label: 'Catégories',
-    icon: 'box',
     link: '/dashboard'
   },
   {
@@ -425,6 +420,14 @@ export const MENU: MenuItem[] = [
     label: 'Paramètres Stock',
     icon: 'box',
     subItems: [
+      {
+        label: 'Articles',
+        link: '/parametres-stock/articles',
+      },
+      {
+        label: 'Catégories',
+        link: '/parametres-stock/categories',
+      },
       {
         label: 'Liste des Bureaux',
         link: '/parametres-stock/bureaux',
@@ -488,7 +491,7 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
-    label: 'Paramètres',
+    label: 'Paramètres Génér...',
     icon: 'settings',
     subItems: [
       {

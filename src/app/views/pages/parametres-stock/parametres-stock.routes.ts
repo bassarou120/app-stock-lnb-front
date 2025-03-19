@@ -7,6 +7,14 @@ export default [
     loadComponent: () => import('./bureaux/bureaux.component').then(c => c.BureauxComponent),
   },
   {
+    path: 'articles',
+    loadComponent: () => import('../articles/articles.component').then(c => c.ArticlesComponent),
+  },
+  {
+    path: 'categories',
+    loadComponent: () => import('../categories/categories.component').then(c => c.CategorieComponent),
+  },
+  {
     path: 'bureaux',
     loadComponent: () => import('./bureaux/bureaux.component').then(c => c.BureauxComponent),
   },

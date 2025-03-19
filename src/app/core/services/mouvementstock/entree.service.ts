@@ -55,4 +55,9 @@ export class MouvementStockService  {
         )
       );
     }
+
+  // Nouvelle méthode pour l'ajout multiple
+  saveMultipleMouvementStockEntree(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.url}/mouvement-stock/entree-multiple`, formData);
+  }
 }

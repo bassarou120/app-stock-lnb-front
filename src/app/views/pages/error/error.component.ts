@@ -22,18 +22,19 @@ export class ErrorComponent implements OnInit {
     
     switch(this.type) {
       case '404':
-        this.title = 'Page Not Found';
-        this.desc = 'Oopps!! The page you were looking for doesn\'t exist.'
+        this.title = 'Page introuvable';
+        this.desc = 'Oups !! La page que vous recherchez n\'existe pas.';
         break;
       case '500':
-        this.title = 'Internal Server Error',
-        this.desc = 'Oopps!! There wan an error. Please try agin later.'
+        this.title = 'Erreur interne du serveur';
+        this.desc = 'Oups !! Une erreur s\'est produite. Veuillez réessayer plus tard.';
         break;
       default:
-        this.type = 'Ooops..';
-        this.title = 'Something went wrong';
-        this.desc = 'Looks like something went wrong.<br>' + 'We\'re working on it';
+        this.type = 'Oups..';
+        this.title = 'Quelque chose s\'est mal passé';
+        this.desc = 'Il semble qu\'une erreur se soit produite.<br>' + 'Nous y travaillons.';
     }
+    
   }
 
 }
