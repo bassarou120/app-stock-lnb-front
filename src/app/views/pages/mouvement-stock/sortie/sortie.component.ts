@@ -40,6 +40,9 @@ export class SortieComponent implements OnInit {
   bureaux: Bureau[] = []; // Liste des Bureaux
   employes: Employe[] = []; // Liste des Employe
 
+  quantiteDisponible: number = 0;
+
+
   alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
   alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
   alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
@@ -115,9 +118,14 @@ export class SortieComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de l\'ajout de la sortie :', error);
+          // console.error('Erreur lors de l\'ajout de la sortie :', error);
+          // if (spinner) spinner.classList.add('d-none');
+          // alert('Une erreur s\'est produite. Veuillez réessayer.');
+
           if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+
+          // Afficher directement le message d'erreur de l'API
+          alert(error.error?.error || "Une erreur s'est produite. Veuillez réessayer.");
         }
       );
     } else {
@@ -236,7 +244,7 @@ export class SortieComponent implements OnInit {
       }
     });
   }
-  
+
   loadBureaux(): void {
     this.sortieService.getAllBureaux().subscribe({
       next: (data) => {
@@ -278,8 +286,8 @@ export class SortieComponent implements OnInit {
       id: row.id,
       id_Article: row.id_Article,
       description: row.description,
-      id_bureau: row.id_bureau,
-      id_employe: row.id_employe,
+      id_bureau: row.affectation?.id_bureau,
+      id_employe: row.affectation?.employe?.id,
       qte: row.qte,
       date_mouvement: this.convertToNgbDate(row.date_mouvement),
     })
@@ -314,6 +322,34 @@ export class SortieComponent implements OnInit {
     return employe ? `${employe.nom} ${employe.prenom}` : '';
   }
 
+  updateQuantiteDisponible() {
+    const idArticle = this.addSortie.get('id_Article')?.value;
+    console.log('ID de l\'article sélectionné:', idArticle);
+
+    if (!idArticle) {
+      console.log('Aucun article sélectionné ou désélection effectuée');
+      this.quantiteDisponible = 0;
+      return;
+    }
+
+    this.sortieService.getQuantiteDisponible(idArticle).subscribe(
+      (response) => {
+        console.log('Quantité disponible:', response.data);
+        this.quantiteDisponible = response.data;
+      },
+      (error) => {
+        console.error('Erreur lors de la récupération de la quantité disponible:', error);
+        this.quantiteDisponible = 0;
+      }
+    );
+  }
 }
+
+
+
+
+
+
+
 
 

@@ -24,11 +24,16 @@ export class MouvementStockService  {
     );
   }
 
+  getQuantiteDisponible(idArticle: number): Observable<any> {
+    return this.http.get<any>(`${this.url}/quantite-disponible/${idArticle}`);
+  }
+
+
   saveMouvementStockSortie(data: MouvementStock): Observable<MouvementStock> {
     return this.http.post<MouvementStock>(`${this.url}/mouvement-stock/sortie`, data);
   }
   editMouvementStockSortie(data: MouvementStock): Observable<MouvementStock> {
-    return this.http.put<MouvementStock>(`${this.url}/mouvement-stock/sortie`, data);
+    return this.http.put<MouvementStock>(`${this.url}/mouvement-stock/sortie/${data.id}`, data);
   }
 
 
@@ -58,10 +63,10 @@ export class MouvementStockService  {
       return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
         `${this.url}/employes`
       ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Employe[] } }) => 
+        map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
           response.data.data // On récupère uniquement le tableau de Employe
         )
-      ); 
+      );
     }
 
 }

@@ -75,7 +75,7 @@
             <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
             <ngx-datatable-column name="Employé">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.affectation.employe.full_name || 'Non défini' }}
+                {{ row.affectation?.employe?.full_name || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
             <!-- <ngx-datatable-column name="Date de création" prop="created_at">
@@ -129,13 +129,16 @@
 
             <ng-container *ngIf="articles && articles.length > 0; else noArticle">
               <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
-                [clearable]="true" placeholder="Sélectionnez l'Article">
+                [clearable]="true" placeholder="Sélectionnez l'Article" (change)="updateQuantiteDisponible()">
               </ng-select>
 
               <div *ngIf="addSortie.get('id_Article')?.invalid && addSortie.get('id_Article')?.touched">
                 <small class="text-danger"> *L'Article est obligatoire</small>
               </div>
             </ng-container>
+
+
+
 
             <!-- Message si aucun article n'existe -->
             <ng-template #noArticle>
@@ -144,6 +147,20 @@
                 <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
               </div>
             </ng-template>
+          </div>
+
+          <!-- Qte -->
+          <div class="mb-3">
+            <label for="qte" class="form-label">Quantité</label>
+            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+              [class.invalid]="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched" formControlName="qte">
+              <div class="text-danger mt-2">
+                <small>Quantité disponible : {{ quantiteDisponible }}</small>
+              </div>
+            <div *ngIf="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched">
+              <small *ngIf="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched" class="text-danger"> *la qte
+                est obligatoire</small>
+            </div>
           </div>
 
 
@@ -161,19 +178,6 @@
 
 
 
-
-          <!-- Qte -->
-          <div class="mb-3">
-            <label for="qte" class="form-label">Quantité</label>
-            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [class.invalid]="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched" formControlName="qte">
-            <div *ngIf="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched">
-              <small *ngIf="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched" class="text-danger"> *la qte
-                est obligatoire</small>
-            </div>
-          </div>
-
-          
           <!-- Sélectionner un employe -->
           <div class="mb-3">
             <label for="employe" class="form-label">Employe</label>
@@ -211,7 +215,7 @@
               </div>
             </ng-container>
 
-            <!-- Message si aucun employe n'existe -->
+            <!-- Message si aucun bureau n'existe -->
             <ng-template #noBureau>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
@@ -251,5 +255,185 @@
 </div>
 
 <!-- /Add mouvement sortie Modal -->
+
+
+
+<!-- Edit entree Immo Modal -->
+<div id="edit_sortie" class="modal fade" tabindex="-1" aria-labelledby="editEntreeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEntreeLabel">Modifier un Mouvement de Sortie</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editSortie" (ngSubmit)="onClickSubmitEditSortie()" novalidate>
+          <!-- Sélectionner un article -->
+          <div class="mb-3">
+            <label for="sortie" class="form-label">Article</label>
+            <ng-container *ngIf="articles && articles.length > 0; else noArticleEdit">
+              <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
+                [clearable]="true" placeholder="Sélectionnez l'Article">
+              </ng-select>
+              <div *ngIf="editSortie.get('id_Article')?.invalid && editSortie.get('id_Article')?.touched">
+                <small class="text-danger"> *L'Article est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun article n'existe -->
+            <ng-template #noArticleEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Qte -->
+          <div class="mb-3">
+            <label for="qte" class="form-label">Quantité</label>
+            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+              [class.invalid]="editSortie.get('qte')?.invalid && editSortie.get('qte')?.touched" formControlName="qte">
+            <div *ngIf="editSortie.get('qte')?.invalid && editSortie.get('qte')?.touched">
+              <small *ngIf="editSortie.get('qte')?.invalid && editSortie.get('qte')?.touched" class="text-danger"> *la
+                qte est obligatoire</small>
+            </div>
+          </div>
+
+
+          <!-- description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description du mouvement</label>
+            <textarea class="form-control" id="description" rows="5"
+              [class.invalid]="editSortie.get('description')?.invalid && editSortie.get('description')?.touched"
+              placeholder="Entrez la description ici..." formControlName="description"></textarea>
+            <div *ngIf="editSortie.get('description')?.invalid && editSortie.get('description')?.touched">
+              <small *ngIf="editSortie.get('description')?.invalid && editSortie.get('description')?.touched"
+                class="text-danger"> *la description est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Sélectionner un employe -->
+          <div class="mb-3">
+            <label for="employe" class="form-label">Employe</label>
+
+            <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
+              <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="id_employe"
+                [clearable]="true" placeholder="Sélectionnez l'Employé">
+              </ng-select>
+
+              <div *ngIf="editSortie.get('id_employe')?.invalid && editSortie.get('id_employe')?.touched">
+                <small class="text-danger"> *L'employe est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun employe n'existe -->
+            <ng-template #noEmploye>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un bureau -->
+          <div class="mb-3">
+            <label for="bureau" class="form-label">Bureau</label>
+
+            <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureau">
+              <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="id_bureau"
+                [clearable]="true" placeholder="Sélectionnez le bureau ">
+              </ng-select>
+
+              <div *ngIf="editSortie.get('id_bureau')?.invalid && editSortie.get('id_bureau')?.touched">
+                <small class="text-danger"> *Le bureau est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun bureau n'existe -->
+            <ng-template #noBureau>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+
+
+
+
+
+          <!--  date_mouvement -->
+          <label for="date_mouvement" class="form-label">Date du mouvement</label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
+              [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_mouvement">
+          </div>
+
+          <div *ngIf="editSortie.get('date_mouvement')?.invalid && editSortie.get('date_mouvement')?.touched">
+            <small class="text-danger"> *la date du mouvement est obligatoire</small>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Edit mouvement Modal -->
+
+
+
+
+
+<!-- delete mouvement Modal -->
+<div id="delete_sortie" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteEntreeLabel">Suppression du Mouvement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteSortie" (ngSubmit)="onClickSubmitDeleteSortie()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce Mouvement ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete mouvement Modal -->
 
 
