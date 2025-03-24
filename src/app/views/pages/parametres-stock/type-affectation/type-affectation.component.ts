@@ -46,12 +46,12 @@ export class TypeAffectationComponent implements OnInit {
     this.loadTypeAffectations();
     this.addTypeAffectation = this.formBuilder.group({
       libelle_type_affectation: ["", [Validators.required]],
-      valeur: ["" ,[Validators.required]],
+      valeur: ["" ,[]],
    });
     this.editTypeAffectation = this.formBuilder.group({
       id: [0, [Validators.required]],
       libelle_type_affectation: ["", [Validators.required]],
-      valeur: [0 ,[Validators.required]],
+      valeur: [0 ,[]],
    });
     this.deleteTypeAffectation = this.formBuilder.group({
       id: [0, [Validators.required]],

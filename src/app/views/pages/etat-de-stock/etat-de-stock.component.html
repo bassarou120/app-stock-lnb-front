@@ -40,8 +40,8 @@
                 <div
                   style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;"
                   [ngStyle]="{
-                    'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#f15b78' : '#00CC66'
-                  }">
+                    'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
+                  }" class="text-white">
                   {{ row.stock?.Qte_actuel || 0 }}
                 </div>
               </ng-template>

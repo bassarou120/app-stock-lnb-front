@@ -68,7 +68,7 @@
               <ng-template ngx-datatable-cell-template let-value="value">
                 {{ value ? 'Oui' : 'Non' }}
               </ng-template>
-            </ngx-datatable-column>            
+            </ngx-datatable-column>
             <ngx-datatable-column name="Observations" prop="observation"></ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
@@ -152,7 +152,7 @@
             <label class="form-check-label" for="checkChecked">
               applicable aux véhicules seuls
             </label>
-            <i class="feather icon-alert-circle ms-3" [ngbTooltip]="'Si vous cochez ce type d\'intervention, il sera applicable aux véhicules uniquement'"></i>
+            <i class="feather icon-alert-circle ms-3" [ngbTooltip]="'Si vous laissez la case chochée,  ce type d\'intervention sera applicable aux véhicules uniquement'"></i>
           </div>
 
 

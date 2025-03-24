@@ -64,7 +64,7 @@
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Type d'Affectation" prop="libelle_type_affectation"></ngx-datatable-column>
-            <ngx-datatable-column name="Valeur" prop="valeur"></ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Valeur" prop="valeur"></ngx-datatable-column> -->
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -121,7 +121,7 @@
           </div>
 
           <!-- Valeur du coupon -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="typeAffectationValeur" class="form-label">Valeur du type d'Affectation</label>
             <input type="text" class="form-control" id="typeAffectationValeur" placeholder="2000"
               autocomplete="off"
@@ -131,7 +131,7 @@
               <small *ngIf="addTypeAffectation.get('valeur')?.invalid && addTypeAffectation.get('valeur')?.touched"
                 class="text-danger"> *la valeur du type d'Affectation est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
@@ -179,7 +179,7 @@
             </div>
           </div>
           <!-- Valeur du coupon -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="typeAffectationValeur" class="form-label">Valeur du type d'Affectation</label>
             <input type="text" class="form-control" id="typeAffectationValeur" placeholder="2000"
               autocomplete="off"
@@ -189,7 +189,7 @@
               <small *ngIf="editTypeAffectation.get('valeur')?.invalid && editTypeAffectation.get('valeur')?.touched"
                 class="text-danger"> *la valeur est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">

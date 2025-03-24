@@ -46,12 +46,12 @@ export class BureauxComponent implements OnInit {
     this.loadBureaux();
     this.addBureau = this.formBuilder.group({
       libelle_bureau: ["", [Validators.required]],
-      valeur: ["" ,[Validators.required]],
+      valeur: ["" ,[]],
    });
     this.editBureau = this.formBuilder.group({
       id: [0, [Validators.required]],
       libelle_bureau: ["", [Validators.required]],
-      valeur: [0 ,[Validators.required]],
+      valeur: [0 ,[]],
    });
     this.deleteBureau = this.formBuilder.group({
       id: [0, [Validators.required]],
