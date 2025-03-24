@@ -4,26 +4,65 @@
   </div>
   <div class="d-flex align-items-center flex-wrap text-nowrap">
     <div class="input-group w-200px me-2 mb-2 mb-md-0">
-      <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="d.toggle()">
+      <button class="btn btn-outline-primary btn-icon calendar" type="button">
         <i data-feather="calendar" appFeatherIcon></i>
       </button>
       <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
-          name="dp" [(ngModel)]="currentDate" ngbDatepicker #d="ngbDatepicker">
+          name="dp" [(ngModel)]="currentDate" ngbDatepicker #d="ngbDatepicker" [disabled]="true">
     </div>
-    <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
+    <!-- <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
       <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
       Print
     </button>
     <button type="button" class="btn btn-primary btn-icon-text mb-2 mb-md-0">
       <i class="btn-icon-prepend" data-feather="download-cloud" appFeatherIcon></i>
       Download Report
-    </button>
+    </button> -->
   </div>
 </div>
 
 <div class="row">
   <div class="col-12 col-xl-12 stretch-card">
     <div class="row flex-grow-1">
+      <div class="col-md-4 grid-margin stretch-card">
+        <div class="card">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-baseline">
+              <h6 class="card-title mb-0">Tous les Articles</h6>
+              <div ngbDropdown class="mb-2">
+                <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton1">
+                  <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+                </a>
+                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton1">
+                  <a ngbDropdownItem class="d-flex align-items-center" [routerLink]="['/etat-de-stock']"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">Voir Plus</span></a>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-md-12 col-xl-5">
+                <h3 class="mb-2">{{ dataTableauBord?.total_article }}</h3>
+                <div class="d-flex align-items-baseline">
+                  <p class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Articles en Alerte">
+                    <span>{{ dataTableauBord?.total_article_en_alerte }}</span>
+                    <i data-feather="alert-triangle" appFeatherIcon class="icon-sm mb-1 ms-1"></i>
+                  </p>
+                </div>
+              </div>
+              <div class="col-6 col-md-12 col-xl-7">
+                <div class="mt-md-3 mt-xl-0">
+                  <apx-chart
+                    [series]="ordersChartOptions.series"
+                    [chart]="ordersChartOptions.chart"
+                    [colors]="ordersChartOptions.colors"
+                    [plotOptions]="ordersChartOptions.plotOptions"
+                    [xaxis]="ordersChartOptions.xaxis"
+                  ></apx-chart>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
@@ -68,49 +107,7 @@
           </div>
         </div>
       </div>
-      <div class="col-md-4 grid-margin stretch-card">
-        <div class="card">
-          <div class="card-body">
-            <div class="d-flex justify-content-between align-items-baseline">
-              <h6 class="card-title mb-0">New Orders</h6>
-              <div ngbDropdown class="mb-2">
-                <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton1">
-                  <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
-                </a>
-                <div ngbDropdownMenu aria-labelledby="dropdownMenuButton1">
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-                  <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
-                </div>
-              </div>
-            </div>
-            <div class="row">
-              <div class="col-6 col-md-12 col-xl-5">
-                <h3 class="mb-2">35,084</h3>
-                <div class="d-flex align-items-baseline">
-                  <p class="text-danger">
-                    <span>-2.8%</span>
-                    <i data-feather="arrow-down" appFeatherIcon class="icon-sm mb-1"></i>
-                  </p>
-                </div>
-              </div>
-              <div class="col-6 col-md-12 col-xl-7">
-                <div class="mt-md-3 mt-xl-0">
-                  <apx-chart
-                    [series]="ordersChartOptions.series"
-                    [chart]="ordersChartOptions.chart"
-                    [colors]="ordersChartOptions.colors"
-                    [plotOptions]="ordersChartOptions.plotOptions"
-                    [xaxis]="ordersChartOptions.xaxis"
-                  ></apx-chart>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
       <div class="col-md-4 grid-margin stretch-card">
         <div class="card">
           <div class="card-body">
@@ -159,54 +156,6 @@
   </div>
 </div> <!-- row -->
 
-<div class="row">
-  <div class="col-12 col-xl-12 grid-margin stretch-card">
-    <div class="card overflow-hidden">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-baseline mb-4 mb-md-3">
-          <h6 class="card-title mb-0">Revenue</h6>
-          <div ngbDropdown>
-            <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton3">
-              <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
-            </a>
-            <div ngbDropdownMenu aria-labelledby="dropdownMenuButton3">
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
-            </div>
-          </div>
-        </div>
-        <div class="row align-items-start">
-          <div class="col-md-7">
-            <p class="text-secondary fs-13px mb-3 mb-md-0">Revenue is the income that a business has from its normal business activities, usually from the sale of goods and services to customers.</p>
-          </div>
-          <div class="col-md-5 d-flex justify-content-md-end">
-            <div class="btn-group mb-3 mb-md-0" role="group" aria-label="Basic example">
-              <button type="button" class="btn btn-outline-primary">Today</button>
-              <button type="button" class="btn btn-outline-primary d-none d-md-block">Week</button>
-              <button type="button" class="btn btn-primary">Month</button>
-              <button type="button" class="btn btn-outline-primary">Year</button>
-            </div>
-          </div>
-        </div>
-        <div class="flot-wrapper">
-          <apx-chart
-            [series]="revenueChartOptions.series"
-            [chart]="revenueChartOptions.chart"
-            [colors]="revenueChartOptions.colors"
-            [grid]="revenueChartOptions.grid"
-            [xaxis]="revenueChartOptions.xaxis"
-            [yaxis]="revenueChartOptions.yaxis"
-            [markers]="revenueChartOptions.markers"
-            [stroke]="revenueChartOptions.stroke"
-          ></apx-chart>
-        </div>
-      </div>
-    </div>
-  </div>
-</div> <!-- row -->
 
 <div class="row">
   <div class="col-lg-7 col-xl-8 grid-margin stretch-card">
@@ -241,7 +190,7 @@
           [dataLabels]="monthlySalesChartOptions.dataLabels"
           [plotOptions]="monthlySalesChartOptions.plotOptions"
         ></apx-chart>
-      </div> 
+      </div>
     </div>
   </div>
   <div class="col-lg-5 col-xl-4 grid-margin stretch-card">
@@ -468,7 +417,7 @@
             </tbody>
           </table>
         </div>
-      </div> 
+      </div>
     </div>
   </div>
 </div> <!-- row -->

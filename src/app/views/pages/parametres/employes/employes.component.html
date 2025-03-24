@@ -1,25 +1,25 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a routerLink=".">Paramètres</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Liste des Employés</li>
+    <li class="breadcrumb-item active" aria-current="page">Liste du Personnel</li>
   </ol>
 </nav>
 
 <!-- Alerte pour ajout avec succès -->
 <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Employé  Ajouté avec succès
+  Personnel  Ajouté avec succès
 </ngb-alert>
 <!-- Alerte pour ajout avec succès -->
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Employé  Mofifié avec succès
+  Personnel  Mofifié avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
 <!-- Alerte pour supprimer avec succès -->
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Employé  Supprimé avec succès
+  Personnel  Supprimé avec succès
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
@@ -28,8 +28,8 @@
     <div class="card">
       <div class="card-body d-flex justify-content-between">
         <div>
-          <h4 class="card-title">Liste des Employés</h4>
-          <p class="text-secondary">Liste des Employés</p>
+          <h4 class="card-title">Liste du Personnel</h4>
+          <p class="text-secondary">Liste du Personnel</p>
         </div>
         <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
           data-bs-target="#add_employe">
@@ -47,7 +47,7 @@
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
-        <h6 class="card-title">Liste des Employés</h6>
+        <h6 class="card-title">Liste du Personnel</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
             <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
@@ -102,7 +102,7 @@
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="addEmployeLabel">Ajouter un Employé</h5>
+        <h5 class="modal-title" id="addEmployeLabel">Ajouter un Personnel</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -111,50 +111,50 @@
         <form class="forms-sample" [formGroup]="addEmploye" (ngSubmit)="onClickSubmitAddEmploye()" novalidate>
           <!-- Nom employé -->
           <div class="mb-3">
-            <label for="employeName" class="form-label">Nom de l'employé</label>
-            <input type="text" class="form-control" id="employeName" placeholder="Entrez le nom de l'employé"
+            <label for="employeName" class="form-label">Nom du Personnel</label>
+            <input type="text" class="form-control" id="employeName" placeholder="Entrez le nom du Personnel"
               autocomplete="off"
               [class.invalid]="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched"
               formControlName="nom">
             <div *ngIf="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched">
               <small *ngIf="addEmploye.get('nom')?.invalid && addEmploye.get('nom')?.touched"
-                class="text-danger"> *le nom de l'employé est obligatoire</small>
+                class="text-danger"> *le nom du Personnel est obligatoire</small>
             </div>
           </div>
           <!-- prenom employé -->
           <div class="mb-3">
-            <label for="employePrenom" class="form-label">Prénom de l'employé</label>
-            <input type="text" class="form-control" id="employePrenom" placeholder="Entrez le prénom de l'employé"
+            <label for="employePrenom" class="form-label">Prénom du Personnel</label>
+            <input type="text" class="form-control" id="employePrenom" placeholder="Entrez le prénom du Personnel"
               autocomplete="off"
               [class.invalid]="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched"
               formControlName="prenom">
             <div *ngIf="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched">
               <small *ngIf="addEmploye.get('prenom')?.invalid && addEmploye.get('prenom')?.touched"
-                class="text-danger"> *le prenom de l'employé est obligatoire</small>
+                class="text-danger"> *le prenom du Personnel est obligatoire</small>
             </div>
           </div>
           <!-- telephone employé -->
           <div class="mb-3">
-            <label for="employeTelephone" class="form-label">Numéro de l'employé</label>
+            <label for="employeTelephone" class="form-label">Numéro du Personnel</label>
             <input type="text" class="form-control" id="employeTelephone" placeholder="+229 0197010203"
               autocomplete="off"
               [class.invalid]="addEmploye.get('telephone')?.invalid && addEmploye.get('telephone')?.touched"
               formControlName="telephone">
             <div *ngIf="addEmploye.get('telephone')?.invalid && addEmploye.get('telephone')?.touched">
               <small *ngIf="addEmploye.get('telephone')?.invalid && addEmploye.get('telephone')?.touched"
-                class="text-danger"> *le telephone de l'employé est obligatoire</small>
+                class="text-danger"> *le telephone du Personnel est obligatoire</small>
             </div>
           </div>
           <!-- adresse email employe -->
           <div class="mb-3">
-            <label for="employeEmail" class="form-label">Adresse Mail de l'employé</label>
+            <label for="employeEmail" class="form-label">Adresse Mail du Personnel</label>
             <input type="text" class="form-control" id="employeEmail" placeholder="exemple@gmail.com"
               autocomplete="off"
               [class.invalid]="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched"
               formControlName="email">
             <div *ngIf="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched">
               <small *ngIf="addEmploye.get('email')?.invalid && addEmploye.get('email')?.touched"
-                class="text-danger"> *l'adresse mail de l'employé est obligatoire</small>
+                class="text-danger"> *l'adresse mail du Personnel est obligatoire</small>
             </div>
           </div>
 
@@ -183,7 +183,7 @@
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="editEmployeLabel">Modification Employé</h5>
+        <h5 class="modal-title" id="editEmployeLabel">Modification Personnel</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -193,21 +193,21 @@
           <!-- Nom de l'employe -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="employeName" class="form-label">Nom de l'employé</label>
-            <input type="text" class="form-control" id="employeName" placeholder="Entrez le nom de l'employé"
+            <label for="employeName" class="form-label">Nom du Personnel</label>
+            <input type="text" class="form-control" id="employeName" placeholder="Entrez le nom du Personnel"
               autocomplete="off"
               [class.invalid]="editEmploye.get('nom')?.invalid && editEmploye.get('nom')?.touched"
               formControlName="nom">
             <div *ngIf="editEmploye.get('nom')?.invalid && editEmploye.get('nom')?.touched">
               <small *ngIf="editEmploye.get('nom')?.invalid && editEmploye.get('nom')?.touched"
-                class="text-danger"> *le nom de l'employe est obligatoire</small>
+                class="text-danger"> *le nom du Personnel est obligatoire</small>
             </div>
           </div>
           <!-- Nom de l'employe -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="employePrenom" class="form-label">Prénom de l'employé</label>
-            <input type="text" class="form-control" id="employePrenom" placeholder="Prénom de l'employé"
+            <label for="employePrenom" class="form-label">Prénom du Personnel</label>
+            <input type="text" class="form-control" id="employePrenom" placeholder="Prénom du Personnel"
               autocomplete="off"
               [class.invalid]="editEmploye.get('prenom')?.invalid && editEmploye.get('prenom')?.touched"
               formControlName="prenom">
@@ -218,7 +218,7 @@
           </div>
           <!-- Telephone de la Employe -->
           <div class="mb-3">
-            <label for="employeTelephone" class="form-label">Numéro de Téléphone de l'employé</label>
+            <label for="employeTelephone" class="form-label">Numéro de Téléphone du Personnel</label>
             <input type="text" class="form-control" id="employeTelephone" placeholder="+2290197010203"
               autocomplete="off"
               [class.invalid]="editEmploye.get('telephone')?.invalid && editEmploye.get('telephone')?.touched"
@@ -230,14 +230,14 @@
           </div>
           <!-- Adresse email Employe -->
           <div class="mb-3">
-            <label for="employeEmail" class="form-label">Adresse de l'Employe</label>
+            <label for="employeEmail" class="form-label">Adresse du Personnel</label>
             <input type="text" class="form-control" id="employeEmail" placeholder="Cotonou"
               autocomplete="off"
               [class.invalid]="editEmploye.get('email')?.invalid && editEmploye.get('email')?.touched"
               formControlName="email">
             <div *ngIf="editEmploye.get('email')?.invalid && editEmploye.get('email')?.touched">
               <small *ngIf="editEmploye.get('email')?.invalid && editEmploye.get('email')?.touched"
-                class="text-danger"> *l'adresse email de l'employé est obligatoire</small>
+                class="text-danger"> *l'adresse email du Personnel est obligatoire</small>
             </div>
           </div>
 
@@ -266,7 +266,7 @@
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="deleteEmployeLabel">Suppression Employé</h5>
+        <h5 class="modal-title" id="deleteEmployeLabel">Suppression Personnel</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -274,7 +274,7 @@
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="deleteEmploye"  (ngSubmit)="onClickSubmitDeleteEmploye()">
           <div class="mb-3">
-            <p class="text-secondary">Voulez-vous vraiment supprimer ce Employé ?</p>
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce Personnel ?</p>
           </div>
           <input type="hidden" formControlName="id">
           <!-- Boutons centrés -->

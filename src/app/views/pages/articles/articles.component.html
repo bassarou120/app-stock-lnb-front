@@ -34,7 +34,6 @@
           data-bs-target="#add_article">
           Ajouter
         </button>
-
       </div>
     </div>
   </div>
@@ -69,6 +68,7 @@
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+            <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -115,22 +115,24 @@
 
           <!-- En-têtes du tableau -->
           <div class="row mb-2 fw-bold">
-            <div class="col-4">Article</div>
+            <div class="col-3">Article</div>
             <div class="col-3">Catégorie</div>
             <div class="col-4">Description</div>
+            <div class="col-1">Stock d'alerte</div>
             <div class="col-1">Action</div>
           </div>
 
           <!-- Formulaire dynamique pour les articles -->
           <div formArrayName="articles">
-            <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i" class="row mb-3 align-items-center">
+            <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i"
+              class="row mb-3 align-items-center">
 
               <!-- Nom de l'article -->
-              <div class="col-4">
-                <input type="text" class="form-control" placeholder="Nom de l'Article"
-                  formControlName="libelle"
+              <div class="col-3">
+                <input type="text" class="form-control" placeholder="Nom de l'Article" formControlName="libelle"
                   [class.is-invalid]="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched">
-                <div *ngIf="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched" class="invalid-feedback">
+                <div *ngIf="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched"
+                  class="invalid-feedback">
                   Le nom de l'Article est obligatoire
                 </div>
               </div>
@@ -138,14 +140,11 @@
               <!-- Sélection de catégorie -->
               <div class="col-3">
                 <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
-                  <ng-select [items]="categories"
-                    bindLabel="libelle_categorie_article"
-                    bindValue="id"
-                    formControlName="id_cat"
-                    [clearable]="true"
-                    placeholder="Sélectionner la catégorie">
+                  <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
+                    formControlName="id_cat" [clearable]="true" placeholder="Sélectionner la catégorie">
                   </ng-select>
-                  <div *ngIf="articleForm.get('id_cat')?.invalid && articleForm.get('id_cat')?.touched" class="text-danger small">
+                  <div *ngIf="articleForm.get('id_cat')?.invalid && articleForm.get('id_cat')?.touched"
+                    class="text-danger small">
                     La catégorie est obligatoire
                   </div>
                 </ng-container>
@@ -158,18 +157,27 @@
 
               <!-- Description -->
               <div class="col-4">
-                <input type="text" class="form-control" placeholder="Description"
-                  formControlName="description"
+                <input type="text" class="form-control" placeholder="Description" formControlName="description"
                   [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
-                <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched" class="invalid-feedback">
+                <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched"
+                  class="invalid-feedback">
                   La description est obligatoire
+                </div>
+              </div>
+
+              <!-- Stock d'alerte -->
+              <div class="col-1">
+                <input type="number" class="form-control" placeholder="Stock d'alerte" formControlName="stock_alerte"
+                  [class.is-invalid]="articleForm.get('stock_alerte')?.invalid && articleForm.get('stock_alerte')?.touched">
+                <div *ngIf="articleForm.get('stock_alerte')?.invalid && articleForm.get('stock_alerte')?.touched"
+                  class="invalid-feedback">
+                  Le stock d'alerte est obligatoire
                 </div>
               </div>
 
               <!-- Bouton de suppression -->
               <div class="col-1">
-                <button type="button" class="btn btn-outline-danger btn-sm"
-                  (click)="removeArticle(i)"
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeArticle(i)"
                   [disabled]="articlesArray.length === 1">
                   <i class="feather icon-trash-2"></i>
                 </button>
@@ -203,17 +211,17 @@
 <!-- <div id="add_article" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content"> -->
-      <!-- En-tête du modal -->
-      <!-- <div class="modal-header">
+<!-- En-tête du modal -->
+<!-- <div class="modal-header">
         <h5 class="modal-title" id="addArticleLabel">Ajouter un Article</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div> -->
 
-      <!-- Contenu du modal -->
-      <!-- <div class="modal-body">
+<!-- Contenu du modal -->
+<!-- <div class="modal-body">
         <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticle()" novalidate> -->
-          <!-- Nom de l'article -->
-          <!-- <div class="mb-3">
+<!-- Nom de l'article -->
+<!-- <div class="mb-3">
             <label for="articleName" class="form-label">Article</label>
             <input type="text" class="form-control" id="articleName"
               placeholder="Entrez le nom de l'Article" autocomplete="off"
@@ -225,8 +233,8 @@
             </div>
           </div> -->
 
-          <!-- Sélectionner une catégorie -->
-          <!-- <div class="mb-3">
+<!-- Sélectionner une catégorie -->
+<!-- <div class="mb-3">
             <label for="categorie" class="form-label">Catégorie</label>
 
             <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
@@ -239,8 +247,8 @@
               </div>
             </ng-container> -->
 
-            <!-- Message si aucun type d'immobilisation n'existe -->
-            <!-- <ng-template #noCategorie>
+<!-- Message si aucun type d'immobilisation n'existe -->
+<!-- <ng-template #noCategorie>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucune Catégorie d'article. Veuillez en créer.
@@ -248,8 +256,8 @@
             </ng-template>
           </div> -->
 
-          <!-- description -->
-          <!-- <div class="mb-3">
+<!-- description -->
+<!-- <div class="mb-3">
             <label for="articleDescription" class="form-label">Description</label>
             <textarea class="form-control" id="articleDescription" rows="5"
               [class.invalid]="addArticle.get('description')?.invalid && addArticle.get('description')?.touched"
@@ -262,8 +270,8 @@
             </div>
           </div> -->
 
-          <!-- Boutons centrés -->
-          <!-- <div class="d-flex justify-content-center gap-2">
+<!-- Boutons centrés -->
+<!-- <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary">
               <div class="spinner-border spinner-border-sm text-light d-none" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -294,13 +302,12 @@
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="editArticle" (ngSubmit)="onClickSubmitEditArticle()"
-          novalidate>
+        <form class="forms-sample" [formGroup]="editArticle" (ngSubmit)="onClickSubmitEditArticle()" novalidate>
           <!-- Nom de l'article -->
           <div class="mb-3">
             <label for="articleName" class="form-label">Article</label>
-            <input type="text" class="form-control" id="articleName"
-              placeholder="Entrez le nom de l'Article" autocomplete="off"
+            <input type="text" class="form-control" id="articleName" placeholder="Entrez le nom de l'Article"
+              autocomplete="off"
               [class.invalid]="editArticle.get('libelle')?.invalid && editArticle.get('libelle')?.touched"
               formControlName="libelle">
             <div *ngIf="editArticle.get('libelle')?.invalid && editArticle.get('libelle')?.touched">
@@ -314,8 +321,8 @@
             <label for="categorie" class="form-label">Catégorie</label>
 
             <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
-              <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id" formControlName="id_cat"
-                [clearable]="true" placeholder="Sélectionnez la catégorie">
+              <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
+                formControlName="id_cat" [clearable]="true" placeholder="Sélectionnez la catégorie">
               </ng-select>
 
               <div *ngIf="editArticle.get('id_cat')?.invalid && editArticle.get('id_cat')?.touched">
@@ -339,14 +346,23 @@
             <textarea class="form-control" id="articleDescription" rows="5"
               [class.invalid]="editArticle.get('description')?.invalid && editArticle.get('description')?.touched"
               placeholder="Entrez la description ici..." formControlName="description"></textarea>
-            <div
-              *ngIf="editArticle.get('description')?.invalid && editArticle.get('description')?.touched">
-              <small
-                *ngIf="editArticle.get('description')?.invalid && editArticle.get('description')?.touched"
+            <div *ngIf="editArticle.get('description')?.invalid && editArticle.get('description')?.touched">
+              <small *ngIf="editArticle.get('description')?.invalid && editArticle.get('description')?.touched"
                 class="text-danger"> *la description est obligatoire</small>
             </div>
           </div>
 
+          <!-- Stock d'alerte -->
+          <div class="mb-3">
+            <label for="stock_alerte" class="form-label">Stock d'alerte</label>
+            <input type="text" class="form-control" id="stock_alerte" placeholder="5" autocomplete="off"
+              [class.invalid]="editArticle.get('stock_alerte')?.invalid && editArticle.get('stock_alerte')?.touched"
+              formControlName="stock_alerte">
+            <div *ngIf="editArticle.get('stock_alerte')?.invalid && editArticle.get('stock_alerte')?.touched">
+              <small *ngIf="editArticle.get('stock_alerte')?.invalid && editArticle.get('stock_alerte')?.touched"
+                class="text-danger"> *le stock d'alerte de l'article est obligatoire</small>
+            </div>
+          </div>
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
@@ -368,8 +384,7 @@
 
 
 <!-- delete Article Modal -->
-<div id="delete_article" class="modal fade" tabindex="-1" aria-labelledby="deleteArticleLabel"
-  aria-hidden="true">
+<div id="delete_article" class="modal fade" tabindex="-1" aria-labelledby="deleteArticleLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <!-- En-tête du modal -->
@@ -380,8 +395,7 @@
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="deleteArticle"
-          (ngSubmit)="onClickSubmitDeleteArticle()">
+        <form class="forms-sample" [formGroup]="deleteArticle" (ngSubmit)="onClickSubmitDeleteArticle()">
           <div class="mb-3">
             <p class="text-secondary">Voulez-vous vraiment supprimer cet Article ?</p>
           </div>

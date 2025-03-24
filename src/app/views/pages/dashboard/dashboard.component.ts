@@ -4,14 +4,20 @@ import { NgbCalendar, NgbDatepickerModule, NgbDateStruct, NgbDropdownModule } fr
 import { ApexOptions, NgApexchartsModule } from "ng-apexcharts";
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
 import { ThemeCssVariableService, ThemeCssVariablesType } from '../../../core/services/theme-css-variable.service';
+import { DashboardStockService } from '../../../core/services/dashboardStock/dashboardStock.service';
+import { RouterModule } from '@angular/router';
+
+import { routes } from '../../../app.routes';
+
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
   imports: [
     NgbDropdownModule,
-    FormsModule, 
-    NgbDatepickerModule, 
+    FormsModule,
+    RouterModule,
+    NgbDatepickerModule,
     NgApexchartsModule,
     FeatherIconDirective
   ],
@@ -25,6 +31,8 @@ export class DashboardComponent implements OnInit {
    */
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
+  dataTableauBord: any = [];
+
   /**
    * Apex chart
    */
@@ -37,9 +45,10 @@ export class DashboardComponent implements OnInit {
 
   themeCssVariables = inject(ThemeCssVariableService).getThemeCssVariables();
 
-  constructor() {}
+  constructor(private dashboardStockService: DashboardStockService) {}
 
   ngOnInit(): void {
+    this.getTableauBord();
     this.customersChartOptions = this.getCustomersChartOptions(this.themeCssVariables);
     this.ordersChartOptions = this.getOrdersChartOptions(this.themeCssVariables);
     this.growthChartOptions = this.getGrowthChartOptions(this.themeCssVariables);
@@ -410,10 +419,10 @@ export class DashboardComponent implements OnInit {
           enabled: false
         }
       },
-      colors: [themeVariables.primary],  
+      colors: [themeVariables.primary],
       fill: {
         opacity: .9
-      } , 
+      } ,
       grid: {
         padding: {
           bottom: -4
@@ -505,7 +514,7 @@ export class DashboardComponent implements OnInit {
             background: themeVariables.gridBorder,
             strokeWidth: '100%',
             opacity: 1,
-            margin: 5, 
+            margin: 5,
           },
           dataLabels: {
             showOn: "always",
@@ -532,5 +541,15 @@ export class DashboardComponent implements OnInit {
       labels: ["Storage Used"]
     }
   };
-  
+
+  getTableauBord() {
+    this.dashboardStockService.getdashInfoStock().subscribe(
+      (data: any) => {
+        this.dataTableauBord = data.data;
+        console.log(this.dataTableauBord);
+      },
+      (error: any) => {}
+    );
+  }
+
 }

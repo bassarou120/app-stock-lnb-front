@@ -15,6 +15,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/articles/articles.routes')
       },
       {
+        path: 'etat-de-stock',
+        loadChildren: () => import('./views/pages/etat-de-stock/etat-de-stock.routes')
+      },
+      {
         path: 'dashboard',
         loadChildren: () => import('./views/pages/dashboard/dashboard.routes')
       },

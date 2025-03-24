@@ -1,0 +1,55 @@
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Articles</h6>
+        <div class="row mb-3 d-flex justify-content-between">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+          <div class="col-xl-3 col-md-4 ml-2">
+            <ng-select
+              [items]="categories"
+              bindLabel="libelle_categorie_article"
+              bindValue="id"
+              placeholder="Toutes les catégories"
+              clearable="true"
+              (change)="filterByCategory($event)"
+              [(ngModel)]="selectedCategoryId">
+            </ng-select>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Articles" prop="libelle"></ngx-datatable-column>
+            <ngx-datatable-column name="Catégorie">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ getCategoryName(row.id_cat) || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Qte Actuelle">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div
+                  style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;"
+                  [ngStyle]="{
+                    'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#f15b78' : '#00CC66'
+                  }">
+                  {{ row.stock?.Qte_actuel || 0 }}
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

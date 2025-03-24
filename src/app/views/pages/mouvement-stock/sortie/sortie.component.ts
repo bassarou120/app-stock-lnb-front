@@ -336,18 +336,28 @@ export class SortieComponent implements OnInit {
       (response) => {
         console.log('Quantité disponible:', response.data);
         this.quantiteDisponible = response.data;
+
+        // 🔥 On met à jour le validateur max du champ qte
+    const qteControl = this.addSortie.get('qte');
+    qteControl?.setValidators([
+      Validators.required,
+      Validators.min(1),
+      Validators.max(this.quantiteDisponible)
+    ]);
+    qteControl?.updateValueAndValidity();
+    
       },
       (error) => {
         console.error('Erreur lors de la récupération de la quantité disponible:', error);
         this.quantiteDisponible = 0;
       }
     );
-  }
+
 }
 
 
 
-
+}
 
 
 

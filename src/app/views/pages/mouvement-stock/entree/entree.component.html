@@ -433,8 +433,8 @@
               <!-- Numéro de numero_borderau -->
               <div class="mb-3">
                 <label for="numero_borderau" class="form-label">Numéro de Bordereau</label>
-                <input type="text" class="form-control" id="numero_borderau"
-                  placeholder="Entrez le numéro du bordereau" autocomplete="off"
+                <input type="text" class="form-control" id="numero_borderau" placeholder="Entrez le numéro du bordereau"
+                  autocomplete="off"
                   [class.invalid]="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched"
                   formControlName="numero_borderau">
                 <div
@@ -464,8 +464,8 @@
           <!-- Pièces jointes -->
           <div class="mb-3">
             <label for="piece_jointe_mouvement" class="form-label">Pièces jointes</label>
-            <input type="file" class="form-control" id="piece_jointe_mouvement" multiple (change)="onFileSelected($event)"
-              formControlName="piece_jointe_mouvement">
+            <input type="file" class="form-control" id="piece_jointe_mouvement" multiple
+              (change)="onFileSelected($event)" formControlName="piece_jointe_mouvement">
             <div class="mb-2">
             </div>
             <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small>
@@ -474,9 +474,19 @@
           <div class="mb-5">
           </div>
           <hr>
-
           <!-- Liste des articles -->
-          <h6 class="mb-3">Articles à ajouter</h6>
+          <div class="row mb-3">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+              <h6 class="mb-0">Articles à ajouter</h6>
+
+              <!-- Bouton pour ajouter un article -->
+              <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArticle()">
+                <i data-feather="plus" appFeatherIcon></i> Ajouter un autre article
+              </button>
+            </div>
+          </div>
+
+
 
           <div formArrayName="articles">
             <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i"
@@ -528,12 +538,7 @@
             </div>
           </div>
 
-          <!-- Bouton pour ajouter un article -->
-          <div class="d-flex justify-content-start mb-4">
-            <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArticle()">
-              <i data-feather="plus" appFeatherIcon></i> Ajouter un autre article
-            </button>
-          </div>
+
 
           <!-- Boutons d'action -->
           <div class="d-flex justify-content-center gap-2">

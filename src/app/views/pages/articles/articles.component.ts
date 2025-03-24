@@ -23,7 +23,7 @@ declare var bootstrap: any;
     NgbDropdownModule,
     FormsModule,
     MyNgSelectComponent,
-    
+
   ],
   templateUrl: 'articles.component.html'
 })
@@ -59,6 +59,7 @@ export class ArticlesComponent implements OnInit {
       id: [0, [Validators.required]],
       libelle: ["", [Validators.required]],
       id_cat: [null, [Validators.required]],
+      stock_alerte: [0, [Validators.required]],
       description: ["" ,[Validators.required]],
    });
     this.deleteArticle = this.formBuilder.group({
@@ -80,7 +81,8 @@ export class ArticlesComponent implements OnInit {
     return this.formBuilder.group({
       libelle: ['', [Validators.required]],
       id_cat: [null, [Validators.required]],
-      description: ['', [Validators.required]]
+      description: ['', [Validators.required]],
+      stock_alerte: [0, [Validators.required]]
     });
   }
   // Ajouter un nouveau groupe d'article
@@ -99,10 +101,10 @@ export class ArticlesComponent implements OnInit {
 
     if (this.addArticle.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      
+
       // Convertir le FormArray en un tableau d'articles à envoyer
       const articlesToSave = this.articlesArray.value;
-      
+
       // Créer un observable pour sauvegarder tous les articles
       this.articleService.saveMultipleArticles(articlesToSave).subscribe(
         (data: any) => {
@@ -305,6 +307,7 @@ loadArticles(): void {
      id:row.id,
      id_cat:row.id_cat,
      libelle:row.libelle,
+     stock_alerte:row.stock_alerte,
      description:row.description,
     })
   }
