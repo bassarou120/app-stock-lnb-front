@@ -1,0 +1,326 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Véhicules</a></li>
+  </ol>
+</nav>
+
+<!-- Alerte pour ajout avec succès -->
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Véhicule Ajouté avec succès
+</ngb-alert>
+<!-- Alerte pour ajout avec succès -->
+
+<!-- Alerte pour mofifier avec succès -->
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Véhicule Modifié avec succès
+</ngb-alert>
+<!-- Alerte pour mofifier avec succès -->
+
+<!-- Alerte pour supprimer avec succès -->
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Véhicule Supprimé avec succès
+</ngb-alert>
+<!-- Alerte pour supprimer avec succès -->
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Véhicules</h4>
+          <p class="text-secondary">Liste des Véhicules</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_vehicule">
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Véhicules</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="N° immatriculation..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Immatriculation" prop="immatriculation"></ngx-datatable-column>
+            <ngx-datatable-column name="Numero chassis" prop="numero_chassis"></ngx-datatable-column>
+            <ngx-datatable-column name="Marque">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.marque?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Modele">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.modele?.libelle_modele || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="kilometrage (en Km)" prop="kilometrage"></ngx-datatable-column>
+            <ngx-datatable-column name="Date de mise en service" prop="date_mise_en_service">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right">
+                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#edit_vehicule" (click)="getEditForm(row)">
+                      <i class="feather icon-edit me-2"></i> Modifier
+                    </button>
+                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#delete_vehicule" (click)="getDeleteForm(row)">
+                      <i class="feather icon-trash-2 me-2"></i> Supprimer
+                    </button>
+
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Vehicule  Modal -->
+<div id="add_vehicule" class="modal fade" tabindex="-1" aria-labelledby="addVehiculeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addVehiculeLabel">Ajouter plusieurs vehicules</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addVehicule" (ngSubmit)="onClickSubmitAddVehicules()" novalidate>
+
+          <!-- En-têtes du tableau -->
+          <div class="row mb-2 fw-bold">
+            <div class="col-2">Marque</div>
+            <div class="col-2">Modèle</div>
+            <div class="col-2">Immatriculation</div>
+            <div class="col-2">Numéro de Châssis</div>
+            <div class="col-1">Kilométrage (km)</div>
+            <div class="col-2">Date de Mise en Service</div>
+            <div class="col-1">Action</div>
+          </div>
+
+          <!-- Formulaire dynamique pour les vehicules -->
+          <div formArrayName="vehicules">
+            <div *ngFor="let vehiculeForm of vehiculesArray.controls; let i = index" [formGroupName]="i"
+              class="row mb-3 align-items-center">
+
+              <!-- Sélection de Marque -->
+              <div class="col-2">
+                <ng-container *ngIf="marques && marques.length > 0; else noMarque">
+                  <ng-select [items]="marques" bindLabel="libelle" bindValue="id"
+                    formControlName="marque_id" [clearable]="true" placeholder="Marque">
+                  </ng-select>
+                  <div *ngIf="vehiculeForm.get('marque_id')?.invalid && vehiculeForm.get('marque_id')?.touched"
+                    class="text-danger small">
+                    La marque est obligatoire
+                  </div>
+                </ng-container>
+                <ng-template #noMarque>
+                  <div class="alert alert-danger p-1 small">
+                    <i class="feather icon-alert-circle"></i> Aucune Marque disponible
+                  </div>
+                </ng-template>
+              </div>
+              <!-- Sélection du Model -->
+              <div class="col-2">
+                <ng-container *ngIf="modeles && modeles.length > 0; else noModele">
+                  <ng-select [items]="modeles" bindLabel="libelle_modele" bindValue="id"
+                    formControlName="modele_id" [clearable]="true" placeholder="Modele">
+                  </ng-select>
+                  <div *ngIf="vehiculeForm.get('modele_id')?.invalid && vehiculeForm.get('modele_id')?.touched"
+                    class="text-danger small">
+                    La modele est obligatoire
+                  </div>
+                </ng-container>
+                <ng-template #noModele>
+                  <div class="alert alert-danger p-1 small">
+                    <i class="feather icon-alert-circle"></i> Aucun modele disponible
+                  </div>
+                </ng-template>
+              </div>
+
+              <!-- immatriculation -->
+              <div class="col-2">
+                <input type="text" class="form-control" placeholder="BJ1234AA" formControlName="immatriculation"
+                  [class.is-invalid]="vehiculeForm.get('immatriculation')?.invalid && vehiculeForm.get('immatriculation')?.touched">
+                <div *ngIf="vehiculeForm.get('immatriculation')?.invalid && vehiculeForm.get('immatriculation')?.touched"
+                  class="invalid-feedback">
+                  L'immatriculation est obligatoire
+                </div>
+              </div>
+
+              <!-- numero_chassis -->
+              <div class="col-2">
+                <input type="text" class="form-control" placeholder="VF1AB1234567890123" formControlName="numero_chassis"
+                  [class.is-invalid]="vehiculeForm.get('numero_chassis')?.invalid && vehiculeForm.get('numero_chassis')?.touched">
+                <div *ngIf="vehiculeForm.get('numero_chassis')?.invalid && vehiculeForm.get('numero_chassis')?.touched"
+                  class="invalid-feedback">
+                  L'immatriculation est obligatoire
+                </div>
+              </div>
+
+              <!-- kilometrage -->
+              <div class="col-1">
+                <input type="text" class="form-control" placeholder="120000" formControlName="kilometrage"
+                  [class.is-invalid]="vehiculeForm.get('kilometrage')?.invalid && vehiculeForm.get('kilometrage')?.touched">
+                <div *ngIf="vehiculeForm.get('kilometrage')?.invalid && vehiculeForm.get('kilometrage')?.touched"
+                  class="invalid-feedback">
+                  kilometrage est obligatoire
+                </div>
+              </div>
+
+              <!-- date_mise_en_service -->
+              <div class="col-2">
+                <input type="text" class="form-control" placeholder="2024-12-31" formControlName="date_mise_en_service"
+                  [class.is-invalid]="vehiculeForm.get('date_mise_en_service')?.invalid && vehiculeForm.get('date_mise_en_service')?.touched">
+                <div *ngIf="vehiculeForm.get('date_mise_en_service')?.invalid && vehiculeForm.get('date_mise_en_service')?.touched"
+                  class="invalid-feedback">
+                  date de mise en service est obligatoire
+                </div>
+              </div>
+
+
+
+              <!-- Bouton de suppression -->
+              <div class="col-1">
+                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeVehicule(i)"
+                  [disabled]="vehiculesArray.length === 1">
+                  <i class="feather icon-trash-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton pour ajouter un nouvel article -->
+          <div class="d-flex justify-content-start mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" (click)="addNewVehicule()">
+              <i class="feather icon-plus"></i>
+            </button>
+          </div>
+
+          <!-- Boutons d'actions -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Enrégistrer les Véhicules
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add article  Modal -->
+<!-- <div id="add_article" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content"> -->
+<!-- En-tête du modal -->
+<!-- <div class="modal-header">
+        <h5 class="modal-title" id="addArticleLabel">Ajouter un Article</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div> -->
+
+<!-- Contenu du modal -->
+<!-- <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticle()" novalidate> -->
+<!-- Nom de l'article -->
+<!-- <div class="mb-3">
+            <label for="articleName" class="form-label">Article</label>
+            <input type="text" class="form-control" id="articleName"
+              placeholder="Entrez le nom de l'Article" autocomplete="off"
+              [class.invalid]="addArticle.get('libelle')?.invalid && addArticle.get('libelle')?.touched"
+              formControlName="libelle">
+            <div *ngIf="addArticle.get('libelle')?.invalid && addArticle.get('libelle')?.touched">
+              <small *ngIf="addArticle.get('libelle')?.invalid && addArticle.get('libelle')?.touched"
+                class="text-danger"> *le nom de l'Article est obligatoire</small>
+            </div>
+          </div> -->
+
+<!-- Sélectionner une catégorie -->
+<!-- <div class="mb-3">
+            <label for="categorie" class="form-label">Catégorie</label>
+
+            <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
+              <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id" formControlName="id_cat"
+                [clearable]="true" placeholder="Sélectionnez la catégorie">
+              </ng-select>
+
+              <div *ngIf="addArticle.get('id_cat')?.invalid && addArticle.get('id_cat')?.touched">
+                <small class="text-danger"> *La catégorie est obligatoire</small>
+              </div>
+            </ng-container> -->
+
+<!-- Message si aucun type d'immobilisation n'existe -->
+<!-- <ng-template #noCategorie>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Catégorie d'article. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div> -->
+
+<!-- description -->
+<!-- <div class="mb-3">
+            <label for="articleDescription" class="form-label">Description</label>
+            <textarea class="form-control" id="articleDescription" rows="5"
+              [class.invalid]="addArticle.get('description')?.invalid && addArticle.get('description')?.touched"
+              placeholder="Entrez la description ici..." formControlName="description"></textarea>
+            <div
+              *ngIf="addArticle.get('description')?.invalid && addArticle.get('description')?.touched">
+              <small
+                *ngIf="addArticle.get('description')?.invalid && addArticle.get('description')?.touched"
+                class="text-danger"> *la description est obligatoire</small>
+            </div>
+          </div> -->
+
+<!-- Boutons centrés -->
+<!-- <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+<!-- /Add Article Modal -->
+
+

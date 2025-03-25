@@ -23,6 +23,13 @@ export interface Marque {
   created_at: string;
   updated_at: string;
 }
+
+export interface Modele {
+  id: number;
+  libelle_modele: string;
+  created_at: string;
+  updated_at: string;
+}
 export interface StatusImmo {
   id: number;
   libelle_status_immo: string;
@@ -127,6 +134,18 @@ export interface Article {
   id_cat: number;
   libelle: string;
   description: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Vehicule {
+  id: number;
+  marque_id: number;
+  modele_id: number;
+  immatriculation: string;
+  numero_chassis: string;
+  kilometrage: number;
+  date_mise_en_service: string;
   created_at: string;
   updated_at: string;
 }

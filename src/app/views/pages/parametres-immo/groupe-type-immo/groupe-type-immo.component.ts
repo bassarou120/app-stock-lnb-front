@@ -8,7 +8,6 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
-import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 declare var bootstrap: any;
 
 @Component({
@@ -22,8 +21,7 @@ declare var bootstrap: any;
     NgbAlertModule,
     NgbDropdownModule,
     FormsModule,
-    MyNgSelectComponent,
-    
+
   ],
   templateUrl: 'groupe-type-immo.component.html'
 })
@@ -51,16 +49,13 @@ export class GroupeTypeImmoComponent implements OnInit {
   constructor(private groupeTypeImmoService: GroupeTypeImmoService,private formBuilder: FormBuilder,) {}
 
   ngOnInit(): void {
-    this.loadSousTypeImmos();
     this.loadGroupeTypeImmos();
     this.addGroupeTypeImmo = this.formBuilder.group({
       libelle: ["", [Validators.required]],
-      id_sous_type_immo: [null, [Validators.required]],
       compte: ["" ,[Validators.required]],
    });
     this.editGroupeTypeImmo = this.formBuilder.group({
       id: [0, [Validators.required]],
-      id_sous_type_immo: [0, [Validators.required]],
       libelle: ["", [Validators.required]],
       compte: ["" ,[Validators.required]],
    });
@@ -193,16 +188,7 @@ onClickSubmitDeleteGroupeTypeImmo(){
   }
 }
 
-loadSousTypeImmos(): void {
-  this.groupeTypeImmoService.getAllSousTypeImmos().subscribe({
-    next: (data) => {
-      this.sousTypeImmos = data; // Stocker la liste des sous types d'immos
-    },
-    error: (err) => {
-      console.error("Erreur lors du chargement des types sous d'immos :", err);
-    }
-  });
-}
+
 
 
 loadGroupeTypeImmos(): void {

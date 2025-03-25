@@ -372,12 +372,22 @@ export const MENU: MenuItem[] = [
     link: '/etat-de-stock'
   },
   {
-    label: 'Gestion de Immo',
+    label: 'Gestion de Immobilisations',
     isTitle: true
   },
   {
-    label: 'Articles',
-    icon: 'monitor',
+    label: 'Enrégistrement',
+    icon: 'download',
+    link: '/dashboard'
+  },
+  {
+    label: 'Transfert',
+    icon: 'send',
+    link: '/dashboard'
+  },
+  {
+    label: 'Intervention',
+    icon: 'activity',
     link: '/dashboard'
   },
   {
@@ -387,7 +397,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Véhicules',
     icon: 'truck',
-    link: '/dashboard'
+    link: '/vehicules'
   },
   {
     label: 'Tickets',

@@ -64,11 +64,6 @@
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Groupe Type d'Immobilisation" prop="libelle"></ngx-datatable-column>
-            <ngx-datatable-column name="Sous Type Immobilisation">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.sous_type_immo?.libelle || 'N/A' }}
-              </ng-template>
-            </ngx-datatable-column>
             <ngx-datatable-column name="Compte" prop="compte"></ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
@@ -128,7 +123,7 @@
           </div>
 
           <!-- Sélectionner un Sous Type Immo -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="soustypeImmoType" class="form-label">Sous Type d'Immobilisation</label>
 
             <ng-container *ngIf="sousTypeImmos && sousTypeImmos.length > 0; else noSousTypeImmo">
@@ -139,16 +134,16 @@
               <div *ngIf="addGroupeTypeImmo.get('id_sous_type_immo')?.invalid && addGroupeTypeImmo.get('id_sous_type_immo')?.touched">
                 <small class="text-danger"> *Le Sous Type d'Immobilisation est obligatoire</small>
               </div>
-            </ng-container>
+            </ng-container> -->
 
             <!-- Message si aucun sous type d'immobilisation n'existe -->
-            <ng-template #noSousTypeImmo>
+            <!-- <ng-template #noSousTypeImmo>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Sous Type d'Immobilisation. Veuillez en créer.
               </div>
             </ng-template>
-          </div>
+          </div> -->
 
 
           <!-- Compte du Type d'Immobilisation -->
@@ -212,7 +207,7 @@
           </div>
 
           <!-- Sélectionner un sous Type Immo -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="soustypeImmoType" class="form-label">Type d'Immobilisation</label>
 
             <ng-container *ngIf="sousTypeImmos && sousTypeImmos.length > 0; else noSousTypeImmo">
@@ -224,16 +219,16 @@
                 *ngIf="editGroupeTypeImmo.get('id_sous_type_immo')?.invalid && editGroupeTypeImmo.get('id_sous_type_immo')?.touched">
                 <small class="text-danger"> *Le Sous Type d'Immobilisation est obligatoire</small>
               </div>
-            </ng-container>
+            </ng-container> -->
 
             <!-- Message si aucun sous type d'immobilisation n'existe -->
-            <ng-template #noSousTypeImmo>
+            <!-- <ng-template #noSousTypeImmo>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Sous Type d'Immobilisation. Veuillez en créer.
               </div>
             </ng-template>
-          </div>
+          </div> -->
 
 
           <!-- Compte du Type d'Immobilisation -->

@@ -27,6 +27,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/categories/categories.routes')
       },
       {
+        path: 'vehicules',
+        loadChildren: () => import('./views/pages/vehicules/vehicules.routes')
+      },
+      {
         path: 'mouvement-stock',
         loadChildren: () => import('./views/pages/mouvement-stock/mouvement-stock.routes')
       },
