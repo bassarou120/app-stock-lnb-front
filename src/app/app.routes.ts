@@ -35,6 +35,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/mouvement-stock/mouvement-stock.routes')
       },
       {
+        path: 'enregistrement-immos',
+        loadChildren: () => import('./views/pages/enregistrement-immos/enregistrement-immos.routes')
+      },
+      {
         path: 'parametres',
         loadChildren: () => import('./views/pages/parametres/parametres.routes')
       },

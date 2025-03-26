@@ -161,3 +161,28 @@ export interface MouvementStock {
   created_at: string;
   updated_at: string;
 }
+
+export interface Immobilisation {
+  id: number;
+  bureau_id: number;
+  employe_id: number;
+  date_mouvement: string;
+  fournisseur_id: number;
+  designation: string;
+  isVehicule: boolean;
+  vehicule_id: number;
+  code: string;
+  id_groupe_type_immo: number;
+  id_sous_type_immo: number;
+  duree_amorti: number;
+  etat: string;
+  taux_ammortissement: number;
+  duree_ammortissement: number;
+  date_acquisition: string;
+  date_mise_en_service: string;
+  observation: string;
+  id_status_immo: number;
+  montant_ttc: number;
+  created_at: string;
+  updated_at: string;
+}

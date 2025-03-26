@@ -378,7 +378,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Enrégistrement',
     icon: 'download',
-    link: '/dashboard'
+    link: '/enregistrement-immos'
   },
   {
     label: 'Transfert',

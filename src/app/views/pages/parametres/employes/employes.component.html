@@ -54,24 +54,35 @@
               (keyup)="updateFilter($event)" />
           </div>
         </div>
-        <div class="table-responsive">
-          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+        <div class="table-responsive" style="overflow-x: auto;">
+          <ngx-datatable class="bootstrap"
+                         [rows]="rows"
+                         [loadingIndicator]="loadingIndicator"
+                         [columnMode]="ColumnMode.force"
+                         [footerHeight]="50"
+                         [limit]="10"
+                         rowHeight="auto"
+                         [scrollbarH]="true">
+
             <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+
             <ngx-datatable-column name="N°">
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
+
             <ngx-datatable-column name="Nom" prop="nom"></ngx-datatable-column>
             <ngx-datatable-column name="Prénom" prop="prenom"></ngx-datatable-column>
             <ngx-datatable-column name="Téléphone" prop="telephone"></ngx-datatable-column>
             <ngx-datatable-column name="Email" prop="email"></ngx-datatable-column>
+
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column>
+
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right">
@@ -83,13 +94,14 @@
                     <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_employe" (click)="getDeleteForm(row)">
                       <i class="feather icon-trash-2 me-2"></i> Supprimer
                     </button>
-
                   </div>
                 </div>
               </ng-template>
             </ngx-datatable-column>
+
           </ngx-datatable>
         </div>
+
       </div>
     </div>
   </div>

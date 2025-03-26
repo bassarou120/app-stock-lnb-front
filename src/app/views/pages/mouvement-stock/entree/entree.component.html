@@ -35,11 +35,11 @@
         <div class="d-flex gap-2">
           <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
             data-bs-target="#add_entree">
-            Ajouter un <i data-feather="chevron-left"></i>
+            Ajouter un
           </button>
           <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
             data-bs-target="#add_entree_multiple">
-            Ajouter plusieurs <i data-feather="chevrons-left"></i>
+            Ajouter plusieurs
           </button>
         </div>
       </div>
@@ -62,7 +62,7 @@
         </div>
         <div class="table-responsive">
           <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto">
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
             <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
             <ngx-datatable-column name="N°">
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
