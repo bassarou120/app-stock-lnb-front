@@ -1,6 +1,6 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink=".">Enrégistrement Immobilisation</a></li>
+    <li class="breadcrumb-item"><a routerLink=".">Immobilisations</a></li>
   </ol>
 </nav>
 
@@ -31,7 +31,7 @@
           <p class="text-secondary">Liste des Immobilisations</p>
         </div>
         <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-          data-bs-target="#add_categorie">
+          data-bs-target="#add_immobilisation">
           Ajouter
         </button>
 
@@ -62,8 +62,31 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
             <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
+            <ngx-datatable-column name="Montant ttc" prop="montant_ttc"></ngx-datatable-column>
             <ngx-datatable-column name="Etat" prop="etat"></ngx-datatable-column>
+            <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+            <ngx-datatable-column name="Groupe type immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.groupe_type_immo?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Sous type immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.sous_type_immo?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Status immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.status_immo?.libelle_status_immo || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Personnel">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.employe?.fullnameEmploye || 'Non défini' }}
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -92,3 +115,269 @@
   </div>
 </div>
 
+
+
+<!-- Add IMMO Modal -->
+<div id="add_immobilisation" class="modal fade" tabindex="-1" aria-labelledby="addImmobilisationLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addImmobilisationLabel">Ajouter une Immobilisation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addImmobilisation" (ngSubmit)="onClickSubmitAddImmobilisation()" novalidate>
+          <!-- code de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="code" class="form-label">Code</label>
+            <input type="text" class="form-control" id="code" placeholder="IMMO-001"
+              autocomplete="off"
+              [class.invalid]="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched"
+              formControlName="code">
+            <div *ngIf="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched">
+              <small *ngIf="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched"
+                class="text-danger"> *le code de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+          <!-- designation de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="designation" class="form-label">Designation</label>
+            <input type="text" class="form-control" id="designation" placeholder="designation"
+              autocomplete="off"
+              [class.invalid]="addImmobilisation.get('designation')?.invalid && addImmobilisation.get('designation')?.touched"
+              formControlName="designation">
+            <div *ngIf="addImmobilisation.get('designation')?.invalid && addImmobilisation.get('designation')?.touched">
+              <small *ngIf="addImmobilisation.get('designation')?.invalid && addImmobilisation.get('designation')?.touched"
+                class="text-danger"> *la designation de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+          <!-- montant ttc de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="montant_ttc" class="form-label">Montant TTC (en FCFA)</label>
+            <input type="text" class="form-control" id="montant_ttc" placeholder="20000"
+              autocomplete="off"
+              [class.invalid]="addImmobilisation.get('montant_ttc')?.invalid && addImmobilisation.get('montant_ttc')?.touched"
+              formControlName="montant_ttc">
+            <div *ngIf="addImmobilisation.get('montant_ttc')?.invalid && addImmobilisation.get('montant_ttc')?.touched">
+              <small *ngIf="addImmobilisation.get('montant_ttc')?.invalid && addImmobilisation.get('montant_ttc')?.touched"
+                class="text-danger"> *le montant ttc de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Sélectionner un fournisseur -->
+          <div class="mb-3">
+            <label for="fournisseur" class="form-label">Fournisseur</label>
+
+            <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
+              <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="fournisseur_id"
+                [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+              </ng-select>
+
+              <div *ngIf="addImmobilisation.get('fournisseur_id')?.invalid && addImmobilisation.get('fournisseur_id')?.touched">
+                <small class="text-danger"> *Le fournisseur est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun Fournisseur n'existe -->
+            <ng-template #noFournisseur>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un SousTypeImmo -->
+          <div class="mb-3">
+            <label for="sousTypeImmo" class="form-label">Sous Type Immo</label>
+
+            <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmo">
+              <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
+                [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation">
+              </ng-select>
+              <div *ngIf="addImmobilisation.get('id_sous_type_immo')?.invalid && addImmobilisation.get('id_sous_type_immo')?.touched">
+                <small class="text-danger"> *Le Sous Type Immo est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun sousTypeImmo n'existe -->
+            <ng-template #noSousTypeImmo>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Sous Type Immo. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un GroupeTypeImmo -->
+          <div class="mb-3">
+            <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation</label>
+
+            <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmo">
+              <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_groupe_type_immo"
+                [clearable]="true" placeholder="Sélectionnez le Groupe type de l'Immobilisation">
+              </ng-select>
+              <div *ngIf="addImmobilisation.get('id_groupe_type_immo')?.invalid && addImmobilisation.get('id_groupe_type_immo')?.touched">
+                <small class="text-danger"> *Le Groupe Type Immo est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun GroupeTypeImmo n'existe -->
+            <ng-template #noGroupeTypeImmo>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Groupe Type Immo. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- duree_amorti de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="duree_amorti" class="form-label">Duree amortie (en ans)</label>
+            <input type="text" class="form-control" id="duree_amorti" placeholder="5"
+              autocomplete="off"
+              [class.invalid]="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
+              formControlName="duree_amorti">
+            <div *ngIf="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched">
+              <small *ngIf="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
+                class="text-danger"> *la duree amortie de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- taux_ammortissement de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %)</label>
+            <input type="text" class="form-control" id="taux_ammortissement" placeholder="5"
+              autocomplete="off"
+              [class.invalid]="addImmobilisation.get('taux_ammortissement')?.invalid && addImmobilisation.get('taux_ammortissement')?.touched"
+              formControlName="taux_ammortissement">
+            <div *ngIf="addImmobilisation.get('taux_ammortissement')?.invalid && addImmobilisation.get('taux_ammortissement')?.touched">
+              <small *ngIf="addImmobilisation.get('taux_ammortissement')?.invalid && addImmobilisation.get('taux_ammortissement')?.touched"
+                class="text-danger"> *le taux d'ammortissement de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- duree_ammortissement de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans)</label>
+            <input type="text" class="form-control" id="duree_ammortissement" placeholder="5"
+              autocomplete="off"
+              [class.invalid]="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched"
+              formControlName="duree_ammortissement">
+            <div *ngIf="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched">
+              <small *ngIf="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched"
+                class="text-danger"> *la duree de l'ammortissement de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- date_acquisition de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="date_acquisition" class="form-label">Date d'acquisition</label>
+            <input type="text" class="form-control" id="date_acquisition" placeholder="2024-12-31"
+              autocomplete="off"
+              [class.invalid]="addImmobilisation.get('date_acquisition')?.invalid && addImmobilisation.get('date_acquisition')?.touched"
+              formControlName="date_acquisition">
+            <div *ngIf="addImmobilisation.get('date_acquisition')?.invalid && addImmobilisation.get('date_acquisition')?.touched">
+              <small *ngIf="addImmobilisation.get('date_acquisition')?.invalid && addImmobilisation.get('date_acquisition')?.touched"
+                class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- observation -->
+          <div class="mb-3">
+            <label for="observation" class="form-label">Observation</label>
+            <textarea class="form-control" id="observation" rows="5"
+              [class.invalid]="addImmobilisation.get('observation')?.invalid && addImmobilisation.get('observation')?.touched"
+              placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
+            <div
+              *ngIf="addImmobilisation.get('observation')?.invalid && addImmobilisation.get('observation')?.touched">
+              <small
+                *ngIf="addImmobilisation.get('observation')?.invalid && addImmobilisation.get('observation')?.touched"
+                class="text-danger"> *l' observation est obligatoire</small>
+            </div>
+          </div>
+          <!-- Sélectionner un StatusImmo -->
+          <div class="mb-3">
+            <label for="statusImmo" class="form-label">Status</label>
+
+            <ng-container *ngIf="statusImmo && statusImmo.length > 0; else noStatusImmo">
+              <ng-select [items]="statusImmo" bindLabel="libelle_status_immo" bindValue="id" formControlName="id_status_immo"
+                [clearable]="true" placeholder="Sélectionnez le Status">
+              </ng-select>
+              <div *ngIf="addImmobilisation.get('id_status_immo')?.invalid && addImmobilisation.get('id_status_immo')?.touched">
+                <small class="text-danger"> *Le status est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun StatusImmo n'existe -->
+            <ng-template #noStatusImmo>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Status. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- isVehicule  ?? -->
+          <div class="form-check mb-3">
+            <input type="checkbox" class="form-check-input" id="checkDefault"
+              (change)="onCheckboxChange($event)">
+            <label class="form-check-label" for="checkDefault">
+              Cette Immobilisation est une voiture ?
+            </label>
+          </div>
+
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Add IMMO Modal -->
+
+
+<!-- delete immo Modal -->
+<div id="delete_immobilisation" class="modal fade" tabindex="-1" aria-labelledby="deleteImmobilisationLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editImmobilisationLabel">Suppression Immobilisation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteImmobilisation"  (ngSubmit)="onClickSubmitDeleteImmobilisation()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer cette Immobilisation ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete immo  Modal -->

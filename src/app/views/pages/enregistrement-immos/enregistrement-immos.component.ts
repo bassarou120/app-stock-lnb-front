@@ -2,11 +2,15 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
-import { Immobilisation } from '../../../core/services/interface/models';
+import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
+
+
 declare var bootstrap: any;
 
 @Component({
@@ -18,7 +22,10 @@ declare var bootstrap: any;
     ReactiveFormsModule,
     CommonModule,
     NgbAlertModule,
-    NgbDropdownModule
+    NgbDropdownModule,
+    MyNgSelectComponent,
+    FeatherIconDirective
+
   ],
   templateUrl: 'enregistrement-immos.component.html'
 })
@@ -38,24 +45,34 @@ export class ImmobilisationComponent implements OnInit {
   public editImmobilisation!: FormGroup;
   public deleteImmobilisation!: FormGroup;
 
+  fournisseurs: Fournisseur[] = []; // Liste des types Fournisseurs
+  statusImmo: StatusImmo[] = []; // Liste des StatusImmo
+  sousTypeImmo: SousTypeImmo[] = []; // Liste des SousTypeImmo
+  groupeTypeImmo: GroupeTypeImmo[] = []; // Liste des GroupeTypeImmo
+
+
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
     this.loadImmobilisations();
+    this.loadFournisseurs();
+    this.loadStatusImmo();
+    this.loadSousTypeImmo();
+    this.loadGroupeTypeImmo();
     this.addImmobilisation = this.formBuilder.group({
-      bureau_id: [null, [Validators.required]],
+      bureau_id: [null, []],
       employe_id: [null, []],
-      date_mouvement: [null],
-      fournisseur_id: [null, [Validators.required]],
+      date_mouvement: [null,[]],
+      fournisseur_id: [null, []],
       designation: ["", [Validators.required]],
       isVehicule: [0, [Validators.required]],
-      vehicule_id: [null, [Validators.required]],
+      vehicule_id: [null, []],
       code: ["", [Validators.required]],
       id_groupe_type_immo: [null, [Validators.required]],
       id_sous_type_immo: [null, [Validators.required]],
-      duree_amorti: ["null", [Validators.required]],
+      duree_amorti: ["", [Validators.required]],
       etat: ["", []],
       taux_ammortissement: ["", [Validators.required]],
       duree_ammortissement: ["", [Validators.required]],
@@ -76,7 +93,7 @@ export class ImmobilisationComponent implements OnInit {
       code: ["", [Validators.required]],
       id_groupe_type_immo: [null, [Validators.required]],
       id_sous_type_immo: [null, [Validators.required]],
-      duree_amorti: ["null", [Validators.required]],
+      duree_amorti: ["", [Validators.required]],
       etat: ["", []],
       taux_ammortissement: ["", [Validators.required]],
       duree_ammortissement: ["", [Validators.required]],
@@ -283,6 +300,52 @@ export class ImmobilisationComponent implements OnInit {
       isVehicule: event.target.checked ? 1 : 0
     });
   }
+
+  loadFournisseurs(): void {
+    this.immobilisationService.getAllFournisseurs().subscribe({
+      next: (data) => {
+        this.fournisseurs = data; // Stocker la liste des fournisseurs
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des fournisseurs :", err);
+      }
+    });
+  }
+  loadStatusImmo(): void {
+    this.immobilisationService.getAllStatusImmos().subscribe({
+      next: (data) => {
+        this.statusImmo = data.filter(status => status.libelle_status_immo !== 'En service');; // Stocker la liste des StatusImmo
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des StatusImmo :", err);
+      }
+    });
+  }
+
+  loadSousTypeImmo(): void {
+    this.immobilisationService.getAllSousTypeImmos().subscribe({
+      next: (data) => {
+        this.sousTypeImmo = data; // Stocker la liste des SousTypeImmo
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des SousTypeImmo :", err);
+      }
+    });
+  }
+  loadGroupeTypeImmo(): void {
+    this.immobilisationService.getAllGroupeTypeImmos().subscribe({
+      next: (data) => {
+        this.groupeTypeImmo = data; // Stocker la liste des groupeTypeImmo
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des groupeTypeImmo :", err);
+      }
+    });
+  }
+
+
+
+
 }
 
 

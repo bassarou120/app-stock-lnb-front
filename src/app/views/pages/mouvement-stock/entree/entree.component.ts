@@ -9,6 +9,9 @@ import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/
 import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
+
+
 declare var bootstrap: any;
 
 @Component({
@@ -23,7 +26,8 @@ declare var bootstrap: any;
     NgbDropdownModule,
     FormsModule,
     MyNgSelectComponent,
-    NgbDatepickerModule
+    NgbDatepickerModule,
+    FeatherIconDirective
   ],
   templateUrl: 'entree.component.html'
 })
