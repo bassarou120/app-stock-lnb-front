@@ -1,18 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Observable} from 'rxjs';
+import { Observable } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
-import {environment} from "../../../../environments/environment";
-import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo } from "../interface/models";
+import { environment } from "../../../../environments/environment";
+import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule } from "../interface/models";
 import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ImmobilisationsService  {
+export class ImmobilisationsService {
   private url: string = environment.backend;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllImmobilisations(): Observable<Immobilisation[]> {
     return this.http.get<{ success: boolean; message: string; data: { data: Immobilisation[] } }>(
@@ -37,42 +37,53 @@ export class ImmobilisationsService  {
   }
 
   getAllFournisseurs(): Observable<Fournisseur[]> {
-      return this.http.get<{ success: boolean; message: string; data: { data: Fournisseur[] } }>(
-        `${this.url}/fournisseurs`
-      ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Fournisseur[] } }) =>
-          response.data.data // On récupère uniquement le tableau de fournisseurs
-        )
-      );
-    }
+    return this.http.get<{ success: boolean; message: string; data: { data: Fournisseur[] } }>(
+      `${this.url}/fournisseurs`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Fournisseur[] } }) =>
+        response.data.data // On récupère uniquement le tableau de fournisseurs
+      )
+    );
+  }
 
-    getAllStatusImmos(): Observable<StatusImmo[]> {
-        return this.http.get<{ success: boolean; message: string; data: { data: StatusImmo[] } }>(
-          `${this.url}/status_immos`
-        ).pipe(
-          map((response: { success: boolean; message: string; data: { data: StatusImmo[] } }) =>
-            response.data.data // On récupère uniquement le tableau de StatusImmo
-          )
-        );
-      }
+  getAllStatusImmos(): Observable<StatusImmo[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: StatusImmo[] } }>(
+      `${this.url}/status_immos`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: StatusImmo[] } }) =>
+        response.data.data // On récupère uniquement le tableau de StatusImmo
+      )
+    );
+  }
 
-      getAllSousTypeImmos(): Observable<SousTypeImmo[]> {
-          return this.http.get<{ success: boolean; message: string; data: { data: SousTypeImmo[] } }>(
-            `${this.url}/sous_type_immos`
-          ).pipe(
-            map((response: { success: boolean; message: string; data: { data: SousTypeImmo[] } }) =>
-              response.data.data // On récupère uniquement le tableau de SousTypeImmo
-            )
-          );
-        }
+  getAllSousTypeImmos(): Observable<SousTypeImmo[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: SousTypeImmo[] } }>(
+      `${this.url}/sous_type_immos`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: SousTypeImmo[] } }) =>
+        response.data.data // On récupère uniquement le tableau de SousTypeImmo
+      )
+    );
+  }
 
-        getAllGroupeTypeImmos(): Observable<GroupeTypeImmo[]> {
-            return this.http.get<{ success: boolean; message: string; data: { data: GroupeTypeImmo[] } }>(
-              `${this.url}/groupe_type_immos`
-            ).pipe(
-              map((response: { success: boolean; message: string; data: { data: GroupeTypeImmo[] } }) =>
-                response.data.data // On récupère uniquement le tableau de groupe_type_immos
-              )
-            );
-          }
+  getAllGroupeTypeImmos(): Observable<GroupeTypeImmo[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: GroupeTypeImmo[] } }>(
+      `${this.url}/groupe_type_immos`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: GroupeTypeImmo[] } }) =>
+        response.data.data // On récupère uniquement le tableau de groupe_type_immos
+      )
+    );
+  }
+
+  getAllVehicules(): Observable<Vehicule[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Vehicule[] } }>(
+      `${this.url}/vehicules`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Vehicule[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Article
+      )
+    );
+  }
+
 }

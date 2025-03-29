@@ -67,7 +67,7 @@ export class EntreeComponent implements OnInit {
     this.addEntree = this.formBuilder.group({
       id_Article: [null, [Validators.required]],
       id_fournisseur: [null, [Validators.required]],
-      description: ["", [Validators.required]],
+      description: ["", []],
       qte: [1, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
     });
@@ -75,7 +75,7 @@ export class EntreeComponent implements OnInit {
       id: [0, [Validators.required]],
       id_Article: [null, [Validators.required]],
       id_fournisseur: [null, [Validators.required]],
-      description: ["", [Validators.required]],
+      description: ["", []],
       qte: [1, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
     });
@@ -103,7 +103,7 @@ export class EntreeComponent implements OnInit {
   createArticleFormGroup(): FormGroup {
     return this.formBuilder.group({
       id_Article: [null, [Validators.required]],
-      description: ["", [Validators.required]],
+      description: ["", []],
       qte: [1, [Validators.required]]
     });
   }

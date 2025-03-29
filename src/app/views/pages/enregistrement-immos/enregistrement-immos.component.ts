@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
-import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo } from '../../../core/services/interface/models';
+import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
@@ -46,9 +46,12 @@ export class ImmobilisationComponent implements OnInit {
   public deleteImmobilisation!: FormGroup;
 
   fournisseurs: Fournisseur[] = []; // Liste des types Fournisseurs
+  vehicules: Vehicule[] = []; // Liste des types Vehicules
   statusImmo: StatusImmo[] = []; // Liste des StatusImmo
   sousTypeImmo: SousTypeImmo[] = []; // Liste des SousTypeImmo
   groupeTypeImmo: GroupeTypeImmo[] = []; // Liste des GroupeTypeImmo
+
+  etatOptions: string[] = ['Bon', 'Usé', 'Défectueux', 'Irréparable'];
 
 
   @ViewChild('table') table!: DatatableComponent;
@@ -61,6 +64,7 @@ export class ImmobilisationComponent implements OnInit {
     this.loadStatusImmo();
     this.loadSousTypeImmo();
     this.loadGroupeTypeImmo();
+    this.loadVehicules();
     this.addImmobilisation = this.formBuilder.group({
       bureau_id: [null, []],
       employe_id: [null, []],
@@ -73,7 +77,7 @@ export class ImmobilisationComponent implements OnInit {
       id_groupe_type_immo: [null, [Validators.required]],
       id_sous_type_immo: [null, [Validators.required]],
       duree_amorti: ["", [Validators.required]],
-      etat: ["", []],
+      etat: ["", [Validators.required]],
       taux_ammortissement: ["", [Validators.required]],
       duree_ammortissement: ["", [Validators.required]],
       date_acquisition: ["", [Validators.required]],
@@ -311,6 +315,18 @@ export class ImmobilisationComponent implements OnInit {
       }
     });
   }
+
+  loadVehicules(): void {
+    this.immobilisationService.getAllVehicules().subscribe({
+      next: (data) => {
+        this.vehicules = data; // Stocker la liste des Vehicules
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des Vehicules :", err);
+      }
+    });
+  }
+
   loadStatusImmo(): void {
     this.immobilisationService.getAllStatusImmos().subscribe({
       next: (data) => {
