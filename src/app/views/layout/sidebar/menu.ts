@@ -405,15 +405,15 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         label: 'Stock Tickets',
-        link: '/parametres-stock/bureaux',
+        // link: '/parametres-stock/bureaux',
       },
       {
         label: 'Mouvement Tickets',
-        link: '/parametres-stock/bureaux',
+        // link: '/parametres-stock/bureaux',
       },
       {
         label: 'Retour Tickets',
-        link: '/parametres-stock/bureaux',
+        // link: '/parametres-stock/bureaux',
       },
     ]
   },
@@ -439,7 +439,7 @@ export const MENU: MenuItem[] = [
         link: '/parametres-stock/categories',
       },
       {
-        label: 'Liste des Bureaux',
+        label: 'Liste des Bureaux/Localisations',
         link: '/parametres-stock/bureaux',
       },
       {

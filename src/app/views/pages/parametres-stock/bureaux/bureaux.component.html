@@ -28,8 +28,8 @@
     <div class="card">
       <div class="card-body d-flex justify-content-between">
         <div>
-          <h4 class="card-title">Liste des Bureaux</h4>
-          <p class="text-secondary">Liste des bureaux</p>
+          <h4 class="card-title">Liste des Bureaux/Localisations</h4>
+          <p class="text-secondary">Liste des bureaux/Localisations</p>
         </div>
         <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
           data-bs-target="#add_bureau">
@@ -47,7 +47,7 @@
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
-        <h6 class="card-title">Liste des Bureaux</h6>
+        <h6 class="card-title">Liste des Bureaux/Localisations</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
             <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
@@ -63,7 +63,7 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Nom du Bureau" prop="libelle_bureau"></ngx-datatable-column>
+            <ngx-datatable-column name="Nom du Bureau/Localisation" prop="libelle_bureau"></ngx-datatable-column>
             <!-- <ngx-datatable-column name="Valeur" prop="valeur"></ngx-datatable-column> -->
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
@@ -103,7 +103,7 @@
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="addBureauLabel">Ajouter un Bureau</h5>
+        <h5 class="modal-title" id="addBureauLabel">Ajouter un Bureau/Localisation</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -112,7 +112,7 @@
         <form class="forms-sample" [formGroup]="addBureau" (ngSubmit)="onClickSubmitAddBureau()" novalidate>
           <!-- Nom du bureau -->
           <div class="mb-3">
-            <label for="bureauName" class="form-label">Nom du Bureau <span class="text-danger">*</span></label>
+            <label for="bureauName" class="form-label">Nom du Bureau/Localisation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="bureauName" placeholder="Entrez le nom du Bureau"
               autocomplete="off"
               [class.invalid]="addBureau.get('libelle_bureau')?.invalid && addBureau.get('libelle_bureau')?.touched"
@@ -161,7 +161,7 @@
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="editBureauLabel">Modification Bureau</h5>
+        <h5 class="modal-title" id="editBureauLabel">Modification Bureau/Localisation</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -219,7 +219,7 @@
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="editBureauLabel">Suppression Bureau</h5>
+        <h5 class="modal-title" id="editBureauLabel">Suppression Bureau/Localisation</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -227,7 +227,7 @@
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="deleteBureau"  (ngSubmit)="onClickSubmitDeleteBureau()">
           <div class="mb-3">
-            <p class="text-secondary">Voulez-vous vraiment supprimer ce Bureau ?</p>
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce Bureau/Localisation ?</p>
           </div>
           <input type="hidden" formControlName="id">
           <!-- Boutons centrés -->
