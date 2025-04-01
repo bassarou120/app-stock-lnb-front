@@ -13,7 +13,7 @@
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Fournisseur Mofifié avec succès
+  Fournisseur Modifié avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
@@ -73,16 +73,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_fournisseur" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_fournisseur" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_fournisseur" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_fournisseur" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -110,7 +113,7 @@
         <form class="forms-sample" [formGroup]="addFournisseur" (ngSubmit)="onClickSubmitAddFournisseur()" novalidate>
           <!-- Nom Fournisseur -->
           <div class="mb-3">
-            <label for="fournisseurName" class="form-label">Nom et prénom du Fournisseur</label>
+            <label for="fournisseurName" class="form-label">Nom et prénom du Fournisseur <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="fournisseurName" placeholder="Entrez le nom et prénom du Fournisseur"
               autocomplete="off"
               [class.invalid]="addFournisseur.get('nom')?.invalid && addFournisseur.get('nom')?.touched"
@@ -122,7 +125,7 @@
           </div>
           <!-- telephone Fournisseur -->
           <div class="mb-3">
-            <label for="fournisseurTelephone" class="form-label">Numéro du Fournisseur</label>
+            <label for="fournisseurTelephone" class="form-label">Numéro du Fournisseur <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="fournisseurTelephone" placeholder="+229 0197010203"
               autocomplete="off"
               [class.invalid]="addFournisseur.get('telephone')?.invalid && addFournisseur.get('telephone')?.touched"
@@ -134,7 +137,7 @@
           </div>
           <!-- adresse Fournisseur -->
           <div class="mb-3">
-            <label for="fournisseurAdresse" class="form-label">Adresse du Fournisseur</label>
+            <label for="fournisseurAdresse" class="form-label">Adresse du Fournisseur <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="fournisseurAdresse" placeholder="Cotonou"
               autocomplete="off"
               [class.invalid]="addFournisseur.get('adresse')?.invalid && addFournisseur.get('adresse')?.touched"
@@ -180,7 +183,7 @@
           <!-- Nom de la Fournisseur -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="fournisseurName" class="form-label">Nom et prénom du Fournisseur</label>
+            <label for="fournisseurName" class="form-label">Nom et prénom du Fournisseur <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="fournisseurName" placeholder="Entrez le nom et prénom du fournisseur"
               autocomplete="off"
               [class.invalid]="editFournisseur.get('nom')?.invalid && editFournisseur.get('nom')?.touched"
@@ -192,7 +195,7 @@
           </div>
           <!-- Telephone de la Fournisseur -->
           <div class="mb-3">
-            <label for="fournisseurTelephone" class="form-label">Numéro du Fournisseur</label>
+            <label for="fournisseurTelephone" class="form-label">Numéro du Fournisseur <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="fournisseurTelephone" placeholder="+2290197010203"
               autocomplete="off"
               [class.invalid]="editFournisseur.get('telephone')?.invalid && editFournisseur.get('telephone')?.touched"
@@ -204,7 +207,7 @@
           </div>
           <!-- Adresse de la Fournisseur -->
           <div class="mb-3">
-            <label for="fournisseurAdresse" class="form-label">Adresse du Fournisseur</label>
+            <label for="fournisseurAdresse" class="form-label">Adresse du Fournisseur <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="fournisseurAdresse" placeholder="Cotonou"
               autocomplete="off"
               [class.invalid]="editFournisseur.get('adresse')?.invalid && editFournisseur.get('adresse')?.touched"

@@ -162,6 +162,18 @@ export interface MouvementStock {
   updated_at: string;
 }
 
+export interface Intervention {
+  id: number;
+  immo_id: number;
+  type_intervention_id: number;
+  date_intervention: string;
+  titre: string;
+  cout: number;
+  observation: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Immobilisation {
   id: number;
   bureau_id: number;

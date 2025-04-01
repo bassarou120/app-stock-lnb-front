@@ -13,7 +13,7 @@
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Type d'Immobilisation Mofifié avec succès
+  Type d'Immobilisation Modifié avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
@@ -72,16 +72,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_typeImmo" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_typeImmo" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-                    
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_typeImmo" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_typeImmo" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -109,7 +112,7 @@
         <form class="forms-sample" [formGroup]="addTypeImmo" (ngSubmit)="onClickSubmitAddTypeImmo()" novalidate>
           <!-- Nom du typeImmo -->
           <div class="mb-3">
-            <label for="typeImmoName" class="form-label">Nom du Type d'Immobilisation</label>
+            <label for="typeImmoName" class="form-label">Nom du Type d'Immobilisation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="typeImmoName" placeholder="Entrez le nom du Type d'Immobilisation"
               autocomplete="off"
               [class.invalid]="addTypeImmo.get('libelle_typeImmo')?.invalid && addTypeImmo.get('libelle_typeImmo')?.touched"
@@ -121,7 +124,7 @@
           </div>
           <!-- Compte du Type d'Immobilisation -->
           <div class="mb-3">
-            <label for="typeImmoCompte" class="form-label">Compte du Type d'Immobilisation</label>
+            <label for="typeImmoCompte" class="form-label">Compte du Type d'Immobilisation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="typeImmoCompte" placeholder="2000"
               autocomplete="off"
               [class.invalid]="addTypeImmo.get('compte')?.invalid && addTypeImmo.get('compte')?.touched"
@@ -167,7 +170,7 @@
           <!-- Nom du Type d'Immobilisation -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="typeImmoName" class="form-label">Nom du Type d'Immobilisation</label>
+            <label for="typeImmoName" class="form-label">Nom du Type d'Immobilisation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="typeImmoName" placeholder="Entrez le nom du Type d'Immobilisation"
               autocomplete="off"
               [class.invalid]="editTypeImmo.get('libelle_typeImmo')?.invalid && editTypeImmo.get('libelle_typeImmo')?.touched"
@@ -180,7 +183,7 @@
 
           <!-- compte Type d'Immobilisation -->
           <div class="mb-3">
-            <label for="typeImmoCompte" class="form-label">Compte du Type d'Immobilisation</label>
+            <label for="typeImmoCompte" class="form-label">Compte du Type d'Immobilisation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="typeImmoCompte" placeholder="2000"
               autocomplete="off"
               [class.invalid]="editTypeImmo.get('compte')?.invalid && editTypeImmo.get('compte')?.touched"

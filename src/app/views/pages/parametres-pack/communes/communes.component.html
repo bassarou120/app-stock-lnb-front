@@ -13,7 +13,7 @@
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Commune Mofifiée avec succès
+  Commune Modifiée avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
@@ -71,16 +71,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_commune" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_commune" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-                    
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_commune" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_commune" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -108,7 +111,7 @@
         <form class="forms-sample" [formGroup]="addCommune" (ngSubmit)="onClickSubmitAddCommune()" novalidate>
           <!-- Nom de la commune -->
           <div class="mb-3">
-            <label for="communeName" class="form-label">Nom de la commune</label>
+            <label for="communeName" class="form-label">Nom de la commune <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="communeName" placeholder="Entrez le nom de la commune"
               autocomplete="off"
               [class.invalid]="addCommune.get('libelle_commune')?.invalid && addCommune.get('libelle_commune')?.touched"
@@ -154,7 +157,7 @@
           <!-- Nom de la commune -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="communeName" class="form-label">Nom de la commune</label>
+            <label for="communeName" class="form-label">Nom de la commune <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="communeName" placeholder="Entrez le nom de la commune"
               autocomplete="off"
               [class.invalid]="editCommune.get('libelle_commune')?.invalid && editCommune.get('libelle_commune')?.touched"

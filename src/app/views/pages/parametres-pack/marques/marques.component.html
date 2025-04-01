@@ -71,16 +71,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_marque" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_marque" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_marque" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_marque   " (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -108,7 +111,7 @@
         <form class="forms-sample" [formGroup]="addMarque" (ngSubmit)="onClickSubmitAddMarque()" novalidate>
           <!-- Nom de la marque -->
           <div class="mb-3">
-            <label for="marqueName" class="form-label">Nom de la marque</label>
+            <label for="marqueName" class="form-label">Nom de la marque <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="marqueName" placeholder="Entrez le nom de la marque"
               autocomplete="off"
               [class.invalid]="addMarque.get('libelle')?.invalid && addMarque.get('libelle')?.touched"
@@ -154,7 +157,7 @@
           <!-- Nom de la Marque -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="marqueName" class="form-label">Nom de la marque</label>
+            <label for="marqueName" class="form-label">Nom de la marque <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="marqueName" placeholder="Entrez le nom de la marque"
               autocomplete="off"
               [class.invalid]="editMarque.get('libelle')?.invalid && editMarque.get('libelle')?.touched"

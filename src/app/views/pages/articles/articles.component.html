@@ -76,18 +76,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#edit_article" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#delete_article" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_article" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_article" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -115,10 +116,10 @@
 
           <!-- En-têtes du tableau -->
           <div class="row mb-2 fw-bold">
-            <div class="col-3">Article</div>
-            <div class="col-3">Catégorie</div>
-            <div class="col-4">Description</div>
-            <div class="col-1">Stock d'alerte</div>
+            <div class="col-3">Article <span class="text-danger">*</span></div>
+            <div class="col-3">Catégorie <span class="text-danger">*</span></div>
+            <div class="col-4">Description <span class="text-danger">*</span></div>
+            <div class="col-1">Stock d'alerte <span class="text-danger">*</span></div>
             <div class="col-1">Action</div>
           </div>
 
@@ -305,7 +306,7 @@
         <form class="forms-sample" [formGroup]="editArticle" (ngSubmit)="onClickSubmitEditArticle()" novalidate>
           <!-- Nom de l'article -->
           <div class="mb-3">
-            <label for="articleName" class="form-label">Article</label>
+            <label for="articleName" class="form-label">Article <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="articleName" placeholder="Entrez le nom de l'Article"
               autocomplete="off"
               [class.invalid]="editArticle.get('libelle')?.invalid && editArticle.get('libelle')?.touched"
@@ -318,7 +319,7 @@
 
           <!-- Sélectionner une catégorie -->
           <div class="mb-3">
-            <label for="categorie" class="form-label">Catégorie</label>
+            <label for="categorie" class="form-label">Catégorie <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
               <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
@@ -342,7 +343,7 @@
 
           <!-- description -->
           <div class="mb-3">
-            <label for="articleDescription" class="form-label">Description</label>
+            <label for="articleDescription" class="form-label">Description <span class="text-danger">*</span></label>
             <textarea class="form-control" id="articleDescription" rows="5"
               [class.invalid]="editArticle.get('description')?.invalid && editArticle.get('description')?.touched"
               placeholder="Entrez la description ici..." formControlName="description"></textarea>
@@ -354,7 +355,7 @@
 
           <!-- Stock d'alerte -->
           <div class="mb-3">
-            <label for="stock_alerte" class="form-label">Stock d'alerte</label>
+            <label for="stock_alerte" class="form-label">Stock d'alerte <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="stock_alerte" placeholder="5" autocomplete="off"
               [class.invalid]="editArticle.get('stock_alerte')?.invalid && editArticle.get('stock_alerte')?.touched"
               formControlName="stock_alerte">

@@ -81,18 +81,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#edit_vehicule" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#delete_vehicule" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_vehicule" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_vehicule" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -120,12 +121,12 @@
 
           <!-- En-têtes du tableau -->
           <div class="row mb-2 fw-bold">
-            <div class="col-2">Marque</div>
-            <div class="col-2">Modèle</div>
-            <div class="col-2">Immatriculation</div>
-            <div class="col-2">Numéro de Châssis</div>
-            <div class="col-1">Kilométrage (km)</div>
-            <div class="col-2">Date de Mise en Service</div>
+            <div class="col-2">Marque <span class="text-danger">*</span></div>
+            <div class="col-2">Modèle <span class="text-danger">*</span></div>
+            <div class="col-2">Immatriculation <span class="text-danger">*</span></div>
+            <div class="col-2">Numéro de Châssis <span class="text-danger">*</span></div>
+            <div class="col-1">Kilométrage (km) <span class="text-danger">*</span></div>
+            <div class="col-2">Date de Mise en Service <span class="text-danger">*</span></div>
             <div class="col-1">Action</div>
           </div>
 
@@ -242,85 +243,3 @@
     </div>
   </div>
 </div>
-
-<!-- Add article  Modal -->
-<!-- <div id="add_article" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content"> -->
-<!-- En-tête du modal -->
-<!-- <div class="modal-header">
-        <h5 class="modal-title" id="addArticleLabel">Ajouter un Article</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div> -->
-
-<!-- Contenu du modal -->
-<!-- <div class="modal-body">
-        <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticle()" novalidate> -->
-<!-- Nom de l'article -->
-<!-- <div class="mb-3">
-            <label for="articleName" class="form-label">Article</label>
-            <input type="text" class="form-control" id="articleName"
-              placeholder="Entrez le nom de l'Article" autocomplete="off"
-              [class.invalid]="addArticle.get('libelle')?.invalid && addArticle.get('libelle')?.touched"
-              formControlName="libelle">
-            <div *ngIf="addArticle.get('libelle')?.invalid && addArticle.get('libelle')?.touched">
-              <small *ngIf="addArticle.get('libelle')?.invalid && addArticle.get('libelle')?.touched"
-                class="text-danger"> *le nom de l'Article est obligatoire</small>
-            </div>
-          </div> -->
-
-<!-- Sélectionner une catégorie -->
-<!-- <div class="mb-3">
-            <label for="categorie" class="form-label">Catégorie</label>
-
-            <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
-              <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id" formControlName="id_cat"
-                [clearable]="true" placeholder="Sélectionnez la catégorie">
-              </ng-select>
-
-              <div *ngIf="addArticle.get('id_cat')?.invalid && addArticle.get('id_cat')?.touched">
-                <small class="text-danger"> *La catégorie est obligatoire</small>
-              </div>
-            </ng-container> -->
-
-<!-- Message si aucun type d'immobilisation n'existe -->
-<!-- <ng-template #noCategorie>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucune Catégorie d'article. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div> -->
-
-<!-- description -->
-<!-- <div class="mb-3">
-            <label for="articleDescription" class="form-label">Description</label>
-            <textarea class="form-control" id="articleDescription" rows="5"
-              [class.invalid]="addArticle.get('description')?.invalid && addArticle.get('description')?.touched"
-              placeholder="Entrez la description ici..." formControlName="description"></textarea>
-            <div
-              *ngIf="addArticle.get('description')?.invalid && addArticle.get('description')?.touched">
-              <small
-                *ngIf="addArticle.get('description')?.invalid && addArticle.get('description')?.touched"
-                class="text-danger"> *la description est obligatoire</small>
-            </div>
-          </div> -->
-
-<!-- Boutons centrés -->
-<!-- <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div> Ajouter
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div> -->
-
-<!-- /Add Article Modal -->
-
-

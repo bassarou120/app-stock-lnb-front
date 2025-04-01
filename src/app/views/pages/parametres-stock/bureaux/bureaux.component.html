@@ -7,19 +7,19 @@
 
 <!-- Alerte pour ajout avec succès -->
 <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Bureau Ajoutée avec succès
+  Bureau Ajouté avec succès
 </ngb-alert>
 <!-- Alerte pour ajout avec succès -->
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Bureau Mofifiée avec succès
+  Bureau Modifié avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
 <!-- Alerte pour supprimer avec succès -->
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Bureau Supprimée avec succès
+  Bureau Supprimé avec succès
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
@@ -72,16 +72,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_bureau" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_bureau" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_bureau" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_bureau" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -109,7 +112,7 @@
         <form class="forms-sample" [formGroup]="addBureau" (ngSubmit)="onClickSubmitAddBureau()" novalidate>
           <!-- Nom du bureau -->
           <div class="mb-3">
-            <label for="bureauName" class="form-label">Nom du Bureau</label>
+            <label for="bureauName" class="form-label">Nom du Bureau <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="bureauName" placeholder="Entrez le nom du Bureau"
               autocomplete="off"
               [class.invalid]="addBureau.get('libelle_bureau')?.invalid && addBureau.get('libelle_bureau')?.touched"
@@ -168,7 +171,7 @@
           <!-- Nom du Bureau -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="bureauName" class="form-label">Nom du Bureau</label>
+            <label for="bureauName" class="form-label">Nom du Bureau <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="bureauName" placeholder="Entrez le nom du Bureau"
               autocomplete="off"
               [class.invalid]="editBureau.get('libelle_bureau')?.invalid && editBureau.get('libelle_bureau')?.touched"

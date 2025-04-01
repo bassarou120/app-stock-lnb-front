@@ -63,7 +63,6 @@
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Catégorie" prop="libelle_categorie_article"></ngx-datatable-column>
-            <ngx-datatable-column name="Taux" prop="taux"></ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -71,16 +70,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#edit_categorie" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal" data-bs-target="#delete_categorie" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_categorie" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_categorie" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -108,7 +110,7 @@
         <form class="forms-sample" [formGroup]="addCategorie" (ngSubmit)="onClickSubmitAddCategorie()" novalidate>
           <!-- Nom du Categorie -->
           <div class="mb-3">
-            <label for="categorieName" class="form-label">Categorie</label>
+            <label for="categorieName" class="form-label">Categorie <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="categorieName" placeholder="Entrez la Categorie"
               autocomplete="off"
               [class.invalid]="addCategorie.get('libelle_categorie_article')?.invalid && addCategorie.get('libelle_categorie_article')?.touched"
@@ -119,18 +121,7 @@
             </div>
           </div>
 
-          <!-- taux du caategorie-->
-          <div class="mb-3">
-            <label for="categorieTaux" class="form-label">Taux</label>
-            <input type="text" class="form-control" id="categorieTaux" placeholder="0"
-              autocomplete="off"
-              [class.invalid]="addCategorie.get('taux')?.invalid && addCategorie.get('taux')?.touched"
-              formControlName="taux">
-            <div *ngIf="addCategorie.get('taux')?.invalid && addCategorie.get('taux')?.touched">
-              <small *ngIf="addCategorie.get('taux')?.invalid && addCategorie.get('taux')?.touched"
-                class="text-danger"> *le taux est obligatoire</small>
-            </div>
-          </div>
+
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
@@ -167,7 +158,7 @@
           <!-- Nom du Categorie -->
           <div class="mb-3">
             <input type="hidden" formControlName="id">
-            <label for="categorieName" class="form-label">Categorie</label>
+            <label for="categorieName" class="form-label">Categorie <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="categorieName" placeholder="Entrez la Categorie"
               autocomplete="off"
               [class.invalid]="editCategorie.get('libelle_categorie_article')?.invalid && editCategorie.get('libelle_categorie_article')?.touched"
@@ -175,18 +166,6 @@
             <div *ngIf="editCategorie.get('libelle_categorie_article')?.invalid && editCategorie.get('libelle_categorie_article')?.touched">
               <small *ngIf="editCategorie.get('libelle_categorie_article')?.invalid && editCategorie.get('libelle_categorie_article')?.touched"
                 class="text-danger"> *la Categorie est obligatoire</small>
-            </div>
-          </div>
-          <!-- Taux du coupon -->
-          <div class="mb-3">
-            <label for="categorieTaux" class="form-label">Taux</label>
-            <input type="text" class="form-control" id="categorieTaux" placeholder="0"
-              autocomplete="off"
-              [class.invalid]="editCategorie.get('taux')?.invalid && editCategorie.get('taux')?.touched"
-              formControlName="taux">
-            <div *ngIf="editCategorie.get('taux')?.invalid && editCategorie.get('taux')?.touched">
-              <small *ngIf="editCategorie.get('taux')?.invalid && editCategorie.get('taux')?.touched"
-                class="text-danger"> *le taux est obligatoire</small>
             </div>
           </div>
 

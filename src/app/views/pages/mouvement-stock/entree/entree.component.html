@@ -89,18 +89,19 @@
             </ngx-datatable-column> -->
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#edit_entree" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_entree" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -129,7 +130,7 @@
 
           <!-- Sélectionner un article -->
           <div class="mb-3">
-            <label for="entree" class="form-label">Article</label>
+            <label for="entree" class="form-label">Article <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="articles && articles.length > 0; else noArticle">
               <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
@@ -152,7 +153,7 @@
 
           <!-- Sélectionner un fournisseur -->
           <div class="mb-3">
-            <label for="fournisseur" class="form-label">Fournisseur</label>
+            <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
               <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
@@ -190,7 +191,7 @@
 
           <!-- Qte -->
           <div class="mb-3">
-            <label for="qte" class="form-label">Quantité</label>
+            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
               [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" formControlName="qte">
             <div *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched">
@@ -200,7 +201,7 @@
           </div>
 
           <!--  date_mouvement -->
-          <label for="date_mouvement" class="form-label">Date du mouvement</label>
+          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
               <i data-feather="calendar"></i>
@@ -249,7 +250,7 @@
           <!-- Sélectionner un article -->
           <div class="mb-3">
             <label for="entree" class="form-label">
-              <Article></Article>
+              Article <span class="text-danger">*</span>
             </label>
 
             <ng-container *ngIf="articles && articles.length > 0; else noArticleEdit">
@@ -273,7 +274,7 @@
 
           <!-- Sélectionner un fournisseur -->
           <div class="mb-3">
-            <label for="fournisseur" class="form-label">Fournisseur</label>
+            <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
               <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
@@ -311,7 +312,7 @@
 
           <!-- Qte -->
           <div class="mb-3">
-            <label for="qte" class="form-label">Quantité</label>
+            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
               [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" formControlName="qte">
             <div *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched">
@@ -321,7 +322,7 @@
           </div>
 
           <!--  date_mouvement -->
-          <label for="date_mouvement" class="form-label">Date du mouvement</label>
+          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
               <i data-feather="calendar"></i>
@@ -410,7 +411,7 @@
             <div class="col-md-6">
               <!-- Sélectionner un fournisseur -->
               <div class="mb-3">
-                <label for="fournisseur" class="form-label">Fournisseur</label>
+                <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
                 <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
                   <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
                     [clearable]="true" placeholder="Sélectionnez le Fournisseur">
@@ -432,7 +433,7 @@
             <div class="col-md-6">
               <!-- Numéro de numero_borderau -->
               <div class="mb-3">
-                <label for="numero_borderau" class="form-label">Numéro de Bordereau</label>
+                <label for="numero_borderau" class="form-label">Numéro de Bordereau <span class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="numero_borderau" placeholder="Entrez le numéro du bordereau"
                   autocomplete="off"
                   [class.invalid]="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched"
@@ -449,7 +450,7 @@
           <!-- Date commune du mouvement -->
           <div class="col-md-6">
           <div class="mb-3">
-            <label for="date_mouvement" class="form-label">Date du mouvement</label>
+            <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
             <div class="input-group">
               <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAddMultiple.toggle()">
                 <i data-feather="calendar"></i>
@@ -483,7 +484,7 @@
           <!-- Liste des articles -->
           <div class="row mb-3">
             <div class="col-12 d-flex justify-content-between align-items-center">
-              <h6 class="mb-0">Articles à ajouter</h6>
+              <h6 class="mb-0">Articles à ajouter <span class="text-danger">*</span></h6>
 
               <!-- Bouton pour ajouter un article -->
               <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArticle()">
@@ -510,7 +511,7 @@
                 <div class="col-md-6">
                   <!-- Sélection d'article -->
                   <div class="mb-3">
-                    <label class="form-label">Article</label>
+                    <label class="form-label">Article <span class="text-danger">*</span></label>
                     <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
                       [clearable]="true" placeholder="Sélectionnez l'Article">
                     </ng-select>
@@ -523,7 +524,7 @@
                 <div class="col-md-6">
                   <!-- Quantité -->
                   <div class="mb-3">
-                    <label class="form-label">Quantité</label>
+                    <label class="form-label">Quantité <span class="text-danger">*</span></label>
                     <input type="number" class="form-control" placeholder="1" formControlName="qte" min="1">
                     <div *ngIf="articleForm.get('qte')?.invalid && articleForm.get('qte')?.touched">
                       <small class="text-danger">*La quantité est obligatoire</small>

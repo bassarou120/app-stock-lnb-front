@@ -46,14 +46,14 @@ export class CategorieComponent implements OnInit {
     this.loadCategories();
     this.addCategorie = this.formBuilder.group({
       libelle_categorie_article: ["", [Validators.required]],
-      valeur: ["" ,[]],
-      taux: ["" ,[Validators.required]],
+      // valeur: ["" ,[]],
+      // taux: ["" ,[Validators.required]],
    });
     this.editCategorie = this.formBuilder.group({
       id: [0, [Validators.required]],
       libelle_categorie_article: ["", [Validators.required]],
-      valeur: ["" ,[]],
-      taux: ["" ,[Validators.required]],
+      // valeur: ["" ,[]],
+      // taux: ["" ,[Validators.required]],
    });
     this.deleteCategorie = this.formBuilder.group({
       id: [0, [Validators.required]],

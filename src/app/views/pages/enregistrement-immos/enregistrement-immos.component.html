@@ -6,19 +6,19 @@
 
 <!-- Alerte pour ajout avec succès -->
 <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Immobilisation Ajouté avec succès
+  Immobilisation Ajoutée avec succès
 </ngb-alert>
 <!-- Alerte pour ajout avec succès -->
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Immobilisation Mofifié avec succès
+  Immobilisation Modifiée avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
 <!-- Alerte pour supprimer avec succès -->
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Immobilisation Supprimé avec succès
+  Immobilisation Supprimée avec succès
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
@@ -94,18 +94,19 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right">
-                  <button class="btn btn-primary" id="dropdownBasic_{{row.id}}" ngbDropdownToggle></button>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#edit_immobilisation" (click)="getEditForm(row)">
-                      <i class="feather icon-edit me-2"></i> Modifier
-                    </button>
-                    <button ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#delete_immobilisation" (click)="getDeleteForm(row)">
-                      <i class="feather icon-trash-2 me-2"></i> Supprimer
-                    </button>
-
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_immobilisation" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_immobilisation" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
                   </div>
                 </div>
               </ng-template>
@@ -136,7 +137,7 @@
           novalidate>
           <!-- code de l' Immobilisation -->
           <div class="mb-3">
-            <label for="code" class="form-label">Code</label>
+            <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="code" placeholder="IMMO-001" autocomplete="off"
               [class.invalid]="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched"
               formControlName="code">
@@ -147,7 +148,7 @@
           </div>
           <!-- designation de l' Immobilisation -->
           <div class="mb-3">
-            <label for="designation" class="form-label">Designation</label>
+            <label for="designation" class="form-label">Designation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="designation" placeholder="designation" autocomplete="off"
               [class.invalid]="addImmobilisation.get('designation')?.invalid && addImmobilisation.get('designation')?.touched"
               formControlName="designation">
@@ -159,7 +160,7 @@
           </div>
           <!-- montant ttc de l' Immobilisation -->
           <div class="mb-3">
-            <label for="montant_ttc" class="form-label">Montant TTC (en FCFA)</label>
+            <label for="montant_ttc" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="montant_ttc" placeholder="20000" autocomplete="off"
               [class.invalid]="addImmobilisation.get('montant_ttc')?.invalid && addImmobilisation.get('montant_ttc')?.touched"
               formControlName="montant_ttc">
@@ -196,7 +197,7 @@
 
           <!-- Sélectionner un SousTypeImmo -->
           <div class="mb-3">
-            <label for="sousTypeImmo" class="form-label">Sous Type Immo</label>
+            <label for="sousTypeImmo" class="form-label">Sous Type Immo <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmo">
               <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
@@ -219,7 +220,7 @@
 
           <!-- Sélectionner un GroupeTypeImmo -->
           <div class="mb-3">
-            <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation</label>
+            <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmo">
               <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
@@ -243,7 +244,7 @@
 
           <!-- duree_amorti de l' Immobilisation -->
           <div class="mb-3">
-            <label for="duree_amorti" class="form-label">Duree amortie (en ans)</label>
+            <label for="duree_amorti" class="form-label">Duree amortie (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_amorti" placeholder="5" autocomplete="off"
               [class.invalid]="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
               formControlName="duree_amorti">
@@ -257,7 +258,7 @@
 
           <!-- taux_ammortissement de l' Immobilisation -->
           <div class="mb-3">
-            <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %)</label>
+            <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="taux_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="addImmobilisation.get('taux_ammortissement')?.invalid && addImmobilisation.get('taux_ammortissement')?.touched"
               formControlName="taux_ammortissement">
@@ -271,7 +272,7 @@
 
           <!-- duree_ammortissement de l' Immobilisation -->
           <div class="mb-3">
-            <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans)</label>
+            <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched"
               formControlName="duree_ammortissement">
@@ -285,7 +286,7 @@
 
           <!-- date_acquisition de l' Immobilisation -->
           <div class="mb-3">
-            <label for="date_acquisition" class="form-label">Date d'acquisition</label>
+            <label for="date_acquisition" class="form-label">Date d'acquisition <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="date_acquisition" placeholder="2024-12-31" autocomplete="off"
               [class.invalid]="addImmobilisation.get('date_acquisition')?.invalid && addImmobilisation.get('date_acquisition')?.touched"
               formControlName="date_acquisition">
@@ -311,7 +312,7 @@
           </div>
           <!-- Sélectionner un StatusImmo -->
           <div class="mb-3">
-            <label for="statusImmo" class="form-label">Status</label>
+            <label for="statusImmo" class="form-label">Status <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="statusImmo && statusImmo.length > 0; else noStatusImmo">
               <ng-select [items]="statusImmo" bindLabel="libelle_status_immo" bindValue="id"
@@ -333,7 +334,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">État</label>
+            <label class="form-label">État <span class="text-danger">*</span></label>
             <ng-select [items]="etatOptions" formControlName="etat" [clearable]="true"
               placeholder="Sélectionnez l'état">
             </ng-select>
@@ -411,10 +412,10 @@
           novalidate>
 
           <input type="hidden" formControlName="id">
-          
+
           <!-- code de l' Immobilisation -->
           <div class="mb-3">
-            <label for="code" class="form-label">Code</label>
+            <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="code" placeholder="IMMO-001" autocomplete="off"
               [class.invalid]="editImmobilisation.get('code')?.invalid && editImmobilisation.get('code')?.touched"
               formControlName="code">
@@ -425,7 +426,7 @@
           </div>
           <!-- designation de l' Immobilisation -->
           <div class="mb-3">
-            <label for="designation" class="form-label">Designation</label>
+            <label for="designation" class="form-label">Designation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="designation" placeholder="designation" autocomplete="off"
               [class.invalid]="editImmobilisation.get('designation')?.invalid && editImmobilisation.get('designation')?.touched"
               formControlName="designation">
@@ -437,7 +438,7 @@
           </div>
           <!-- montant ttc de l' Immobilisation -->
           <div class="mb-3">
-            <label for="montant_ttc" class="form-label">Montant TTC (en FCFA)</label>
+            <label for="montant_ttc" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="montant_ttc" placeholder="20000" autocomplete="off"
               [class.invalid]="editImmobilisation.get('montant_ttc')?.invalid && editImmobilisation.get('montant_ttc')?.touched"
               formControlName="montant_ttc">
@@ -474,7 +475,7 @@
 
           <!-- Sélectionner un SousTypeImmo -->
           <div class="mb-3">
-            <label for="sousTypeImmo" class="form-label">Sous Type Immo</label>
+            <label for="sousTypeImmo" class="form-label">Sous Type Immo <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmoEdit">
               <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
@@ -497,7 +498,7 @@
 
           <!-- Sélectionner un GroupeTypeImmo -->
           <div class="mb-3">
-            <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation</label>
+            <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmoEdit">
               <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
@@ -521,7 +522,7 @@
 
           <!-- duree_amorti de l' Immobilisation -->
           <div class="mb-3">
-            <label for="duree_amorti" class="form-label">Duree amortie (en ans)</label>
+            <label for="duree_amorti" class="form-label">Duree amortie (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_amorti" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched"
               formControlName="duree_amorti">
@@ -535,7 +536,7 @@
 
           <!-- taux_ammortissement de l' Immobilisation -->
           <div class="mb-3">
-            <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %)</label>
+            <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="taux_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('taux_ammortissement')?.invalid && editImmobilisation.get('taux_ammortissement')?.touched"
               formControlName="taux_ammortissement">
@@ -549,7 +550,7 @@
 
           <!-- duree_ammortissement de l' Immobilisation -->
           <div class="mb-3">
-            <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans)</label>
+            <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('duree_ammortissement')?.invalid && editImmobilisation.get('duree_ammortissement')?.touched"
               formControlName="duree_ammortissement">
@@ -563,7 +564,7 @@
 
           <!-- date_acquisition de l' Immobilisation -->
           <div class="mb-3">
-            <label for="date_acquisition" class="form-label">Date d'acquisition</label>
+            <label for="date_acquisition" class="form-label">Date d'acquisition <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="date_acquisition" placeholder="2024-12-31" autocomplete="off"
               [class.invalid]="editImmobilisation.get('date_acquisition')?.invalid && editImmobilisation.get('date_acquisition')?.touched"
               formControlName="date_acquisition">
@@ -589,7 +590,7 @@
           </div>
           <!-- Sélectionner un StatusImmo -->
           <div class="mb-3">
-            <label for="statusImmo" class="form-label">Status</label>
+            <label for="statusImmo" class="form-label">Status <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="statusImmo && statusImmo.length > 0; else noStatusImmoEdit">
               <ng-select [items]="statusImmo" bindLabel="libelle_status_immo" bindValue="id"
@@ -611,7 +612,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label">État</label>
+            <label class="form-label">État <span class="text-danger">*</span></label>
             <ng-select [items]="etatOptions" formControlName="etat" [clearable]="true"
               placeholder="Sélectionnez l'état">
             </ng-select>
@@ -658,7 +659,7 @@
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
                 <span class="visually-hidden">Loading...</span>
               </div> Modifier
             </button>

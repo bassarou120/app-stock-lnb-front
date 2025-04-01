@@ -1,0 +1,408 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Interventions</a></li>
+  </ol>
+</nav>
+
+<!-- Alerte pour ajout avec succès -->
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Intervention Ajoutée avec succès
+</ngb-alert>
+<!-- Alerte pour ajout avec succès -->
+
+<!-- Alerte pour mofifier avec succès -->
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Intervention Mofifiée avec succès
+</ngb-alert>
+<!-- Alerte pour mofifier avec succès -->
+
+<!-- Alerte pour supprimer avec succès -->
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Intervention Supprimée avec succès
+</ngb-alert>
+<!-- Alerte pour supprimer avec succès -->
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Interventions</h4>
+          <p class="text-secondary">Liste des Interventions</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_intervention">
+          Ajouter
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Interventions</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Titre..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Titre" prop="titre"></ngx-datatable-column>
+            <ngx-datatable-column name="Coût" prop="cout"></ngx-datatable-column>
+            <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+            <ngx-datatable-column name="Code Immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.immobilisation?.code || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Designation Immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.immobilisation?.designation || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Type d'Intervention">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.type_intervention?.libelle_type_intervention || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Date de l'intervention" prop="date_intervention">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_intervention" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_intervention" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- Add intervention Modal -->
+<div id="add_intervention" class="modal fade" tabindex="-1" aria-labelledby="addInterventionLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addInterventionLabel">Ajouter une Intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addIntervention" (ngSubmit)="onClickSubmitAddIntervention()"
+          novalidate>
+          <!-- titre -->
+          <div class="mb-3">
+            <label for="titre" class="form-label">Titre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="titre" placeholder="Réparation de table" autocomplete="off"
+              [class.invalid]="addIntervention.get('titre')?.invalid && addIntervention.get('titre')?.touched"
+              formControlName="titre">
+            <div *ngIf="addIntervention.get('titre')?.invalid && addIntervention.get('titre')?.touched">
+              <small *ngIf="addIntervention.get('titre')?.invalid && addIntervention.get('titre')?.touched"
+                class="text-danger"> *le titre est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- cout -->
+          <div class="mb-3">
+            <label for="cout" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="cout" placeholder="20000" autocomplete="off"
+              [class.invalid]="addIntervention.get('cout')?.invalid && addIntervention.get('cout')?.touched"
+              formControlName="cout">
+            <div *ngIf="addIntervention.get('cout')?.invalid && addIntervention.get('cout')?.touched">
+              <small
+                *ngIf="addIntervention.get('cout')?.invalid && addIntervention.get('cout')?.touched"
+                class="text-danger"> *le cout est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Sélectionner immo -->
+          <div class="mb-3">
+            <label for="immo_id" class="form-label">Immobilisation <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="immobilisations && immobilisations.length > 0; else noimmobilisation">
+              <ng-select [items]="immobilisations" bindLabel="code" bindValue="id" formControlName="immo_id"
+                [clearable]="true" placeholder="Sélectionnez l'immobilisation">
+              </ng-select>
+
+              <div
+                *ngIf="addIntervention.get('immo_id')?.invalid && addIntervention.get('immo_id')?.touched">
+                <small class="text-danger"> *L'immobilisation est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun Immo n'existe -->
+            <ng-template #noimmobilisation>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner d'intervention -->
+          <div class="mb-3">
+            <label for="type_intervention_id" class="form-label">Type d'intervention <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else notypeInterventions">
+              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
+                [clearable]="true" placeholder="Sélectionnez le Type d'Intervention">
+              </ng-select>
+              <div
+                *ngIf="addIntervention.get('type_intervention_id')?.invalid && addIntervention.get('type_intervention_id')?.touched">
+                <small class="text-danger"> *Le Type d'intervention est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun typeIntervention n'existe -->
+            <ng-template #notypeInterventions>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Type Intervention. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- date_intervention -->
+          <div class="mb-3">
+            <label for="date_intervention" class="form-label">Date de L'intervention <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="date_intervention" placeholder="2024-12-31" autocomplete="off"
+              [class.invalid]="addIntervention.get('date_intervention')?.invalid && addIntervention.get('date_intervention')?.touched"
+              formControlName="date_intervention">
+            <div
+              *ngIf="addIntervention.get('date_intervention')?.invalid && addIntervention.get('date_intervention')?.touched">
+              <small
+                *ngIf="addIntervention.get('date_intervention')?.invalid && addIntervention.get('date_intervention')?.touched"
+                class="text-danger"> *la date de l'intervention est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- observation -->
+          <div class="mb-3">
+            <label for="observation" class="form-label">Observation <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="observation" rows="5"
+              [class.invalid]="addIntervention.get('observation')?.invalid && addIntervention.get('observation')?.touched"
+              placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
+            <div *ngIf="addIntervention.get('observation')?.invalid && addIntervention.get('observation')?.touched">
+              <small
+                *ngIf="addIntervention.get('observation')?.invalid && addIntervention.get('observation')?.touched"
+                class="text-danger"> *l'observation est obligatoire</small>
+            </div>
+          </div>
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Add intervention Modal -->
+
+
+<!-- edit Intervention Modal -->
+<div id="edit_intervention" class="modal fade" tabindex="-1" aria-labelledby="editInterventionLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editInterventionLabel">Modifier une Intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editIntervention" (ngSubmit)="onClickSubmitEditIntervention()"
+          novalidate>
+          <!-- titre -->
+          <div class="mb-3">
+            <label for="titre" class="form-label">Titre <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="titre" placeholder="Réparation de table" autocomplete="off"
+              [class.invalid]="editIntervention.get('titre')?.invalid && editIntervention.get('titre')?.touched"
+              formControlName="titre">
+            <div *ngIf="editIntervention.get('titre')?.invalid && editIntervention.get('titre')?.touched">
+              <small *ngIf="editIntervention.get('titre')?.invalid && editIntervention.get('titre')?.touched"
+                class="text-danger"> *le titre est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- cout -->
+          <div class="mb-3">
+            <label for="cout" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="cout" placeholder="20000" autocomplete="off"
+              [class.invalid]="editIntervention.get('cout')?.invalid && editIntervention.get('cout')?.touched"
+              formControlName="cout">
+            <div *ngIf="editIntervention.get('cout')?.invalid && editIntervention.get('cout')?.touched">
+              <small
+                *ngIf="editIntervention.get('cout')?.invalid && editIntervention.get('cout')?.touched"
+                class="text-danger"> *le cout est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Sélectionner immo -->
+          <div class="mb-3">
+            <label for="immo_id" class="form-label">Immobilisation <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="immobilisations && immobilisations.length > 0; else noimmobilisation">
+              <ng-select [items]="immobilisations" bindLabel="code" bindValue="id" formControlName="immo_id"
+                [clearable]="true" placeholder="Sélectionnez l'immobilisation">
+              </ng-select>
+
+              <div
+                *ngIf="editIntervention.get('immo_id')?.invalid && editIntervention.get('immo_id')?.touched">
+                <small class="text-danger"> *L'immobilisation est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun Immo n'existe -->
+            <ng-template #noimmobilisation>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner d'intervention -->
+          <div class="mb-3">
+            <label for="type_intervention_id" class="form-label">Type d'intervention <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else notypeInterventions">
+              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
+                [clearable]="true" placeholder="Sélectionnez le Type d'Intervention">
+              </ng-select>
+              <div
+                *ngIf="editIntervention.get('type_intervention_id')?.invalid && editIntervention.get('type_intervention_id')?.touched">
+                <small class="text-danger"> *Le Type d'intervention est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun typeIntervention n'existe -->
+            <ng-template #notypeInterventions>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Type Intervention. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- date_intervention -->
+          <div class="mb-3">
+            <label for="date_intervention" class="form-label">Date de L'intervention <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="date_intervention" placeholder="2024-12-31" autocomplete="off"
+              [class.invalid]="editIntervention.get('date_intervention')?.invalid && editIntervention.get('date_intervention')?.touched"
+              formControlName="date_intervention">
+            <div
+              *ngIf="editIntervention.get('date_intervention')?.invalid && editIntervention.get('date_intervention')?.touched">
+              <small
+                *ngIf="editIntervention.get('date_intervention')?.invalid && editIntervention.get('date_intervention')?.touched"
+                class="text-danger"> *la date de l'intervention est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- observation -->
+          <div class="mb-3">
+            <label for="observation" class="form-label">Observation <span class="text-danger">*</span></label>
+            <textarea class="form-control" id="observation" rows="5"
+              [class.invalid]="editIntervention.get('observation')?.invalid && editIntervention.get('observation')?.touched"
+              placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
+            <div *ngIf="editIntervention.get('observation')?.invalid && editIntervention.get('observation')?.touched">
+              <small
+                *ngIf="editIntervention.get('observation')?.invalid && editIntervention.get('observation')?.touched"
+                class="text-danger"> *l' observation est obligatoire</small>
+            </div>
+          </div>
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /edit Intervention Modal -->
+
+
+<!-- delete Intervention Modal -->
+<div id="delete_intervention" class="modal fade" tabindex="-1" aria-labelledby="deleteInterventionLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editInterventionLabel">Suppression Intervention</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteIntervention" (ngSubmit)="onClickSubmitDeleteIntervention()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer cette Intervention ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete Intervention  Modal -->

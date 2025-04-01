@@ -388,7 +388,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Intervention',
     icon: 'activity',
-    link: '/dashboard'
+    link: '/intervention'
   },
   {
     label: 'Gestion de Pack',
