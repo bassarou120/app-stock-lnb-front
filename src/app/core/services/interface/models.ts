@@ -174,6 +174,19 @@ export interface Intervention {
   updated_at: string;
 }
 
+export interface Transfert {
+  id: number;
+  immo_id: number;
+  old_bureau_id: number;
+  old_employe_id: number;
+  bureau_id: number;
+  employe_id: number;
+  date_mouvement: string;
+  observation: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Immobilisation {
   id: number;
   bureau_id: number;

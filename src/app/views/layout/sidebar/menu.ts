@@ -383,7 +383,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Transfert',
     icon: 'send',
-    link: '/dashboard'
+    link: '/transfert'
   },
   {
     label: 'Intervention',
@@ -399,29 +399,29 @@ export const MENU: MenuItem[] = [
     icon: 'truck',
     link: '/vehicules'
   },
-  {
-    label: 'Tickets',
-    icon: 'credit-card',
-    subItems: [
-      {
-        label: 'Stock Tickets',
-        // link: '/parametres-stock/bureaux',
-      },
-      {
-        label: 'Mouvement Tickets',
-        // link: '/parametres-stock/bureaux',
-      },
-      {
-        label: 'Retour Tickets',
-        // link: '/parametres-stock/bureaux',
-      },
-    ]
-  },
-  {
-    label: 'Interventions',
-    icon: 'refresh-ccw',
-    link: '/dashboard'
-  },
+  // {
+  //   label: 'Tickets',
+  //   icon: 'credit-card',
+  //   subItems: [
+  //     {
+  //       label: 'Stock Tickets',
+  //       link: '/parametres-stock/bureaux',
+  //     },
+  //     {
+  //       label: 'Mouvement Tickets',
+  //       link: '/parametres-stock/bureaux',
+  //     },
+  //     {
+  //       label: 'Retour Tickets',
+  //       link: '/parametres-stock/bureaux',
+  //     },
+  //   ]
+  // },
+  // {
+  //   label: 'Interventions',
+  //   icon: 'refresh-ccw',
+  //   link: '/dashboard'
+  // },
   {
     label: 'Paramètres',
     isTitle: true
