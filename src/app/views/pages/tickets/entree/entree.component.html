@@ -1,0 +1,417 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Mouvement Tickets</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Entrées</li>
+  </ol>
+</nav>
+
+<!-- Alerte pour ajout avec succès -->
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Mouvement Ajouté avec succès
+</ngb-alert>
+<!-- Alerte pour ajout avec succès -->
+
+<!-- Alerte pour mofifier avec succès -->
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Mouvement Modifié avec succès
+</ngb-alert>
+<!-- Alerte pour mofifier avec succès -->
+
+<!-- Alerte pour supprimer avec succès -->
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Mouvement Supprimé avec succès
+</ngb-alert>
+<!-- Alerte pour supprimer avec succès -->
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Mouvements d'Entrées de tickets</h4>
+          <p class="text-secondary">Liste des Mouvements d'Entrées de tickets
+          <p>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+            data-bs-target="#add_entree">
+            Ajouter
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Mouvements d'Entrées de Tickets</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Coupon..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Coupon">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.coupon_ticket?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Vehicule">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.vehicule?.immatriculation || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column> -->
+            <ngx-datatable-column name="Compagnie">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.compagnie_petrolier?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
+            <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+            <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
+            <ngx-datatable-column name="Date" prop="date"></ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Employe">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.employe?.fullnameEmploye || 'Non défini' }}
+              </ng-template>
+            </ngx-datatable-column> -->
+            <!-- <ngx-datatable-column name="Date de création" prop="created_at">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column> -->
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_entree" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Add mouvement entrée -->
+<div id="add_entree" class="modal fade" tabindex="-1" aria-labelledby="addEntreeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEntreeLabel">Ajouter un Mouvement d'entrée de Ticket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addEntree" (ngSubmit)="onClickSubmitAddEntree()" novalidate>
+
+          <!-- Sélectionner un coupon -->
+          <div class="mb-3">
+            <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="couponTickets && couponTickets.length > 0; else noCouponTickets">
+              <ng-select [items]="couponTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
+                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket">
+              </ng-select>
+
+              <div *ngIf="addEntree.get('coupon_ticket_id')?.invalid && addEntree.get('coupon_ticket_id')?.touched">
+                <small class="text-danger"> *Le coupon est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun CouponTicket n'existe -->
+            <ng-template #noCouponTickets>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner une compagnie_petrolier -->
+          <div class="mb-3">
+            <label for="fournisseur" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolier">
+              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
+                [clearable]="true" placeholder="Sélectionnez la compagnie pétrolière">
+              </ng-select>
+
+              <div *ngIf="addEntree.get('compagnie_petrolier_id')?.invalid && addEntree.get('compagnie_petrolier_id')?.touched">
+                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucune Compagnie_petrolier n'existe -->
+            <ng-template #noCompagnie_petrolier>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolier. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Qte -->
+          <div class="mb-3">
+            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+              [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" formControlName="qte">
+            <div *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched">
+              <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" class="text-danger"> *la qte
+                est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Objet -->
+          <div class="mb-3">
+            <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
+            <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
+              [class.invalid]="addEntree.get('objet')?.invalid && addEntree.get('objet')?.touched" formControlName="objet">
+            <div *ngIf="addEntree.get('objet')?.invalid && addEntree.get('objet')?.touched">
+              <small *ngIf="addEntree.get('objet')?.invalid && addEntree.get('objet')?.touched" class="text-danger"> *l'objet
+                est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description du mouvement</label>
+            <textarea class="form-control" id="description" rows="5"
+              [class.invalid]="addEntree.get('description')?.invalid && addEntree.get('description')?.touched"
+              placeholder="Entrez la description ici..." formControlName="description"></textarea>
+            <div *ngIf="addEntree.get('description')?.invalid && addEntree.get('description')?.touched">
+              <small *ngIf="addEntree.get('description')?.invalid && addEntree.get('description')?.touched"
+                class="text-danger"> *la description est obligatoire</small>
+            </div>
+          </div>
+
+
+
+
+
+
+          <!--  date_mouvement -->
+          <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
+          </div>
+
+          <div *ngIf="addEntree.get('date')?.invalid && addEntree.get('date')?.touched">
+            <small class="text-danger"> *la date du mouvement est obligatoire</small>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Add mouvement entree Modal -->
+
+
+
+<!-- Edit entree Immo Modal -->
+<div id="edit_entree" class="modal fade" tabindex="-1" aria-labelledby="editEntreeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEntreeLabel">Modifier un Mouvement d'entrée</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editEntree" (ngSubmit)="onClickSubmitEditEntree()" novalidate>
+
+          <!-- Sélectionner un coupon -->
+          <div class="mb-3">
+            <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="couponTickets && couponTickets.length > 0; else noCouponTicketsE">
+              <ng-select [items]="couponTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
+                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket">
+              </ng-select>
+
+              <div *ngIf="editEntree.get('coupon_ticket_id')?.invalid && editEntree.get('coupon_ticket_id')?.touched">
+                <small class="text-danger"> *Le coupon est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun CouponTicket n'existe -->
+            <ng-template #noCouponTicketsE>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner une compagnie_petrolier -->
+          <div class="mb-3">
+            <label for="fournisseur" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolierE">
+              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
+                [clearable]="true" placeholder="Sélectionnez la compagnie pétrolière">
+              </ng-select>
+
+              <div *ngIf="editEntree.get('compagnie_petrolier_id')?.invalid && editEntree.get('compagnie_petrolier_id')?.touched">
+                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucune Compagnie_petrolier n'existe -->
+            <ng-template #noCompagnie_petrolierE>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolier. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+           <!-- Qte -->
+           <div class="mb-3">
+            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+              [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" formControlName="qte">
+            <div *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched">
+              <small *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" class="text-danger"> *la qte
+                est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Objet -->
+          <div class="mb-3">
+            <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
+            <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
+              [class.invalid]="editEntree.get('objet')?.invalid && editEntree.get('objet')?.touched" formControlName="objet">
+            <div *ngIf="editEntree.get('objet')?.invalid && editEntree.get('objet')?.touched">
+              <small *ngIf="editEntree.get('objet')?.invalid && editEntree.get('objet')?.touched" class="text-danger"> *l'objet
+                est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Description du mouvement</label>
+            <textarea class="form-control" id="description" rows="5"
+              [class.invalid]="editEntree.get('description')?.invalid && editEntree.get('description')?.touched"
+              placeholder="Entrez la description ici..." formControlName="description"></textarea>
+            <div *ngIf="editEntree.get('description')?.invalid && editEntree.get('description')?.touched">
+              <small *ngIf="editEntree.get('description')?.invalid && editEntree.get('description')?.touched"
+                class="text-danger"> *la description est obligatoire</small>
+            </div>
+          </div>
+
+          <!--  date_mouvement -->
+          <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
+              [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date">
+          </div>
+
+          <div *ngIf="editEntree.get('date')?.invalid && editEntree.get('date')?.touched">
+            <small class="text-danger"> *la date du mouvement est obligatoire</small>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Edit mouvement Modal -->
+
+
+
+<!-- delete mouvement Modal -->
+<div id="delete_entree" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteEntreeLabel">Suppression du Mouvement</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteEntree" (ngSubmit)="onClickSubmitDeleteEntree()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce Mouvement ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete mouvement Modal -->
+

@@ -113,7 +113,7 @@
           <!-- Nom du coupon -->
           <div class="mb-3">
             <label for="couponTicketName" class="form-label">Nom du Coupon Ticket <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="couponTicketName" placeholder="Entrez le nom du coupon ticket"
+            <input type="text" class="form-control" id="couponTicketName" placeholder="Ticket de 2000"
               autocomplete="off"
               [class.invalid]="addCouponTicket.get('libelle')?.invalid && addCouponTicket.get('libelle')?.touched"
               formControlName="libelle">
@@ -171,7 +171,7 @@
           <div class="mb-3">
             <input type="hidden" formControlName="id">
             <label for="couponTicketName" class="form-label">Nom du Coupon Ticket <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="couponTicketName" placeholder="Entrez le nom du coupon ticket"
+            <input type="text" class="form-control" id="couponTicketName" placeholder="Ticket de 2000"
               autocomplete="off"
               [class.invalid]="editCouponTicket.get('libelle')?.invalid && editCouponTicket.get('libelle')?.touched"
               formControlName="libelle">

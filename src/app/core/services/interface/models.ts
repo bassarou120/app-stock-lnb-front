@@ -162,6 +162,22 @@ export interface MouvementStock {
   updated_at: string;
 }
 
+export interface MouvementTicket {
+  id: number;
+  vehicule_id: number;
+  compagnie_petrolier_id: number;
+  coupon_ticket_id: number;
+  employe_id: number;
+  description: string;
+  objet: string;
+  id_type_mouvement: number;
+  kilometrage: number;
+  qte: number;
+  date: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Intervention {
   id: number;
   immo_id: number;

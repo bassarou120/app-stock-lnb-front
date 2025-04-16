@@ -399,24 +399,28 @@ export const MENU: MenuItem[] = [
     icon: 'truck',
     link: '/vehicules'
   },
-  // {
-  //   label: 'Tickets',
-  //   icon: 'credit-card',
-  //   subItems: [
-  //     {
-  //       label: 'Stock Tickets',
-  //       link: '/parametres-stock/bureaux',
-  //     },
-  //     {
-  //       label: 'Mouvement Tickets',
-  //       link: '/parametres-stock/bureaux',
-  //     },
-  //     {
-  //       label: 'Retour Tickets',
-  //       link: '/parametres-stock/bureaux',
-  //     },
-  //   ]
-  // },
+  {
+    label: 'Tickets',
+    icon: 'credit-card',
+    subItems: [
+      {
+        label: 'Stock Tickets',
+        link: 'tickets/',
+      },
+      {
+        label: 'Entrée de Ticket',
+        link: 'tickets/entree',
+      },
+      {
+        label: 'Attribution de Ticket',
+        link: 'tickets/attribution',
+      },
+      {
+        label: 'Retour Tickets',
+        link: '/parametres-stock/bureaux',
+      },
+    ]
+  },
   // {
   //   label: 'Interventions',
   //   icon: 'refresh-ccw',
