@@ -1,8 +1,8 @@
 import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
-import { MouvementStockService } from '../../../../core/services/mouvementstock/sortie.service';
-import { MouvementStock, Article, Bureau, Employe } from '../../../../core/services/interface/models';
+import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/sortie.service';
+import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
@@ -33,14 +33,16 @@ declare var bootstrap: any;
 export class SortieComponent implements OnInit {
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
-  rows: MouvementStock[] = [];
-  temp: MouvementStock[] = [];
+  rows: MouvementTicket[] = [];
+  temp: MouvementTicket[] = [];
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  articles: Article[] = []; // Liste des types articles
-  bureaux: Bureau[] = []; // Liste des Bureaux
+  type_mouvements: TypeMouvement[] = []; // Liste des mouvements
+  compagniePetrolieres: CompagniePetroliere[] = []; // Liste des compagnies
+  vehicules: Vehicule[] = []; // Liste des vehicules
+  couponTickets: CouponTicket[] = []; // Liste des coupons
   employes: Employe[] = []; // Liste des Employe
 
   quantiteDisponible: number = 0;
@@ -51,36 +53,48 @@ export class SortieComponent implements OnInit {
   alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
   public addSortie!: FormGroup;
-  public editSortie!: FormGroup;
+  public editSortie!: FormGroup; 
   public deleteSortie!: FormGroup;
+  
 
   // Fichiers sélectionnés
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private sortieService: MouvementStockService, private formBuilder: FormBuilder,) { }
+  constructor(private sortieService: MouvementTicketService, private formBuilder: FormBuilder,) { }
 
+  
   ngOnInit(): void {
+    this.loadTypeMouvements();
+    this.loadCompagniePetrolieres()
+    this.loadCouponTickets();
     this.loadEmployes();
-    this.loadArticles();
-    this.loadBureaux();
+    this.loadVehicules();
     this.loadSorties();
     this.addSortie = this.formBuilder.group({
-      id_Article: [null, [Validators.required]],
-      id_employe: [null, []],
-      id_bureau: [null, []],
-      description: ["", [Validators.required]],
+      // id_type_mouvements: [null, [Validators.required]],
+      // compagnie_petrolier_id: [null, [Validators.required]],
+      vehicule_id: [null, [Validators.required]],
+      coupon_ticket_id: [null, [Validators.required]],
+      kilometrage: [null, [Validators.required]],
+      employe_id: [null, [Validators.required]],
+      description: ["", []],
+      objet: ["", []],
       qte: [1, [Validators.required]],
-      date_mouvement: ["", [Validators.required]],
+      date: ["", [Validators.required]],
     });
     this.editSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
-      id_Article: [null, [Validators.required]],
-      id_employe: [null, []],
-      id_bureau: [null, []],
-      description: ["", [Validators.required]],
+      // id_type_mouvements: [null, [Validators.required]],
+      // compagnie_petrolier_id: [null, [Validators.required]],
+      vehicule_id: [null, [Validators.required]],
+      coupon_ticket_id: [null, [Validators.required]],
+      kilometrage: [null, [Validators.required]],
+      employe_id: [null, []],
+      description: ["", []],
+      objet: ["", []],
       qte: [1, [Validators.required]],
-      date_mouvement: ["", [Validators.required]],
+      date: ["", [Validators.required]],
     });
     this.deleteSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -95,9 +109,9 @@ export class SortieComponent implements OnInit {
       if (spinner) spinner.classList.remove('d-none');
       const formData = {
         ...this.addSortie.value,
-        date_mouvement: this.formatDate(this.addSortie.value.date_mouvement), // Convertir la date
+        date: this.formatDate(this.addSortie.value.date), // Convertir la date
       };
-      this.sortieService.saveMouvementStockSortie(formData).subscribe(
+      this.sortieService.saveMouvementTicketSortie(formData).subscribe(
         (data: any) => {
           this.loadSorties();
           if (spinner) spinner.classList.add('d-none');
@@ -121,18 +135,15 @@ export class SortieComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          // console.error('Erreur lors de l\'ajout de la sortie :', error);
-          // if (spinner) spinner.classList.add('d-none');
-          // alert('Une erreur s\'est produite. Veuillez réessayer.');
-
+          console.error('Erreur lors de l\'ajout de l\'entree :', error);
           if (spinner) spinner.classList.add('d-none');
-
-          // Afficher directement le message d'erreur de l'API
-          alert(error.error?.error || "Une erreur s'est produite. Veuillez réessayer.");
+          alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      console.log("Erreurs du formulaire :", this.addSortie.errors);
+      console.log("Statut des champs :", this.addSortie.controls);
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
@@ -146,9 +157,9 @@ export class SortieComponent implements OnInit {
       const id = this.editSortie.value.id;
       const formData = {
         ...this.editSortie.value,
-        date_mouvement: this.formatDate(this.editSortie.value.date_mouvement), // Convertir la date
+        date: this.formatDate(this.editSortie.value.date), // Convertir la date
       };
-      this.sortieService.editMouvementStockSortie(formData).subscribe(
+      this.sortieService.editMouvementTicketSortie(formData).subscribe(
         (data: any) => {
           this.loadSorties();
           if (spinner) spinner.classList.add('d-none');
@@ -189,7 +200,7 @@ export class SortieComponent implements OnInit {
 
     if (this.deleteSortie.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      this.sortieService.deleteMouvementStockSortie(this.deleteSortie.value).subscribe(
+      this.sortieService.deleteMouvementTicketSortie(this.deleteSortie.value).subscribe(
         (data: any) => {
           this.loadSorties();
           if (spinner) spinner.classList.add('d-none');
@@ -224,13 +235,13 @@ export class SortieComponent implements OnInit {
     }
   }
 
-  loadArticles(): void {
-    this.sortieService.getAllArticles().subscribe({
+  loadVehicules(): void {
+    this.sortieService.getAllVehicules().subscribe({
       next: (data) => {
-        this.articles = data; // Stocker la liste des articles
+        this.vehicules = data; // Stocker la liste des vehicules
       },
       error: (err) => {
-        console.error("Erreur lors du chargement des articles :", err);
+        console.error("Erreur lors du chargement des véhicules :", err);
       }
     });
   }
@@ -248,27 +259,49 @@ export class SortieComponent implements OnInit {
     });
   }
 
-  loadBureaux(): void {
-    this.sortieService.getAllBureaux().subscribe({
+  loadTypeMouvements(): void {
+    this.sortieService.getAllTypeMouvement().subscribe({
       next: (data) => {
-        this.bureaux = data; // Stocker la liste des bureaux
+        this.type_mouvements = data; // Stocker la liste des couponTickets
       },
       error: (err) => {
-        console.error("Erreur lors du chargement des bureaux :", err);
+        console.error("Erreur lors du chargement des couponTickets :", err);
+      }
+    });
+  }
+
+  loadCompagniePetrolieres(): void {
+    this.sortieService.getAllCompagniePetrolieres().subscribe({
+      next: (data) => {
+        this.compagniePetrolieres = data; // Stocker la liste des compagnies Petrolieres
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des compagnies Petrolieres :", err);
+      }
+    });
+  }
+
+  loadCouponTickets(): void {
+    this.sortieService.getAllCouponTickets().subscribe({
+      next: (data) => {
+        this.couponTickets = data; // Stocker la liste des couponTickets
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des couponTickets :", err);
       }
     });
   }
 
 
   loadSorties(): void {
-    this.sortieService.getAllMouvementStockSortie().subscribe(
-      (data: MouvementStock[]) => {
+    this.sortieService.getAllMouvementTicketSortie().subscribe(
+      (data: MouvementTicket[]) => {
         this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
         this.rows = data;
         this.loadingIndicator = false;
       },
       error => {
-        console.error('Erreur lors du chargement des Mouvements Stock Sortie', error);
+        console.error('Erreur lors du chargement des Mouvements Ticket Entree', error);
         this.loadingIndicator = false;
       }
     );
@@ -287,12 +320,15 @@ export class SortieComponent implements OnInit {
   getEditForm(row: any) {
     this.editSortie.patchValue({
       id: row.id,
-      id_Article: row.id_Article,
+      vehicule_id: row.vehicule_id,
+      compagnie_petrolier_id: row.compagnie_petrolier_id,
+      coupon_ticket_id: row.coupon_ticket_id,
+      kilometrage: row.kilometrage,
+      employe_id: row.employe?.id,
       description: row.description,
-      id_bureau: row.affectation?.id_bureau,
-      id_employe: row.affectation?.employe?.id,
       qte: row.qte,
-      date_mouvement: this.convertToNgbDate(row.date_mouvement),
+      objet: row.objet,
+      date: this.convertToNgbDate(row.date),
     })
   }
 
@@ -325,36 +361,67 @@ export class SortieComponent implements OnInit {
     return employe ? `${employe.nom} ${employe.prenom}` : '';
   }
 
-  updateQuantiteDisponible() {
-    const idArticle = this.addSortie.get('id_Article')?.value;
-    console.log('ID de l\'article sélectionné:', idArticle);
+//   updateQuantiteDisponibleCoupon() {
+//     const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
+//     console.log('ID du coupon sélectionné:', idCoupon);
 
-    if (!idArticle) {
-      console.log('Aucun article sélectionné ou désélection effectuée');
+//     if (!idCoupon) {
+//       console.log('Aucun coupon sélectionné ou désélection effectuée');
+//       this.quantiteDisponibleCoupon = 0;
+//       return;
+//     }
+
+//     this.sortieService.getQuantiteDisponibleCoupon(idCoupon).subscribe(
+//       (response) => {
+//         console.log('Quantité disponible:', response.data);
+//         this.quantiteDisponibleCoupon = response.data;
+
+//         // 🔥 On met à jour le validateur max du champ qte
+//         this.addSortie.get('qte')?.setValidators([
+//           Validators.required,
+//           Validators.min(1),
+//           Validators.max(this.quantiteDisponibleCoupon)
+//         ]);
+//         this.addSortie.get('qte')?.updateValueAndValidity();
+
+//       },
+//       (error) => {
+//         console.error('Erreur lors de la récupération de la quantité disponible:', error);
+//         this.quantiteDisponibleCoupon = 0;
+//       }
+//     );
+
+// }
+updateQuantiteDisponible() {
+  const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
+  console.log('ID de l\'article sélectionné:', idCoupon);
+
+  if (!idCoupon) {
+    console.log('Aucun article sélectionné ou désélection effectuée');
+    this.quantiteDisponible = 0;
+    return;
+  }
+
+  this.sortieService.getQuantiteDisponible(idCoupon).subscribe(
+    (response) => {
+      console.log('Quantité disponible:', response.data);
+      this.quantiteDisponible = response.data;
+
+      // 🔥 On met à jour le validateur max du champ qte
+  const qteControl = this.addSortie.get('qte');
+  qteControl?.setValidators([
+    Validators.required,
+    Validators.min(1),
+    Validators.max(this.quantiteDisponible)
+  ]);
+  qteControl?.updateValueAndValidity();
+
+    },
+    (error) => {
+      console.error('Erreur lors de la récupération de la quantité disponible:', error);
       this.quantiteDisponible = 0;
-      return;
     }
-
-    this.sortieService.getQuantiteDisponible(idArticle).subscribe(
-      (response) => {
-        console.log('Quantité disponible:', response.data);
-        this.quantiteDisponible = response.data;
-
-        // 🔥 On met à jour le validateur max du champ qte
-    const qteControl = this.addSortie.get('qte');
-    qteControl?.setValidators([
-      Validators.required,
-      Validators.min(1),
-      Validators.max(this.quantiteDisponible)
-    ]);
-    qteControl?.updateValueAndValidity();
-
-      },
-      (error) => {
-        console.error('Erreur lors de la récupération de la quantité disponible:', error);
-        this.quantiteDisponible = 0;
-      }
-    );
+  );
 
 }
 

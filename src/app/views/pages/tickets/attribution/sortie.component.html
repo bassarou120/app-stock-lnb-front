@@ -64,24 +64,31 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Article">
+            <!-- <ngx-datatable-column name="Type de mouvement">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.article?.libelle || 'N/A' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
-            <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
-            <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
-            <ngx-datatable-column name="Employé">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.affectation?.employe?.full_name || 'Non défini' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <!-- <ngx-datatable-column name="Date de création" prop="created_at">
-              <ng-template let-value="value" ngx-datatable-cell-template>
-                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+                {{ row.type_mouvement?.libelle || 'N/A' }}
               </ng-template>
             </ngx-datatable-column> -->
+            <ngx-datatable-column name="Vehicule">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.vehicule?.immatriculation || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Coupon">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.coupon_ticket?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Kilometrage" prop="kilometrage"></ngx-datatable-column>
+            <ngx-datatable-column name="Employé">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.employe?.fullnameEmploye || 'Non défini' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
+            <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+            <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
+            <ngx-datatable-column name="Date" prop="date"></ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -123,28 +130,49 @@
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="addSortie" (ngSubmit)="onClickSubmitAddSortie()" novalidate>
 
-          <!-- Sélectionner un article -->
+          <!-- Sélectionner un article
           <div class="mb-3">
-            <label for="sortie" class="form-label">Article <span class="text-danger">*</span></label>
+            <label for="sortie" class="form-label">Type de mouvement <span class="text-danger">*</span></label>
 
-            <ng-container *ngIf="articles && articles.length > 0; else noArticle">
-              <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
-                [clearable]="true" placeholder="Sélectionnez l'Article" (change)="updateQuantiteDisponible()">
+            <ng-container *ngIf="type_mouvements && type_mouvements.length > 0; else noMouvement">
+              <ng-select [items]="type_mouvements" bindLabel="libelle_type_mouvements" bindValue="id" formControlName="id_type_mouvements"
+                [clearable]="true" placeholder="Sélectionnez le type de mouvement" (change)="updateQuantiteDisponible()">
               </ng-select>
 
-              <div *ngIf="addSortie.get('id_Article')?.invalid && addSortie.get('id_Article')?.touched">
-                <small class="text-danger"> *L'Article est obligatoire</small>
+              <div *ngIf="addSortie.get('id_type_mouvements')?.invalid && addSortie.get('id_type_mouvements')?.touched">
+                <small class="text-danger"> *Le mouvement est obligatoire</small>
               </div>
             </ng-container>
 
 
-
-
-            <!-- Message si aucun article n'existe -->
-            <ng-template #noArticle>
+            Message si aucun mouvement n'existe
+            <ng-template #noMouvement>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucun Mouvement. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div-->
+
+          <!-- Sélectionner un coupon -->
+          <div class="mb-3">
+            <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="couponTickets && couponTickets.length > 0; else noCouponTickets">
+              <ng-select [items]="couponTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
+                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket" (change)="updateQuantiteDisponible()">
+              </ng-select>
+
+              <div *ngIf="addSortie.get('coupon_ticket_id')?.invalid && addSortie.get('coupon_ticket_id')?.touched">
+                <small class="text-danger"> *Le coupon est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun CouponTicket n'existe -->
+            <ng-template #noCouponTickets>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
               </div>
             </ng-template>
           </div>
@@ -165,7 +193,64 @@
             </div>
           </div>
 
+          <!-- Vehicule -->
+          <div class="mb-3">
+            <label for="sortie" class="form-label">Vehicule<span class="text-danger">*</span></label>
 
+            <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehicule">
+              <ng-select [items]="vehicules" bindLabel="immatriculation" bindValue="id" formControlName="vehicule_id"
+                [clearable]="true" placeholder="Sélectionnez le type de mouvement">
+              </ng-select>
+
+              <div *ngIf="addSortie.get('vehicule_id')?.invalid && addSortie.get('vehicule_id')?.touched">
+                <small class="text-danger"> *Le vehicule est obligatoire</small>
+              </div>
+            </ng-container>
+
+
+            <!-- Message si aucun vehicule n'existe -->
+            <ng-template #noVehicule>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+
+          <!-- kilometre -->
+          <div class="mb-3">
+            <label for="kilometrage" class="form-label">kilometrage <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
+              [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" formControlName="kilometrage">
+            <div *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched">
+              <small *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" class="text-danger"> *le kilometrage
+                est obligatoire</small>
+            </div>
+          </div>
+          
+          <!-- Sélectionner un employe -->
+          <div class="mb-3">
+            <label for="employe" class="form-label">Personel</label>
+
+            <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
+              <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="employe_id"
+                [clearable]="true" placeholder="Sélectionnez l'Employé">
+              </ng-select>
+
+              <div *ngIf="addSortie.get('employe_id')?.invalid && addSortie.get('employe_id')?.touched">
+                <small class="text-danger"> *Le personel est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun employe n'existe -->
+            <ng-template #noEmploye>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
 
           <!-- description -->
           <div class="mb-3">
@@ -179,68 +264,30 @@
             </div>
           </div>
 
-
-
-          <!-- Sélectionner un employe -->
+          <!-- Objet -->
           <div class="mb-3">
-            <label for="employe" class="form-label">Employe</label>
-
-            <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
-              <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="id_employe"
-                [clearable]="true" placeholder="Sélectionnez l'Employé">
-              </ng-select>
-
-              <div *ngIf="addSortie.get('id_employe')?.invalid && addSortie.get('id_employe')?.touched">
-                <small class="text-danger"> *L'employe est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun employe n'existe -->
-            <ng-template #noEmploye>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- Sélectionner un bureau -->
-          <div class="mb-3">
-            <label for="bureau" class="form-label">Bureau</label>
-
-            <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureau">
-              <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="id_bureau"
-                [clearable]="true" placeholder="Sélectionnez le bureau ">
-              </ng-select>
-
-              <div *ngIf="addSortie.get('id_bureau')?.invalid && addSortie.get('id_bureau')?.touched">
-                <small class="text-danger"> *Le bureau est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun bureau n'existe -->
-            <ng-template #noBureau>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
-              </div>
-            </ng-template>
+            <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
+            <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
+              [class.invalid]="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" formControlName="objet">
+            <div *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched">
+              <small *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" class="text-danger"> *l'objet
+                est obligatoire</small>
+            </div>
           </div>
 
           <!--  date_mouvement -->
-          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
               <i data-feather="calendar"></i>
             </button>
             <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date_mouvement">
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
           </div>
 
-          <div *ngIf="addSortie.get('date_mouvement')?.invalid && addSortie.get('date_mouvement')?.touched">
+          <div *ngIf="addSortie.get('date')?.invalid && addSortie.get('date')?.touched">
             <small class="text-danger"> *la date du mouvement est obligatoire</small>
           </div>
-
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
@@ -274,23 +321,26 @@
       <!-- Contenu du modal -->
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="editSortie" (ngSubmit)="onClickSubmitEditSortie()" novalidate>
-          <!-- Sélectionner un article -->
+
+          <!-- Sélectionner un coupon -->
           <div class="mb-3">
-            <label for="sortie" class="form-label">Article <span class="text-danger">*</span></label>
-            <ng-container *ngIf="articles && articles.length > 0; else noArticleEdit">
-              <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
-                [clearable]="true" placeholder="Sélectionnez l'Article">
+            <label for="coupon" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="couponTickets && couponTickets.length > 0; else noCouponTickets">
+              <ng-select [items]="couponTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
+                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket">
               </ng-select>
-              <div *ngIf="editSortie.get('id_Article')?.invalid && editSortie.get('id_Article')?.touched">
-                <small class="text-danger"> *L'Article est obligatoire</small>
+
+              <div *ngIf="addSortie.get('coupon_ticket_id')?.invalid && addSortie.get('coupon_ticket_id')?.touched">
+                <small class="text-danger"> *Le coupon est obligatoire</small>
               </div>
             </ng-container>
 
-            <!-- Message si aucun article n'existe -->
-            <ng-template #noArticleEdit>
+            <!-- Message si aucun CouponTicket n'existe -->
+            <ng-template #noCouponTickets>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
               </div>
             </ng-template>
           </div>
@@ -321,15 +371,15 @@
 
           <!-- Sélectionner un employe -->
           <div class="mb-3">
-            <label for="employe" class="form-label">Employe</label>
+            <label for="employe" class="form-label">Personel</label>
 
             <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
-              <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="id_employe"
+              <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="employe_id"
                 [clearable]="true" placeholder="Sélectionnez l'Employé">
               </ng-select>
 
-              <div *ngIf="editSortie.get('id_employe')?.invalid && editSortie.get('id_employe')?.touched">
-                <small class="text-danger"> *L'employe est obligatoire</small>
+              <div *ngIf="editSortie.get('employe_id')?.invalid && editSortie.get('employe_id')?.touched">
+                <small class="text-danger"> *Le Personel est obligatoire</small>
               </div>
             </ng-container>
 
@@ -342,45 +392,64 @@
             </ng-template>
           </div>
 
-          <!-- Sélectionner un bureau -->
+          <!-- Sélectionner un vehicule -->
           <div class="mb-3">
-            <label for="bureau" class="form-label">Bureau</label>
+            <label for="vehicule" class="form-label">Vehicule<span class="text-danger">*</span></label>
 
-            <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureau">
-              <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="id_bureau"
-                [clearable]="true" placeholder="Sélectionnez le bureau ">
+            <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehicule">
+              <ng-select [items]="vehicules" bindLabel="immatriculation" bindValue="id" formControlName="vehicule_id"
+                [clearable]="true" placeholder="Sélectionnez le type de mouvement">
               </ng-select>
 
-              <div *ngIf="editSortie.get('id_bureau')?.invalid && editSortie.get('id_bureau')?.touched">
-                <small class="text-danger"> *Le bureau est obligatoire</small>
+              <div *ngIf="addSortie.get('vehicule_id')?.invalid && addSortie.get('vehicule_id')?.touched">
+                <small class="text-danger"> *Le vehicule est obligatoire</small>
               </div>
             </ng-container>
 
-            <!-- Message si aucun bureau n'existe -->
-            <ng-template #noBureau>
+            <!-- Message si aucun vehicule n'existe -->
+            <ng-template #noVehicule>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
               </div>
             </ng-template>
           </div>
 
 
-
-
-
-
-          <!--  date_mouvement -->
-          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
-          <div class="input-group mb-5">
-            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
-              <i data-feather="calendar"></i>
-            </button>
-            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
-              [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_mouvement">
+          <!-- kilometre -->
+          <div class="mb-3">
+            <label for="kilometrage" class="form-label">kilometrage <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
+              [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" formControlName="kilometrage">
+            <div *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched">
+              <small *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" class="text-danger"> *le kilometrage
+                est obligatoire</small>
+            </div>
           </div>
 
-          <div *ngIf="editSortie.get('date_mouvement')?.invalid && editSortie.get('date_mouvement')?.touched">
+         
+          <!-- Objet -->
+          <div class="mb-3">
+            <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
+            <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
+              [class.invalid]="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" formControlName="objet">
+            <div *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched">
+              <small *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" class="text-danger"> *l'objet
+                est obligatoire</small>
+            </div>
+          </div>
+
+          <!--  date_mouvement -->
+          <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
+          </div>
+
+          <div *ngIf="addSortie.get('date')?.invalid && addSortie.get('date')?.touched">
             <small class="text-danger"> *la date du mouvement est obligatoire</small>
           </div>
 

@@ -3,62 +3,89 @@ import { Observable} from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
-import { MouvementStock, Article, Bureau, Employe } from "../interface/models";
+import { Employe, Vehicule, CouponTicket, TypeMouvement, MouvementTicket, CompagniePetroliere } from "../interface/models";
 import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
-export class MouvementStockService  {
+export class MouvementTicketService  {
   private url: string = environment.backend;
 
   constructor(private http: HttpClient) {}
 
-  getAllMouvementStockSortie(): Observable<MouvementStock[]> {
-    return this.http.get<{ success: boolean; message: string; data: { data: MouvementStock[] } }>(
-      `${this.url}/mouvement-stock/sortie`
+  getAllMouvementTicketSortie(): Observable<MouvementTicket[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: MouvementTicket[] } }>(
+      `${this.url}/mouvement-ticket/sortie`
     ).pipe(
-      map((response: { success: boolean; message: string; data: { data: MouvementStock[] } }) =>
-        response.data.data // On récupère uniquement le tableau de MouvementStockSortie
+      map((response: { success: boolean; message: string; data: { data: MouvementTicket[] } }) =>
+        response.data.data // On récupère uniquement le tableau de MouvementTicketSortie
       )
     );
   }
 
-  getQuantiteDisponible(idArticle: number): Observable<any> {
-    return this.http.get<any>(`${this.url}/quantite-disponible/${idArticle}`);
+  getQuantiteDisponible(idCoupon: number): Observable<any> {
+    return this.http.get<any>(`${this.url}/quantite-disponible-ticket/${idCoupon}`);
+  }
+
+  saveMouvementTicketSortie(data: MouvementTicket): Observable<MouvementTicket> {
+    return this.http.post<MouvementTicket>(`${this.url}/mouvement-ticket/sortie`, data);
+  }
+  editMouvementTicketSortie(data: MouvementTicket): Observable<MouvementTicket> {
+    return this.http.put<MouvementTicket>(`${this.url}/mouvement-ticket/sortie/${data.id}`, data);
   }
 
 
-  saveMouvementStockSortie(data: MouvementStock): Observable<MouvementStock> {
-    return this.http.post<MouvementStock>(`${this.url}/mouvement-stock/sortie`, data);
-  }
-  editMouvementStockSortie(data: MouvementStock): Observable<MouvementStock> {
-    return this.http.put<MouvementStock>(`${this.url}/mouvement-stock/sortie/${data.id}`, data);
+  deleteMouvementTicketSortie(data: MouvementTicket): Observable<void> {
+    return this.http.delete<void>(`${this.url}/mouvement-ticket/sortie/${data.id}`);
   }
 
-
-  deleteMouvementStockSortie(data: MouvementStock): Observable<void> {
-    return this.http.delete<void>(`${this.url}/mouvement-stock/sortie/${data.id}`);
+  getAllVehicules(): Observable<Vehicule[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Vehicule[] } }>(
+      `${this.url}/vehicules`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Vehicule[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Article
+      )
+    );
   }
+  // getAllCouponTickets(): Observable<CouponTicket[]> {
+  //   return this.http.get<{ success: boolean; message: string; data: { data: CouponTicket[] } }>(
+  //     `${this.url}/coupon_tickets`
+  //   ).pipe(
+  //     map((response: { success: boolean; message: string; data: { data: CouponTicket[] } }) =>
+  //       response.data.data // On récupère uniquement le tableau de CouponTicket
+  //     )
+  //   );
+  // }
 
-  getAllArticles(): Observable<Article[]> {
-      return this.http.get<{ success: boolean; message: string; data: { data: Article[] } }>(
-        `${this.url}/articles`
-      ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Article[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Article
-        )
-      );
-    }
-    getAllBureaux(): Observable<Bureau[]> {
-      return this.http.get<{ success: boolean; message: string; data: { data: Bureau[] } }>(
-        `${this.url}/bureaux`
-      ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Bureau[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Bureau
-        )
-      );
-    }
+  getAllCouponTickets(): Observable<CouponTicket[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: CouponTicket[] } }>(
+      `${this.url}/coupon_tickets`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: CouponTicket[] } }) => 
+        response.data.data // On récupère uniquement le tableau de CouponTicket
+      )
+    ); 
+  }
+  getAllTypeMouvement(): Observable<TypeMouvement[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: TypeMouvement[] } }>(
+      `${this.url}/type_mouvements`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: TypeMouvement[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Marque
+      )
+    );
+  }
+  getAllCompagniePetrolieres(): Observable<CompagniePetroliere[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: CompagniePetroliere[] } }>(
+      `${this.url}/compagnie_petrolier`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: CompagniePetroliere[] } }) =>
+        response.data.data 
+      )
+    );
+  }
     getAllEmployes(): Observable<Employe[]> {
       return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
         `${this.url}/employes`

@@ -421,11 +421,11 @@ export const MENU: MenuItem[] = [
       },
     ]
   },
-  // {
-  //   label: 'Interventions',
-  //   icon: 'refresh-ccw',
-  //   link: '/dashboard'
-  // },
+  {
+    label: 'Trajet',
+    icon: 'refresh-ccw',
+    link: '/trajets'
+  },
   {
     label: 'Paramètres',
     isTitle: true
