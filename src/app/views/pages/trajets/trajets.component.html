@@ -1,104 +1,77 @@
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink=".">Transferts</a></li>
+    <li class="breadcrumb-item"><a routerLink=".">Trajets</a></li>
   </ol>
 </nav>
 
-<!-- Alerte pour ajout avec succès -->
 <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Transfert Ajouté avec succès
+  Trajet Ajouté avec succès
 </ngb-alert>
-<!-- Alerte pour ajout avec succès -->
-
-<!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Transfert Modifié avec succès
+  Trajet Modifié avec succès
 </ngb-alert>
-<!-- Alerte pour mofifier avec succès -->
-
-<!-- Alerte pour supprimer avec succès -->
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Transfert Supprimée avec succès
+  Trajet Supprimé avec succès
 </ngb-alert>
-<!-- Alerte pour supprimer avec succès -->
-
 <div class="row">
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
         <div>
-          <h4 class="card-title">Liste des Transferts</h4>
-          <p class="text-secondary">Liste des Transferts</p>
+          <h4 class="card-title">Liste des Trajets</h4>
+          <p class="text-secondary">Liste des Trajets</p>
         </div>
         <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-          data-bs-target="#add_transfert">
+          data-bs-target="#add_trajet">
           Ajouter
         </button>
-
       </div>
     </div>
   </div>
 </div>
 
-
-
 <div class="row">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
-        <h6 class="card-title">Liste des Transferts</h6>
+        <h6 class="card-title">Liste des Trajets</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Titre..."
+            <input type="text" class="form-control form-control-sm" placeholder="Filtrer..."
               (keyup)="updateFilter($event)" />
           </div>
         </div>
         <div class="table-responsive">
           <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
-            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
             <ngx-datatable-column name="N°">
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Code Immo">
+            <ngx-datatable-column name="Code Mouvement Ticket">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.immobilisation?.code || 'N/A' }}
+                {{ row.mouvement_ticket?.reference || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Designation Immo">
+            <ngx-datatable-column name="Départ">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.immobilisation?.designation || 'Non défini' }}
+                {{ row.depart?.libelle_commune || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Ancien Bureau/Localisation">
+            <ngx-datatable-column name="Arrivée">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.old_bureau?.libelle_bureau || 'Non défini' }}
+                {{ row.arriver?.libelle_commune || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Nouveau Bureau/Localisation">
+            <ngx-datatable-column name="Aller-Retour" prop="trajet_aller_retour">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.bureau?.libelle_bureau || 'Non défini' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Ancien Personnel">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.old_employe?.fullnameEmploye || 'Non défini' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Nouveau Personnel">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.employe?.fullnameEmploye || 'Non défini' }}
+                {{ row.trajet_aller_retour ? 'Oui' : 'Non' }}
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
-            <ngx-datatable-column name="Date du Transfert" prop="date_mouvement">
-              <ng-template let-value="value" ngx-datatable-cell-template>
-                {{ value | date:'dd/MM/yyyy' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <!-- <ngx-datatable-column name="Actions">
+            
+            <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -106,17 +79,17 @@
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#edit_transfert" (click)="getEditForm(row)">
+                      data-bs-target="#edit_trajet" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#delete_transfert" (click)="getDeleteForm(row)">
+                      data-bs-target="#delete_trajet" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
                   </div>
                 </div>
               </ng-template>
-            </ngx-datatable-column> -->
+            </ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>
@@ -124,149 +97,90 @@
   </div>
 </div>
 
-
-
-<!-- Add Transfert Modal -->
-<div id="add_transfert" class="modal fade" tabindex="-1" aria-labelledby="addTransfertLabel"
-  aria-hidden="true">
+<div id="add_trajet" class="modal fade" tabindex="-1" aria-labelledby="addTrajetLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="addTransfertLabel">Ajouter une Transfert</h5>
+        <h5 class="modal-title" id="addTrajetLabel">Ajouter un Trajet</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="addTransfert" (ngSubmit)="onClickSubmitAddTransfert()"
-          novalidate>
+        <form class="forms-sample" [formGroup]="addTrajet" (ngSubmit)="onClickSubmitAddTrajet()" novalidate>
 
-          <!-- Sélectionner immo -->
           <div class="mb-3">
-            <label for="immo_id" class="form-label">Immobilisation <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="immobilisations && immobilisations.length > 0; else noimmobilisation">
-              <ng-select [items]="immobilisations" bindLabel="code" bindValue="id" formControlName="immo_id"
-                [clearable]="true" placeholder="Sélectionnez l'immobilisation" (change)="updateOldInfo()">
+            <label for="MouvementTicket_id" class="form-label">Code Mouvement Ticket <span class="text-danger">*</span></label>
+            <ng-container *ngIf="mouvementTickets && mouvementTickets.length > 0; else noMouvementTicket">
+              <ng-select [items]="mouvementTickets" bindLabel="reference" bindValue="id" formControlName="MouvementTicket_id"
+                [clearable]="true" placeholder="Sélectionnez le mouvement ticket">
               </ng-select>
-
               <div
-                *ngIf="addTransfert.get('immo_id')?.invalid && addTransfert.get('immo_id')?.touched">
-                <small class="text-danger"> *L'immobilisation est obligatoire</small>
+                *ngIf="addTrajet.get('MouvementTicket_id')?.invalid && addTrajet.get('MouvementTicket_id')?.touched">
+                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
               </div>
             </ng-container>
-
-            <!-- Message si aucun Immo n'existe -->
-            <ng-template #noimmobilisation>
+            <ng-template #noMouvementTicket>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucun Mouvement Ticket. Veuillez en créer.
               </div>
             </ng-template>
           </div>
 
-          <!-- old_bureau_id -->
           <div class="mb-3">
-            <label for="old_bureau_id" class="form-label">Ancien Bureau/Localisation <span class="text-danger"></span></label>
-            <input type="text" class="form-control" id="old_bureau_id" placeholder="" autocomplete="off"
-              [class.invalid]="addTransfert.get('old_bureau_id')?.invalid && addTransfert.get('old_bureau_id')?.touched"
-              formControlName="old_bureau_id" readonly>
-            <div *ngIf="addTransfert.get('old_bureau_id')?.invalid && addTransfert.get('old_bureau_id')?.touched">
-              <small *ngIf="addTransfert.get('old_bureau_id')?.invalid && addTransfert.get('old_bureau_id')?.touched"
-                class="text-danger"> </small>
-            </div>
-          </div>
-
-          <!-- old_employe_id -->
-          <div class="mb-3">
-            <label for="old_employe_id" class="form-label">Ancien Personnel <span class="text-danger"></span></label>
-            <input type="text" class="form-control" id="old_employe_id" placeholder="" autocomplete="off"
-              [class.invalid]="addTransfert.get('old_employe_id')?.invalid && addTransfert.get('old_employe_id')?.touched"
-              formControlName="old_employe_id" readonly>
-            <div *ngIf="addTransfert.get('old_employe_id')?.invalid && addTransfert.get('old_employe_id')?.touched">
-              <small *ngIf="addTransfert.get('old_employe_id')?.invalid && addTransfert.get('old_employe_id')?.touched"
-                class="text-danger"> </small>
-            </div>
-          </div>
-
-          <!-- Sélectionner nouveau bureau -->
-          <div class="mb-3">
-            <label for="bureau_id" class="form-label">Nouveau Bureau/Localisation <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="bureaux && bureaux.length > 0; else nobureaux">
-              <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="bureau_id"
-                [clearable]="true" placeholder="Sélectionnez le nouveau bureau">
+            <label for="commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
+            <ng-container *ngIf="communes && communes.length > 0; else noCommunesDepart">
+              <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_depart"
+                [clearable]="true" placeholder="Sélectionnez la commune de départ">
               </ng-select>
-
-              <div
-                *ngIf="addTransfert.get('bureau_id')?.invalid && addTransfert.get('bureau_id')?.touched">
-                <small class="text-danger"> *Le nouveau bureau est obligatoire</small>
+              <div *ngIf="addTrajet.get('commune_depart')?.invalid && addTrajet.get('commune_depart')?.touched">
+                <small class="text-danger"> *La commune de départ est obligatoire</small>
               </div>
             </ng-container>
-
-            <!-- Message si aucun bureaux n'existe -->
-            <ng-template #nobureaux>
+            <ng-template #noCommunesDepart>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
               </div>
             </ng-template>
           </div>
 
-
-
-          <!-- Sélectionner nouveau employe -->
           <div class="mb-3">
-            <label for="employe_id" class="form-label">Nouveau Personnel <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="employes && employes.length > 0; else noemployes">
-              <ng-select [items]="employes" bindLabel="fullnameEmploye" bindValue="id" formControlName="employe_id"
-                [clearable]="true" placeholder="Sélectionnez le nouveau Personnel">
+            <label for="commune_arriver" class="form-label">Commune Arrivée <span class="text-danger">*</span></label>
+            <ng-container *ngIf="communes && communes.length > 0; else noCommunesArriver">
+              <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_arriver"
+                [clearable]="true" placeholder="Sélectionnez la commune d'arrivée">
               </ng-select>
-
-              <div
-                *ngIf="addTransfert.get('employe_id')?.invalid && addTransfert.get('employe_id')?.touched">
-                <small class="text-danger"> *Le nouveau personnel est obligatoire</small>
+              <div *ngIf="addTrajet.get('commune_arriver')?.invalid && addTrajet.get('commune_arriver')?.touched">
+                <small class="text-danger"> *La commune d'arrivée est obligatoire</small>
               </div>
             </ng-container>
-
-            <!-- Message si aucun bureaux n'existe -->
-            <ng-template #noemployes>
+            <ng-template #noCommunesArriver>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Personnel. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
               </div>
             </ng-template>
           </div>
 
-          <!-- date_mouvement -->
           <div class="mb-3">
-            <label for="date_mouvement" class="form-label">Date du Transfert <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="date_mouvement" placeholder="2024-12-31" autocomplete="off"
-              [class.invalid]="addTransfert.get('date_mouvement')?.invalid && addTransfert.get('date_mouvement')?.touched"
-              formControlName="date_mouvement">
-            <div
-              *ngIf="addTransfert.get('date_mouvement')?.invalid && addTransfert.get('date_mouvement')?.touched">
-              <small
-                *ngIf="addTransfert.get('date_mouvement')?.invalid && addTransfert.get('date_mouvement')?.touched"
-                class="text-danger"> *la date du transfert est obligatoire</small>
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="trajet_aller_retour" formControlName="trajet_aller_retour">
+              <label class="form-check-label" for="trajet_aller_retour">Aller-Retour</label>
             </div>
           </div>
 
-          <!-- observation -->
           <div class="mb-3">
             <label for="observation" class="form-label">Observation <span class="text-danger"></span></label>
             <textarea class="form-control" id="observation" rows="5"
-              [class.invalid]="addTransfert.get('observation')?.invalid && addTransfert.get('observation')?.touched"
+              [class.invalid]="addTrajet.get('observation')?.invalid && addTrajet.get('observation')?.touched"
               placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
-            <div *ngIf="addTransfert.get('observation')?.invalid && addTransfert.get('observation')?.touched">
-              <small
-                *ngIf="addTransfert.get('observation')?.invalid && addTransfert.get('observation')?.touched"
-                class="text-danger"> *l'observation est obligatoire</small>
+            <div *ngIf="addTrajet.get('observation')?.invalid && addTrajet.get('observation')?.touched">
+              <small *ngIf="addTrajet.get('observation')?.invalid && addTrajet.get('observation')?.touched"
+                class="text-danger"> *L'observation est obligatoire</small>
             </div>
           </div>
-          <!-- Boutons centrés -->
+
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary">
               <div class="spinner-border spinner-border-sm text-light d-none" role="status">
@@ -280,5 +194,128 @@
     </div>
   </div>
 </div>
-<!-- /Add intervention Modal -->
 
+
+<div id="edit_trajet" class="modal fade" tabindex="-1" aria-labelledby="editTrajetLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTrajetLabel">Modifier le Trajet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editTrajet" (ngSubmit)="onClickSubmitEditTrajet()" novalidate>
+          <input type="hidden" formControlName="id">
+
+          <div class="mb-3">
+            <label for="edit_MouvementTicket_id" class="form-label">Code Mouvement Ticket <span class="text-danger">*</span></label>
+            <ng-container *ngIf="mouvementTickets && mouvementTickets.length > 0; else noEditMouvementTicket">
+              <ng-select [items]="mouvementTickets" bindLabel="reference" bindValue="id" formControlName="MouvementTicket_id"
+                [clearable]="true" placeholder="Sélectionnez le mouvement ticket">
+              </ng-select>
+              <div
+                *ngIf="editTrajet.get('MouvementTicket_id')?.invalid && editTrajet.get('MouvementTicket_id')?.touched">
+                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
+              </div>
+            </ng-container>
+            <ng-template #noEditMouvementTicket>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Mouvement Ticket. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
+            <ng-container *ngIf="communes && communes.length > 0; else noEditCommunesDepart">
+              <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_depart"
+                [clearable]="true" placeholder="Sélectionnez la commune de départ">
+              </ng-select>
+              <div *ngIf="editTrajet.get('commune_depart')?.invalid && editTrajet.get('commune_depart')?.touched">
+                <small class="text-danger"> *La commune de départ est obligatoire</small>
+              </div>
+            </ng-container>
+            <ng-template #noEditCommunesDepart>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_commune_arriver" class="form-label">Commune Arrivée <span class="text-danger">*</span></label>
+            <ng-container *ngIf="communes && communes.length > 0; else noEditCommunesArriver">
+              <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_arriver"
+                [clearable]="true" placeholder="Sélectionnez la commune d'arrivée">
+              </ng-select>
+              <div *ngIf="editTrajet.get('commune_arriver')?.invalid && editTrajet.get('commune_arriver')?.touched">
+                <small class="text-danger"> *La commune d'arrivée est obligatoire</small>
+              </div>
+            </ng-container>
+            <ng-template #noEditCommunesArriver>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="mb-3">
+            <div class="form-check">
+              <input type="checkbox" class="form-check-input" id="edit_trajet_aller_retour" formControlName="trajet_aller_retour">
+              <label class="form-check-label" for="edit_trajet_aller_retour">Aller-Retour</label>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_observation" class="form-label">Observation <span class="text-danger"></span></label>
+            <textarea class="form-control" id="edit_observation" rows="5"
+              [class.invalid]="editTrajet.get('observation')?.invalid && editTrajet.get('observation')?.touched"
+              placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
+            <div *ngIf="editTrajet.get('observation')?.invalid && editTrajet.get('observation')?.touched">
+              <small *ngIf="editTrajet.get('observation')?.invalid && editTrajet.get('observation')?.touched"
+                class="text-danger"> *L'observation est obligatoire</small>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="delete_trajet" class="modal fade" tabindex="-1" aria-labelledby="deleteTrajetLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteTrajetLabel">Supprimer le Trajet</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="deleteTrajet" (ngSubmit)="onClickSubmitDeleteTrajet()">
+          <input type="hidden" formControlName="id">
+          <p class="text-center">Êtes-vous sûr de vouloir supprimer ce trajet ?</p>
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

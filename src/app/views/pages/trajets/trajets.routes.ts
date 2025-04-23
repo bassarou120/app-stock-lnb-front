@@ -4,10 +4,10 @@ export default [
 
   {
     path: '',
-    loadComponent: () => import('./trajets.component').then(c => c.TransfertComponent),
+    loadComponent: () => import('./trajets.component').then(c => c.TrajetComponent),
   },
   {
-    path: 'transfert',
-    loadComponent: () => import('./trajets.component').then(c => c.TransfertComponent),
+    path: 'trajets',
+    loadComponent: () => import('./trajets.component').then(c => c.TrajetComponent),
   },
 ] as Routes;
