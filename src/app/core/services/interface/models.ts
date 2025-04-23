@@ -174,6 +174,7 @@ export interface MouvementTicket {
   kilometrage: number;
   qte: number;
   date: string;
+  reference: string;
   created_at: string;
   updated_at: string;
 }
@@ -199,6 +200,17 @@ export interface Transfert {
   employe_id: number;
   date_mouvement: string;
   observation: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Trajet{
+  id: number;
+  MouvementTicket_id: number;
+  commune_depart: number;
+  commune_arriver: number;
+  trajet_aller_retour: boolean;
+  observation: string | null; // Peut être nul
   created_at: string;
   updated_at: string;
 }

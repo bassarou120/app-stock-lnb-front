@@ -3,71 +3,95 @@ import { Observable } from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
-import { Transfert, Employe, Immobilisation, Bureau } from "../interface/models";
+import { Commune, MouvementTicket, Trajet, TypeMouvement} from "../interface/models";
 import { map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
-export class TransfertsService {
+export class TrajetsService {
   private url: string = environment.backend;
 
   constructor(private http: HttpClient) { }
 
-  getAllTransferts(): Observable<Transfert[]> {
-    return this.http.get<{ success: boolean; message: string; data: { data: Transfert[] } }>(
-      `${this.url}/transferts`
+  getAllTrajet(): Observable<Trajet[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Trajet[] } }>(
+      `${this.url}/trajets`
     ).pipe(
-      map((response: { success: boolean; message: string; data: { data: Transfert[] } }) =>
-        response.data.data // On récupère uniquement le tableau des Transfert
+      map((response: { success: boolean; message: string; data: { data: Trajet[] } }) =>
+        response.data.data // On récupère uniquement le tableau des Trajets
       )
     );
   }
 
-  saveTransfert(data: Transfert): Observable<Transfert> {
-    return this.http.post<Transfert>(`${this.url}/transferts`, data);
+  saveTrajet(data: Trajet): Observable<Trajet> {
+    return this.http.post<Trajet>(`${this.url}/trajets`, data);
   }
 
-  editTransfert(data: Transfert): Observable<Transfert> {
-    return this.http.put<Transfert>(`${this.url}/transferts/${data.id}`, data);
+  editTrajet(data: Trajet): Observable<Trajet> {
+    return this.http.put<Trajet>(`${this.url}/trajets/${data.id}`, data);
   }
 
-  deleteTransfert(data: Transfert): Observable<void> {
-    return this.http.delete<void>(`${this.url}/transferts/${data.id}`);
+  deleteTrajet(data: Trajet): Observable<void> {
+    return this.http.delete<void>(`${this.url}/trajets/${data.id}`);
   }
 
-  getAllEmployes(): Observable<Employe[]> {
-      return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
-        `${this.url}/employes`
-      ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Employe
-        )
-      );
-    }
 
-    getAllImmobilisations(): Observable<Immobilisation[]> {
-        return this.http.get<{ success: boolean; message: string; data: { data: Immobilisation[] } }>(
-          `${this.url}/immobilisations`
-        ).pipe(
-          map((response: { success: boolean; message: string; data: { data: Immobilisation[] } }) =>
-            response.data.data // On récupère uniquement le tableau de Immobilisation
-          )
-        );
-      }
-      getAllBureaux(): Observable<Bureau[]> {
-          return this.http.get<{ success: boolean; message: string; data: { data: Bureau[] } }>(
-            `${this.url}/bureaux`
-          ).pipe(
-            map((response: { success: boolean; message: string; data: { data: Bureau[] } }) =>
-              response.data.data // On récupère uniquement le tableau de Bureau
-            )
-          );
-        }
 
-        getOldInfo(idImmo: number): Observable<any> {
-          return this.http.get<any>(`${this.url}/ancien-info/${idImmo}`);
-        }
+  getAllMouvementTicketSortie(): Observable<MouvementTicket[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: MouvementTicket[] } }>(
+      `${this.url}/mouvement-ticket/sortie`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: MouvementTicket[] } }) =>
+        response.data.data // On récupère uniquement le tableau de MouvementTicketSortie
+      )
+    );
+  }
+
+  // getAllTypeMouvement(): Observable<TypeMouvement[]> {
+  //   return this.http.get<{ success: boolean; message: string; data: { data: TypeMouvement[] } }>(
+  //     `${this.url}/type_mouvements`
+  //   ).pipe(
+  //     map((response: { success: boolean; message: string; data: { data: TypeMouvement[] } }) =>
+  //       response.data.data // On récupère uniquement le tableau de Marque
+  //     )
+  //   );
+  // }
+
+  getAllCommunes(): Observable<Commune[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Commune[] } }>(
+      `${this.url}/communes`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Commune[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Commune
+      )
+    );
+  }
+  
+
+  // getAllEmployes(): Observable<Employe[]> {
+  //     return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
+  //       `${this.url}/employes`
+  //     ).pipe(
+  //       map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
+  //         response.data.data // On récupère uniquement le tableau de Employe
+  //       )
+  //     );
+  //   }
+
+  //   getAllImmobilisations(): Observable<Immobilisation[]> {
+  //       return this.http.get<{ success: boolean; message: string; data: { data: Immobilisation[] } }>(
+  //         `${this.url}/immobilisations`
+  //       ).pipe(
+  //         map((response: { success: boolean; message: string; data: { data: Immobilisation[] } }) =>
+  //           response.data.data // On récupère uniquement le tableau de Immobilisation
+  //         )
+  //       );
+  //     }
+  //     
+  //       getOldInfo(idImmo: number): Observable<any> {
+  //         return this.http.get<any>(`${this.url}/ancien-info/${idImmo}`);
+  //       }
 
 
 
