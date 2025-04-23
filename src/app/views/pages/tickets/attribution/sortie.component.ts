@@ -73,7 +73,7 @@ export class SortieComponent implements OnInit {
     this.loadSorties();
     this.addSortie = this.formBuilder.group({
       // id_type_mouvements: [null, [Validators.required]],
-      // compagnie_petrolier_id: [null, [Validators.required]],
+      compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
       kilometrage: [null, [Validators.required]],
@@ -86,7 +86,7 @@ export class SortieComponent implements OnInit {
     this.editSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
       // id_type_mouvements: [null, [Validators.required]],
-      // compagnie_petrolier_id: [null, [Validators.required]],
+      compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
       kilometrage: [null, [Validators.required]],

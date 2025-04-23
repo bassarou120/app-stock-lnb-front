@@ -79,6 +79,11 @@
                 {{ row.coupon_ticket?.libelle || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Compagnie">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.compagnie_petrolier?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-column name="Kilometrage" prop="kilometrage"></ngx-datatable-column>
             <ngx-datatable-column name="Employé">
               <ng-template let-row="row" ngx-datatable-cell-template>
@@ -189,6 +194,29 @@
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner une compagnie_petrolier -->
+          <div class="mb-3">
+            <label for="fournisseur" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolier">
+              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
+                [clearable]="true" placeholder="Sélectionnez la compagnie pétrolière">
+              </ng-select>
+
+              <div *ngIf="addSortie.get('compagnie_petrolier_id')?.invalid && addSortie.get('compagnie_petrolier_id')?.touched">
+                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucune Compagnie_petrolier n'existe -->
+            <ng-template #noCompagnie_petrolier>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolier. Veuillez en créer.
               </div>
             </ng-template>
           </div>
@@ -389,6 +417,29 @@
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner une compagnie_petrolier -->
+          <div class="mb-3">
+            <label for="fournisseur" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolierE">
+              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
+                [clearable]="true" placeholder="Sélectionnez la compagnie pétrolière">
+              </ng-select>
+
+              <div *ngIf="editSortie.get('compagnie_petrolier_id')?.invalid && editSortie.get('compagnie_petrolier_id')?.touched">
+                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucune Compagnie_petrolier n'existe -->
+            <ng-template #noCompagnie_petrolierE>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolier. Veuillez en créer.
               </div>
             </ng-template>
           </div>
