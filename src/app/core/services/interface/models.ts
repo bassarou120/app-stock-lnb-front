@@ -9,6 +9,15 @@ export interface Commune {
   created_at: string;
   updated_at: string;
 }
+export interface RetourTicket {
+  id: number;
+  mouvementTicket_id: number;
+  coupon_ticket_id: number;
+  compagnie_petrolier_id: number;
+  qte: number;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface CouponTicket {
   id: number;

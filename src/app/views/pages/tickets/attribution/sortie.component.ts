@@ -53,9 +53,9 @@ export class SortieComponent implements OnInit {
   alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
   public addSortie!: FormGroup;
-  public editSortie!: FormGroup; 
+  public editSortie!: FormGroup;
   public deleteSortie!: FormGroup;
-  
+
 
   // Fichiers sélectionnés
 
@@ -63,7 +63,7 @@ export class SortieComponent implements OnInit {
 
   constructor(private sortieService: MouvementTicketService, private formBuilder: FormBuilder,) { }
 
-  
+
   ngOnInit(): void {
     this.loadTypeMouvements();
     this.loadCompagniePetrolieres()

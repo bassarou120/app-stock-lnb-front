@@ -417,7 +417,7 @@ export const MENU: MenuItem[] = [
       },
       {
         label: 'Retour Tickets',
-        link: '/parametres-stock/bureaux',
+        link: 'tickets/retour-ticket',
       },
     ]
   },
