@@ -53,7 +53,7 @@ export class RetourTicketComponent implements OnInit {
   constructor(private retourTicketService: RetourTicketService,private formBuilder: FormBuilder,) {}
 
   ngOnInit(): void {
-    this.loadMouvementTickets();
+    this.loadAllSortieTicketWhereNotInRetour();
     this.loadRetourTickets();
     this.loadCompagniePetrolieres();
     this.loadCouponTickets();
@@ -200,10 +200,11 @@ onClickSubmitDeleteSousTypeImmo(){
   }
 }
 
-loadMouvementTickets(): void {
-  this.retourTicketService.getAllMouvementTicketSortie().subscribe({
+loadAllSortieTicketWhereNotInRetour(): void {
+  this.retourTicketService.getAllSortieTicketWhereNotInRetour().subscribe({
     next: (data) => {
-      this.mouvementsTickets = data; // Stocker la liste des types d'immos
+      this.mouvementsTickets = data; // Stocker la liste des mouvement qui ne sont pas encore dans la table retour
+      console.error(" voici la liste" , this.mouvementsTickets);
     },
     error: (err) => {
       console.error("Erreur lors du chargement des mouvements :", err);

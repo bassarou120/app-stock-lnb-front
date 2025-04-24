@@ -147,7 +147,7 @@
             <ng-template #noMouvementTicket>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Mouvement de sortie de Ticket. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Plus d'attribution de Ticket disponible pour un retour.
               </div>
             </ng-template>
           </div>
@@ -180,7 +180,7 @@
 
             <ng-container *ngIf="couponsTickets && couponsTickets.length > 0; else noCouponTickets">
               <ng-select [items]="couponsTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
-                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket" readonly>
+                [clearable]="true" placeholder="" readonly>
               </ng-select>
 
               <div *ngIf="addRetourTicket.get('coupon_ticket_id')?.invalid && addRetourTicket.get('coupon_ticket_id')?.touched">

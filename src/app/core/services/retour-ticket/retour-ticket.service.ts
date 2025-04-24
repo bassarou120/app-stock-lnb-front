@@ -36,9 +36,9 @@ export class RetourTicketService  {
     return this.http.delete<void>(`${this.url}/retour-ticket/${data.id}`);
   }
 
-  getAllMouvementTicketSortie(): Observable<MouvementTicket[]> {
+  getAllSortieTicketWhereNotInRetour(): Observable<MouvementTicket[]> {
       return this.http.get<{ success: boolean; message: string; data: { data: MouvementTicket[] } }>(
-        `${this.url}/mouvement-ticket/sortie`
+        `${this.url}/mouvement-ticket/getAllSortieTicketWhereNotInRetour`
       ).pipe(
         map((response: { success: boolean; message: string; data: { data: MouvementTicket[] } }) =>
           response.data.data // On récupère uniquement le tableau de MouvementTicketSortie
