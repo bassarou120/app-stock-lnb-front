@@ -94,12 +94,12 @@
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <!-- <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                        data-bs-target="#edit_entree" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
-                    </a>
+                    </a> -->
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
+                       data-bs-target="#delete_retour" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
                   </div>
@@ -244,4 +244,31 @@
   </div>
 </div>
 
-<!-- /Add mouvement entree Modal -->
+<!-- /Add retour ticket Modal -->
+
+
+<div id="delete_retour" class="modal fade" tabindex="-1" aria-labelledby="deleteRetourLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteRetoutLabel">Supprimer le Retour de Ticket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="deleteRetourTicket" (ngSubmit)="onClickSubmitDeleteRetourTicket()">
+          <input type="hidden" formControlName="id">
+          <p class="text-center">Êtes-vous sûr de vouloir supprimer ce Retour de Ticket ?</p>
+          <br>
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

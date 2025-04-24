@@ -159,7 +159,7 @@ onClickSubmitEditRetourTicket(){
   }
 }
 
-onClickSubmitDeleteSousTypeImmo(){
+onClickSubmitDeleteRetourTicket(){
   console.log(this.deleteRetourTicket.value);
   const spinner = document.querySelector('.spinnerDelete');
 
@@ -172,7 +172,7 @@ onClickSubmitDeleteSousTypeImmo(){
         this.deleteRetourTicket.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('delete_retourTicket');
+        const modal = document.getElementById('delete_retour');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();

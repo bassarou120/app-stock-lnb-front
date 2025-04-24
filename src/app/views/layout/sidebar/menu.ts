@@ -423,7 +423,7 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Trajet',
-    icon: 'refresh-ccw',
+    icon: 'git-pull-request',
     link: '/trajets'
   },
   {
