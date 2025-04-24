@@ -372,7 +372,7 @@ export const MENU: MenuItem[] = [
     link: '/etat-de-stock'
   },
   {
-    label: 'Gestion de Immobilisations',
+    label: 'Gestion de Immobilisation',
     isTitle: true
   },
   {
@@ -404,7 +404,7 @@ export const MENU: MenuItem[] = [
     icon: 'credit-card',
     subItems: [
       {
-        label: 'Stock Tickets',
+        label: 'Stock Ticket',
         link: 'tickets/',
       },
       {
