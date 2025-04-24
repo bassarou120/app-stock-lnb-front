@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { RetourTicketService } from '../../../../core/services/retour-ticket/retour-ticket.service';
-import { RetourTicket, CompagniePetroliere, MouvementTicket  } from '../../../../core/services/interface/models';
+import { RetourTicket, CompagniePetroliere, MouvementTicket, CouponTicket  } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
@@ -35,7 +35,10 @@ export class RetourTicketComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  mouvementsTickets: MouvementTicket[] = []; // Liste des mouvements
+  mouvementsTickets: MouvementTicket[] = []; // Liste des mouvements de sortie
+  couponsTickets: CouponTicket[] = []; // Liste des coupons ticket
+  compagniePetrolieres: CompagniePetroliere[] = []; // Liste des compagnies
+  ancienQteDuMvt: number; // Liste des compagnies
 
   alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
   alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
@@ -52,6 +55,9 @@ export class RetourTicketComponent implements OnInit {
   ngOnInit(): void {
     this.loadMouvementTickets();
     this.loadRetourTickets();
+    this.loadCompagniePetrolieres();
+    this.loadCouponTickets();
+
     this.addRetourTicket = this.formBuilder.group({
       mouvementTicket_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
@@ -83,7 +89,7 @@ export class RetourTicketComponent implements OnInit {
         this.addRetourTicket.reset();
 
         // Fermer le modal manuellement
-        const modal = document.getElementById('add_retourTicket');
+        const modal = document.getElementById('add_retour');
         // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
@@ -204,6 +210,26 @@ loadMouvementTickets(): void {
     }
   });
 }
+loadCouponTickets(): void {
+  this.retourTicketService.getAllCouponTickets().subscribe({
+    next: (data) => {
+      this.couponsTickets = data; // Stocker la liste des coupons tickets
+    },
+    error: (err) => {
+      console.error("Erreur lors du chargement des coupons tickets :", err);
+    }
+  });
+}
+loadCompagniePetrolieres(): void {
+  this.retourTicketService.getAllCompagniePetrolieres().subscribe({
+    next: (data) => {
+      this.compagniePetrolieres = data; // Stocker la liste des compagniePetrolieres
+    },
+    error: (err) => {
+      console.error("Erreur lors du chargement des compagnies Petrolieres :", err);
+    }
+  });
+}
 
 
 loadRetourTickets(): void {
@@ -245,6 +271,39 @@ loadRetourTickets(): void {
      id:row.id,
     })
   }
+
+
+
+  getMouvementtInfo() {
+    const idMouvement = this.addRetourTicket.get('mouvementTicket_id')?.value;
+    console.log('ID du Mouvement sélectionné:', idMouvement);
+    if (!idMouvement) {
+      console.log('Aucun Mouvement sélectionné ou désélection effectuée');
+      return;
+    }
+    this.retourTicketService.getMouvementInfo(idMouvement).subscribe(
+      (response) => {
+        console.log('Info Récupérée:',response);
+        this.addRetourTicket.patchValue({
+          compagnie_petrolier_id: response.compagnie_petrolier_id,
+          coupon_ticket_id: response.coupon_ticket_id
+        });
+        this.ancienQteDuMvt=response.quantite;
+        const qteControl = this.addRetourTicket.get('qte');
+    qteControl?.setValidators([
+      Validators.required,
+      Validators.min(1),
+      Validators.max(this.ancienQteDuMvt)
+    ]);
+    qteControl?.updateValueAndValidity();
+      },
+      (error) => {
+        console.error('Erreur lors des Infos:', error);
+      }
+    );
+  }
  }
+
+
 
 

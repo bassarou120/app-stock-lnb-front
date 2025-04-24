@@ -34,7 +34,7 @@
         </div>
         <div class="d-flex gap-2">
           <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-            data-bs-target="#add_entree">
+            data-bs-target="#add_retour">
             Ajouter
           </button>
         </div>
@@ -67,34 +67,26 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Reference">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.mouvement?.reference || 'N/A' }}
+                {{ row.mouvement?.reference || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Coupon">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.coupon?.libelle || 'N/A' }}
+                {{ row.coupon?.libelle || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
 
             <ngx-datatable-column name="Compagnie">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.compagnie_petrolier?.libelle || 'N/A' }}
+                {{ row.compagnie?.libelle || 'Non définie' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
-            <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
-            <ngx-datatable-column name="Date" prop="date"></ngx-datatable-column>
-            <!-- <ngx-datatable-column name="Employe">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.employe?.fullnameEmploye || 'Non défini' }}
-              </ng-template>
-            </ngx-datatable-column> -->
-            <!-- <ngx-datatable-column name="Date de création" prop="created_at">
+            <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
-            </ngx-datatable-column> -->
+            </ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -121,3 +113,135 @@
   </div>
 </div>
 
+
+
+<!-- Add retour ticket -->
+<div id="add_retour" class="modal fade" tabindex="-1" aria-labelledby="addRetourLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addRetourLabel">Ajouter un Retour de Ticket</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addRetourTicket" (ngSubmit)="onClickSubmitAddRetourTicket()" novalidate>
+
+          <!-- Sélectionner le mouvement de sortie -->
+          <div class="mb-3">
+            <label for="mouvementTicket_id" class="form-label">Code Mouvement Ticket <span class="text-danger">*</span></label>
+            <ng-container *ngIf="mouvementsTickets && mouvementsTickets.length > 0; else noMouvementTicket">
+              <ng-select [items]="mouvementsTickets" bindLabel="reference" bindValue="id" formControlName="mouvementTicket_id"
+                [clearable]="true" placeholder="Sélectionnez le mouvement ticket" (change)="getMouvementtInfo()">
+              </ng-select>
+              <div
+                *ngIf="addRetourTicket.get('mouvementTicket_id')?.invalid && addRetourTicket.get('mouvementTicket_id')?.touched">
+                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
+              </div>
+            </ng-container>
+            <div class="text-danger mt-2">
+              <small>Ancienne Quantité Sortie: {{ ancienQteDuMvt }}</small>
+            </div>
+            <ng-template #noMouvementTicket>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Mouvement de sortie de Ticket. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner une compagnie_petrolier -->
+          <div class="mb-3">
+            <label for="compagniePetrolieres" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolier">
+              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
+                [clearable]="true" placeholder="" readonly>
+              </ng-select>
+
+              <div *ngIf="addRetourTicket.get('compagnie_petrolier_id')?.invalid && addRetourTicket.get('compagnie_petrolier_id')?.touched">
+                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucune Compagnie_petrolier n'existe -->
+            <ng-template #noCompagnie_petrolier>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolière. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+          <!-- Sélectionner un coupon -->
+          <div class="mb-3">
+            <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="couponsTickets && couponsTickets.length > 0; else noCouponTickets">
+              <ng-select [items]="couponsTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
+                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket" readonly>
+              </ng-select>
+
+              <div *ngIf="addRetourTicket.get('coupon_ticket_id')?.invalid && addRetourTicket.get('coupon_ticket_id')?.touched">
+                <small class="text-danger"> *Le coupon est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun CouponTicket n'existe -->
+            <ng-template #noCouponTickets>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Qte -->
+          <div class="mb-3">
+            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+              [class.invalid]="addRetourTicket.get('qte')?.invalid && addRetourTicket.get('qte')?.touched" formControlName="qte">
+              <div *ngIf="addRetourTicket.get('qte')?.invalid && addRetourTicket.get('qte')?.touched">
+                <small *ngIf="addRetourTicket.get('qte')?.errors?.['required']" class="text-danger">* La quantité est obligatoire</small>
+                <small *ngIf="addRetourTicket.get('qte')?.errors?.['min']" class="text-danger">* La quantité doit être au moins 1</small>
+                <small *ngIf="addRetourTicket.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas dépasser {{ ancienQteDuMvt }}</small>
+              </div>
+          </div>
+
+
+
+
+
+
+          <!--  date_mouvement -->
+          <!-- <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
+          </div>
+
+          <div *ngIf="addEntree.get('date')?.invalid && addEntree.get('date')?.touched">
+            <small class="text-danger"> *la date du mouvement est obligatoire</small>
+          </div> -->
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Add mouvement entree Modal -->

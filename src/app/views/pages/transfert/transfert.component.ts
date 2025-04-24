@@ -25,8 +25,7 @@ declare var bootstrap: any;
     NgbAlertModule,
     NgbDropdownModule,
     MyNgSelectComponent,
-    FeatherIconDirective
-
+    // FeatherIconDirective
   ],
   templateUrl: 'transfert.component.html'
 })
