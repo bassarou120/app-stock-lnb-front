@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  front_lnb_stock-app:
+    build: .
+    container_name: front_lnb_stock
+    restart: always
+
+    ports:
+      - 8480:80
+#    networks:
+#      - web
+#
+#
+networks:
+  default:
+    external : true
+    name: lnb-network

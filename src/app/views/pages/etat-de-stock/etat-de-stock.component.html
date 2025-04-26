@@ -1,4 +1,17 @@
 <div class="row">
+  <style>
+    .header-style {
+      background-color: #007bff;
+      color: white;
+      text-align: center;
+    }
+
+    .cell-style {
+      font-weight: bold;
+      background-color: #0d6efd;
+      color: #333;
+    }
+  </style>
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -20,22 +33,23 @@
             </ng-select>
           </div>
         </div>
-        <div class="table-responsive">
+        <div class="tab le-responsive">
           <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+                         [columnMode]="ColumnMode.force"   [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
             <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
-            <ngx-datatable-column name="N°">
+            <ngx-datatable-column name="N°"  [width]="40"   >
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Articles" prop="libelle"></ngx-datatable-column>
-            <ngx-datatable-column name="Catégorie">
+
+            <ngx-datatable-column name="Articles" prop="libelle" [width]="400"></ngx-datatable-column>
+            <ngx-datatable-column name="Catégorie"  [width]="200" >
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ getCategoryName(row.id_cat) || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Qte Actuelle">
+            <ngx-datatable-column name="Qte Actuelle" [width]="50">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div
                   style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%;"
@@ -46,10 +60,14 @@
                 </div>
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
+            <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"
+                                  [width]="50"></ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>
     </div>
   </div>
+
+
+
 </div>
