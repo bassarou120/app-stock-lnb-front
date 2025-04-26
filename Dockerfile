@@ -10,7 +10,7 @@ ENV PATH /usr/src/app/node_modules/.bin:$PATH
 
 COPY . /usr/src/app
 
-COPY /usr/src/app/src/environements/prod.environement.ts /usr/src/app/src/environements/environement.ts
+COPY /usr/src/app/src/environments/prod.environment.ts /usr/src/app/src/environments/environment.ts
 #RUN npm install -g npm
 RUN npm install --force
 #RUN npm install -g  @angular/cli
