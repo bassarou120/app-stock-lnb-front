@@ -7,19 +7,19 @@
 
 <!-- Alerte pour ajout avec succès -->
 <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Fournisseur Ajouté avec succès
+  Fournisseur ajouté avec succès
 </ngb-alert>
 <!-- Alerte pour ajout avec succès -->
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Fournisseur Modifié avec succès
+  Fournisseur modifié avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
 <!-- Alerte pour supprimer avec succès -->
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Fournisseur Supprimé avec succès
+  Fournisseur supprimé avec succès
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
@@ -45,7 +45,6 @@
     </div>
   </div>
 </div>
-
 
 
 <div class="row">
@@ -137,7 +136,7 @@
               formControlName="telephone">
             <div *ngIf="addFournisseur.get('telephone')?.invalid && addFournisseur.get('telephone')?.touched">
               <small *ngIf="addFournisseur.get('telephone')?.invalid && addFournisseur.get('telephone')?.touched"
-                class="text-danger"> *le telephone du fournisseur est obligatoire</small>
+                class="text-danger"> *le téléphone du fournisseur est obligatoire</small>
             </div>
           </div>
           <!-- adresse Fournisseur -->
