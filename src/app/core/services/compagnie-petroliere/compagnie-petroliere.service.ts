@@ -35,4 +35,8 @@ export class CompagniePetroliereService {
   deleteCompagniePetroliere(data: CompagniePetroliere): Observable<void> {
     return this.http.delete<void>(`${this.url}/compagnie_petrolier/${data.id}`);
   }
+
+  imprimerCompagnies(): Observable<Blob> {
+    return this.http.get(`${this.url}/compagnie_petrolier-imprimer`, { responseType: 'blob' });
+  }
 }

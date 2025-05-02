@@ -220,6 +220,18 @@ loadCompagniePetrolieres(): void {
      id:row.id,
     })
   }
+
+  downloadCompagnie() {
+    this.compagniePetroliereService.imprimerCompagnies().subscribe((response: Blob) => {
+      const fileURL = window.URL.createObjectURL(response);
+      const a = document.createElement('a');
+      a.href = fileURL;
+      a.download = 'liste_compagnies_petrolieres.pdf'; // Nom du fichier à télécharger
+      a.click();
+    }, error => {
+      console.error('Erreur lors du téléchargement du PDF', error);
+    });
+  }
 }
 
 

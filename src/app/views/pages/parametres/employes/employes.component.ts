@@ -227,6 +227,18 @@ loadEmployes(): void {
      id:row.id,
     })
   }
+
+  downloadEmployes() {
+    this.employeService.imprimerEmployes().subscribe((response: Blob) => {
+      const fileURL = window.URL.createObjectURL(response);
+      const a = document.createElement('a');
+      a.href = fileURL;
+      a.download = 'liste_personnels.pdf'; // Nom du fichier à télécharger
+      a.click();
+    }, error => {
+      console.error('Erreur lors du téléchargement du PDF', error);
+    });
+  }
 }
 
 
