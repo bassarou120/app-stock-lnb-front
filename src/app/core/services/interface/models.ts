@@ -166,9 +166,11 @@ export interface MouvementStock {
   description: string;
   id_type_mouvement: number;
   qte: number;
+  qteDemande: number;
   date_mouvement: string;
   created_at: string;
   updated_at: string;
+  statut?: string;
 }
 
 export interface MouvementTicket {

@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementStockService } from '../../../../core/services/mouvementstock/sortie.service';
@@ -10,7 +10,7 @@ import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
-import { map } from 'rxjs/operators';
+import { Subject, takeUntil } from 'rxjs'; // Importez Subject et takeUntil
 
 declare var bootstrap: any;
 
@@ -29,9 +29,9 @@ declare var bootstrap: any;
     NgbDatepickerModule,
     FeatherIconDirective
   ],
-  templateUrl: 'sortie.component.html'
+  templateUrl: 'demande.component.html'
 })
-export class SortieComponent implements OnInit {
+export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDestroy
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: MouvementStock[] = [];
@@ -47,32 +47,35 @@ export class SortieComponent implements OnInit {
   quantiteDisponible: number = 0;
 
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;   // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;   // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;   // Pour gérer la visibilité de l'alerte supp
+  isStatutModifLoading = false;
+  private destroy$ = new Subject<void>(); // Déclarez destroy$
 
   public addSortie!: FormGroup;
   public editSortie!: FormGroup;
   public deleteSortie!: FormGroup;
+  public editStatutSortie!: FormGroup;
 
   // Fichiers sélectionnés
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private sortieService: MouvementStockService, private formBuilder: FormBuilder,) { }
+  constructor(private sortieService: MouvementStockService, private formBuilder: FormBuilder) { }
 
   ngOnInit(): void {
     this.loadEmployes();
     this.loadArticles();
     this.loadBureaux();
     this.loadSorties();
-    this.loadSortiesAccordees(); // Charger uniquement les sorties accordées au début
     this.addSortie = this.formBuilder.group({
       id_Article: [null, [Validators.required]],
       id_employe: [null, []],
       id_bureau: [null, []],
       description: ["", [Validators.required]],
-      qte: [1, [Validators.required]],
+      // qte: [1, [Validators.required]],
+      qteDemande: [1, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
     });
     this.editSortie = this.formBuilder.group({
@@ -81,12 +84,82 @@ export class SortieComponent implements OnInit {
       id_employe: [null, []],
       id_bureau: [null, []],
       description: ["", [Validators.required]],
-      qte: [1, [Validators.required]],
+      // qte: [1, [Validators.required]],
+      qteDemande: [1, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
+      statut: ['', Validators.required] // **Ajouter le statut au formulaire de modification**
     });
     this.deleteSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
     });
+    this.buildEditStatutSortieForm();
+  }
+
+  ngOnDestroy(): void { // Implémentez ngOnDestroy
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  buildEditStatutSortieForm(): void {
+    this.editStatutSortie = this.formBuilder.group({
+      id: [null, Validators.required],
+      statut: ['', Validators.required]
+    });
+  }
+  getStatutForm(row: any): void {
+    this.editStatutSortie.patchValue({
+      id: row.id,
+      statut: row.statut
+    });
+  }
+  onClickSubmitEditStatutSortie(): void {
+    const spinner = document.querySelector('#edit_statut_sortie .spinnerStatutModif');
+
+    if (this.editStatutSortie.valid) {
+      this.isStatutModifLoading = true;
+      if (spinner) spinner.classList.remove('d-none');
+      const id = this.editStatutSortie.value.id;
+      const formData = { ...this.editStatutSortie.value };
+      delete formData.id;
+
+      this.sortieService.updateDemandeStock(id, formData)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: (response: any) => {
+            this.loadSorties();
+            if (spinner) spinner.classList.add('d-none');
+            this.editStatutSortie.reset();
+
+            // Fermer le modal manuellement (selon votre exemple)
+            const modal = document.getElementById('edit_statut_sortie');
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            bsModal?.hide();
+
+            // Attendre que le modal soit fermé avant d'afficher l'alerte (selon votre exemple)
+            setTimeout(() => {
+              this.alertModifVisible = true;
+              console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
+              setTimeout(() => {
+                this.alertModifVisible = false;
+              }, 2000); // L'alerte disparaît après 2 secondes
+            }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+
+            this.isStatutModifLoading = false;
+          },
+          error: (error: any) => {
+            console.error('Erreur lors de la modification du statut :', error);
+            if (spinner) spinner.classList.add('d-none');
+            this.isStatutModifLoading = false;
+            alert('Une erreur s\'est produite. Veuillez réessayer.'); // Gestion de l'erreur selon votre exemple
+          }
+        });
+    } else {
+      if (spinner) spinner.classList.add('d-none');
+      alert("Désolé, le formulaire n'est pas bien renseigné"); // Gestion de l'erreur de validation selon votre exemple
+      Object.keys(this.editStatutSortie.controls).forEach(key => {
+        this.editStatutSortie.get(key)?.markAsTouched();
+      });
+    }
   }
 
   onClickSubmitAddSortie() {
@@ -228,23 +301,23 @@ export class SortieComponent implements OnInit {
 
   loadArticles(): void {
     this.sortieService.getAllArticles().subscribe({
-      next: (data) => {
+      next: (data: Article[]) => { // Typez la réponse
         this.articles = data; // Stocker la liste des articles
       },
-      error: (err) => {
+      error: (err: any) => { // Typez l'erreur
         console.error("Erreur lors du chargement des articles :", err);
       }
     });
   }
   loadEmployes(): void {
     this.sortieService.getAllEmployes().subscribe({
-      next: (data) => {
+      next: (data: Employe[]) => { // Typez la réponse
         this.employes = data.map((employe: any) => ({
           ...employe,
           fullName: `${employe.nom} ${employe.prenom}`
         })); // Ajouter fullName pour l'affichage
       },
-      error: (err) => {
+      error: (err: any) => { // Typez l'erreur
         console.error("Erreur lors du chargement des employés :", err);
       }
     });
@@ -252,10 +325,10 @@ export class SortieComponent implements OnInit {
 
   loadBureaux(): void {
     this.sortieService.getAllBureaux().subscribe({
-      next: (data) => {
+      next: (data: Bureau[]) => { // Typez la réponse
         this.bureaux = data; // Stocker la liste des bureaux
       },
-      error: (err) => {
+      error: (err: any) => { // Typez l'erreur
         console.error("Erreur lors du chargement des bureaux :", err);
       }
     });
@@ -264,29 +337,13 @@ export class SortieComponent implements OnInit {
 
   loadSorties(): void {
     this.sortieService.getAllMouvementStockSortie().subscribe(
-      (data: MouvementStock[]) => {
+      (data: MouvementStock[]) => { // Typez la réponse
         this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
         this.rows = data;
         this.loadingIndicator = false;
       },
       error => {
         console.error('Erreur lors du chargement des Mouvements Stock Sortie', error);
-        this.loadingIndicator = false;
-      }
-    );
-  }
-
-  loadSortiesAccordees(): void {
-    this.sortieService.getAllMouvementStockSortie().pipe(
-      map((data: MouvementStock[]) => data.filter(sortie => sortie.statut === 'Accordé'))
-    ).subscribe(
-      (data: MouvementStock[]) => {
-        this.temp = [...data]; // Sauvegarde de la liste filtrée pour la recherche
-        this.rows = data;
-        this.loadingIndicator = false;
-      },
-      error => {
-        console.error('Erreur lors du chargement des Mouvements Stock Sortie accordés', error);
         this.loadingIndicator = false;
       }
     );
@@ -310,7 +367,9 @@ export class SortieComponent implements OnInit {
       id_bureau: row.affectation?.id_bureau,
       id_employe: row.affectation?.employe?.id,
       qte: row.qte,
+      qteDemande: row.qteDemande,
       date_mouvement: this.convertToNgbDate(row.date_mouvement),
+      statut: row.statut // **Récupérer le statut pour la modification**
     })
   }
 
@@ -324,7 +383,7 @@ export class SortieComponent implements OnInit {
     const year = date.year;
     const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
     const day = date.day.toString().padStart(2, '0');
-    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+    return `<span class="math-inline">\{year\}\-</span>{month}-${day}`; // Format YYYY-MM-DD
   }
 
 
@@ -354,26 +413,24 @@ export class SortieComponent implements OnInit {
     }
 
     this.sortieService.getQuantiteDisponible(idArticle).subscribe(
-      (response) => {
+      (response: any) => { // Typez la réponse
         console.log('Quantité disponible:', response.data);
         this.quantiteDisponible = response.data;
 
         // 🔥 On met à jour le validateur max du champ qte
-    const qteControl = this.addSortie.get('qte');
-    qteControl?.setValidators([
-      Validators.required,
-      Validators.min(1),
-      Validators.max(this.quantiteDisponible)
-    ]);
-    qteControl?.updateValueAndValidity();
+        const qteControl = this.addSortie.get('qteDemande');
+        qteControl?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(this.quantiteDisponible)
+        ]);
+        qteControl?.updateValueAndValidity();
 
       },
-      (error) => {
+      (error: any) => {
         console.error('Erreur lors de la récupération de la quantité disponible:', error);
         this.quantiteDisponible = 0;
       }
     );
-
+  }
 }
-}
-
