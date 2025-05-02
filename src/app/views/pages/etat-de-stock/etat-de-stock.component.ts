@@ -120,4 +120,16 @@ applyFilters(): void {
     const category = this.categories.find(cat => cat.id === categoryId);
     return category ? category.libelle_categorie_article : undefined;
   }
+
+  downloadEtatStock() {
+    this.articleService.imprimerEtatStock().subscribe((response: Blob) => {
+      const fileURL = window.URL.createObjectURL(response);
+      const a = document.createElement('a');
+      a.href = fileURL;
+      a.download = 'etat_du_stock.pdf'; // Nom du fichier à télécharger
+      a.click();
+    }, error => {
+      console.error('Erreur lors du téléchargement du PDF', error);
+    });
+  }
 }

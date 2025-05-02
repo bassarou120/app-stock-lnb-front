@@ -404,17 +404,19 @@ export const MENU: MenuItem[] = [
     icon: 'credit-card',
     subItems: [
       {
-        label: 'Stock Ticket',
-        link: 'tickets/',
+        label: 'Attribution de Ticket',
+        link: 'tickets/attribution',
       },
       {
         label: 'Entrée de Ticket',
         link: 'tickets/entree',
       },
       {
-        label: 'Attribution de Ticket',
-        link: 'tickets/attribution',
+        label: 'Stock Ticket',
+        link: 'tickets/',
       },
+
+
       {
         label: 'Retour Tickets',
         link: 'tickets/retour-ticket',
@@ -517,7 +519,7 @@ export const MENU: MenuItem[] = [
         link: '/parametres/type-mouvement',
       },
       {
-        label: 'Liste des Employés',
+        label: 'Liste du Personnel',
         link: '/parametres/employes',
       },
       {

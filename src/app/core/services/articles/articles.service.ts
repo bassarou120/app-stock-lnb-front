@@ -49,4 +49,8 @@ export class ArticleService  {
   saveMultipleArticles(articles: Article[]): Observable<any> {
     return this.http.post<any>(`${this.url}/articles/batch`, { articles });
   }
+
+  imprimerEtatStock(): Observable<Blob> {
+    return this.http.get(`${this.url}/etat_stock-imprimer`, { responseType: 'blob' });
+  }
 }
