@@ -215,7 +215,7 @@ export interface Transfert {
 
 export interface Trajet{
   id: number;
-  MouvementTicket_id: number;
+  valeur: number;
   commune_depart: number;
   commune_arriver: number;
   trajet_aller_retour: boolean;

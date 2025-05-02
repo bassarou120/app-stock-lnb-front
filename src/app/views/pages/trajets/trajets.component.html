@@ -49,11 +49,6 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Code Mouvement Ticket">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.mouvement_ticket?.reference || 'N/A' }}
-              </ng-template>
-            </ngx-datatable-column>
             <ngx-datatable-column name="Départ">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.depart?.libelle_commune || 'Non défini' }}
@@ -69,8 +64,9 @@
                 {{ row.trajet_aller_retour ? 'Oui' : 'Non' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Valeur" prop="valeur"></ngx-datatable-column>
             <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
-            
+
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -107,25 +103,6 @@
 
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="addTrajet" (ngSubmit)="onClickSubmitAddTrajet()" novalidate>
-
-          <div class="mb-3">
-            <label for="MouvementTicket_id" class="form-label">Code Mouvement Ticket <span class="text-danger">*</span></label>
-            <ng-container *ngIf="mouvementTickets && mouvementTickets.length > 0; else noMouvementTicket">
-              <ng-select [items]="mouvementTickets" bindLabel="reference" bindValue="id" formControlName="MouvementTicket_id"
-                [clearable]="true" placeholder="Sélectionnez le mouvement ticket">
-              </ng-select>
-              <div
-                *ngIf="addTrajet.get('MouvementTicket_id')?.invalid && addTrajet.get('MouvementTicket_id')?.touched">
-                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
-              </div>
-            </ng-container>
-            <ng-template #noMouvementTicket>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Mouvement Ticket. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
 
           <div class="mb-3">
             <label for="commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
@@ -170,6 +147,19 @@
             </div>
           </div>
 
+          <!-- valeur -->
+          <div class="mb-3">
+            <label for="valeur" class="form-label">Valeur <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="valeur" placeholder="10000"
+              autocomplete="off"
+              [class.invalid]="addTrajet.get('valeur')?.invalid && addTrajet.get('valeur')?.touched"
+              formControlName="valeur">
+            <div *ngIf="addTrajet.get('valeur')?.invalid && addTrajet.get('valeur')?.touched">
+              <small *ngIf="addTrajet.get('valeur')?.invalid && addTrajet.get('valeur')?.touched"
+                class="text-danger"> *la valeur du trajet est obligatoire</small>
+            </div>
+          </div>
+
           <div class="mb-3">
             <label for="observation" class="form-label">Observation <span class="text-danger"></span></label>
             <textarea class="form-control" id="observation" rows="5"
@@ -207,25 +197,6 @@
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="editTrajet" (ngSubmit)="onClickSubmitEditTrajet()" novalidate>
           <input type="hidden" formControlName="id">
-
-          <div class="mb-3">
-            <label for="edit_MouvementTicket_id" class="form-label">Code Mouvement Ticket <span class="text-danger">*</span></label>
-            <ng-container *ngIf="mouvementTickets && mouvementTickets.length > 0; else noEditMouvementTicket">
-              <ng-select [items]="mouvementTickets" bindLabel="reference" bindValue="id" formControlName="MouvementTicket_id"
-                [clearable]="true" placeholder="Sélectionnez le mouvement ticket">
-              </ng-select>
-              <div
-                *ngIf="editTrajet.get('MouvementTicket_id')?.invalid && editTrajet.get('MouvementTicket_id')?.touched">
-                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
-              </div>
-            </ng-container>
-            <ng-template #noEditMouvementTicket>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Mouvement Ticket. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
 
           <div class="mb-3">
             <label for="edit_commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
@@ -267,6 +238,19 @@
             <div class="form-check">
               <input type="checkbox" class="form-check-input" id="edit_trajet_aller_retour" formControlName="trajet_aller_retour">
               <label class="form-check-label" for="edit_trajet_aller_retour">Aller-Retour</label>
+            </div>
+          </div>
+
+          <!-- valeur -->
+          <div class="mb-3">
+            <label for="valeur" class="form-label">Valeur <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="valeur" placeholder="10000"
+              autocomplete="off"
+              [class.invalid]="editTrajet.get('valeur')?.invalid && editTrajet.get('valeur')?.touched"
+              formControlName="valeur">
+            <div *ngIf="editTrajet.get('valeur')?.invalid && editTrajet.get('valeur')?.touched">
+              <small *ngIf="editTrajet.get('valeur')?.invalid && editTrajet.get('valeur')?.touched"
+                class="text-danger"> *la valeur du trajet est obligatoire</small>
             </div>
           </div>
 

@@ -63,18 +63,18 @@ export class TrajetComponent implements OnInit {
     this.loadTrajets();
 
     this.addTrajet = this.formBuilder.group({
-      MouvementTicket_id: [null, [Validators.required]], 
-      commune_depart: [null, [Validators.required]],     
-      commune_arriver: [null, [Validators.required]],   
-      trajet_aller_retour: [false, []],     
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
+      trajet_aller_retour: [false, []],
+      valeur: ["" ,[Validators.required]],
       observation: ["", []],
     });
     this.editTrajet = this.formBuilder.group({
       id: [0, [Validators.required]],
-      MouvementTicket_id: [null, [Validators.required]], 
-      commune_depart: [null, [Validators.required]],     
-      commune_arriver: [null, [Validators.required]], 
-      trajet_aller_retour: [false, []],       
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
+      trajet_aller_retour: [false, []],
+      valeur: ["" ,[Validators.required]],
       observation: ["", []],
     });
     this.deleteTrajet = this.formBuilder.group({
@@ -233,9 +233,9 @@ export class TrajetComponent implements OnInit {
   }
 
   loadMouvementTickets(): void {
-    this.trajetService.getAllMouvementTicketSortie().subscribe({ 
+    this.trajetService.getAllMouvementTicketSortie().subscribe({
       next: (data) => {
-        this.mouvementTickets = data; 
+        this.mouvementTickets = data;
         console.log('Mouvement Tickets chargés :', this.mouvementTickets);
       },
       error: (err) => {
@@ -267,7 +267,7 @@ export class TrajetComponent implements OnInit {
     this.table.offset = 0;
   }
 
-  getEditForm(row: any) { 
+  getEditForm(row: any) {
     this.editTrajet.patchValue({
       id: row.id,
       MouvementTicket_id: row.MouvementTicket_id,
@@ -275,6 +275,7 @@ export class TrajetComponent implements OnInit {
       commune_arriver: row.commune_arriver,
       trajet_aller_retour: row.trajet_aller_retour,
       observation: row.observation,
+      valeur: row.valeur,
     });
   }
 
