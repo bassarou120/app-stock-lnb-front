@@ -424,11 +424,6 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
-    label: 'Trajet',
-    icon: 'git-pull-request',
-    link: '/trajets'
-  },
-  {
     label: 'Paramètres',
     isTitle: true
   },
@@ -477,6 +472,12 @@ export const MENU: MenuItem[] = [
       {
         label: 'Compagnie Pétrolière',
         link: '/parametres-pack/compagnie-petroliere',
+      },
+
+      {
+        label: 'Trajet',
+        icon: 'git-pull-request',
+        link: '/parametres-pack/trajets'
       },
       // {
       //   label: 'Liste des Véhicules',

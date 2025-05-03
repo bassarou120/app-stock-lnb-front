@@ -5,26 +5,42 @@
         <h6 class="card-title">Liste des Tickets</h6>
         <div class="row mb-3 d-flex justify-content-between">
           <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
-              (keyup)="updateFilter($event)" />
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..." [(ngModel)]="searchText"
+              (keyup)="applyFilters()" />
           </div>
+          <div class="col-xl-3 col-md-4 mb-2">
+            <ng-select [items]="couponTickets" bindLabel="libelle" bindValue="id" placeholder="Filtrer par coupon"
+              [(ngModel)]="selectedCouponId" (change)="applyFilters()">
+            </ng-select>
+          </div>
+
+          <div class="col-xl-3 col-md-4 mb-2">
+            <ng-select [items]="compagnies" bindLabel="libelle" bindValue="id" placeholder="Filtrer par compagnie"
+              [(ngModel)]="selectedCompagnieId" (change)="applyFilters()">
+            </ng-select>
+          </div>
+
         </div>
         <div class="table-responsive">
           <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="50" rowHeight="auto" [scrollbarH]="true">
             <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
             <ngx-datatable-column name="N°">
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Coupon Tickets " prop="libelle"></ngx-datatable-column>
-            <ngx-datatable-column name="Qte Actuelle">
+            <ngx-datatable-column name="Coupon Tickets">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.stock?.qte_actuel || 0 }}
+                {{ row.coupon_ticket?.libelle || '-' }}
               </ng-template>
             </ngx-datatable-column>
-            <!-- <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column> -->
+            <ngx-datatable-column name="Compagnie petrolière">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.compagnie?.libelle || '-' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Quantité Actuelle" prop="qte_actuel"></ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>

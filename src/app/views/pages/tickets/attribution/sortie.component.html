@@ -139,10 +139,16 @@
           <div class="mb-3">
             <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
 
-            <ng-container *ngIf="couponTickets && couponTickets.length > 0; else noCouponTickets">
-              <ng-select [items]="couponTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
-                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket" (change)="updateQuantiteDisponible()">
-              </ng-select>
+            <ng-container *ngIf="couponTicketsWithCompagnies && couponTicketsWithCompagnies.length > 0; else noCouponTickets">
+              <ng-select
+  [items]="couponTicketsWithCompagnies"
+  bindLabel="displayLabel"
+  bindValue="id"
+  formControlName="coupon_ticket_id"
+  [clearable]="true"
+  placeholder="Sélectionnez le Coupon Ticket">
+</ng-select>
+
 
               <div *ngIf="addSortie.get('coupon_ticket_id')?.invalid && addSortie.get('coupon_ticket_id')?.touched">
                 <small class="text-danger"> *Le coupon est obligatoire</small>

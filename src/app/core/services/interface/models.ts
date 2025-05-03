@@ -26,6 +26,28 @@ export interface CouponTicket {
   created_at: string;
   updated_at: string;
 }
+
+export interface StockTicket {
+  id: number;
+  coupon_ticket_id: number;
+  compagnie_petrolier_id: number;
+  qte_actuel: number;
+  created_at: string;
+  updated_at: string;
+
+  coupon_ticket?: {
+    id: number;
+    libelle: string;
+    valeur: number;
+  };
+
+  compagnie?: {
+    id: number;
+    libelle: string;
+    adresse: string;
+  };
+}
+
 export interface Marque {
   id: number;
   libelle: string;
