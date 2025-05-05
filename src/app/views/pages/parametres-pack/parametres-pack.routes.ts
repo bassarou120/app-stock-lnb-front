@@ -25,4 +25,9 @@ export default [
     path: 'compagnie-petroliere',
     loadComponent: () => import('./compagnie-petroliere/compagnie-petroliere.component').then(c => c.CompagniePetroliereComponent),
   }
+  ,
+  {
+    path: 'trajets',
+    loadComponent: () => import('./trajets/trajets.component').then(c => c.TrajetComponent),
+  }
 ] as Routes;

@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/sortie.service';
-import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket } from '../../../../core/services/interface/models';
+import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket, Commune } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
@@ -45,7 +45,14 @@ export class SortieComponent implements OnInit {
   couponTickets: CouponTicket[] = []; // Liste des coupons
   employes: Employe[] = []; // Liste des Employe
 
+  couponTicketsWithCompagnies: any[] = [];
+  selectedCouponTicket: any = null;
+
+
   quantiteDisponible: number = 0;
+  coupon_ticket_id :number=0;
+  compagnie_petrolier_id  :number=0;
+
 
 
   alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
@@ -56,7 +63,7 @@ export class SortieComponent implements OnInit {
   public editSortie!: FormGroup;
   public deleteSortie!: FormGroup;
 
-
+  communes: Commune[] = []; // Liste des communes
   // Fichiers sélectionnés
 
   @ViewChild('table') table!: DatatableComponent;
@@ -65,19 +72,21 @@ export class SortieComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.loadCommunes();
     this.loadTypeMouvements();
     this.loadCompagniePetrolieres()
-    this.loadCouponTickets();
+    this.loadCouponTicketsWithCompagnies();
     this.loadEmployes();
     this.loadVehicules();
     this.loadSorties();
     this.addSortie = this.formBuilder.group({
-      // id_type_mouvements: [null, [Validators.required]],
       compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
       kilometrage: [null, [Validators.required]],
       employe_id: [null, [Validators.required]],
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
       description: ["", []],
       objet: ["", []],
       qte: [1, [Validators.required]],
@@ -91,6 +100,8 @@ export class SortieComponent implements OnInit {
       coupon_ticket_id: [null, [Validators.required]],
       kilometrage: [null, [Validators.required]],
       employe_id: [null, []],
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
       description: ["", []],
       objet: ["", []],
       qte: [1, [Validators.required]],
@@ -259,6 +270,18 @@ export class SortieComponent implements OnInit {
     });
   }
 
+  loadCommunes(): void {
+    this.sortieService.getAllCommunes().subscribe({ // Assurez-vous que cette méthode existe dans TrajetsService
+      next: (data) => {
+        this.communes = data; // Stocker la liste des communes
+        console.log('Communes chargées :', this.communes);
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des communes :", err);
+      }
+    });
+  }
+
   loadTypeMouvements(): void {
     this.sortieService.getAllTypeMouvement().subscribe({
       next: (data) => {
@@ -281,16 +304,42 @@ export class SortieComponent implements OnInit {
     });
   }
 
-  loadCouponTickets(): void {
-    this.sortieService.getAllCouponTickets().subscribe({
-      next: (data) => {
-        this.couponTickets = data; // Stocker la liste des couponTickets
+  // loadCouponTickets(): void {
+  //   this.sortieService.getAllCouponTickets().subscribe({
+  //     next: (data) => {
+  //       this.couponTickets = data; // Stocker la liste des couponTickets
+  //     },
+  //     error: (err) => {
+  //       console.error("Erreur lors du chargement des couponTickets :", err);
+  //     }
+  //   });
+  // }
+
+  loadCouponTicketsWithCompagnies(): void {
+    this.sortieService.getCouponTicketsWithCompagnies().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.couponTicketsWithCompagnies = res.data.map((item: any) => {
+            return {
+              id: item.coupon_ticket.id,
+              displayLabel: `${item.coupon_ticket.libelle} (${item.compagnie.libelle})`,
+              coupon_ticket_id: item.coupon_ticket.id,
+              compagnie_petrolier_id: item.compagnie.id
+            };
+          });
+          console.log("Bonjour", this.couponTicketsWithCompagnies);
+        }
       },
       error: (err) => {
-        console.error("Erreur lors du chargement des couponTickets :", err);
+        console.error("Erreur lors du chargement des coupons :", err);
       }
     });
   }
+
+
+
+
+
 
 
   loadSorties(): void {
@@ -325,6 +374,8 @@ export class SortieComponent implements OnInit {
       coupon_ticket_id: row.coupon_ticket_id,
       kilometrage: row.kilometrage,
       employe_id: row.employe?.id,
+      commune_depart: row.commune_depart,
+      commune_arriver: row.commune_arriver,
       description: row.description,
       qte: row.qte,
       objet: row.objet,
@@ -424,6 +475,19 @@ updateQuantiteDisponible() {
   );
 
 }
+
+onCouponSelected(event: any): void {
+  const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === event);
+
+  if (selectedItem) {
+    this.coupon_ticket_id = selectedItem.coupon_ticket_id;
+    this.compagnie_petrolier_id = selectedItem.compagnie_petrolier_id;
+
+    console.log('Coupon ID:', this.coupon_ticket_id);
+    console.log('Compagnie ID:', this.compagnie_petrolier_id);
+  }
+}
+
 
 
 

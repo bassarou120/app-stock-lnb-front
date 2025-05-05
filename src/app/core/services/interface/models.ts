@@ -26,6 +26,28 @@ export interface CouponTicket {
   created_at: string;
   updated_at: string;
 }
+
+export interface StockTicket {
+  id: number;
+  coupon_ticket_id: number;
+  compagnie_petrolier_id: number;
+  qte_actuel: number;
+  created_at: string;
+  updated_at: string;
+
+  coupon_ticket?: {
+    id: number;
+    libelle: string;
+    valeur: number;
+  };
+
+  compagnie?: {
+    id: number;
+    libelle: string;
+    adresse: string;
+  };
+}
+
 export interface Marque {
   id: number;
   libelle: string;
@@ -119,6 +141,7 @@ export interface TypeIntervention {
   libelle_type_intervention: string;
   applicable_seul_vehicule: boolean;
   observation: string;
+  date_expiration: string;
   created_at: string;
   updated_at: string;
 }
@@ -166,9 +189,11 @@ export interface MouvementStock {
   description: string;
   id_type_mouvement: number;
   qte: number;
+  qteDemande: number;
   date_mouvement: string;
   created_at: string;
   updated_at: string;
+  statut?: string;
 }
 
 export interface MouvementTicket {
@@ -177,6 +202,8 @@ export interface MouvementTicket {
   compagnie_petrolier_id: number;
   coupon_ticket_id: number;
   employe_id: number;
+  commune_depart: number;
+  commune_arriver: number;
   description: string;
   objet: string;
   id_type_mouvement: number;
@@ -215,7 +242,7 @@ export interface Transfert {
 
 export interface Trajet{
   id: number;
-  MouvementTicket_id: number;
+  valeur: number;
   commune_depart: number;
   commune_arriver: number;
   trajet_aller_retour: boolean;

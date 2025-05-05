@@ -42,31 +42,35 @@ export class MouvementStockService  {
   }
 
   getAllArticles(): Observable<Article[]> {
-      return this.http.get<{ success: boolean; message: string; data: { data: Article[] } }>(
-        `${this.url}/articles`
-      ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Article[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Article
-        )
-      );
-    }
-    getAllBureaux(): Observable<Bureau[]> {
-      return this.http.get<{ success: boolean; message: string; data: { data: Bureau[] } }>(
-        `${this.url}/bureaux`
-      ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Bureau[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Bureau
-        )
-      );
-    }
-    getAllEmployes(): Observable<Employe[]> {
-      return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
-        `${this.url}/employes`
-      ).pipe(
-        map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Employe
-        )
-      );
-    }
+    return this.http.get<{ success: boolean; message: string; data: { data: Article[] } }>(
+      `${this.url}/articles`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Article[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Article
+      )
+    );
+  }
+  getAllBureaux(): Observable<Bureau[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Bureau[] } }>(
+      `${this.url}/bureaux`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Bureau[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Bureau
+      )
+    );
+  }
+  getAllEmployes(): Observable<Employe[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
+      `${this.url}/employes`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Employe
+      )
+    );
+  }
 
+  // **Ajout de la méthode pour mettre à jour le statut :**
+  updateDemandeStock(id: number, data: { statut: string }): Observable<any> {
+    return this.http.patch<any>(`${this.url}/mouvement-stock/sortie/${id}`, data);
+  }
 }

@@ -18,10 +18,10 @@ export class FournisseursService {
     return this.http.get<{ success: boolean; message: string; data: { data: Fournisseur[] } }>(
       `${this.url}/fournisseurs`
     ).pipe(
-      map((response: { success: boolean; message: string; data: { data: Fournisseur[] } }) => 
+      map((response: { success: boolean; message: string; data: { data: Fournisseur[] } }) =>
         response.data.data // On récupère uniquement le tableau de fournisseurs
       )
-    ); 
+    );
   }
 
   saveFournisseur(data: Fournisseur): Observable<Fournisseur> {
@@ -34,5 +34,9 @@ export class FournisseursService {
 
   deleteFournisseur(data: Fournisseur): Observable<void> {
     return this.http.delete<void>(`${this.url}/fournisseurs/${data.id}`);
+  }
+
+  imprimerFournisseurs(): Observable<Blob> {
+    return this.http.get(`${this.url}/fournisseurs-imprimer`, { responseType: 'blob' });
   }
 }

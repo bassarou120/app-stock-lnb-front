@@ -84,6 +84,16 @@
                 {{ row.compagnie_petrolier?.libelle || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Commune départ">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.depart?.libelle_commune || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Commune arrivée">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.arriver?.libelle_commune || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-column name="Kilometrage" prop="kilometrage"></ngx-datatable-column>
             <ngx-datatable-column name="Employé">
               <ng-template let-row="row" ngx-datatable-cell-template>
@@ -139,10 +149,15 @@
           <div class="mb-3">
             <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
 
-            <ng-container *ngIf="couponTickets && couponTickets.length > 0; else noCouponTickets">
-              <ng-select [items]="couponTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
-                [clearable]="true" placeholder="Sélectionnez le Coupon Ticket" (change)="updateQuantiteDisponible()">
-              </ng-select>
+            <ng-container *ngIf="couponTicketsWithCompagnies && couponTicketsWithCompagnies.length > 0; else noCouponTickets">
+              <ng-select
+              [items]="couponTicketsWithCompagnies"
+              bindLabel="displayLabel"
+              bindValue="id"
+              formControlName="coupon_ticket_id"
+              [clearable]="true"
+              placeholder="Sélectionnez le Coupon Ticket">
+            </ng-select>
 
               <div *ngIf="addSortie.get('coupon_ticket_id')?.invalid && addSortie.get('coupon_ticket_id')?.touched">
                 <small class="text-danger"> *Le coupon est obligatoire</small>
@@ -187,6 +202,42 @@
                 <small class="text-danger"> *Le vehicule est obligatoire</small>
               </div>
             </ng-container>
+            <!-- commune_depart -->
+            <div class="mb-3">
+              <label for="commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
+              <ng-container *ngIf="communes && communes.length > 0; else noCommunesDepart">
+                <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_depart"
+                  [clearable]="true" placeholder="Sélectionnez la commune de départ">
+                </ng-select>
+                <div *ngIf="addSortie.get('commune_depart')?.invalid && addSortie.get('commune_depart')?.touched">
+                  <small class="text-danger"> *La commune de départ est obligatoire</small>
+                </div>
+              </ng-container>
+              <ng-template #noCommunesDepart>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+                </div>
+              </ng-template>
+            </div>
+            <!-- commune_arriver -->
+            <div class="mb-3">
+              <label for="commune_arriver" class="form-label">Commune Arrivée <span class="text-danger">*</span></label>
+              <ng-container *ngIf="communes && communes.length > 0; else noCommunesArriver">
+                <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_arriver"
+                  [clearable]="true" placeholder="Sélectionnez la commune d'arrivée">
+                </ng-select>
+                <div *ngIf="addSortie.get('commune_arriver')?.invalid && addSortie.get('commune_arriver')?.touched">
+                  <small class="text-danger"> *La commune d'arrivée est obligatoire</small>
+                </div>
+              </ng-container>
+              <ng-template #noCommunesArriver>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+                </div>
+              </ng-template>
+            </div>
 
 
             <!-- Message si aucun vehicule n'existe -->
@@ -314,7 +365,7 @@
 
 
 
-<!-- Edit entree Immo Modal -->
+<!-- Edit sortie Modal -->
 <div id="edit_sortie" class="modal fade" tabindex="-1" aria-labelledby="editEntreeLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
@@ -417,6 +468,42 @@
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
+            <ng-container *ngIf="communes && communes.length > 0; else noEditCommunesDepart">
+              <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_depart"
+                [clearable]="true" placeholder="Sélectionnez la commune de départ">
+              </ng-select>
+              <div *ngIf="editSortie.get('commune_depart')?.invalid && editSortie.get('commune_depart')?.touched">
+                <small class="text-danger"> *La commune de départ est obligatoire</small>
+              </div>
+            </ng-container>
+            <ng-template #noEditCommunesDepart>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <div class="mb-3">
+            <label for="edit_commune_arriver" class="form-label">Commune Arrivée <span class="text-danger">*</span></label>
+            <ng-container *ngIf="communes && communes.length > 0; else noEditCommunesArriver">
+              <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_arriver"
+                [clearable]="true" placeholder="Sélectionnez la commune d'arrivée">
+              </ng-select>
+              <div *ngIf="editSortie.get('commune_arriver')?.invalid && editSortie.get('commune_arriver')?.touched">
+                <small class="text-danger"> *La commune d'arrivée est obligatoire</small>
+              </div>
+            </ng-container>
+            <ng-template #noEditCommunesArriver>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
               </div>
             </ng-template>
           </div>

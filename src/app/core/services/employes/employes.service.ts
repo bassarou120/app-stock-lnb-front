@@ -18,10 +18,10 @@ export class EmployesService {
     return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
       `${this.url}/employes`
     ).pipe(
-      map((response: { success: boolean; message: string; data: { data: Employe[] } }) => 
+      map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
         response.data.data // On récupère uniquement le tableau de Employe
       )
-    ); 
+    );
   }
 
   saveEmploye(data: Employe): Observable<Employe> {
@@ -34,5 +34,9 @@ export class EmployesService {
 
   deleteEmploye(data: Employe): Observable<void> {
     return this.http.delete<void>(`${this.url}/employes/${data.id}`);
+  }
+
+  imprimerEmployes(): Observable<Blob> {
+    return this.http.get(`${this.url}/employes-imprimer`, { responseType: 'blob' });
   }
 }

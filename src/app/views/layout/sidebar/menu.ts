@@ -359,11 +359,16 @@ export const MENU: MenuItem[] = [
       {
         label: 'Entrées de Stock',
         link: '/mouvement-stock/entrees',
+      }
+      ,
+      {
+        label: 'Demande de sortie',
+        link: '/mouvement-stock/demande',
       },
       {
         label: 'Sorties de Stock',
         link: '/mouvement-stock/sorties',
-      },
+      }
     ]
   },
   {
@@ -404,27 +409,24 @@ export const MENU: MenuItem[] = [
     icon: 'credit-card',
     subItems: [
       {
-        label: 'Stock Ticket',
-        link: 'tickets/',
+        label: 'Attribution de Ticket',
+        link: 'tickets/attribution',
       },
       {
         label: 'Entrée de Ticket',
         link: 'tickets/entree',
       },
       {
-        label: 'Attribution de Ticket',
-        link: 'tickets/attribution',
+        label: 'Stock Ticket',
+        link: 'tickets/',
       },
+
+
       {
         label: 'Retour Tickets',
         link: 'tickets/retour-ticket',
       },
     ]
-  },
-  {
-    label: 'Trajet',
-    icon: 'git-pull-request',
-    link: '/trajets'
   },
   {
     label: 'Paramètres',
@@ -476,6 +478,12 @@ export const MENU: MenuItem[] = [
         label: 'Compagnie Pétrolière',
         link: '/parametres-pack/compagnie-petroliere',
       },
+
+      {
+        label: 'Trajet',
+        icon: 'git-pull-request',
+        link: '/parametres-pack/trajets'
+      },
       // {
       //   label: 'Liste des Véhicules',
       //   link: '/parametres-pack/vehicules',
@@ -517,7 +525,7 @@ export const MENU: MenuItem[] = [
         link: '/parametres/type-mouvement',
       },
       {
-        label: 'Liste des Employés',
+        label: 'Liste du Personnel',
         link: '/parametres/employes',
       },
       {

@@ -7,19 +7,19 @@
 
 <!-- Alerte pour ajout avec succès -->
 <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Fournisseur Ajouté avec succès
+  Fournisseur ajouté avec succès
 </ngb-alert>
 <!-- Alerte pour ajout avec succès -->
 
 <!-- Alerte pour mofifier avec succès -->
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Fournisseur Modifié avec succès
+  Fournisseur modifié avec succès
 </ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
 <!-- Alerte pour supprimer avec succès -->
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Fournisseur Supprimé avec succès
+  Fournisseur supprimé avec succès
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
@@ -31,16 +31,20 @@
           <h4 class="card-title">Liste des Fournisseurs</h4>
           <p class="text-secondary">Liste des Fournisseurs</p>
         </div>
+        <div class="d-flex gap-2">
         <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
           data-bs-target="#add_fournisseur">
           Ajouter
         </button>
-
+        <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadFournisseurs()">
+          <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+          Imprimer
+        </button>
+      </div>
       </div>
     </div>
   </div>
 </div>
-
 
 
 <div class="row">
@@ -50,7 +54,7 @@
         <h6 class="card-title">Liste des Fournisseurs</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+            <input type="text" class="form-control form-control-sm" placeholder="Nom..."
               (keyup)="updateFilter($event)" />
           </div>
         </div>
@@ -132,7 +136,7 @@
               formControlName="telephone">
             <div *ngIf="addFournisseur.get('telephone')?.invalid && addFournisseur.get('telephone')?.touched">
               <small *ngIf="addFournisseur.get('telephone')?.invalid && addFournisseur.get('telephone')?.touched"
-                class="text-danger"> *le telephone du fournisseur est obligatoire</small>
+                class="text-danger"> *le téléphone du fournisseur est obligatoire</small>
             </div>
           </div>
           <!-- adresse Fournisseur -->
