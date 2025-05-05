@@ -70,11 +70,17 @@
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Observations" prop="observation"></ngx-datatable-column>
+            <ngx-datatable-column name="Date d'expiration" prop="date_expiration"></ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Date d'expiration" prop="date_expiration">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy' }}
+              </ng-template>
+            </ngx-datatable-column> -->
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -157,6 +163,20 @@
             <i class="feather icon-alert-circle ms-3" [ngbTooltip]="'Si vous laissez la case chochée,  ce type d\'intervention sera applicable aux véhicules uniquement'"></i>
           </div>
 
+          <!--  date_expiration -->
+          <label for="date_expiration" class="form-label">Date d'expiration <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date_expiration">
+          </div>
+
+          <div *ngIf="addTypeIntervention.get('date_expiration')?.invalid && addTypeIntervention.get('date_expiration')?.touched">
+            <small class="text-danger"> *la date d'expiration est obligatoire</small>
+          </div>
+
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
@@ -230,7 +250,19 @@
             <i class="feather icon-alert-circle ms-3" [ngbTooltip]="'Si vous cochez ce type d\'intervention, il sera applicable aux véhicules uniquement'"></i>
           </div>
 
+          <!--  date_mouvement -->
+          <label for="date_expiration" class="form-label">Date d'expiration <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
+              [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_expiration">
+          </div>
 
+          <div *ngIf="editTypeIntervention.get('date_expiration')?.invalid && editTypeIntervention.get('date_expiration')?.touched">
+            <small class="text-danger"> *la date d'expiration est obligatoire</small>
+          </div>
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary">

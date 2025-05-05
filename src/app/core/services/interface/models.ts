@@ -119,6 +119,7 @@ export interface TypeIntervention {
   libelle_type_intervention: string;
   applicable_seul_vehicule: boolean;
   observation: string;
+  date_expiration: string;
   created_at: string;
   updated_at: string;
 }
