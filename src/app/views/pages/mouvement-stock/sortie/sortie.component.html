@@ -77,12 +77,17 @@
                 {{ row.affectation?.employe?.full_name || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Bureau">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.affectation?.bureau?.libelle_bureau || 'Non défini' }}
+              </ng-template>
+            </ngx-datatable-column>
             <!-- <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column> -->
-            <ngx-datatable-column name="Actions">
+            <!-- <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -100,7 +105,7 @@
                   </div>
                 </div>
               </ng-template>
-            </ngx-datatable-column>
+            </ngx-datatable-column> -->
           </ngx-datatable>
         </div>
       </div>

@@ -365,7 +365,7 @@ export const MENU: MenuItem[] = [
         link: '/mouvement-stock/sorties',
       },
       {
-        label: 'Demamde de sortie',
+        label: 'Demande de sortie',
         link: '/mouvement-stock/demande',
       },
     ]
@@ -428,11 +428,6 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
-    label: 'Trajet',
-    icon: 'git-pull-request',
-    link: '/trajets'
-  },
-  {
     label: 'Paramètres',
     isTitle: true
   },
@@ -481,6 +476,12 @@ export const MENU: MenuItem[] = [
       {
         label: 'Compagnie Pétrolière',
         link: '/parametres-pack/compagnie-petroliere',
+      },
+
+      {
+        label: 'Trajet',
+        icon: 'git-pull-request',
+        link: '/parametres-pack/trajets'
       },
       // {
       //   label: 'Liste des Véhicules',

@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ArticleService } from '../../../../core/services/articles/articles.service';
 import { CouponTicketService } from '../../../../core/services/coupon-tickets/coupon-tickets.service';
-import { Categorie, Article, CouponTicket, } from '../../../../core/services/interface/models';
+import { CompagniePetroliere, CouponTicket, StockTicket } from '../../../../core/services/interface/models';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';  // Ajoutez cette importation
@@ -22,27 +22,34 @@ declare var bootstrap: any;
   styleUrls: ['etat-de-stock.component.scss']
 })
 export class EtatStockComponent implements OnInit {
-  rows: CouponTicket[] = [];
-  temp: CouponTicket[] = [];
+  rows: StockTicket[] = [];
+  temp: StockTicket[] = [];
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
-  selectedCategoryId: number | null = null;  // Ajoutez cette propriété
+
+  couponTickets: CouponTicket[] = [];
+  compagnies: CompagniePetroliere[] = [];
+
+  selectedCouponId: number | null = null;
+  selectedCompagnieId: number | null = null;
+
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private couponTicketService: CouponTicketService) {}
+  constructor(private couponTicketService: CouponTicketService) { }
 
   // Variable pour stocker le texte de recherche
   searchText: string = '';
   ngOnInit(): void {
-    this.loadCouponTickets();
+    this.loadStockTicket();
+    this.loadDropdownData()
   }
 
 
-  loadCouponTickets(): void {
-    this.couponTicketService.getAllCouponTickets().subscribe(
-      (data: CouponTicket[]) => {
+  loadStockTicket(): void {
+    this.couponTicketService.getAllStockTickets().subscribe(
+      (data: StockTicket[]) => {
         this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
         this.rows = data;
         this.loadingIndicator = false;
@@ -54,15 +61,52 @@ export class EtatStockComponent implements OnInit {
     );
   }
 
-  updateFilter(event: KeyboardEvent): void {
-    const val = (event.target as HTMLInputElement).value.toLowerCase();
+  loadDropdownData(): void {
+    // Tu peux utiliser les mêmes services que pour charger les données
+    this.couponTicketService.getAllCouponTickets().subscribe((coupons: CouponTicket[]) => {
+      this.couponTickets = coupons;
+    });
 
-    this.rows = this.temp.filter(couponTicket =>
-      couponTicket.libelle.toLowerCase().includes(val)
-    );
+    this.couponTicketService.getAllCompagniePetrolieres().subscribe((compagnies: CompagniePetroliere[]) => {
+      this.compagnies = compagnies;
+    });
+  }
+
+  applyFilters(): void {
+    const val = this.searchText.toLowerCase();
+
+    this.rows = this.temp.filter(item => {
+      const matchCoupon = this.selectedCouponId ? item.coupon_ticket_id === this.selectedCouponId : true;
+      const matchCompagnie = this.selectedCompagnieId ? item.compagnie_petrolier_id === this.selectedCompagnieId : true;
+      const matchSearch =
+        item.coupon_ticket?.libelle.toLowerCase().includes(val) ||
+        item.compagnie?.libelle.toLowerCase().includes(val) ||
+        item.qte_actuel.toString().includes(val);
+
+      return matchCoupon && matchCompagnie && matchSearch;
+    });
 
     this.table.offset = 0;
   }
+
+
+
+
+  updateFilter(event: any) {
+    const val = event.target.value.toLowerCase();
+
+    this.rows = this.temp.filter(item => {
+      return (
+        item.coupon_ticket?.libelle.toLowerCase().includes(val) ||
+        item.compagnie?.libelle.toLowerCase().includes(val)
+      );
+    });
+
+    // Réinitialiser la pagination si besoin
+    this.table.offset = 0;
+  }
+
+
 
 
 }

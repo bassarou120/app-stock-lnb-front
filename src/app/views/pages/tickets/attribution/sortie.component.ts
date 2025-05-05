@@ -45,7 +45,14 @@ export class SortieComponent implements OnInit {
   couponTickets: CouponTicket[] = []; // Liste des coupons
   employes: Employe[] = []; // Liste des Employe
 
+  couponTicketsWithCompagnies: any[] = [];
+  selectedCouponTicket: any = null;
+
+
   quantiteDisponible: number = 0;
+  coupon_ticket_id :number=0;
+  compagnie_petrolier_id  :number=0;
+
 
 
   alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
@@ -67,12 +74,11 @@ export class SortieComponent implements OnInit {
   ngOnInit(): void {
     this.loadTypeMouvements();
     this.loadCompagniePetrolieres()
-    this.loadCouponTickets();
+    this.loadCouponTicketsWithCompagnies();
     this.loadEmployes();
     this.loadVehicules();
     this.loadSorties();
     this.addSortie = this.formBuilder.group({
-      // id_type_mouvements: [null, [Validators.required]],
       compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
@@ -281,16 +287,42 @@ export class SortieComponent implements OnInit {
     });
   }
 
-  loadCouponTickets(): void {
-    this.sortieService.getAllCouponTickets().subscribe({
-      next: (data) => {
-        this.couponTickets = data; // Stocker la liste des couponTickets
+  // loadCouponTickets(): void {
+  //   this.sortieService.getAllCouponTickets().subscribe({
+  //     next: (data) => {
+  //       this.couponTickets = data; // Stocker la liste des couponTickets
+  //     },
+  //     error: (err) => {
+  //       console.error("Erreur lors du chargement des couponTickets :", err);
+  //     }
+  //   });
+  // }
+
+  loadCouponTicketsWithCompagnies(): void {
+    this.sortieService.getCouponTicketsWithCompagnies().subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.couponTicketsWithCompagnies = res.data.map((item: any) => {
+            return {
+              id: item.coupon_ticket.id,
+              displayLabel: `${item.coupon_ticket.libelle} (${item.compagnie.libelle})`,
+              coupon_ticket_id: item.coupon_ticket.id,
+              compagnie_petrolier_id: item.compagnie.id
+            };
+          });
+          console.log("Bonjour", this.couponTicketsWithCompagnies);
+        }
       },
       error: (err) => {
-        console.error("Erreur lors du chargement des couponTickets :", err);
+        console.error("Erreur lors du chargement des coupons :", err);
       }
     });
   }
+
+
+
+
+
 
 
   loadSorties(): void {
@@ -424,6 +456,19 @@ updateQuantiteDisponible() {
   );
 
 }
+
+onCouponSelected(event: any): void {
+  const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === event);
+
+  if (selectedItem) {
+    this.coupon_ticket_id = selectedItem.coupon_ticket_id;
+    this.compagnie_petrolier_id = selectedItem.compagnie_petrolier_id;
+
+    console.log('Coupon ID:', this.coupon_ticket_id);
+    console.log('Compagnie ID:', this.compagnie_petrolier_id);
+  }
+}
+
 
 
 

@@ -1,15 +1,15 @@
 import { Component, ViewChild, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
-import { InterventionsService } from '../../../core/services/intervention/intervention.service';
-import { Trajet, Commune, MouvementTicket, TypeMouvement } from '../../../core/services/interface/models';
+import { InterventionsService } from '../../../../core/services/intervention/intervention.service';
+import { Trajet, Commune, MouvementTicket, TypeMouvement } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
-import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
-import { TrajetsService } from '../../../core/services/trajets/trajets.service';
+import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
+import { TrajetsService } from '../../../../core/services/trajets/trajets.service';
 
 
 declare var bootstrap: any;
@@ -63,18 +63,18 @@ export class TrajetComponent implements OnInit {
     this.loadTrajets();
 
     this.addTrajet = this.formBuilder.group({
-      MouvementTicket_id: [null, [Validators.required]], 
-      commune_depart: [null, [Validators.required]],     
-      commune_arriver: [null, [Validators.required]],   
-      trajet_aller_retour: [false, []],     
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
+      trajet_aller_retour: [false, []],
+      valeur: ["" ,[Validators.required]],
       observation: ["", []],
     });
     this.editTrajet = this.formBuilder.group({
       id: [0, [Validators.required]],
-      MouvementTicket_id: [null, [Validators.required]], 
-      commune_depart: [null, [Validators.required]],     
-      commune_arriver: [null, [Validators.required]], 
-      trajet_aller_retour: [false, []],       
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
+      trajet_aller_retour: [false, []],
+      valeur: ["" ,[Validators.required]],
       observation: ["", []],
     });
     this.deleteTrajet = this.formBuilder.group({
@@ -233,9 +233,9 @@ export class TrajetComponent implements OnInit {
   }
 
   loadMouvementTickets(): void {
-    this.trajetService.getAllMouvementTicketSortie().subscribe({ 
+    this.trajetService.getAllMouvementTicketSortie().subscribe({
       next: (data) => {
-        this.mouvementTickets = data; 
+        this.mouvementTickets = data;
         console.log('Mouvement Tickets chargés :', this.mouvementTickets);
       },
       error: (err) => {
@@ -267,7 +267,7 @@ export class TrajetComponent implements OnInit {
     this.table.offset = 0;
   }
 
-  getEditForm(row: any) { 
+  getEditForm(row: any) {
     this.editTrajet.patchValue({
       id: row.id,
       MouvementTicket_id: row.MouvementTicket_id,
@@ -275,6 +275,7 @@ export class TrajetComponent implements OnInit {
       commune_arriver: row.commune_arriver,
       trajet_aller_retour: row.trajet_aller_retour,
       observation: row.observation,
+      valeur: row.valeur,
     });
   }
 
