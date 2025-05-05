@@ -14,4 +14,8 @@ export default [
     path: 'sorties',
     loadComponent: () => import('./sortie/sortie.component').then(c => c.SortieComponent),
   },
+  {
+    path: 'demande',
+    loadComponent: () => import('./demande/demande.component').then(c => c.SortieComponent),
+  },
 ] as Routes;
