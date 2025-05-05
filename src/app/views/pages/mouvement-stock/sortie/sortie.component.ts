@@ -18,7 +18,7 @@ declare var bootstrap: any;
   selector: 'app-sortie',
   standalone: true,
   imports: [
-    RouterLink,
+  RouterLink,
     NgxDatatableModule,
     ReactiveFormsModule,
     CommonModule,

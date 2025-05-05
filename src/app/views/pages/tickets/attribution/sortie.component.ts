@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/sortie.service';
-import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket } from '../../../../core/services/interface/models';
+import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket, Commune } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
@@ -63,7 +63,7 @@ export class SortieComponent implements OnInit {
   public editSortie!: FormGroup;
   public deleteSortie!: FormGroup;
 
-
+  communes: Commune[] = []; // Liste des communes
   // Fichiers sélectionnés
 
   @ViewChild('table') table!: DatatableComponent;
@@ -72,6 +72,7 @@ export class SortieComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.loadCommunes();
     this.loadTypeMouvements();
     this.loadCompagniePetrolieres()
     this.loadCouponTicketsWithCompagnies();
@@ -84,6 +85,8 @@ export class SortieComponent implements OnInit {
       coupon_ticket_id: [null, [Validators.required]],
       kilometrage: [null, [Validators.required]],
       employe_id: [null, [Validators.required]],
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
       description: ["", []],
       objet: ["", []],
       qte: [1, [Validators.required]],
@@ -97,6 +100,8 @@ export class SortieComponent implements OnInit {
       coupon_ticket_id: [null, [Validators.required]],
       kilometrage: [null, [Validators.required]],
       employe_id: [null, []],
+      commune_depart: [null, [Validators.required]],
+      commune_arriver: [null, [Validators.required]],
       description: ["", []],
       objet: ["", []],
       qte: [1, [Validators.required]],
@@ -265,6 +270,18 @@ export class SortieComponent implements OnInit {
     });
   }
 
+  loadCommunes(): void {
+    this.sortieService.getAllCommunes().subscribe({ // Assurez-vous que cette méthode existe dans TrajetsService
+      next: (data) => {
+        this.communes = data; // Stocker la liste des communes
+        console.log('Communes chargées :', this.communes);
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des communes :", err);
+      }
+    });
+  }
+
   loadTypeMouvements(): void {
     this.sortieService.getAllTypeMouvement().subscribe({
       next: (data) => {
@@ -357,6 +374,8 @@ export class SortieComponent implements OnInit {
       coupon_ticket_id: row.coupon_ticket_id,
       kilometrage: row.kilometrage,
       employe_id: row.employe?.id,
+      commune_depart: row.commune_depart,
+      commune_arriver: row.commune_arriver,
       description: row.description,
       qte: row.qte,
       objet: row.objet,

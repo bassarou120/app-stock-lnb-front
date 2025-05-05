@@ -202,6 +202,8 @@ export interface MouvementTicket {
   compagnie_petrolier_id: number;
   coupon_ticket_id: number;
   employe_id: number;
+  commune_depart: number;
+  commune_arriver: number;
   description: string;
   objet: string;
   id_type_mouvement: number;

@@ -3,7 +3,7 @@ import { Observable} from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
-import { Employe, Vehicule, CouponTicket, TypeMouvement, MouvementTicket, CompagniePetroliere } from "../interface/models";
+import { Employe, Vehicule, CouponTicket, TypeMouvement, MouvementTicket, CompagniePetroliere, Commune } from "../interface/models";
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -97,6 +97,16 @@ export class MouvementTicketService  {
       ).pipe(
         map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
           response.data.data // On récupère uniquement le tableau de Employe
+        )
+      );
+    }
+
+    getAllCommunes(): Observable<Commune[]> {
+      return this.http.get<{ success: boolean; message: string; data: { data: Commune[] } }>(
+        `${this.url}/communes`
+      ).pipe(
+        map((response: { success: boolean; message: string; data: { data: Commune[] } }) =>
+          response.data.data // On récupère uniquement le tableau de Commune
         )
       );
     }
