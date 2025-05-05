@@ -11,6 +11,8 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { Subject, takeUntil } from 'rxjs'; // Importez Subject et takeUntil
+import { map } from 'rxjs/operators';
+import { AbstractControl, ValidatorFn } from '@angular/forms';
 
 declare var bootstrap: any;
 
@@ -76,8 +78,18 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
       description: ["", [Validators.required]],
       // qte: [1, [Validators.required]],
       qteDemande: [1, [Validators.required]],
-      date_mouvement: ["", [Validators.required]],
+      dateDemande: ["", [Validators.required]],
     });
+    this.addSortie.get('id_employe')?.valueChanges.subscribe(value => {
+      const bureau = this.addSortie.get('id_bureau');
+      if (value) {
+        bureau?.setValidators([Validators.required]);
+      } else {
+        bureau?.clearValidators();
+      }
+      bureau?.updateValueAndValidity();
+    });
+
     this.editSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
       id_Article: [null, [Validators.required]],
@@ -103,15 +115,13 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
   buildEditStatutSortieForm(): void {
     this.editStatutSortie = this.formBuilder.group({
       id: [null, Validators.required],
-      statut: ['', Validators.required]
+      statut: ['', Validators.required],
+      qte: ['', Validators.required],
+      date_mouvement: ['', Validators.required],
+
     });
   }
-  getStatutForm(row: any): void {
-    this.editStatutSortie.patchValue({
-      id: row.id,
-      statut: row.statut
-    });
-  }
+
   onClickSubmitEditStatutSortie(): void {
     const spinner = document.querySelector('#edit_statut_sortie .spinnerStatutModif');
 
@@ -119,7 +129,9 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
       this.isStatutModifLoading = true;
       if (spinner) spinner.classList.remove('d-none');
       const id = this.editStatutSortie.value.id;
-      const formData = { ...this.editStatutSortie.value };
+      const formData = { ...this.editStatutSortie.value,
+        date_mouvement: this.formatDate(this.editStatutSortie.value.date_mouvement), // Convertir la date
+      };
       delete formData.id;
 
       this.sortieService.updateDemandeStock(id, formData)
@@ -170,7 +182,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
       if (spinner) spinner.classList.remove('d-none');
       const formData = {
         ...this.addSortie.value,
-        date_mouvement: this.formatDate(this.addSortie.value.date_mouvement), // Convertir la date
+        dateDemande: this.formatDate(this.addSortie.value.dateDemande), // Convertir la date
       };
       this.sortieService.saveMouvementStockSortie(formData).subscribe(
         (data: any) => {
@@ -336,7 +348,11 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
 
 
   loadSorties(): void {
-    this.sortieService.getAllMouvementStockSortie().subscribe(
+    this.sortieService.getAllMouvementStockSortie().pipe(
+      map((data: MouvementStock[]) =>
+        data.filter(item => item.statut !== 'Accordé')
+      )
+    ).subscribe(
       (data: MouvementStock[]) => { // Typez la réponse
         this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
         this.rows = data;
@@ -383,7 +399,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
     const year = date.year;
     const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
     const day = date.day.toString().padStart(2, '0');
-    return `<span class="math-inline">\{year\}\-</span>{month}-${day}`; // Format YYYY-MM-DD
+    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
   }
 
 
@@ -433,4 +449,58 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
       }
     );
   }
+
+
+  getStatutForm(row: any): void {
+    this.editStatutSortie.patchValue({
+      id: row.id,
+      statut: row.statut,
+      qte: row.qteDemande
+    });
+
+    const idArticle = row.id_Article;
+      console.log('ID de l\'article sélectionné:', idArticle);
+
+      if (!idArticle) {
+        console.log('Aucun article sélectionné ou désélection effectuée');
+        this.quantiteDisponible = 0;
+        return;
+      }
+
+      this.sortieService.getQuantiteDisponible(idArticle).subscribe(
+        (response: any) => { // Typez la réponse
+          console.log('Quantité disponible:', response.data);
+          this.quantiteDisponible = response.data;
+
+          // 🔥 On met à jour le validateur max du champ qte
+          const qteControl = this.editStatutSortie.get('qte');
+          qteControl?.setValidators([
+            Validators.required,
+            Validators.min(1),
+            Validators.max(this.quantiteDisponible)
+          ]);
+          qteControl?.updateValueAndValidity();
+
+        },
+        (error: any) => {
+          console.error('Erreur lors de la récupération de la quantité disponible:', error);
+          this.quantiteDisponible = 0;
+        }
+      );
+  }
+
+   bureauRequiredIfEmployeFilled(): ValidatorFn {
+    return (group: AbstractControl): { [key: string]: any } | null => {
+      const employe = group.get('id_employe')?.value;
+      const bureau = group.get('id_bureau')?.value;
+
+      if (employe && !bureau) {
+        return { bureauRequired: true };
+      }
+
+      return null;
+    };
+  }
+
+
 }

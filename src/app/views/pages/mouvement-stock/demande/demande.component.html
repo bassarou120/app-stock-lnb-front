@@ -72,12 +72,17 @@
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qteDemande"></ngx-datatable-column>
             <!-- <ngx-datatable-column name="Qte demandé" prop="qteDemande"></ngx-datatable-column> -->
-            <ngx-datatable-column name="Date demande" prop="date_mouvement"></ngx-datatable-column>
             <ngx-datatable-column name="Employé">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.affectation?.employe?.full_name || 'Non défini' }}
+                {{ row.employe?.fullnameEmploye || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Bureau">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.bureau?.libelle_bureau || 'Non défini' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Date demande" prop="dateDemande"></ngx-datatable-column>
             <ngx-datatable-column name="Statut" prop="statut"></ngx-datatable-column>
             <!-- <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
@@ -91,16 +96,16 @@
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <!-- <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                        data-bs-target="#edit_sortie" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
-                    </a>
+                    </a> -->
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                       data-bs-target="#edit_statut_sortie" (click)="getStatutForm(row)">
                       <i data-feather="tag" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier le statut</span>
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#delete_sortie" (click)="getDeleteForm(row)">
+                      data-bs-target="#delete_sortie" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
                   </div>
@@ -160,14 +165,18 @@
             <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qteDemande" placeholder="1" autocomplete="off"
               [attr.max]="quantiteDisponible" min="1"
-              [class.invalid]="addSortie.get('qteDemande')?.invalid && addSortie.get('qteDemande')?.touched" formControlName="qteDemande">
+              [class.invalid]="addSortie.get('qteDemande')?.invalid && addSortie.get('qteDemande')?.touched"
+              formControlName="qteDemande">
             <div class="text-danger mt-2">
               <small>Quantité disponible : {{ quantiteDisponible }}</small>
             </div>
             <div *ngIf="addSortie.get('qteDemande')?.invalid && addSortie.get('qteDemande')?.touched">
-              <small *ngIf="addSortie.get('qteDemande')?.errors?.['required']" class="text-danger">* La quantité est obligatoire</small>
-              <small *ngIf="addSortie.get('qteDemande')?.errors?.['min']" class="text-danger">* La quantité doit être au moins 1</small>
-              <small *ngIf="addSortie.get('qteDemande')?.errors?.['max']" class="text-danger">* La quantité ne peut pas dépasser {{ quantiteDisponible }}</small>
+              <small *ngIf="addSortie.get('qteDemande')?.errors?.['required']" class="text-danger">* La quantité est
+                obligatoire</small>
+              <small *ngIf="addSortie.get('qteDemande')?.errors?.['min']" class="text-danger">* La quantité doit être au
+                moins 1</small>
+              <small *ngIf="addSortie.get('qteDemande')?.errors?.['max']" class="text-danger">* La quantité ne peut pas
+                dépasser {{ quantiteDisponible }}</small>
             </div>
           </div>
 
@@ -175,7 +184,8 @@
 
           <!-- description -->
           <div class="mb-3">
-            <label for="description" class="form-label">Description de la demande <span class="text-danger">*</span></label>
+            <label for="description" class="form-label">Description de la demande <span
+                class="text-danger">*</span></label>
             <textarea class="form-control" id="description" rows="5"
               [class.invalid]="addSortie.get('description')?.invalid && addSortie.get('description')?.touched"
               placeholder="Entrez la description ici..." formControlName="description"></textarea>
@@ -219,8 +229,9 @@
                 [clearable]="true" placeholder="Sélectionnez le bureau ">
               </ng-select>
 
-              <div *ngIf="addSortie.get('id_bureau')?.invalid && addSortie.get('id_bureau')?.touched">
-                <small class="text-danger"> *Le bureau est obligatoire</small>
+              <div *ngIf="addSortie.get('id_bureau')?.invalid &&
+            (addSortie.get('id_bureau')?.touched || addSortie.get('id_employe')?.touched)">
+                <small class="text-danger">Le bureau est requis si un employé est sélectionné.</small>
               </div>
             </ng-container>
 
@@ -233,17 +244,17 @@
             </ng-template>
           </div>
 
-          <!--  date_mouvement -->
-          <label for="date_mouvement" class="form-label">Date de la demande <span class="text-danger">*</span></label>
+          <!--  dateDemande -->
+          <label for="dateDemande" class="form-label">Date de la demande <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
               <i data-feather="calendar"></i>
             </button>
             <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date_mouvement">
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="dateDemande">
           </div>
 
-          <div *ngIf="addSortie.get('date_mouvement')?.invalid && addSortie.get('date_mouvement')?.touched">
+          <div *ngIf="addSortie.get('dateDemande')?.invalid && addSortie.get('dateDemande')?.touched">
             <small class="text-danger"> *la date de la demande est obligatoire</small>
           </div>
 
@@ -305,9 +316,11 @@
           <div class="mb-3">
             <label for="qteDemande" class="form-label">Quantité <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qteDemande" placeholder="1" autocomplete="off"
-              [class.invalid]="editSortie.get('qteDemande')?.invalid && editSortie.get('qteDemande')?.touched" formControlName="qteDemande">
+              [class.invalid]="editSortie.get('qteDemande')?.invalid && editSortie.get('qteDemande')?.touched"
+              formControlName="qteDemande">
             <div *ngIf="editSortie.get('qteDemande')?.invalid && editSortie.get('qteDemande')?.touched">
-              <small *ngIf="editSortie.get('qteDemande')?.invalid && editSortie.get('qteDemande')?.touched" class="text-danger"> *la
+              <small *ngIf="editSortie.get('qteDemande')?.invalid && editSortie.get('qteDemande')?.touched"
+                class="text-danger"> *la
                 qte est obligatoire</small>
             </div>
           </div>
@@ -315,7 +328,8 @@
 
           <!-- description -->
           <div class="mb-3">
-            <label for="description" class="form-label">Description de la Demande <span class="text-danger">*</span></label>
+            <label for="description" class="form-label">Description de la Demande <span
+                class="text-danger">*</span></label>
             <textarea class="form-control" id="description" rows="5"
               [class.invalid]="editSortie.get('description')?.invalid && editSortie.get('description')?.touched"
               placeholder="Entrez la description ici..." formControlName="description"></textarea>
@@ -409,7 +423,8 @@
 <!-- /Edit mouvement Modal -->
 
 <!-- Edit statut Modal -->
-<div id="edit_statut_sortie" class="modal fade" tabindex="-1" aria-labelledby="editStatutSortieLabel" aria-hidden="true">
+<div id="edit_statut_sortie" class="modal fade" tabindex="-1" aria-labelledby="editStatutSortieLabel"
+  aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
@@ -418,7 +433,8 @@
       </div>
 
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="editStatutSortie" (ngSubmit)="onClickSubmitEditStatutSortie()" novalidate>
+        <form class="forms-sample" [formGroup]="editStatutSortie" (ngSubmit)="onClickSubmitEditStatutSortie()"
+          novalidate>
           <div class="mb-3">
             <label for="statut" class="form-label">Nouveau Statut <span class="text-danger">*</span></label>
             <ng-select [items]="['En attente', 'Refusé', 'Accordé']" [clearable]="false"
@@ -427,6 +443,38 @@
             <div *ngIf="editStatutSortie.get('statut')?.invalid && editStatutSortie.get('statut')?.touched">
               <small class="text-danger"> *Le statut est obligatoire</small>
             </div>
+          </div>
+          <!-- Qte -->
+          <div class="mb-3">
+            <label for="qte" class="form-label">Confirmez la Quantité <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+              [attr.max]="quantiteDisponible" min="1"
+              [class.invalid]="editStatutSortie.get('qte')?.invalid && editStatutSortie.get('qte')?.touched"
+              formControlName="qte">
+            <div class="text-danger mt-2">
+              <small>Quantité disponible pour l'article : {{ quantiteDisponible }}</small>
+            </div>
+            <div *ngIf="editStatutSortie.get('qte')?.invalid && editStatutSortie.get('qte')?.touched">
+              <small *ngIf="editStatutSortie.get('qte')?.errors?.['required']" class="text-danger">* La quantité est
+                obligatoire</small>
+              <small *ngIf="editStatutSortie.get('qte')?.errors?.['min']" class="text-danger">* La quantité doit être au
+                moins 1</small>
+              <small *ngIf="editStatutSortie.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas
+                dépasser {{ quantiteDisponible }}</small>
+            </div>
+          </div>
+          <!--  date_mouvement -->
+          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd2.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd2="ngbDatepicker" formControlName="date_mouvement">
+          </div>
+
+          <div *ngIf="addSortie.get('date_mouvement')?.invalid && addSortie.get('date_mouvement')?.touched">
+            <small class="text-danger"> *la date de la demande est obligatoire</small>
           </div>
 
           <input type="hidden" formControlName="id">

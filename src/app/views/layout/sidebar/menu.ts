@@ -365,7 +365,7 @@ export const MENU: MenuItem[] = [
         link: '/mouvement-stock/sorties',
       },
       {
-        label: 'Demamde de sortie',
+        label: 'Demande de sortie',
         link: '/mouvement-stock/demande',
       },
     ]
