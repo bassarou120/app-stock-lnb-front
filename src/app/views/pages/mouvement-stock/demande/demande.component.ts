@@ -41,6 +41,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
+  selectedStatut: string | null = null;
 
   articles: Article[] = []; // Liste des types articles
   bureaux: Bureau[] = []; // Liste des Bureaux
@@ -350,7 +351,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
   loadSorties(): void {
     this.sortieService.getAllMouvementStockSortie().pipe(
       map((data: MouvementStock[]) =>
-        data.filter(item => item.statut !== 'Accordé')
+        data.filter(item => item.statut !== '')
       )
     ).subscribe(
       (data: MouvementStock[]) => { // Typez la réponse
@@ -364,6 +365,15 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
       }
     );
   }
+
+  onStatutFilterChange(): void {
+    if (this.selectedStatut) {
+      this.rows = this.temp.filter(item => item.statut === this.selectedStatut);
+    } else {
+      this.rows = [...this.temp];
+    }
+  }
+
 
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
@@ -455,7 +465,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
     this.editStatutSortie.patchValue({
       id: row.id,
       statut: row.statut,
-      qte: row.qteDemande
+      qteDemande: row.qteDemande
     });
 
     const idArticle = row.id_Article;
