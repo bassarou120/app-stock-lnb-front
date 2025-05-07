@@ -19,6 +19,16 @@ export interface RetourTicket {
   updated_at: string;
 }
 
+export interface AnnulationTicket {
+  id: number;
+  mouvementTicket_id: number;
+  coupon_ticket_id: number;
+  compagnie_petrolier_id: number;
+  qte: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CouponTicket {
   id: number;
   libelle: string;
@@ -226,6 +236,20 @@ export interface Intervention {
   created_at: string;
   updated_at: string;
 }
+
+export interface InterventionVehicule {
+  id: number;
+  vehicule_id: number;
+  date_intervention: string;
+  titre: string;
+  montant: number;
+  observation: string;
+  created_at: string;
+  updated_at: string;
+  commune_depart_id: number;
+  commune_arrivee_id: number;
+}
+
 
 export interface Transfert {
   id: number;
