@@ -73,4 +73,7 @@ export class MouvementStockService  {
   updateDemandeStock(id: number, data: { statut: string }): Observable<any> {
     return this.http.patch<any>(`${this.url}/mouvement-stock/sortie/${id}`, data);
   }
+
+  
+
 }

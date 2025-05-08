@@ -24,8 +24,8 @@ export class MouvementTicketService  {
     );
   }
 
-  getQuantiteDisponible(idCoupon: number): Observable<any> {
-    return this.http.get<any>(`${this.url}/quantite-disponible-ticket/${idCoupon}`);
+  getQuantiteDisponible(idCoupon: number, idCompagnie: number): Observable<any> {
+    return this.http.get<any>(`${this.url}/quantite-disponible-ticket/${idCoupon}/${idCompagnie}`);
   }
 
   saveMouvementTicketSortie(data: MouvementTicket): Observable<MouvementTicket> {
@@ -109,6 +109,10 @@ export class MouvementTicketService  {
           response.data.data // On récupère uniquement le tableau de Commune
         )
       );
+    }
+
+    getQuantiteTicketAttribution(data: any): Observable<any> {
+      return this.http.post<any>(`${this.url}/get-quantite-ticket-attribution`, data);
     }
 
 }

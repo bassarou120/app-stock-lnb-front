@@ -115,6 +115,7 @@ export class RetourTicketComponent implements OnInit {
     if (spinner) spinner.classList.add('d-none');
     alert("Désolé, le formulaire n'est pas bien renseigné");
   }
+  this.loadAllSortieTicketWhereNotInRetour();
 }
 
 onClickSubmitEditRetourTicket(){
