@@ -87,11 +87,7 @@
                 {{ row.employe?.fullnameEmploye || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Date de création" prop="created_at">
-              <ng-template let-value="value" ngx-datatable-cell-template>
-                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
-              </ng-template>
-            </ngx-datatable-column>
+            <ngx-datatable-column name="Date de création" prop="date_acquisition"></ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -284,7 +280,7 @@
             </div>
           </div>
 
-          <!-- date_acquisition de l' Immobilisation -->
+          <!-- date_acquisition de l' Immobilisation
           <div class="mb-3">
             <label for="date_acquisition" class="form-label">Date d'acquisition <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="date_acquisition" placeholder="2024-12-31" autocomplete="off"
@@ -295,6 +291,25 @@
               <small
                 *ngIf="addImmobilisation.get('date_acquisition')?.invalid && addImmobilisation.get('date_acquisition')?.touched"
                 class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
+            </div>
+          </div> -->
+
+          <!-- date_acquisition de l'Immobilisation -->
+          <div class="mb-3">
+            <label for="date_acquisition" class="form-label">
+              Date d'acquisition <span class="text-danger">*</span>
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="addAcquisition.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAcquisition"
+                [(ngModel)]="currentDate" ngbDatepicker #addAcquisition="ngbDatepicker"
+                formControlName="date_acquisition">
+            </div>
+
+            <div *ngIf="addImmobilisation.get('date_acquisition')?.invalid && addImmobilisation.get('date_acquisition')?.touched">
+              <small class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
             </div>
           </div>
 
@@ -562,19 +577,38 @@
             </div>
           </div>
 
-          <!-- date_acquisition de l' Immobilisation -->
+          <!-- date_acquisition de l'Immobilisation -->
           <div class="mb-3">
-            <label for="date_acquisition" class="form-label">Date d'acquisition <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="date_acquisition" placeholder="2024-12-31" autocomplete="off"
-              [class.invalid]="editImmobilisation.get('date_acquisition')?.invalid && editImmobilisation.get('date_acquisition')?.touched"
-              formControlName="date_acquisition">
-            <div
-              *ngIf="editImmobilisation.get('date_acquisition')?.invalid && editImmobilisation.get('date_acquisition')?.touched">
-              <small
-                *ngIf="editImmobilisation.get('date_acquisition')?.invalid && editImmobilisation.get('date_acquisition')?.touched"
-                class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
+            <label for="date_acquisition" class="form-label">
+              Date d'acquisition <span class="text-danger">*</span>
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="editAcquisition.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAcquisition"
+                [(ngModel)]="currentDate" ngbDatepicker #editAcquisition="ngbDatepicker"
+                formControlName="date_acquisition">
+            </div>
+
+            <div *ngIf="editImmobilisation.get('date_acquisition')?.invalid && editImmobilisation.get('date_acquisition')?.touched">
+              <small class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
             </div>
           </div>
+
+           <!-- date_mouvement
+          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
+              [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_mouvement">
+          </div>
+
+          <div *ngIf="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched">
+            <small class="text-danger"> *la date du mouvement est obligatoire</small>
+          </div> -->
 
           <!-- observation -->
           <div class="mb-3">

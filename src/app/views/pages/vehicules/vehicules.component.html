@@ -202,13 +202,22 @@
 
               <!-- date_mise_en_service -->
               <div class="col-2">
-                <input type="text" class="form-control" placeholder="2024-12-31" formControlName="date_mise_en_service"
-                  [class.is-invalid]="vehiculeForm.get('date_mise_en_service')?.invalid && vehiculeForm.get('date_mise_en_service')?.touched">
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dMiseEnService.toggle()">
+                    <i data-feather="calendar"></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpMiseEnService"
+                    [(ngModel)]="currentDate" ngbDatepicker #dMiseEnService="ngbDatepicker"
+                    formControlName="date_mise_en_service"
+                    [class.is-invalid]="vehiculeForm.get('date_mise_en_service')?.invalid && vehiculeForm.get('date_mise_en_service')?.touched">
+                </div>
+
                 <div *ngIf="vehiculeForm.get('date_mise_en_service')?.invalid && vehiculeForm.get('date_mise_en_service')?.touched"
                   class="invalid-feedback">
                   date de mise en service est obligatoire
                 </div>
               </div>
+
 
 
 

@@ -242,17 +242,23 @@
 
           <!-- date_mouvement -->
           <div class="mb-3">
-            <label for="date_mouvement" class="form-label">Date du Transfert <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="date_mouvement" placeholder="2024-12-31" autocomplete="off"
-              [class.invalid]="addTransfert.get('date_mouvement')?.invalid && addTransfert.get('date_mouvement')?.touched"
-              formControlName="date_mouvement">
-            <div
-              *ngIf="addTransfert.get('date_mouvement')?.invalid && addTransfert.get('date_mouvement')?.touched">
-              <small
-                *ngIf="addTransfert.get('date_mouvement')?.invalid && addTransfert.get('date_mouvement')?.touched"
-                class="text-danger"> *la date du transfert est obligatoire</small>
+            <label for="date_mouvement" class="form-label">
+              Date du Transfert <span class="text-danger">*</span>
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dTransfert.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpTransfert"
+                [(ngModel)]="currentDate" ngbDatepicker #dTransfert="ngbDatepicker"
+                formControlName="date_mouvement">
+            </div>
+
+            <div *ngIf="addTransfert.get('date_mouvement')?.invalid && addTransfert.get('date_mouvement')?.touched">
+              <small class="text-danger"> *la date du transfert est obligatoire</small>
             </div>
           </div>
+
 
           <!-- observation -->
           <div class="mb-3">

@@ -1,11 +1,11 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsService } from '../../../core/services/intervention/intervention.service';
 import { Immobilisation, TypeIntervention, Intervention } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
@@ -23,6 +23,7 @@ declare var bootstrap: any;
     CommonModule,
     NgbAlertModule,
     NgbDropdownModule,
+    NgbDatepickerModule,
     MyNgSelectComponent,
     FeatherIconDirective
 
@@ -30,6 +31,7 @@ declare var bootstrap: any;
   templateUrl: 'intervention.component.html'
 })
 export class InterventionComponent implements OnInit {
+  currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: Intervention[] = [];
   temp: Intervention[] = [];
@@ -86,7 +88,11 @@ export class InterventionComponent implements OnInit {
 
     if (this.addIntervention.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      this.interventionService.saveIntervention(this.addIntervention.value).subscribe(
+      const formData = {
+        ...this.addIntervention.value,
+        date_intervention: this.formatDate(this.addIntervention.value.date_intervention), // Convertir la date
+      };
+      this.interventionService.saveIntervention(formData).subscribe(
         (data: any) => {
           this.loadInterventions();
           if (spinner) spinner.classList.add('d-none');
@@ -128,7 +134,11 @@ export class InterventionComponent implements OnInit {
     if (this.editIntervention.valid) {
       if (spinner) spinner.classList.remove('d-none');
       const id = this.editIntervention.value.id;
-      this.interventionService.editIntervention(this.editIntervention.value).subscribe(
+      const formData = {
+        ...this.editIntervention.value,
+        date_intervention: this.formatDate(this.editIntervention.value.date_intervention), // Convertir la date
+      };
+      this.interventionService.editIntervention(formData).subscribe(
         (data: any) => {
           this.loadInterventions();
           if (spinner) spinner.classList.add('d-none');
@@ -238,7 +248,7 @@ export class InterventionComponent implements OnInit {
       type_intervention_id: row.type_intervention_id,
       titre: row.titre,
       observation: row.observation,
-      date_intervention: row.date_intervention,
+      date_intervention: this.convertToNgbDate(row.date_intervention),
       cout: row.cout,
     })
   }
@@ -268,6 +278,25 @@ export class InterventionComponent implements OnInit {
         console.error("Erreur lors du chargement des typeInterventions :", err);
       }
     });
+  }
+
+  formatDate(date: NgbDateStruct): string {
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
+    const day = date.day.toString().padStart(2, '0');
+    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+  }
+
+
+  // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+  convertToNgbDate(dateString: string): NgbDateStruct | null {
+    if (!dateString) return null;
+    const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+    return {
+      year: +parts[0],
+      month: +parts[1],
+      day: +parts[2],
+    };
   }
 
 }

@@ -72,11 +72,7 @@
                 {{ row.arriver?.libelle_commune || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column> -->
-            <ngx-datatable-column name="Date de l'intervention" prop="date_intervention">
-              <ng-template let-value="value" ngx-datatable-cell-template>
-                {{ value | date:'dd/MM/yyyy' }}
-              </ng-template>
-            </ngx-datatable-column>
+            <ngx-datatable-column name="Date de l'intervention" prop="date_intervention"></ngx-datatable-column>
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -183,17 +179,22 @@
             </ng-template>
           </div>
 
+          <!-- date_intervention -->
           <div class="mb-3">
-            <label for="date_intervention" class="form-label">Date de L'intervention <span
-                class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="date_intervention" placeholder="2024-12-31" autocomplete="off"
-              [class.invalid]="addInterventionVehicule.get('date_intervention')?.invalid && addInterventionVehicule.get('date_intervention')?.touched"
-              formControlName="date_intervention">
-            <div
-              *ngIf="addInterventionVehicule.get('date_intervention')?.invalid && addInterventionVehicule.get('date_intervention')?.touched">
-              <small
-                *ngIf="addInterventionVehicule.get('date_intervention')?.invalid && addInterventionVehicule.get('date_intervention')?.touched"
-                class="text-danger"> *la date de l'intervention est obligatoire</small>
+            <label for="date_intervention" class="form-label">
+              Date de l'intervention <span class="text-danger">*</span>
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dIntervention.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpIntervention"
+                [(ngModel)]="currentDate" ngbDatepicker #dIntervention="ngbDatepicker"
+                formControlName="date_intervention">
+            </div>
+
+            <div *ngIf="addInterventionVehicule.get('date_intervention')?.invalid && addInterventionVehicule.get('date_intervention')?.touched">
+              <small class="text-danger"> *la date de l'intervention est obligatoire</small>
             </div>
           </div>
 
@@ -341,17 +342,22 @@
             </ng-template>
           </div>
 
+          <!-- date_intervention -->
           <div class="mb-3">
-            <label for="date_intervention" class="form-label">Date de L'intervention <span
-                class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="date_intervention" placeholder="2024-12-31" autocomplete="off"
-              [class.invalid]="editInterventionVehicule.get('date_intervention')?.invalid && editInterventionVehicule.get('date_intervention')?.touched"
-              formControlName="date_intervention">
-            <div
-              *ngIf="editInterventionVehicule.get('date_intervention')?.invalid && editInterventionVehicule.get('date_intervention')?.touched">
-              <small
-                *ngIf="editInterventionVehicule.get('date_intervention')?.invalid && editInterventionVehicule.get('date_intervention')?.touched"
-                class="text-danger"> *la date de l'intervention est obligatoire</small>
+            <label for="date_intervention" class="form-label">
+              Date de l'intervention <span class="text-danger">*</span>
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="EdIntervention.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpIntervention"
+                [(ngModel)]="currentDate" ngbDatepicker #EdIntervention="ngbDatepicker"
+                formControlName="date_intervention">
+            </div>
+
+            <div *ngIf="editInterventionVehicule.get('date_intervention')?.invalid && editInterventionVehicule.get('date_intervention')?.touched">
+              <small class="text-danger"> *la date de l'intervention est obligatoire</small>
             </div>
           </div>
 
