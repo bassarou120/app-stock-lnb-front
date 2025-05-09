@@ -77,7 +77,7 @@
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qteDemande"></ngx-datatable-column>
             <!-- <ngx-datatable-column name="Qte demandé" prop="qteDemande"></ngx-datatable-column> -->
-            <ngx-datatable-column name="Employé">
+            <ngx-datatable-column name="Personnel">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.employe?.fullnameEmploye || 'Non défini' }}
               </ng-template>
@@ -205,15 +205,15 @@
 
           <!-- Sélectionner un employe -->
           <div class="mb-3">
-            <label for="employe" class="form-label">Employe</label>
+            <label for="employe" class="form-label">Personnel</label>
 
             <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
               <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="id_employe"
-                [clearable]="true" placeholder="Sélectionnez l'Employé">
+                [clearable]="true" placeholder="Sélectionnez le personnel">
               </ng-select>
 
               <div *ngIf="addSortie.get('id_employe')?.invalid && addSortie.get('id_employe')?.touched">
-                <small class="text-danger"> *L'employe est obligatoire</small>
+                <small class="text-danger"> *Le personnel est obligatoire</small>
               </div>
             </ng-container>
 
@@ -221,7 +221,7 @@
             <ng-template #noEmploye>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucun Personnel. Veuillez en créer.
               </div>
             </ng-template>
           </div>
@@ -237,7 +237,7 @@
 
               <div *ngIf="addSortie.get('id_bureau')?.invalid &&
             (addSortie.get('id_bureau')?.touched || addSortie.get('id_employe')?.touched)">
-                <small class="text-danger">Le bureau est requis si un employé est sélectionné.</small>
+                <small class="text-danger">Le bureau est requis si un personnel est sélectionné.</small>
               </div>
             </ng-container>
 
@@ -347,15 +347,15 @@
 
           <!-- Sélectionner un employe -->
           <div class="mb-3">
-            <label for="employe" class="form-label">Employe</label>
+            <label for="employe" class="form-label">Personnel</label>
 
             <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
               <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="id_employe"
-                [clearable]="true" placeholder="Sélectionnez l'Employé">
+                [clearable]="true" placeholder="Sélectionnez le personnel">
               </ng-select>
 
               <div *ngIf="editSortie.get('id_employe')?.invalid && editSortie.get('id_employe')?.touched">
-                <small class="text-danger"> *L'employe est obligatoire</small>
+                <small class="text-danger"> *Le personnel est obligatoire</small>
               </div>
             </ng-container>
 
@@ -363,7 +363,7 @@
             <ng-template #noEmploye>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
+                <i class="feather icon-alert-circle"></i> Aucun Personnel. Veuillez en créer.
               </div>
             </ng-template>
           </div>

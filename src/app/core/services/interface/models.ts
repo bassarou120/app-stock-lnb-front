@@ -194,6 +194,7 @@ export interface MouvementStock {
   created_at: string;
   updated_at: string;
   statut?: string;
+  piece_jointe_mouvement?: string;
 }
 
 export interface MouvementTicket {

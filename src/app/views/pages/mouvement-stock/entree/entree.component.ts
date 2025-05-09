@@ -10,6 +10,7 @@ import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
+import {environment} from "../../../../../environments/environment";
 
 
 declare var bootstrap: any;
@@ -53,8 +54,11 @@ export class EntreeComponent implements OnInit {
   public deleteEntree!: FormGroup;
   addEntreeMultipleForm: FormGroup;
 
+  public url: string = environment.base_url_backend;
+
   // Fichiers sélectionnés
   selectedFiles: File[] = [];
+  selectedFile: File | null = null;
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -118,6 +122,10 @@ export class EntreeComponent implements OnInit {
   // Gestion de la sélection de fichiers
   onFileSelected(event: any): void {
     this.selectedFiles = Array.from(event.target.files);
+  }
+
+  onFileSelectedOnefile(event: any) {
+    this.selectedFile = event.target.files[0];
   }
 
   // Soumission d'ajout multiple (nouvelle méthode)
@@ -209,35 +217,41 @@ export class EntreeComponent implements OnInit {
 
     if (this.addEntree.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      const formData = {
-        ...this.addEntree.value,
-        date_mouvement: this.formatDate(this.addEntree.value.date_mouvement), // Convertir la date
-      };
+
+      const formData = new FormData();
+
+      formData.append('id_Article', this.addEntree.value.id_Article);
+      formData.append('id_fournisseur', this.addEntree.value.id_fournisseur);
+      formData.append('description', this.addEntree.value.description || '');
+      formData.append('qte', this.addEntree.value.qte);
+      formData.append('date_mouvement', this.formatDate(this.addEntree.value.date_mouvement));
+
+      // Ajout du fichier si présent
+      if (this.selectedFile) {
+        formData.append('piece_jointe_mouvement', this.selectedFile);
+      }
+
       this.entreeService.saveMouvementStockEntree(formData).subscribe(
         (data: any) => {
           this.loadEntrees();
           if (spinner) spinner.classList.add('d-none');
           this.addEntree.reset();
+          this.selectedFile = null;
 
-          // Fermer le modal manuellement
           const modal = document.getElementById('add_entree');
-          // @ts-ignore - pour éviter les erreurs TypeScript
+          // @ts-ignore
           const bsModal = bootstrap.Modal.getInstance(modal);
           bsModal?.hide();
 
-          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertAjoutVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
-
-            // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
               this.alertAjoutVisible = false;
-            }, 2000); // L'alerte disparaît après 2 secondes
-          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+            }, 2000);
+          }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de l\'ajout de l\'entree :', error);
+          console.error('Erreur lors de l\'ajout de l\'entrée :', error);
           if (spinner) spinner.classList.add('d-none');
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
@@ -247,6 +261,7 @@ export class EntreeComponent implements OnInit {
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
+
 
   onClickSubmitEditEntree() {
     console.log(this.editEntree.value);
