@@ -1,11 +1,11 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
 import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
@@ -23,6 +23,7 @@ declare var bootstrap: any;
     CommonModule,
     NgbAlertModule,
     NgbDropdownModule,
+    NgbDatepickerModule,
     MyNgSelectComponent,
     FeatherIconDirective
 
@@ -30,6 +31,7 @@ declare var bootstrap: any;
   templateUrl: 'enregistrement-immos.component.html'
 })
 export class ImmobilisationComponent implements OnInit {
+  currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: Immobilisation[] = [];
   temp: Immobilisation[] = [];
@@ -118,7 +120,11 @@ export class ImmobilisationComponent implements OnInit {
 
     if (this.addImmobilisation.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      this.immobilisationService.saveImmobilisation(this.addImmobilisation.value).subscribe(
+      const formData = {
+        ...this.addImmobilisation.value,
+        date_acquisition: this.formatDate(this.addImmobilisation.value.date_acquisition), // Convertir la date
+      };
+      this.immobilisationService.saveImmobilisation(formData).subscribe(
         (data: any) => {
           this.loadImmobilisations();
           if (spinner) spinner.classList.add('d-none');
@@ -161,7 +167,11 @@ export class ImmobilisationComponent implements OnInit {
     if (this.editImmobilisation.valid) {
       if (spinner) spinner.classList.remove('d-none');
       const id = this.editImmobilisation.value.id;
-      this.immobilisationService.editImmobilisation(this.editImmobilisation.value).subscribe(
+      const formData = {
+        ...this.editImmobilisation.value,
+        date_acquisition: this.formatDate(this.editImmobilisation.value.date_acquisition), // Convertir la date
+      };
+      this.immobilisationService.editImmobilisation(formData).subscribe(
         (data: any) => {
           this.loadImmobilisations();
           if (spinner) spinner.classList.add('d-none');
@@ -280,7 +290,7 @@ export class ImmobilisationComponent implements OnInit {
       etat: row.etat,
       taux_ammortissement: row.taux_ammortissement,
       duree_ammortissement: row.duree_ammortissement,
-      date_acquisition: row.date_acquisition,
+      date_acquisition: this.convertToNgbDate(row.date_acquisition),
       date_mise_en_service: row.date_mise_en_service,
       observation: row.observation,
       id_status_immo: row.id_status_immo,
@@ -349,6 +359,7 @@ export class ImmobilisationComponent implements OnInit {
       }
     });
   }
+
   loadGroupeTypeImmo(): void {
     this.immobilisationService.getAllGroupeTypeImmos().subscribe({
       next: (data) => {
@@ -360,7 +371,24 @@ export class ImmobilisationComponent implements OnInit {
     });
   }
 
+  formatDate(date: NgbDateStruct): string {
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
+    const day = date.day.toString().padStart(2, '0');
+    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+  }
 
+
+  // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+  convertToNgbDate(dateString: string): NgbDateStruct | null {
+    if (!dateString) return null;
+    const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+    return {
+      year: +parts[0],
+      month: +parts[1],
+      day: +parts[2],
+    };
+  }
 
 
 }

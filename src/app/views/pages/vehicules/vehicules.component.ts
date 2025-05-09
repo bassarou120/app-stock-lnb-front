@@ -1,11 +1,11 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { VehiculeService } from '../../../core/services/vehicules/vehicules.service';
 import { Vehicule, Modele, Marque  } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule,FormArray  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
@@ -22,6 +22,7 @@ declare var bootstrap: any;
     NgbAlertModule,
     NgbDropdownModule,
     FormsModule,
+    NgbDatepickerModule,
     MyNgSelectComponent,
 
   ],
@@ -29,6 +30,7 @@ declare var bootstrap: any;
 })
 
 export class VehiculesComponent implements OnInit {
+  currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: Vehicule[] = [];
   temp: Vehicule[] = [];
@@ -112,6 +114,10 @@ export class VehiculesComponent implements OnInit {
       // Convertir le FormArray en un tableau de Vehicule à envoyer
       const vehiculesToSave = this.vehiculesArray.value;
 
+      const formData = {
+        ...this.addVehicule.value,
+        date_mise_en_service: this.formatDate(this.addVehicule.value.date_mise_en_service), // Convertir la date
+      };
       // Créer un observable pour sauvegarder tous les Vehicule
       this.vehiculeService.saveMultipleVehicules(vehiculesToSave).subscribe(
         (data: any) => {
@@ -157,7 +163,11 @@ onClickSubmitEditVehicule(){
   if (this.editVehicule.valid) {
     if (spinner) spinner.classList.remove('d-none');
     const id = this.editVehicule.value.id;
-    this.vehiculeService.editVehicule(this.editVehicule.value).subscribe(
+    const formData = {
+      ...this.editVehicule.value,
+      date_mise_en_service: this.formatDate(this.editVehicule.value.date_mise_en_service), // Convertir la date
+    };
+    this.vehiculeService.editVehicule(formData).subscribe(
       (data: any) => {
         this.loadVehicules();
         if (spinner) spinner.classList.add('d-none');
@@ -288,7 +298,7 @@ loadVehicules(): void {
      immatriculation:row.immatriculation,
      numero_chassis:row.numero_chassis,
      kilometrage:row.kilometrage,
-     date_mise_en_service:row.date_mise_en_service,
+     date_mise_en_service: this.convertToNgbDate(row.date_mise_en_service),
     })
   }
 
@@ -296,6 +306,25 @@ loadVehicules(): void {
     this.deleteVehicule.patchValue({
      id:row.id,
     })
+  }
+
+  formatDate(date: NgbDateStruct): string {
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
+    const day = date.day.toString().padStart(2, '0');
+    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+  }
+
+
+  // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+  convertToNgbDate(dateString: string): NgbDateStruct | null {
+    if (!dateString) return null;
+    const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+    return {
+      year: +parts[0],
+      month: +parts[1],
+      day: +parts[2],
+    };
   }
  }
 

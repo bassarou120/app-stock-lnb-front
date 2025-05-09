@@ -405,6 +405,11 @@ export const MENU: MenuItem[] = [
     link: '/vehicules'
   },
   {
+    label: 'Intervention Véhicules',
+    icon: 'pen-tool',
+    link: '/interventionvehicules'
+  },
+  {
     label: 'Tickets',
     icon: 'credit-card',
     subItems: [
@@ -425,6 +430,11 @@ export const MENU: MenuItem[] = [
       {
         label: 'Retour Tickets',
         link: 'tickets/retour-ticket',
+      },
+
+      {
+        label: 'Annulation de Tickets',
+        link: 'tickets/annulation-ticket',
       },
     ]
   },

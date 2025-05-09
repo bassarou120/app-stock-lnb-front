@@ -47,6 +47,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/intervention/intervention.routes')
       },
       {
+        path: 'interventionvehicules',
+        loadChildren: () => import('./views/pages/interventionvehicules/interventionvehicules.routes')
+      },
+      {
         path: 'transfert',
         loadChildren: () => import('./views/pages/transfert/transfert.routes')
       },

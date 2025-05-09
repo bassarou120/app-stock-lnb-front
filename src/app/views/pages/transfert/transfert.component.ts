@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { TransfertsService } from '../../../core/services/transfert/transfert.service';
@@ -6,7 +6,7 @@ import { InterventionsService } from '../../../core/services/intervention/interv
 import { Immobilisation, TypeIntervention, Intervention, Transfert, Bureau, Employe } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
-import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
@@ -24,12 +24,14 @@ declare var bootstrap: any;
     CommonModule,
     NgbAlertModule,
     NgbDropdownModule,
+    NgbDatepickerModule,
     MyNgSelectComponent,
     // FeatherIconDirective
   ],
   templateUrl: 'transfert.component.html'
 })
 export class TransfertComponent implements OnInit {
+  currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: Transfert[] = [];
   temp: Transfert[] = [];
@@ -95,7 +97,11 @@ export class TransfertComponent implements OnInit {
 
     if (this.addTransfert.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      this.transfertService.saveTransfert(this.addTransfert.value).subscribe(
+      const formData = {
+        ...this.addTransfert.value,
+        date_mouvement: this.formatDate(this.addTransfert.value.date_mouvement), // Convertir la date
+      };
+      this.transfertService.saveTransfert(formData).subscribe(
         (data: any) => {
           this.loadTransferts();
           if (spinner) spinner.classList.add('d-none');
@@ -247,7 +253,7 @@ export class TransfertComponent implements OnInit {
       type_intervention_id: row.type_intervention_id,
       titre: row.titre,
       observation: row.observation,
-      date_intervention: row.date_intervention,
+      date_mouvement: this.convertToNgbDate(row.date_mouvement),
       cout: row.cout,
     })
   }
@@ -313,6 +319,25 @@ export class TransfertComponent implements OnInit {
         console.error('Erreur lors des Infos:', error);
       }
     );
+  }
+
+  formatDate(date: NgbDateStruct): string {
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
+    const day = date.day.toString().padStart(2, '0');
+    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+  }
+
+
+  // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+  convertToNgbDate(dateString: string): NgbDateStruct | null {
+    if (!dateString) return null;
+    const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+    return {
+      year: +parts[0],
+      month: +parts[1],
+      day: +parts[2],
+    };
   }
 
   //   updateQuantiteDisponible() {
