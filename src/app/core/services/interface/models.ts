@@ -300,3 +300,29 @@ export interface Immobilisation {
   created_at: string;
   updated_at: string;
 }
+
+export interface Role {
+  id: number;
+  libelle_role: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  surname?: string;
+  photo?: string;
+  sexe: string;
+  last_activity: string;
+  active: boolean;
+  email: string;
+  phone: string;
+  role_id: number;
+  role: Role;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: User;
+  perm: any[]; // remplace `any` si tu veux typer les permissions
+}
+
