@@ -1,0 +1,45 @@
+<div class="container">
+  <div class="row w-100 mx-0 auth-page">
+    <div class="col-md-8 col-xl-6 mx-auto">
+      <div class="card">
+        <div class="row">
+          <div class="col-md-4 pe-md-0">
+            <div class="auth-side-wrapper" [ngStyle]="{ 'background-image': 'url(images/img_login.png)' }">
+            </div>
+          </div>
+          <div class="col-md-8 ps-md-0">
+            <div class="auth-form-wrapper px-4 py-5">
+              <a routerLink="." class="nobleui-logo d-block mb-2">Récupération de mot de passe<span> </span></a>
+
+              <!-- <img src="images/logo.png" alt="logo" class="mb-3" width="200"> -->
+              <br>
+
+              <h5 class="text-secondary fw-normal mb-4">Veuillez entrer le code OTP qui a été envoyé à votre Email</h5>
+              <form class="forms-sample" [formGroup]="verifyOtpForm" (ngSubmit)="verifyOTP()">
+                <div class="mb-3">
+                  <label for="otp_code" class="form-label">code OTP </label>
+                  <input  class="form-control" id="otp_code" placeholder="12345"
+                    value="admin@demo.com" formControlName="otp_code"
+                    [class.invalid]="verifyOtpForm.get('otp_code')?.invalid && verifyOtpForm.get('otp_code')?.touched">
+                  <div *ngIf="verifyOtpForm.get('otp_code')?.invalid && verifyOtpForm.get('otp_code')?.touched">
+                    <small *ngIf="verifyOtpForm.get('otp_code')?.invalid && verifyOtpForm.get('otp_code')?.touched"
+                      class="text-danger"> *le code otp est obligatoire</small>
+                  </div>
+                </div>
+
+                <div class="mb-2">
+                  <button type="submit" class="btn btn-primary me-2 mb-2 mb-md-0">Suivant
+                    <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                  </button>
+                </div>
+                <!-- <a routerLink="/auth/login" class="d-block mt-3 text-secondary">Se Connecter</a> -->
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

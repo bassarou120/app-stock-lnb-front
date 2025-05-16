@@ -16,7 +16,7 @@ import { ThemeModeService } from '../../../core/services/theme-mode.service';
 export class NavbarComponent implements OnInit {
 
   currentTheme: string;
-
+  user: any;
   constructor(private router: Router, private themeModeService: ThemeModeService) {}
 
   ngOnInit(): void {
@@ -24,6 +24,11 @@ export class NavbarComponent implements OnInit {
       this.currentTheme = theme;
       this.showActiveTheme(this.currentTheme);
     });
+
+    const userData = localStorage.getItem('user');
+  if (userData) {
+    this.user = JSON.parse(userData);
+  }
   }
 
   showActiveTheme(theme: string) {
@@ -47,7 +52,7 @@ export class NavbarComponent implements OnInit {
   }
 
   /**
-   * Change the theme on #theme-switcher checkbox changes 
+   * Change the theme on #theme-switcher checkbox changes
    */
   onThemeCheckboxChange(e: Event) {
     const checkbox = e.target as HTMLInputElement;

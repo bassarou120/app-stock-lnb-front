@@ -18,6 +18,25 @@ export class AuthService {
     return this.http.post<{ success: boolean; data: LoginResponse }>(`${this.url}/login`, credentials);
   }
 
+  sendOTP(email: string): Observable<any> {
+    return this.http.post(`${this.url}/forgot-password`, { email });
+  }
+
+  verifyOTP(email: string, otp_code: string): Observable<any> {
+    return this.http.post(`${this.url}/verify-otp`, { email, otp_code });
+  }
+
+  resetPassword(data: {
+    email: string;
+    otp_code: string;
+    password: string;
+    password_confirmation: string;
+  }): Observable<any> {
+    return this.http.post(`${this.url}/reset-password`, data);
+  }
+
+
+
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
