@@ -26,6 +26,7 @@ export class ResetPasswordComponent implements OnInit {
 
 
   public resetPasswordForm!: FormGroup;
+  alertVisible: boolean = false;  // Pour gérer la visibilité de l'alerte
 
   constructor(private formBuilder: FormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
 
@@ -40,15 +41,29 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   resetPassword() {
-    this.authService.resetPassword(this.resetPasswordForm.value).subscribe({
-      next: () => {
-        // alert("Mot de passe réinitialisé avec succès !");
+    const spinner = document.querySelector('.spinner-border');
+    if (this.resetPasswordForm.valid) {
+      if (spinner) spinner.classList.remove('d-none');
+      this.authService.resetPassword(this.resetPasswordForm.value).subscribe({
+        next: () => {
+          this.alertVisible = true; // Affiche l’alerte
+        setTimeout(() => {
+          this.alertVisible = false; // Masque après 3 secondes
+          this.router.navigate(['auth/login']);
+        }, 3000);
+
         localStorage.removeItem('email');
         localStorage.removeItem('otp_code');
-        this.router.navigate(['auth/login']);
-      },
-      error: () => alert("Une erreur s'est produite"),
-    });
+        },
+        error: () => {
+          if (spinner) spinner.classList.add('d-none');
+          alert("Une erreur s'est produite")
+        },
+      });
+    }else {
+      if (spinner) spinner.classList.add('d-none');
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+    }
   }
 
 

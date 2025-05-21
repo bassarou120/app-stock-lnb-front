@@ -74,14 +74,14 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
     this.loadSorties();
     this.addSortie = this.formBuilder.group({
       id_Article: [null, [Validators.required]],
-      id_employe: [null, []],
+      id_personnel: [null, []],
       id_bureau: [null, []],
       description: ["", [Validators.required]],
       // qte: [1, [Validators.required]],
       qteDemande: [1, [Validators.required]],
       dateDemande: ["", [Validators.required]],
     });
-    this.addSortie.get('id_employe')?.valueChanges.subscribe(value => {
+    this.addSortie.get('id_personnel')?.valueChanges.subscribe(value => {
       const bureau = this.addSortie.get('id_bureau');
       if (value) {
         bureau?.setValidators([Validators.required]);
@@ -94,7 +94,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
     this.editSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
       id_Article: [null, [Validators.required]],
-      id_employe: [null, []],
+      id_personnel: [null, []],
       id_bureau: [null, []],
       description: ["", [Validators.required]],
       // qte: [1, [Validators.required]],
@@ -119,7 +119,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
       statut: ['', Validators.required],
       qte: ['', Validators.required],
       date_mouvement: ['', Validators.required],
-
+      qteDemande: [1, [Validators.required]],
     });
   }
 
@@ -501,7 +501,7 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
 
    bureauRequiredIfEmployeFilled(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
-      const employe = group.get('id_employe')?.value;
+      const employe = group.get('id_personnel')?.value;
       const bureau = group.get('id_bureau')?.value;
 
       if (employe && !bureau) {

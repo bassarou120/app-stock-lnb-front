@@ -73,8 +73,6 @@ export class LoginComponent implements OnInit {
   }
 
 
-  apelleFonction(){
-    console.log("Appel à la fonction de connexion")
-  }
+  
 
 }
