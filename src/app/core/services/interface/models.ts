@@ -251,6 +251,24 @@ export interface InterventionVehicule {
   commune_arrivee_id: number;
 }
 
+export interface Utilisateur {
+  id: string; // Ou number si tes IDs sont numériques
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  sexe: 'Masculin' | 'Féminin';
+  active: boolean;
+  photo?: string; // Optionnel
+  role_id: number; // ID du rôle
+  role?: Role; // Relation avec le rôle (sera chargée si eager loaded)
+  employe_id?: number; // ID de l'employé (si la colonne existe et est utilisée)
+  employe?: Employe; // Relation avec l'employé (sera chargée si eager loaded)
+  last_activity?: Date; // Si tu as ce champ
+  created_at?: Date;
+  updated_at?: Date;
+}
+
 
 export interface Transfert {
   id: number;
@@ -301,7 +319,7 @@ export interface Immobilisation {
   updated_at: string;
 }
 
-export interface Role {
+export interface   Role {
   id: number;
   libelle_role: string;
 }

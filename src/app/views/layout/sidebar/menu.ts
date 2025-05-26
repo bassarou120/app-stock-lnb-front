@@ -439,6 +439,15 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
+    label: 'Gestion des utilisateurs',
+    isTitle: true
+  },
+  {
+    label: 'Utilisateurs',
+    icon: 'users',
+    link: '/utilisateurs'
+  },
+  {
     label: 'Paramètres',
     isTitle: true
   },
