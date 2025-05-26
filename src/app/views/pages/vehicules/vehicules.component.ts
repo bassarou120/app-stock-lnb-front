@@ -32,6 +32,7 @@ declare var bootstrap: any;
 export class VehiculesComponent implements OnInit {
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
+
   rows: Vehicule[] = [];
   temp: Vehicule[] = [];
   loadingIndicator = true;
@@ -112,12 +113,20 @@ export class VehiculesComponent implements OnInit {
       if (spinner) spinner.classList.remove('d-none');
 
       // Convertir le FormArray en un tableau de Vehicule à envoyer
-      const vehiculesToSave = this.vehiculesArray.value;
+      // const vehiculesToSave = this.vehiculesArray.value;
 
-      const formData = {
-        ...this.addVehicule.value,
-        date_mise_en_service: this.formatDate(this.addVehicule.value.date_mise_en_service), // Convertir la date
+      // const formData = {
+      //   ...this.addVehicule.value,
+      //   date_mise_en_service: this.formatDate(this.addVehicule.value.date_mise_en_service), // Convertir la date
+      // };
+
+      const vehiculesToSave = this.vehiculesArray.value.map((vehicule: any) => {
+      return {
+        ...vehicule,
+        // Formater la date de chaque véhicule individuellement
+        date_mise_en_service: this.formatDate(vehicule.date_mise_en_service)
       };
+    });
       // Créer un observable pour sauvegarder tous les Vehicule
       this.vehiculeService.saveMultipleVehicules(vehiculesToSave).subscribe(
         (data: any) => {

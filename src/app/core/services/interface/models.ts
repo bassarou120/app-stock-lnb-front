@@ -205,7 +205,33 @@ export interface MouvementStock {
   updated_at: string;
   statut?: string;
   piece_jointe_mouvement?: string;
+
+  // Champs supplémentaires fournis par l’API
+  code_mouvement?: string;
+  dateDemande?: string;
+  article?: {
+    libelle: string;
+    code_article: string;
+  };
+  bureau?: {
+    libelle_bureau: string;
+  };
+  employe?: {
+    fullnameEmploye: string;
+  };
 }
+
+export interface MouvementStockGrouped {
+  code_mouvement: string;
+  personnel: string;
+  bureau: string;
+  dateDemande: string;
+  dateCreation: string;
+  statut: string;
+  totalArticles: number;
+  details: MouvementStock[];
+}
+
 
 export interface MouvementTicket {
   id: number;
