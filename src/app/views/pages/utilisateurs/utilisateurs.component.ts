@@ -300,9 +300,7 @@ export class UtilisateurComponent implements OnInit {
     this.loading = true; // Active un indicateur de chargement si tu en as un
     this.utilisateurService.getUserById(user.id).subscribe({
       next: (userProfile) => {
-        this.selectedUserForView = userProfile; // Assigne l'utilisateur complet avec ses relations
-        // Si tu n'utilises pas `data-bs-target` dans le HTML, tu peux forcer l'ouverture de la modale ici :
-        // $('#view_user_profile').modal('show');
+        this.selectedUserForView = userProfile;
         this.loading = false; // Désactive l'indicateur
       },
       error: (err) => {

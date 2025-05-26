@@ -95,7 +95,7 @@
 
 ### Modale d'ajout d'utilisateur (`#add_user`) -->
 
-<div class="modal fade" id="add_user" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="add_user" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
           <div class="modal-header">
@@ -169,12 +169,13 @@
                       <input type="checkbox" class="form-check-input" id="active" formControlName="active">
                       <label class="form-check-label" for="active">Actif</label>
                   </div>
-                  <div class="modal-footer">
-                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                  <div class="d-flex justify-content-center gap-2">
+
                       <button type="submit" class="btn btn-primary" [disabled]="loading">
                           <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
                           Ajouter
                       </button>
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
                   </div>
               </form>
           </div>
@@ -182,6 +183,7 @@
   </div>
 </div>
 
+<!-- ---### Modale Profil Utilisateur  -->
 <div class="modal fade" id="view_user_profile" tabindex="-1" aria-labelledby="viewUserProfileLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
@@ -203,7 +205,7 @@
                       <p><strong>Sexe :</strong> {{ selectedUserForView.sexe }}</p><br>
                       <p><strong>Rôle :</strong> {{ selectedUserForView.role?.libelle_role }}</p><br>
                       <p><strong>Actif :</strong> {{ selectedUserForView.active ? 'Oui' : 'Non' }}</p><br>
-                      <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'short' }}</p>
+                      <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'dd/MM/yyyy hh:mm a' }}</p>
                   </div>
                   <div class="col-md-6 border-start ps-4" *ngIf="selectedUserForView.employe">
                       <h3>Informations Employé Associé </h3><br>
@@ -227,6 +229,7 @@
   </div>
 </div>
 
+<!-- ---### Modale Modifier Utilisateur  -->
 <ng-template #editUserContent let-modal>
   <div class="modal-header">
     <h5 class="modal-title" id="editUserLabel">Modifier l'utilisateur</h5>
@@ -253,13 +256,14 @@
       </div>
 
     </div>
-    <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+    <div class="d-flex justify-content-center gap-2">
+
       <button type="submit" class="btn btn-primary">
         Modifier
         <span class="spinner-border spinner-border-sm d-none spinnerEdit" role="status" aria-hidden="true"></span>
       </button>
-    </div>
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+    </div><br>
   </form>
 </ng-template>
 
