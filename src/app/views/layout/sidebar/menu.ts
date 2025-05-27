@@ -564,10 +564,10 @@ export const MENU: MenuItem[] = [
         label: 'Type d\'intervention',
         link: '/parametres/types-intervention',
       },
-      // {
-      //   label: 'Utilisateurs',
-      //   link: '/utilisateurs'
-      // },
+      {
+        label: 'Listes des rôles',
+        link: '/parametres/roles'
+      },
     ]
   }
 ];

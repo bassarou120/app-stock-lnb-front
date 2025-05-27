@@ -22,5 +22,9 @@ export default [
     path: 'type-mouvement',
     loadComponent: () => import('./types-mouvement/types-mouvement.component').then(c => c.TypeMouvementComponent),
   },
+  {
+    path: 'roles', // The URL path for this route
+    loadComponent: () => import('./roles/roles.component').then(m => m.RoleComponent),
+  },
 
 ] as Routes;
