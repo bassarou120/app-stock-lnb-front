@@ -452,6 +452,11 @@ export const MENU: MenuItem[] = [
     link: '/utilisateurs'
   },
   {
+    label: 'Rôles et Permisions',
+    icon: 'user-check',
+    link: ''
+  },
+  {
     label: 'Paramètres',
     isTitle: true
   },
@@ -558,6 +563,10 @@ export const MENU: MenuItem[] = [
       {
         label: 'Type d\'intervention',
         link: '/parametres/types-intervention',
+      },
+      {
+        label: 'Listes des rôles',
+        link: '/parametres/roles'
       },
     ]
   }
