@@ -45,10 +45,11 @@ export class UtilisateurComponent implements OnInit {
   selectedEmploye: Employe | null = null; // Pour stocker l'employé actuellement sélectionné dans le ng-select
   selectedUserForView: Utilisateur | null = null;
 
-  sexeOptions = [
-    { label: 'Masculin', value: 'Masculin' },
-    { label: 'Féminin', value: 'Féminin' }
-  ];
+
+  // sexeOptions = [
+  //   { label: 'Masculin', value: 'Masculin' },
+  //   { label: 'Féminin', value: 'Féminin' }
+  // ];
 
   alertAjoutVisible: boolean = false;
   alertModifVisible: boolean = false;
@@ -60,7 +61,7 @@ export class UtilisateurComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
   // Pour la modale de modification (utilisée par NgbModal.open())
-  @ViewChild('editUserContent') editUserContent!: TemplateRef<any>; // <-- AJOUTE CETTE LIGNE
+  @ViewChild('editUserContent') editUserContent!: TemplateRef<any>;
   @ViewChild('deleteUserContent') deleteUserContent!: TemplateRef<any>;
 
   loading: boolean = false;
@@ -78,6 +79,11 @@ export class UtilisateurComponent implements OnInit {
     this.initForms();
   }
 
+  // Ajoutez cette nouvelle méthode à votre classe de composant
+  logValue(value: any, label: string = 'Debug'): void {
+    console.log(label + ':', value);
+  }
+
   // --- Initialisation des Formulaires ---
   initForms(): void {
     this.addUserForm = this.formBuilder.group({
@@ -86,7 +92,7 @@ export class UtilisateurComponent implements OnInit {
       surname: [{ value: '', disabled: false }], // Removed Validators.required if surname is not in Employe
       email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
       telephone: [{ value: '', disabled: false }, [Validators.required]], // Corrected: Use 'telephone' from Employe
-      sexe: [null, [Validators.required]], // This must be chosen manually as 'sexe' is not in Employe
+      // sexe: [null, [Validators.required]], // This must be chosen manually as 'sexe' is not in Employe
       // password: ['', [Validators.required, Validators.minLength(8)]],
       role_id: [null, [Validators.required]],
       active: [true, [Validators.required]],
@@ -120,9 +126,9 @@ export class UtilisateurComponent implements OnInit {
     if (typeof event === 'number') { // Si bindValue="id" est utilisé
       employeId = event;
       selectedEmployeObject = this.employes.find(e => e.id === employeId) || null;
-    } else if (event && typeof event === 'object' && event.id) { 
+    } else if (event && typeof event === 'object' && event.id) {
       employeId = event.id;
-      selectedEmployeObject = event;  
+      selectedEmployeObject = event;
     }
 
     console.log("Employé sélectionné ID (déduit):", employeId);
@@ -133,12 +139,12 @@ export class UtilisateurComponent implements OnInit {
       this.addUserForm.patchValue({
         nom: this.selectedEmploye.nom,
         // surname: this.selectedEmploye.prenom, // ATTENTION: Ton interface Employe n'a pas 'prenom'.
-                                             // Si tu as 'prenom' dans tes données réelles,
-                                             // tu dois l'ajouter à ton interface Employe.
-                                             // Pour l'instant, je le commente si ton interface ne l'a pas.
+                                       // Si tu as 'prenom' dans tes données réelles,
+                                       // tu dois l'ajouter à ton interface Employe.
+                                       // Pour l'instant, je le commente si ton interface ne l'a pas.
         email: this.selectedEmploye.email,
         telephone: this.selectedEmploye.telephone,
-        sexe: null // Sexe n'est pas dans Employe, il reste manuel
+        // sexe: null // Sexe n'est pas dans Employe, il reste manuel
       });
       console.log("Formulaire mis à jour avec:", this.addUserForm.value);
     } else {
@@ -148,7 +154,8 @@ export class UtilisateurComponent implements OnInit {
         surname: "", // Reste vide si pas de source
         email: "",
         telephone: "",
-        sexe: null
+        // SEXE : Supprimé de la réinitialisation
+        // sexe: null
       });
       console.log("Formulaire réinitialisé.");
     }
@@ -172,11 +179,12 @@ export class UtilisateurComponent implements OnInit {
     // Le backend récupérera les détails complets de l'employé via l'employe_id.
     const dataToSend = {
       employe_id: formData.employe_id,
-      sexe: formData.sexe,
+      // SEXE : Supprimé de dataToSend
+      // sexe: formData.sexe,
       // password: formData.password,
       role_id: formData.role_id,
       active: formData.active,
-      photo: formData.photo 
+      photo: formData.photo
     };
 
     this.utilisateurService.saveUser(dataToSend).subscribe({
@@ -184,7 +192,7 @@ export class UtilisateurComponent implements OnInit {
         this.loadUsers(); // Recharge la liste des utilisateurs après l'ajout
         this.loading = false;
         // Réinitialisation du formulaire, y compris les champs désactivés
-        this.addUserForm.reset({ active: true, employe_id: null, sexe: null, role_id: null });
+        this.addUserForm.reset({ active: true, employe_id: null, role_id: null });
         this.selectedEmploye = null; // Réinitialise l'employé sélectionné
         const modalElement = document.getElementById('add_user');
         if (modalElement) {
@@ -300,9 +308,7 @@ export class UtilisateurComponent implements OnInit {
     this.loading = true; // Active un indicateur de chargement si tu en as un
     this.utilisateurService.getUserById(user.id).subscribe({
       next: (userProfile) => {
-        this.selectedUserForView = userProfile; // Assigne l'utilisateur complet avec ses relations
-        // Si tu n'utilises pas `data-bs-target` dans le HTML, tu peux forcer l'ouverture de la modale ici :
-        // $('#view_user_profile').modal('show');
+        this.selectedUserForView = userProfile;
         this.loading = false; // Désactive l'indicateur
       },
       error: (err) => {
@@ -381,7 +387,7 @@ export class UtilisateurComponent implements OnInit {
 
     // Ouvre la modale de modification
     this.modalService.open(this.editUserContent, { centered: true });
-  }  
+  }
 
   getDeleteForm(row: User) {
     this.deleteUserForm.patchValue({
@@ -391,7 +397,7 @@ export class UtilisateurComponent implements OnInit {
     // OUVRIR LA MODALE DE SUPPRESSION ICI
     this.modalService.open(this.deleteUserContent, { centered: true }); // <-- NOUVEAU : Ouvre la modale
   }
-  
+
 
   // --- Gestion des Alertes ---
   // showAlert(type: 'ajout' | 'modif' | 'supp'): void {
