@@ -205,7 +205,7 @@
                       <p><strong>Sexe :</strong> {{ selectedUserForView.sexe }}</p><br>
                       <p><strong>Rôle :</strong> {{ selectedUserForView.role?.libelle_role }}</p><br>
                       <p><strong>Actif :</strong> {{ selectedUserForView.active ? 'Oui' : 'Non' }}</p><br>
-                      <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'dd/MM/yyyy hh:mm a' }}</p>
+                      <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'dd/MM/yyyy hh:mm a' }}</p>   
                   </div>
                   <div class="col-md-6 border-start ps-4" *ngIf="selectedUserForView.employe">
                       <h3>Informations Employé Associé </h3><br>
