@@ -25,7 +25,8 @@ declare var bootstrap: any;
     MyNgSelectComponent,
 
   ],
-  templateUrl: 'articles.component.html'
+  templateUrl: 'articles.component.html',
+  styleUrls: ['articles.component.scss']
 })
 export class ArticlesComponent implements OnInit {
 
@@ -58,6 +59,7 @@ export class ArticlesComponent implements OnInit {
     this.editArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
       libelle: ["", [Validators.required]],
+      code_article: ["", [Validators.required]],
       id_cat: [null, [Validators.required]],
       stock_alerte: [0, [Validators.required]],
       description: ["" ,[Validators.required]],
@@ -80,6 +82,7 @@ export class ArticlesComponent implements OnInit {
   createArticleFormGroup(): FormGroup {
     return this.formBuilder.group({
       libelle: ['', [Validators.required]],
+      code_article: ['', [Validators.required]],
       id_cat: [null, [Validators.required]],
       description: ['', [Validators.required]],
       stock_alerte: [0, [Validators.required]]
@@ -132,7 +135,7 @@ export class ArticlesComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de l\'ajout des Articles :', error);
           if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          alert('Une erreur s\'est produite. vérifiez si ce code n\'existe pas déjà. Veuillez réessayer.');
         }
       );
     } else {
@@ -307,6 +310,7 @@ loadArticles(): void {
      id:row.id,
      id_cat:row.id_cat,
      libelle:row.libelle,
+     code_article:row.code_article,
      stock_alerte:row.stock_alerte,
      description:row.description,
     })
