@@ -3,6 +3,9 @@
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
   Demande Traité avec succès
 </ngb-alert>
+<ngb-alert *ngIf="alertModifAllVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Demande Traités avec succès
+</ngb-alert>
 <!-- Alerte pour mofifier avec succès -->
 
 
@@ -81,6 +84,11 @@
         <td colspan="8" style="padding: 0;">
           <table class="table table-sm table-striped mb-0">
             <thead>
+              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tout_traiter" (click)="openToutTraiterModal(group.code_mouvement)"
+              [disabled]="!isGroupTraitable(group)"
+              >
+                tout traiter
+              </button>
               <tr>
                 <th>Code</th>
                 <th>Article</th>
@@ -104,8 +112,8 @@
                 <!-- <td>{{ detail.date_mouvement  }}</td> -->
                 <td>{{ detail.statut }}</td>
                 <td>
-                  <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                      data-bs-target="#edit_statut_sortie" (click)="getStatutForm(detail)" [disabled]="detail.statut === 'Accordé'">
+                  <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit_statut_sortie"
+                    (click)="getStatutForm(detail)" [disabled]="detail.statut === 'Accordé'">
                     Traiter
                   </button>
                 </td>
@@ -180,7 +188,8 @@
               [(ngModel)]="currentDate" ngbDatepicker #dAdd2="ngbDatepicker" formControlName="date_mouvement">
           </div>
 
-          <div *ngIf="editStatutSortie.get('date_mouvement')?.invalid && editStatutSortie.get('date_mouvement')?.touched">
+          <div
+            *ngIf="editStatutSortie.get('date_mouvement')?.invalid && editStatutSortie.get('date_mouvement')?.touched">
             <small class="text-danger"> *la date de la demande est obligatoire</small>
           </div>
 
@@ -190,7 +199,49 @@
             <button type="submit" class="btn btn-primary">
               <div class="spinner-border spinner-border-sm text-light d-none spinnerStatutModif" role="status">
                 <span class="visually-hidden">Loading...</span>
-              </div> Modifier le Statut
+              </div> Confirmer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Edit statut Modal -->
+
+<!-- Edit all -->
+<div id="tout_traiter" class="modal fade" tabindex="-1" aria-labelledby="tout_traiter"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="tout_traiter">Traiter la Demande</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="edit_all" (ngSubmit)="onClickSubmitEditAllSortie()"
+          novalidate>
+          <!--  date_mouvement -->
+          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <div class="input-group mb-5">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd3.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="currentDate" ngbDatepicker #dAdd3="ngbDatepicker" formControlName="date_mouvement">
+          </div>
+
+          <div
+            *ngIf="edit_all.get('date_mouvement')?.invalid && edit_all.get('date_mouvement')?.touched">
+            <small class="text-danger"> *la date de la demande est obligatoire</small>
+          </div>
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerStatutModifAll" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Confirmer
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>
