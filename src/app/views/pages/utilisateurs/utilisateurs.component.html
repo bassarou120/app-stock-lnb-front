@@ -53,7 +53,7 @@
             <ngx-datatable-column name="Prénom" prop="surname"></ngx-datatable-column>
             <ngx-datatable-column name="Email" prop="email"></ngx-datatable-column>  
             <ngx-datatable-column name="Téléphone" prop="phone"></ngx-datatable-column>
-            <ngx-datatable-column name="Sexe" prop="sexe"></ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Sexe" prop="sexe"></ngx-datatable-column> -->
             <ngx-datatable-column name="Rôle">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.role?.libelle_role || 'N/A' }}
@@ -134,7 +134,7 @@
                       <label for="telephone" class="form-label">Téléphone</label>
                       <input type="text" class="form-control" formControlName="telephone" readonly> </div>
 
-                  <div class="mb-3">
+                  <!-- <div class="mb-3">
                       <label for="sexe" class="form-label">Sexe <span class="text-danger">*</span></label>
                       <ng-select [items]="sexeOptions"
                                  bindLabel="label"
@@ -145,7 +145,7 @@
                       <div *ngIf="addUserForm.get('sexe')?.invalid && (addUserForm.get('sexe')?.dirty || addUserForm.get('sexe')?.touched)" class="text-danger">
                           Le sexe est requis.
                       </div>
-                  </div>
+                  </div> -->
                   <div class="mb-3">
                       <label for="role_id" class="form-label">Rôle <span class="text-danger">*</span></label>
                       <ng-select [items]="roles"
@@ -202,7 +202,7 @@
                       <p><strong>Prénom :</strong> {{ selectedUserForView.surname }}</p><br>
                       <p><strong>Email :</strong> {{ selectedUserForView.email }}</p><br>
                       <p><strong>Téléphone :</strong> {{ selectedUserForView.phone }}</p><br>
-                      <p><strong>Sexe :</strong> {{ selectedUserForView.sexe }}</p><br>
+                      <!-- <p><strong>Sexe :</strong> {{ selectedUserForView.sexe }}</p><br> -->
                       <p><strong>Rôle :</strong> {{ selectedUserForView.role?.libelle_role }}</p><br>
                       <p><strong>Actif :</strong> {{ selectedUserForView.active ? 'Oui' : 'Non' }}</p><br>
                       <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'dd/MM/yyyy HH:mm':'Africa/Porto-Novo' }}</p>
@@ -274,10 +274,10 @@
     <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
   </div>
   <div class="modal-body">
-    Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.
+    Êtes-vous sûr de vouloir supprimer cet utilisateur ?
   </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+  <div class="d-flex justify-content-center gap-2">
     <button type="button" class="btn btn-danger" (click)="onClickSubmitDeleteUser()">Supprimer</button>
-  </div>
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+  </div><br>
 </ng-template>
