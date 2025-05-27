@@ -438,15 +438,20 @@ export const MENU: MenuItem[] = [
       },
     ]
   },
-  // {
-  //   label: 'Gestion des utilisateurs',
-  //   isTitle: true
-  // },
-  // {
-  //   label: 'Utilisateurs',
-  //   icon: 'users',
-  //   link: '/utilisateurs'
-  // },
+  {
+    label: 'Gestion des utilisateurs',
+    isTitle: true
+  },
+  {
+    label: 'Utilisateurs',
+    icon: 'users',
+    link: '/utilisateurs'
+  },
+  {
+    label: 'Rôles et Permisions',
+    icon: 'user-check',
+    link: ''
+  },
   {
     label: 'Paramètres',
     isTitle: true
@@ -555,10 +560,10 @@ export const MENU: MenuItem[] = [
         label: 'Type d\'intervention',
         link: '/parametres/types-intervention',
       },
-      {
-        label: 'Utilisateurs',
-        link: '/utilisateurs'
-      },
+      // {
+      //   label: 'Utilisateurs',
+      //   link: '/utilisateurs'
+      // },
     ]
   }
 ];

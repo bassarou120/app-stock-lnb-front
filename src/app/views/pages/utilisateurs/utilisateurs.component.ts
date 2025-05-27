@@ -78,6 +78,11 @@ export class UtilisateurComponent implements OnInit {
     this.initForms();
   }
 
+  // Ajoutez cette nouvelle méthode à votre classe de composant
+  // logValue(value: any, label: string = 'Debug'): void {
+  //   console.log(label + ':', value);
+  // }
+
   // --- Initialisation des Formulaires ---
   initForms(): void {
     this.addUserForm = this.formBuilder.group({

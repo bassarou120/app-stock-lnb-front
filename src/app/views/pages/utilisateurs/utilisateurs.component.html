@@ -121,18 +121,18 @@
 
                   <div class="mb-3">
                       <label for="nom" class="form-label">Nom</label>
-                      <input type="text" class="form-control" formControlName="nom" > </div>
+                      <input type="text" class="form-control" formControlName="nom" readonly> </div>
                   <!-- <div class="mb-3">
                       <label for="surname" class="form-label">Prénom</label>
                       <input type="text" class="form-control" formControlName="surname" readonly>
                   </div> -->
                   <div class="mb-3">
                       <label for="email" class="form-label">Email</label>
-                      <input type="email" class="form-control" formControlName="email" >
+                      <input type="email" class="form-control" formControlName="email" readonly>
                   </div>
                   <div class="mb-3">
                       <label for="telephone" class="form-label">Téléphone</label>
-                      <input type="text" class="form-control" formControlName="telephone" > </div>
+                      <input type="text" class="form-control" formControlName="telephone" readonly> </div>
 
                   <div class="mb-3">
                       <label for="sexe" class="form-label">Sexe <span class="text-danger">*</span></label>
@@ -205,7 +205,8 @@
                       <p><strong>Sexe :</strong> {{ selectedUserForView.sexe }}</p><br>
                       <p><strong>Rôle :</strong> {{ selectedUserForView.role?.libelle_role }}</p><br>
                       <p><strong>Actif :</strong> {{ selectedUserForView.active ? 'Oui' : 'Non' }}</p><br>
-                      <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'dd/MM/yyyy HH:mm' }}</p>   
+                      <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'dd/MM/yyyy HH:mm':'Africa/Porto-Novo' }}</p>
+                      <!-- {{ logValue(selectedUserForView.last_activity, 'Valeur brute de last_activity (profil)') }} -->
                   </div>
                   <div class="col-md-6 border-start ps-4" *ngIf="selectedUserForView.employe">
                       <h3>Informations Employé Associé </h3><br>
