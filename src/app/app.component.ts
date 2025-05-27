@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeModeService } from './core/services/theme-mode.service';
+import { IdleService } from './core/services/idle/idle.service';
 
 @Component({
   selector: 'app-root',
@@ -12,6 +13,11 @@ import { ThemeModeService } from './core/services/theme-mode.service';
 export class AppComponent {
   title = 'demo1';
 
-  constructor(private themeModeService: ThemeModeService) {}
-
+  constructor(private themeModeService: ThemeModeService, private idleService: IdleService) {}
+  ngOnInit(): void {
+    const isLoggedIn = localStorage.getItem('isLoggedin') === 'true';
+    if (isLoggedIn) {
+      this.idleService.startWatching();
+    }
+  }
 }
