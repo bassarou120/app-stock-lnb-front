@@ -361,9 +361,13 @@ export const MENU: MenuItem[] = [
         link: '/mouvement-stock/entrees',
       }
       ,
+      // {
+      //   label: 'Demande de sortie',
+      //   link: '/mouvement-stock/demande',
+      // },
       {
-        label: 'Demande de sortie',
-        link: '/mouvement-stock/demande',
+        label: 'Les demandes',
+        link: '/mouvement-stock/les-demandes',
       },
       {
         label: 'Sorties de Stock',
@@ -405,6 +409,11 @@ export const MENU: MenuItem[] = [
     link: '/vehicules'
   },
   {
+    label: 'Intervention Véhicules',
+    icon: 'pen-tool',
+    link: '/interventionvehicules'
+  },
+  {
     label: 'Tickets',
     icon: 'credit-card',
     subItems: [
@@ -426,7 +435,21 @@ export const MENU: MenuItem[] = [
         label: 'Retour Tickets',
         link: 'tickets/retour-ticket',
       },
+
+      {
+        label: 'Annulation de Tickets',
+        link: 'tickets/annulation-ticket',
+      },
     ]
+  },
+  {
+    label: 'Gestion des utilisateurs',
+    isTitle: true
+  },
+  {
+    label: 'Utilisateurs',
+    icon: 'users',
+    link: '/utilisateurs'
   },
   {
     label: 'Paramètres',

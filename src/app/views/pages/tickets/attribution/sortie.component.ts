@@ -50,8 +50,8 @@ export class SortieComponent implements OnInit {
 
 
   quantiteDisponible: number = 0;
-  coupon_ticket_id :number=0;
-  compagnie_petrolier_id  :number=0;
+  coupon_ticket_id: number = 0;
+  compagnie_petrolier_id: number = 0;
 
 
 
@@ -91,6 +91,7 @@ export class SortieComponent implements OnInit {
       objet: ["", []],
       qte: [1, [Validators.required]],
       date: ["", [Validators.required]],
+      trajet_aller_retour: [false, []],
     });
     this.editSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -106,6 +107,7 @@ export class SortieComponent implements OnInit {
       objet: ["", []],
       qte: [1, [Validators.required]],
       date: ["", [Validators.required]],
+      trajet_aller_retour: [false, []],
     });
     this.deleteSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -360,7 +362,7 @@ export class SortieComponent implements OnInit {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(sortie =>
-      sortie.description.toLowerCase().includes(val)
+      sortie.reference.toLowerCase().includes(val)
     );
 
     this.table.offset = 0;
@@ -412,81 +414,109 @@ export class SortieComponent implements OnInit {
     return employe ? `${employe.nom} ${employe.prenom}` : '';
   }
 
-//   updateQuantiteDisponibleCoupon() {
-//     const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
-//     console.log('ID du coupon sélectionné:', idCoupon);
+  //   updateQuantiteDisponibleCoupon() {
+  //     const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
+  //     console.log('ID du coupon sélectionné:', idCoupon);
 
-//     if (!idCoupon) {
-//       console.log('Aucun coupon sélectionné ou désélection effectuée');
-//       this.quantiteDisponibleCoupon = 0;
-//       return;
-//     }
+  //     if (!idCoupon) {
+  //       console.log('Aucun coupon sélectionné ou désélection effectuée');
+  //       this.quantiteDisponibleCoupon = 0;
+  //       return;
+  //     }
 
-//     this.sortieService.getQuantiteDisponibleCoupon(idCoupon).subscribe(
-//       (response) => {
-//         console.log('Quantité disponible:', response.data);
-//         this.quantiteDisponibleCoupon = response.data;
+  //     this.sortieService.getQuantiteDisponibleCoupon(idCoupon).subscribe(
+  //       (response) => {
+  //         console.log('Quantité disponible:', response.data);
+  //         this.quantiteDisponibleCoupon = response.data;
 
-//         // 🔥 On met à jour le validateur max du champ qte
-//         this.addSortie.get('qte')?.setValidators([
-//           Validators.required,
-//           Validators.min(1),
-//           Validators.max(this.quantiteDisponibleCoupon)
-//         ]);
-//         this.addSortie.get('qte')?.updateValueAndValidity();
+  //         // 🔥 On met à jour le validateur max du champ qte
+  //         this.addSortie.get('qte')?.setValidators([
+  //           Validators.required,
+  //           Validators.min(1),
+  //           Validators.max(this.quantiteDisponibleCoupon)
+  //         ]);
+  //         this.addSortie.get('qte')?.updateValueAndValidity();
 
-//       },
-//       (error) => {
-//         console.error('Erreur lors de la récupération de la quantité disponible:', error);
-//         this.quantiteDisponibleCoupon = 0;
-//       }
-//     );
+  //       },
+  //       (error) => {
+  //         console.error('Erreur lors de la récupération de la quantité disponible:', error);
+  //         this.quantiteDisponibleCoupon = 0;
+  //       }
+  //     );
 
-// }
-updateQuantiteDisponible() {
-  const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
-  console.log('ID de l\'article sélectionné:', idCoupon);
+  // }
+  updateQuantiteDisponible() {
+    const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
+    const idCompagnie = this.addSortie.get('compagnie_petrolier_id')?.value;
+    console.log('ID du coupon sélectionné:', idCoupon);
 
-  if (!idCoupon) {
-    console.log('Aucun article sélectionné ou désélection effectuée');
-    this.quantiteDisponible = 0;
-    return;
-  }
-
-  this.sortieService.getQuantiteDisponible(idCoupon).subscribe(
-    (response) => {
-      console.log('Quantité disponible:', response.data);
-      this.quantiteDisponible = response.data;
-
-      // 🔥 On met à jour le validateur max du champ qte
-  const qteControl = this.addSortie.get('qte');
-  qteControl?.setValidators([
-    Validators.required,
-    Validators.min(1),
-    Validators.max(this.quantiteDisponible)
-  ]);
-  qteControl?.updateValueAndValidity();
-
-    },
-    (error) => {
-      console.error('Erreur lors de la récupération de la quantité disponible:', error);
+    if (!idCoupon) {
+      console.log('Aucun article sélectionné ou désélection effectuée');
       this.quantiteDisponible = 0;
+      return;
     }
-  );
 
-}
+    this.sortieService.getQuantiteDisponible(idCoupon, idCompagnie).subscribe(
+      (response) => {
+        console.log('Quantité disponible:', response.data);
+        this.quantiteDisponible = response.data;
 
-onCouponSelected(event: any): void {
-  const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === event);
+        // 🔥 On met à jour le validateur max du champ qte
+        const qteControl = this.addSortie.get('qte');
+        qteControl?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(this.quantiteDisponible)
+        ]);
+        qteControl?.updateValueAndValidity();
 
-  if (selectedItem) {
-    this.coupon_ticket_id = selectedItem.coupon_ticket_id;
-    this.compagnie_petrolier_id = selectedItem.compagnie_petrolier_id;
+      },
+      (error) => {
+        console.error('Erreur lors de la récupération de la quantité disponible:', error);
+        this.quantiteDisponible = 0;
+      }
+    );
 
-    console.log('Coupon ID:', this.coupon_ticket_id);
-    console.log('Compagnie ID:', this.compagnie_petrolier_id);
   }
-}
+
+  onCouponSelected(event: any): void {
+    if (event) {
+      this.coupon_ticket_id = event.coupon_ticket_id;
+      this.compagnie_petrolier_id = event.compagnie_petrolier_id;
+
+      console.log('Coupon ID:', this.coupon_ticket_id);
+      console.log('Compagnie ID:', this.compagnie_petrolier_id);
+
+      this.addSortie.patchValue({
+        coupon_ticket_id: this.coupon_ticket_id,
+        compagnie_petrolier_id: this.compagnie_petrolier_id
+      });
+      this.updateQuantiteDisponible();
+
+    }
+  }
+
+  calculerQuantiteTicket() {
+    const data = {
+      commune_depart: this.addSortie.get('commune_depart')?.value,
+      commune_arriver: this.addSortie.get('commune_arriver')?.value,
+      trajet_aller_retour: this.addSortie.get('trajet_aller_retour')?.value,
+      coupon_ticket_id: this.addSortie.get('coupon_ticket_id')?.value,
+    };
+
+    // Appelle le service
+    this.sortieService.getQuantiteTicketAttribution(data).subscribe({
+      next: (res) => {
+        this.addSortie.patchValue({ qte: res.qteTicket });
+      },
+      error: (err) => {
+        console.error('Erreur de calcul de ticket', err);
+        // Tu peux aussi afficher un message d'erreur à l'utilisateur ici
+      },
+    });
+  }
+
+
 
 
 

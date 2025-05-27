@@ -3,7 +3,7 @@ import { Observable} from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
-import { MouvementStock, Article, Bureau, Employe } from "../interface/models";
+import { MouvementStock, Article, Bureau, Employe, MouvementStockGrouped } from "../interface/models";
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -13,6 +13,12 @@ export class MouvementStockService  {
   private url: string = environment.backend;
 
   constructor(private http: HttpClient) {}
+
+
+
+  getSortieStockGrouped(): Observable<{ success: boolean; message: string; data: MouvementStockGrouped[] }> {
+    return this.http.get<{ success: boolean; message: string; data: MouvementStockGrouped[] }>(`${this.url}/mouvement-stock/sortie/indexSortieStockGrouped`);
+  }
 
   getAllMouvementStockSortie(): Observable<MouvementStock[]> {
     return this.http.get<{ success: boolean; message: string; data: { data: MouvementStock[] } }>(
@@ -73,4 +79,12 @@ export class MouvementStockService  {
   updateDemandeStock(id: number, data: { statut: string }): Observable<any> {
     return this.http.patch<any>(`${this.url}/mouvement-stock/sortie/${id}`, data);
   }
+  validerDemandeGroupee(data: { statut: string }): Observable<any> {
+    return this.http.post<any>(`${this.url}/mouvement-stock/demande-sortie/tout-valider`, data);
+  }
+
+
+
+
+
 }

@@ -24,8 +24,8 @@ export class MouvementStockService  {
     );
   }
 
-  saveMouvementStockEntree(data: MouvementStock): Observable<MouvementStock> {
-    return this.http.post<MouvementStock>(`${this.url}/mouvement-stock/entree`, data);
+  saveMouvementStockEntree(formData: FormData): Observable<MouvementStock> {
+    return this.http.post<MouvementStock>(`${this.url}/mouvement-stock/entree`, formData);
   }
 
   editMouvementStockEntree(data: MouvementStock): Observable<MouvementStock> {

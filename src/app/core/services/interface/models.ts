@@ -19,6 +19,16 @@ export interface RetourTicket {
   updated_at: string;
 }
 
+export interface AnnulationTicket {
+  id: number;
+  mouvementTicket_id: number;
+  coupon_ticket_id: number;
+  compagnie_petrolier_id: number;
+  qte: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CouponTicket {
   id: number;
   libelle: string;
@@ -194,7 +204,34 @@ export interface MouvementStock {
   created_at: string;
   updated_at: string;
   statut?: string;
+  piece_jointe_mouvement?: string;
+
+  // Champs supplémentaires fournis par l’API
+  code_mouvement?: string;
+  dateDemande?: string;
+  article?: {
+    libelle: string;
+    code_article: string;
+  };
+  bureau?: {
+    libelle_bureau: string;
+  };
+  employe?: {
+    fullnameEmploye: string;
+  };
 }
+
+export interface MouvementStockGrouped {
+  code_mouvement: string;
+  personnel: string;
+  bureau: string;
+  dateDemande: string;
+  dateCreation: string;
+  statut: string;
+  totalArticles: number;
+  details: MouvementStock[];
+}
+
 
 export interface MouvementTicket {
   id: number;
@@ -226,6 +263,38 @@ export interface Intervention {
   created_at: string;
   updated_at: string;
 }
+
+export interface InterventionVehicule {
+  id: number;
+  vehicule_id: number;
+  date_intervention: string;
+  titre: string;
+  montant: number;
+  observation: string;
+  created_at: string;
+  updated_at: string;
+  commune_depart_id: number;
+  commune_arrivee_id: number;
+}
+
+export interface Utilisateur {
+  id: string; // Ou number si tes IDs sont numériques
+  name: string;
+  surname: string;
+  email: string;
+  phone: string;
+  sexe: 'Masculin' | 'Féminin';
+  active: boolean;
+  photo?: string; // Optionnel
+  role_id: number; // ID du rôle
+  role?: Role; // Relation avec le rôle (sera chargée si eager loaded)
+  employe_id?: number; // ID de l'employé (si la colonne existe et est utilisée)
+  employe?: Employe; // Relation avec l'employé (sera chargée si eager loaded)
+  last_activity?: Date; // Si tu as ce champ
+  created_at?: Date;
+  updated_at?: Date;
+}
+
 
 export interface Transfert {
   id: number;
@@ -275,3 +344,29 @@ export interface Immobilisation {
   created_at: string;
   updated_at: string;
 }
+
+export interface   Role {
+  id: number;
+  libelle_role: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  surname?: string;
+  photo?: string;
+  sexe: string;
+  last_activity: string;
+  active: boolean;
+  email: string;
+  phone: string;
+  role_id: number;
+  role: Role;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: User;
+  perm: any[]; // remplace `any` si tu veux typer les permissions
+}
+

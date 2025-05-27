@@ -1,0 +1,278 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink="/parametrage/utilisateurs">Utilisateurs</a></li>
+  </ol>
+</nav>
+
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Utilisateur Ajouté avec succès
+</ngb-alert>
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Utilisateur Modifié avec succès
+</ngb-alert>
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Utilisateur Supprimé avec succès
+</ngb-alert>
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Utilisateurs</h4>
+          <p class="text-secondary">Liste des Utilisateurs</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_user">
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Utilisateurs</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher par nom..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Nom" prop="name"></ngx-datatable-column>
+            <ngx-datatable-column name="Prénom" prop="surname"></ngx-datatable-column>
+            <ngx-datatable-column name="Email" prop="email"></ngx-datatable-column>  
+            <ngx-datatable-column name="Téléphone" prop="phone"></ngx-datatable-column>
+            <ngx-datatable-column name="Sexe" prop="sexe"></ngx-datatable-column>
+            <ngx-datatable-column name="Rôle">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.role?.libelle_role || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                       data-bs-target="#edit_user" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                            data-bs-target="#delete_user" (click)="getDeleteForm(row)">
+                            <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center"
+                      data-bs-toggle="modal"
+                      data-bs-target="#view_user_profile" (click)="onViewUserProfile(row)"> 
+                      <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span>Voir Profil</span>
+                    </a>
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ---
+
+### Modale d'ajout d'utilisateur (`#add_user`) -->
+
+<div class="modal fade" id="add_user" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="staticBackdropLabel">Ajouter un utilisateur</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <form [formGroup]="addUserForm" (ngSubmit)="onClickSubmitAddUser()">
+                  <div class="mb-3">
+                      <label for="employeSelect" class="form-label">Sélectionner un employé <span class="text-danger">*</span></label>
+                      <ng-select [items]="employes"
+                                 bindLabel="nom"         bindValue="id"
+                                 placeholder="Choisir un employé"
+                                 formControlName="employe_id"
+                                 (change)="onEmployeSelected($event)">
+                          <ng-template ng-option-tmp let-item="item">
+                              {{ item.nom }} {{ item.prenom }} </ng-template>
+                      </ng-select>
+                      <div *ngIf="addUserForm.get('employe_id')?.invalid && (addUserForm.get('employe_id')?.dirty || addUserForm.get('employe_id')?.touched)" class="text-danger">
+                          L'employé est requis.
+                      </div>
+                  </div>
+
+                  <div class="mb-3">
+                      <label for="nom" class="form-label">Nom</label>
+                      <input type="text" class="form-control" formControlName="nom" > </div>
+                  <!-- <div class="mb-3">
+                      <label for="surname" class="form-label">Prénom</label>
+                      <input type="text" class="form-control" formControlName="surname" readonly>
+                  </div> -->
+                  <div class="mb-3">
+                      <label for="email" class="form-label">Email</label>
+                      <input type="email" class="form-control" formControlName="email" >
+                  </div>
+                  <div class="mb-3">
+                      <label for="telephone" class="form-label">Téléphone</label>
+                      <input type="text" class="form-control" formControlName="telephone" > </div>
+
+                  <div class="mb-3">
+                      <label for="sexe" class="form-label">Sexe <span class="text-danger">*</span></label>
+                      <ng-select [items]="sexeOptions"
+                                 bindLabel="label"
+                                 bindValue="value"
+                                 placeholder="Sélectionner le sexe"
+                                 formControlName="sexe">
+                      </ng-select>
+                      <div *ngIf="addUserForm.get('sexe')?.invalid && (addUserForm.get('sexe')?.dirty || addUserForm.get('sexe')?.touched)" class="text-danger">
+                          Le sexe est requis.
+                      </div>
+                  </div>
+                  <div class="mb-3">
+                      <label for="role_id" class="form-label">Rôle <span class="text-danger">*</span></label>
+                      <ng-select [items]="roles"
+                                 bindLabel="libelle_role"
+                                 bindValue="id"
+                                 placeholder="Sélectionner le rôle"
+                                 formControlName="role_id">
+                      </ng-select>
+                      <div *ngIf="addUserForm.get('role_id')?.invalid && (addUserForm.get('role_id')?.dirty || addUserForm.get('role_id')?.touched)" class="text-danger">
+                          Le rôle est requis.
+                      </div>
+                  </div>
+                  <!-- <div class="mb-3">
+                      <label for="password" class="form-label">Mot de passe <span class="text-danger">*</span></label>
+                      <input type="password" class="form-control" id="password" formControlName="password">
+                      <div *ngIf="addUserForm.get('password')?.invalid && (addUserForm.get('password')?.dirty || addUserForm.get('password')?.touched)" class="text-danger">
+                          Le mot de passe est requis et doit contenir au moins 8 caractères.
+                      </div>
+                  </div> -->
+                  <div class="mb-3 form-check">
+                      <input type="checkbox" class="form-check-input" id="active" formControlName="active">
+                      <label class="form-check-label" for="active">Actif</label>
+                  </div>
+                  <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+                      <button type="submit" class="btn btn-primary" [disabled]="loading">
+                          <span *ngIf="loading" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                          Ajouter
+                      </button>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="modal fade" id="view_user_profile" tabindex="-1" aria-labelledby="viewUserProfileLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="viewUserProfileLabel">Profil Utilisateur</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body" *ngIf="selectedUserForView">
+              <div class="row">
+                  <div class="col-md-12 text-center mb-3">
+                    <img src="images/faces/user.png" alt="Avatar par défaut" class="img-fluid rounded-circle" style="max-width: 100px; max-height: 100px;">
+                  </div>
+                  <div class="col-md-6">
+                      <h3>Informations Utilisateur</h3><br>
+                      <p><strong>Nom :</strong> {{ selectedUserForView.name }}</p><br>
+                      <p><strong>Prénom :</strong> {{ selectedUserForView.surname }}</p><br>
+                      <p><strong>Email :</strong> {{ selectedUserForView.email }}</p><br>
+                      <p><strong>Téléphone :</strong> {{ selectedUserForView.phone }}</p><br>
+                      <p><strong>Sexe :</strong> {{ selectedUserForView.sexe }}</p><br>
+                      <p><strong>Rôle :</strong> {{ selectedUserForView.role?.libelle_role }}</p><br>
+                      <p><strong>Actif :</strong> {{ selectedUserForView.active ? 'Oui' : 'Non' }}</p><br>
+                      <p><strong>Dernière Activité :</strong> {{ selectedUserForView.last_activity | date:'short' }}</p>
+                  </div>
+                  <div class="col-md-6 border-start ps-4" *ngIf="selectedUserForView.employe">
+                      <h3>Informations Employé Associé </h3><br>
+                      <p><strong>Nom de l'employé :</strong> {{ selectedUserForView.employe.nom }}</p><br>
+                      <!-- <p *ngIf="selectedUserForView.employe.prenom"><strong>Prénom de l'employé :</strong> {{ selectedUserForView.employe.prenom }}</p><br> -->
+                      <p><strong>Email de l'employé :</strong> {{ selectedUserForView.employe.email }}</p><br>
+                      <p><strong>Téléphone de l'employé :</strong> {{ selectedUserForView.employe.telephone }}</p><br>
+                      <!-- <p *ngIf="selectedUserForView.employe.adresse"><strong>Adresse de l'employé :</strong> {{ selectedUserForView.employe.adresse }}</p><br>
+                      <p *ngIf="selectedUserForView.employe.date_embauche"><strong>Date d'embauche :</strong> {{ selectedUserForView.employe.date_embauche | date:'shortDate' }}</p><br>
+                      <p *ngIf="selectedUserForView.employe.poste"><strong>Poste :</strong> {{ selectedUserForView.employe.poste }}</p> -->
+                  </div>
+                  <div class="col-md-12" *ngIf="!selectedUserForView.employe">
+                      <p class="text-muted">Aucun employé associé à cet utilisateur.</p>
+                  </div>
+              </div>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fermer</button>
+          </div>
+      </div>
+  </div>
+</div>
+
+<ng-template #editUserContent let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="editUserLabel">Modifier l'utilisateur</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <form [formGroup]="editUserForm" (ngSubmit)="onClickSubmitEditUser()">
+    <div class="modal-body">
+      <input type="hidden" formControlName="id">
+
+      <div class="mb-3">
+        <label for="edit_role_id" class="form-label">Rôle</label>
+        <select class="form-control" id="edit_role_id" formControlName="role_id">
+          <option [ngValue]="null" disabled>Sélectionnez un rôle</option>
+          <option *ngFor="let role of roles" [ngValue]="role.id">{{ role.libelle_role }}</option>
+        </select>
+        <div *ngIf="editUserForm.get('role_id')?.invalid && editUserForm.get('role_id')?.touched" class="text-danger">
+          Le rôle est requis.
+        </div>
+      </div>
+
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="edit_active" formControlName="active">
+        <label class="form-check-label" for="edit_active">Actif</label>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+      <button type="submit" class="btn btn-primary">
+        Modifier
+        <span class="spinner-border spinner-border-sm d-none spinnerEdit" role="status" aria-hidden="true"></span>
+      </button>
+    </div>
+  </form>
+</ng-template>
+
+<ng-template #deleteUserContent let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title" id="deleteUserLabel">Confirmer la suppression</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <div class="modal-body">
+    Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+    <button type="button" class="btn btn-danger" (click)="onClickSubmitDeleteUser()">Supprimer</button>
+  </div>
+</ng-template>

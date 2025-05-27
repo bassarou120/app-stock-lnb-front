@@ -22,4 +22,8 @@ export default [
     path: 'retour-ticket',
     loadComponent: () => import('./retour-ticket/retour-ticket.component').then(c => c.RetourTicketComponent),
   },
+  {
+    path: 'annulation-ticket',
+    loadComponent: () => import('./annulation-ticket/annulation-ticket.component').then(c => c.AnnulationTicketComponent),
+  },
 ] as Routes;

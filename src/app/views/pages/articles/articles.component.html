@@ -61,6 +61,7 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Code Article" prop="code_article"></ngx-datatable-column>
             <ngx-datatable-column name="Articles" prop="libelle"></ngx-datatable-column>
             <ngx-datatable-column name="Catégorie">
               <ng-template let-row="row" ngx-datatable-cell-template>
@@ -100,9 +101,9 @@
   </div>
 </div>
 
-<!-- Add article  Modal -->
+<!-- Add article Modal -->
 <div id="add_article" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-xl">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen">
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
@@ -111,26 +112,37 @@
       </div>
 
       <!-- Contenu du modal -->
-      <div class="modal-body">
+      <div class="modal-body p-4">
         <form class="forms-sample" [formGroup]="addArticle" (ngSubmit)="onClickSubmitAddArticles()" novalidate>
 
-          <!-- En-têtes du tableau -->
-          <div class="row mb-2 fw-bold">
-            <div class="col-3">Article <span class="text-danger">*</span></div>
-            <div class="col-3">Catégorie <span class="text-danger">*</span></div>
-            <div class="col-4">Description <span class="text-danger">*</span></div>
-            <div class="col-1">Stock d'alerte <span class="text-danger">*</span></div>
-            <div class="col-1">Action</div>
+          <!-- En-têtes du tableau avec meilleur espacement -->
+          <div class="row mb-3 fw-bold border-bottom pb-2">
+            <div class="col-2 text-center">Code<span class="text-danger">*</span></div>
+            <div class="col-3 text-center">Article<span class="text-danger">*</span></div>
+            <div class="col-2 text-center">Catégorie<span class="text-danger">*</span></div>
+            <div class="col-3 text-center">Description<span class="text-danger">*</span></div>
+            <div class="col-1 text-center">Stock d'alerte<span class="text-danger">*</span></div>
+            <div class="col-1 text-center">Action</div>
           </div>
 
           <!-- Formulaire dynamique pour les articles -->
-          <div formArrayName="articles">
+          <div formArrayName="articles" class="mb-4">
             <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i"
-              class="row mb-3 align-items-center">
+              class="row mb-4 align-items-start border-bottom pb-3">
+
+              <!-- Code article -->
+              <div class="col-2">
+                <input type="text" class="form-control form-control-lg" placeholder="Code Article" formControlName="code_article"
+                  [class.is-invalid]="articleForm.get('code_article')?.invalid && articleForm.get('code_article')?.touched">
+                <div *ngIf="articleForm.get('code_article')?.invalid && articleForm.get('code_article')?.touched"
+                  class="invalid-feedback">
+                  Le code de l'Article est obligatoire
+                </div>
+              </div>
 
               <!-- Nom de l'article -->
               <div class="col-3">
-                <input type="text" class="form-control" placeholder="Nom de l'Article" formControlName="libelle"
+                <input type="text" class="form-control form-control-lg" placeholder="Nom de l'Article" formControlName="libelle"
                   [class.is-invalid]="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched">
                 <div *ngIf="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched"
                   class="invalid-feedback">
@@ -139,26 +151,27 @@
               </div>
 
               <!-- Sélection de catégorie -->
-              <div class="col-3">
+              <div class="col-2">
                 <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
                   <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
-                    formControlName="id_cat" [clearable]="true" placeholder="Sélectionner la catégorie">
+                    formControlName="id_cat" [clearable]="true" placeholder="Sélectionner la catégorie"
+                    class="ng-select-lg">
                   </ng-select>
                   <div *ngIf="articleForm.get('id_cat')?.invalid && articleForm.get('id_cat')?.touched"
-                    class="text-danger small">
+                    class="text-danger small mt-1">
                     La catégorie est obligatoire
                   </div>
                 </ng-container>
                 <ng-template #noCategorie>
-                  <div class="alert alert-danger p-1 small">
+                  <div class="alert alert-danger p-2 small mb-0">
                     <i class="feather icon-alert-circle"></i> Aucune catégorie disponible
                   </div>
                 </ng-template>
               </div>
 
               <!-- Description -->
-              <div class="col-4">
-                <input type="text" class="form-control" placeholder="Description" formControlName="description"
+              <div class="col-3">
+                <input type="text" class="form-control form-control-lg" placeholder="Description" formControlName="description"
                   [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
                 <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched"
                   class="invalid-feedback">
@@ -168,7 +181,7 @@
 
               <!-- Stock d'alerte -->
               <div class="col-1">
-                <input type="number" class="form-control" placeholder="Stock d'alerte" formControlName="stock_alerte"
+                <input type="number" class="form-control form-control-lg text-center" placeholder="Stock" formControlName="stock_alerte"
                   [class.is-invalid]="articleForm.get('stock_alerte')?.invalid && articleForm.get('stock_alerte')?.touched">
                 <div *ngIf="articleForm.get('stock_alerte')?.invalid && articleForm.get('stock_alerte')?.touched"
                   class="invalid-feedback">
@@ -177,8 +190,8 @@
               </div>
 
               <!-- Bouton de suppression -->
-              <div class="col-1">
-                <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeArticle(i)"
+              <div class="col-1 text-center">
+                <button type="button" class="btn btn-outline-danger btn-lg" (click)="removeArticle(i)"
                   [disabled]="articlesArray.length === 1">
                   <i class="feather icon-trash-2"></i>
                 </button>
@@ -187,20 +200,23 @@
           </div>
 
           <!-- Bouton pour ajouter un nouvel article -->
-          <div class="d-flex justify-content-start mb-3">
-            <button type="button" class="btn btn-outline-primary btn-sm" (click)="addNewArticle()">
-              <i class="feather icon-plus"></i>
+          <div class="d-flex justify-content-start mb-4">
+            <button type="button" class="btn btn-outline-primary btn-lg" (click)="addNewArticle()">
+              <i class="feather icon-plus me-2"></i>Ajouter un article
             </button>
           </div>
 
           <!-- Boutons d'actions -->
-          <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+          <div class="d-flex justify-content-center gap-3 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg px-4">
+              <div class="spinner-border spinner-border-sm text-light d-none me-2" role="status">
                 <span class="visually-hidden">Loading...</span>
-              </div> Enrégistrer les articles
+              </div>
+              <i class="feather icon-save me-2"></i>Enregistrer les articles
             </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">
+              <i class="feather icon-x me-2"></i>Annuler
+            </button>
           </div>
         </form>
       </div>

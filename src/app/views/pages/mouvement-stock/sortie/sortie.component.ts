@@ -296,7 +296,7 @@ export class SortieComponent implements OnInit {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(sortie =>
-      sortie.description.toLowerCase().includes(val)
+      sortie.code_mouvement?.toLowerCase().includes(val)
     );
 
     this.table.offset = 0;

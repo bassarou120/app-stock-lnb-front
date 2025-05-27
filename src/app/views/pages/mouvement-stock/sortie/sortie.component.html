@@ -64,6 +64,7 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Code" prop="code_mouvement"></ngx-datatable-column>
             <ngx-datatable-column name="Article">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.article?.libelle || 'N/A' }}
@@ -72,7 +73,7 @@
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
             <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
-            <ngx-datatable-column name="Employé">
+            <ngx-datatable-column name="Personnel">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.affectation?.employe?.full_name || 'Non défini' }}
               </ng-template>

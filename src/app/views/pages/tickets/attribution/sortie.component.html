@@ -51,7 +51,7 @@
         <h6 class="card-title">Liste des Attribution de Ticket</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+            <input type="text" class="form-control form-control-sm" placeholder="MVT..."
               (keyup)="updateFilter($event)" />
           </div>
         </div>
@@ -104,7 +104,7 @@
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
             <ngx-datatable-column name="Date" prop="date"></ngx-datatable-column>
-            <ngx-datatable-column name="Actions">
+            <!-- <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -112,17 +112,17 @@
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#edit_sortie" (click)="getEditForm(row)">
+                      data-bs-target="#edit_sortie" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#delete_sortie" (click)="getDeleteForm(row)">
+                      data-bs-target="#delete_sortie" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
                   </div>
                 </div>
               </ng-template>
-            </ngx-datatable-column>
+            </ngx-datatable-column> -->
           </ngx-datatable>
         </div>
       </div>
@@ -133,7 +133,7 @@
 
 <!-- Add mouvement sortie -->
 <div id="add_sortie" class="modal fade" tabindex="-1" aria-labelledby="addSortieLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
@@ -144,210 +144,224 @@
       <!-- Contenu du modal -->
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="addSortie" (ngSubmit)="onClickSubmitAddSortie()" novalidate>
+          <div class="row">
+            <!-- Colonne de gauche -->
+            <div class="col-md-6">
+              <!-- Sélectionner un coupon -->
+              <div class="mb-3">
+                <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
 
-          <!-- Sélectionner un coupon -->
-          <div class="mb-3">
-            <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
+                <ng-container
+                  *ngIf="couponTicketsWithCompagnies && couponTicketsWithCompagnies.length > 0; else noCouponTickets">
+                  <ng-select [items]="couponTicketsWithCompagnies" bindLabel="displayLabel" bindValue="id"
+                    formControlName="coupon_ticket_id" [clearable]="true" placeholder="Sélectionnez le Coupon Ticket"
+                    (change)="onCouponSelected($event)">
+                  </ng-select>
 
-            <ng-container *ngIf="couponTicketsWithCompagnies && couponTicketsWithCompagnies.length > 0; else noCouponTickets">
-              <ng-select
-              [items]="couponTicketsWithCompagnies"
-              bindLabel="displayLabel"
-              bindValue="id"
-              formControlName="coupon_ticket_id"
-              [clearable]="true"
-              placeholder="Sélectionnez le Coupon Ticket">
-            </ng-select>
+                  <div *ngIf="addSortie.get('coupon_ticket_id')?.invalid && addSortie.get('coupon_ticket_id')?.touched">
+                    <small class="text-danger"> *Le coupon est obligatoire</small>
+                  </div>
+                </ng-container>
 
-              <div *ngIf="addSortie.get('coupon_ticket_id')?.invalid && addSortie.get('coupon_ticket_id')?.touched">
-                <small class="text-danger"> *Le coupon est obligatoire</small>
+                <!-- Message si aucun CouponTicket n'existe -->
+                <ng-template #noCouponTickets>
+                  <div class="alert alert-danger"
+                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                    <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
+                  </div>
+                </ng-template>
               </div>
-            </ng-container>
-
-            <!-- Message si aucun CouponTicket n'existe -->
-            <ng-template #noCouponTickets>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
+              <!-- commune_depart -->
+              <div class="mb-3">
+                <label for="commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
+                <ng-container *ngIf="communes && communes.length > 0; else noCommunesDepart">
+                  <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id"
+                    formControlName="commune_depart" [clearable]="true" placeholder="Sélectionnez la commune de départ">
+                  </ng-select>
+                  <div *ngIf="addSortie.get('commune_depart')?.invalid && addSortie.get('commune_depart')?.touched">
+                    <small class="text-danger"> *La commune de départ est obligatoire</small>
+                  </div>
+                </ng-container>
+                <ng-template #noCommunesDepart>
+                  <div class="alert alert-danger"
+                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                    <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+                  </div>
+                </ng-template>
               </div>
-            </ng-template>
-          </div>
 
-          <!-- Qte -->
-          <div class="mb-3">
-            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [attr.max]="quantiteDisponible" min="1"
-              [class.invalid]="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched" formControlName="qte">
-            <div class="text-danger mt-2">
-              <small>Quantité disponible : {{ quantiteDisponible }}</small>
-            </div>
-            <div *ngIf="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched">
-              <small *ngIf="addSortie.get('qte')?.errors?.['required']" class="text-danger">* La quantité est obligatoire</small>
-              <small *ngIf="addSortie.get('qte')?.errors?.['min']" class="text-danger">* La quantité doit être au moins 1</small>
-              <small *ngIf="addSortie.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas dépasser {{ quantiteDisponible }}</small>
-            </div>
-          </div>
-
-          <!-- Vehicule -->
-          <div class="mb-3">
-            <label for="sortie" class="form-label">Véhicule<span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehicule">
-              <ng-select [items]="vehicules" bindLabel="immatriculation" bindValue="id" formControlName="vehicule_id"
-                [clearable]="true" placeholder="Sélectionnez le véhicule">
-              </ng-select>
-
-              <div *ngIf="addSortie.get('vehicule_id')?.invalid && addSortie.get('vehicule_id')?.touched">
-                <small class="text-danger"> *Le vehicule est obligatoire</small>
+              <!-- commune_arriver -->
+              <div class="mb-3">
+                <label for="commune_arriver" class="form-label">Commune Arrivée <span
+                    class="text-danger">*</span></label>
+                <ng-container *ngIf="communes && communes.length > 0; else noCommunesArriver">
+                  <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id"
+                    formControlName="commune_arriver" [clearable]="true"
+                    placeholder="Sélectionnez la commune d'arrivée">
+                  </ng-select>
+                  <div *ngIf="addSortie.get('commune_arriver')?.invalid && addSortie.get('commune_arriver')?.touched">
+                    <small class="text-danger"> *La commune d'arrivée est obligatoire</small>
+                  </div>
+                </ng-container>
+                <ng-template #noCommunesArriver>
+                  <div class="alert alert-danger"
+                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                    <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+                  </div>
+                </ng-template>
               </div>
-            </ng-container>
-            <!-- commune_depart -->
-            <div class="mb-3">
-              <label for="commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
-              <ng-container *ngIf="communes && communes.length > 0; else noCommunesDepart">
-                <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_depart"
-                  [clearable]="true" placeholder="Sélectionnez la commune de départ">
-                </ng-select>
-                <div *ngIf="addSortie.get('commune_depart')?.invalid && addSortie.get('commune_depart')?.touched">
-                  <small class="text-danger"> *La commune de départ est obligatoire</small>
+
+              <div class="d-flex justify-content-center align-items-center gap-3">
+                <!-- Aller retour -->
+                <div class="mb-3">
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="trajet_aller_retour" formControlName="trajet_aller_retour">
+                    <label class="form-check-label" for="trajet_aller_retour">Aller-Retour</label>
+                  </div>
                 </div>
-              </ng-container>
-              <ng-template #noCommunesDepart>
-                <div class="alert alert-danger"
-                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                  <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+                <!-- Button -->
+                <button type="button" class="btn btn-outline-primary btn-icon-text mb-2 mb-md-0" (click)="calculerQuantiteTicket()">
+                  déterminer la qte
+                </button>
+              </div>
+
+
+
+              <!-- Qte -->
+              <div class="mb-3">
+                <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+                  [attr.max]="quantiteDisponible" min="1"
+                  [class.invalid]="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched"
+                  formControlName="qte">
+                <div class="text-danger mt-2">
+                  <small>Quantité disponible : {{ quantiteDisponible }}</small>
                 </div>
-              </ng-template>
-            </div>
-            <!-- commune_arriver -->
-            <div class="mb-3">
-              <label for="commune_arriver" class="form-label">Commune Arrivée <span class="text-danger">*</span></label>
-              <ng-container *ngIf="communes && communes.length > 0; else noCommunesArriver">
-                <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_arriver"
-                  [clearable]="true" placeholder="Sélectionnez la commune d'arrivée">
-                </ng-select>
-                <div *ngIf="addSortie.get('commune_arriver')?.invalid && addSortie.get('commune_arriver')?.touched">
-                  <small class="text-danger"> *La commune d'arrivée est obligatoire</small>
+                <div *ngIf="addSortie.get('qte')?.invalid && addSortie.get('qte')?.touched">
+                  <small *ngIf="addSortie.get('qte')?.errors?.['required']" class="text-danger">* La quantité est
+                    obligatoire</small>
+                  <small *ngIf="addSortie.get('qte')?.errors?.['min']" class="text-danger">* La quantité doit être au
+                    moins 1</small>
+                  <small *ngIf="addSortie.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas
+                    dépasser {{ quantiteDisponible }}</small>
                 </div>
-              </ng-container>
-              <ng-template #noCommunesArriver>
-                <div class="alert alert-danger"
-                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                  <i class="feather icon-alert-circle"></i> Aucune Commune. Veuillez en créer.
+              </div>
+
+
+            </div>
+
+            <!-- Colonne de droite -->
+            <div class="col-md-6">
+
+              <!-- Vehicule -->
+              <div class="mb-3">
+                <label for="sortie" class="form-label">Véhicule<span class="text-danger">*</span></label>
+
+                <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehicule">
+                  <ng-select [items]="vehicules" bindLabel="immatriculation" bindValue="id"
+                    formControlName="vehicule_id" [clearable]="true" placeholder="Sélectionnez le véhicule">
+                  </ng-select>
+
+                  <div *ngIf="addSortie.get('vehicule_id')?.invalid && addSortie.get('vehicule_id')?.touched">
+                    <small class="text-danger"> *Le vehicule est obligatoire</small>
+                  </div>
+                </ng-container>
+
+                <!-- Message si aucun vehicule n'existe -->
+                <ng-template #noVehicule>
+                  <div class="alert alert-danger"
+                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                    <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
+                  </div>
+                </ng-template>
+              </div>
+
+              <!-- kilometre -->
+              <div class="mb-3">
+                <label for="kilometrage" class="form-label">Kilometrage <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
+                  [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched"
+                  formControlName="kilometrage">
+                <div *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched">
+                  <small *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched"
+                    class="text-danger"> *Le kilometrage
+                    est obligatoire</small>
                 </div>
-              </ng-template>
-            </div>
-
-
-            <!-- Message si aucun vehicule n'existe -->
-            <ng-template #noVehicule>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
               </div>
-            </ng-template>
-          </div>
 
-          <!-- Sélectionner une compagnie_petrolier -->
-          <div class="mb-3">
-            <label for="fournisseur" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
+              <!-- Sélectionner un employe -->
+              <div class="mb-3">
+                <label for="employe" class="form-label">Personnel</label>
 
-            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolier">
-              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
-                [clearable]="true" placeholder="Sélectionnez la compagnie pétrolière">
-              </ng-select>
+                <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
+                  <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="employe_id"
+                    [clearable]="true" placeholder="Sélectionnez le Personnel">
+                  </ng-select>
 
-              <div *ngIf="addSortie.get('compagnie_petrolier_id')?.invalid && addSortie.get('compagnie_petrolier_id')?.touched">
-                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
+                  <div *ngIf="addSortie.get('employe_id')?.invalid && addSortie.get('employe_id')?.touched">
+                    <small class="text-danger"> *Le personnel est obligatoire</small>
+                  </div>
+                </ng-container>
+
+                <!-- Message si aucun employe n'existe -->
+                <ng-template #noEmploye>
+                  <div class="alert alert-danger"
+                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                    <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
+                  </div>
+                </ng-template>
               </div>
-            </ng-container>
 
-            <!-- Message si aucune Compagnie_petrolier n'existe -->
-            <ng-template #noCompagnie_petrolier>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolier. Veuillez en créer.
+              <!-- Objet -->
+              <div class="mb-3">
+                <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
+                <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
+                  [class.invalid]="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched"
+                  formControlName="objet">
+                <div *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched">
+                  <small *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" class="text-danger">
+                    *L'objet
+                    est obligatoire</small>
+                </div>
               </div>
-            </ng-template>
-          </div>
 
-
-          <!-- kilometre -->
-          <div class="mb-3">
-            <label for="kilometrage" class="form-label">kilometrage <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
-              [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" formControlName="kilometrage">
-            <div *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched">
-              <small *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" class="text-danger"> *le kilometrage
-                est obligatoire</small>
-            </div>
-          </div>
-
-          <!-- Sélectionner un employe -->
-          <div class="mb-3">
-            <label for="employe" class="form-label">Personel</label>
-
-            <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
-              <ng-select [items]="employes" bindLabel="fullName" bindValue="id" formControlName="employe_id"
-                [clearable]="true" placeholder="Sélectionnez le Personnel">
-              </ng-select>
-
-              <div *ngIf="addSortie.get('employe_id')?.invalid && addSortie.get('employe_id')?.touched">
-                <small class="text-danger"> *Le personel est obligatoire</small>
+              <!--  date_mouvement -->
+              <div class="mb-3">
+                <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
+                    <i data-feather="calendar"></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+                    [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
+                </div>
+                <div *ngIf="addSortie.get('date')?.invalid && addSortie.get('date')?.touched">
+                  <small class="text-danger"> *La date du mouvement est obligatoire</small>
+                </div>
               </div>
-            </ng-container>
-
-            <!-- Message si aucun employe n'existe -->
-            <ng-template #noEmploye>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-
-          <!-- Objet -->
-          <div class="mb-3">
-            <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
-            <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
-              [class.invalid]="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" formControlName="objet">
-            <div *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched">
-              <small *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" class="text-danger"> *l'objet
-                est obligatoire</small>
             </div>
           </div>
 
-          <!-- description -->
-          <div class="mb-3">
-            <label for="description" class="form-label">Description du mouvement <span class="text-danger"></span></label>
-            <textarea class="form-control" id="description" rows="5"
-              [class.invalid]="addSortie.get('description')?.invalid && addSortie.get('description')?.touched"
-              placeholder="Entrez la description ici..." formControlName="description"></textarea>
-            <div *ngIf="addSortie.get('description')?.invalid && addSortie.get('description')?.touched">
-              <small *ngIf="addSortie.get('description')?.invalid && addSortie.get('description')?.touched"
-                class="text-danger"> *la description est obligatoire</small>
+          <!-- Description sur toute la largeur -->
+          <div class="row">
+            <div class="col-12">
+              <!-- description -->
+              <div class="mb-3">
+                <label for="description" class="form-label">Description du mouvement <span
+                    class="text-danger"></span></label>
+                <textarea class="form-control" id="description" rows="3"
+                  [class.invalid]="addSortie.get('description')?.invalid && addSortie.get('description')?.touched"
+                  placeholder="Entrez la description ici..." formControlName="description"></textarea>
+                <div *ngIf="addSortie.get('description')?.invalid && addSortie.get('description')?.touched">
+                  <small *ngIf="addSortie.get('description')?.invalid && addSortie.get('description')?.touched"
+                    class="text-danger"> *La description est obligatoire</small>
+                </div>
+              </div>
             </div>
-          </div>
-
-
-          <!--  date_mouvement -->
-          <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
-          <div class="input-group mb-5">
-            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
-              <i data-feather="calendar"></i>
-            </button>
-            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
-          </div>
-
-          <div *ngIf="addSortie.get('date')?.invalid && addSortie.get('date')?.touched">
-            <small class="text-danger"> *la date du mouvement est obligatoire</small>
           </div>
 
           <!-- Boutons centrés -->
-          <div class="d-flex justify-content-center gap-2">
+          <div class="d-flex justify-content-center gap-2 mt-3">
             <button type="submit" class="btn btn-primary">
               <div class="spinner-border spinner-border-sm text-light d-none" role="status">
                 <span class="visually-hidden">Loading...</span>
@@ -360,7 +374,6 @@
     </div>
   </div>
 </div>
-
 <!-- /Add mouvement sortie Modal -->
 
 
@@ -416,7 +429,8 @@
 
           <!-- description -->
           <div class="mb-3">
-            <label for="description" class="form-label">Description du mouvement <span class="text-danger">*</span></label>
+            <label for="description" class="form-label">Description du mouvement <span
+                class="text-danger">*</span></label>
             <textarea class="form-control" id="description" rows="5"
               [class.invalid]="editSortie.get('description')?.invalid && editSortie.get('description')?.touched"
               placeholder="Entrez la description ici..." formControlName="description"></textarea>
@@ -473,7 +487,8 @@
           </div>
 
           <div class="mb-3">
-            <label for="edit_commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
+            <label for="edit_commune_depart" class="form-label">Commune Départ <span
+                class="text-danger">*</span></label>
             <ng-container *ngIf="communes && communes.length > 0; else noEditCommunesDepart">
               <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_depart"
                 [clearable]="true" placeholder="Sélectionnez la commune de départ">
@@ -491,7 +506,8 @@
           </div>
 
           <div class="mb-3">
-            <label for="edit_commune_arriver" class="form-label">Commune Arrivée <span class="text-danger">*</span></label>
+            <label for="edit_commune_arriver" class="form-label">Commune Arrivée <span
+                class="text-danger">*</span></label>
             <ng-container *ngIf="communes && communes.length > 0; else noEditCommunesArriver">
               <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id" formControlName="commune_arriver"
                 [clearable]="true" placeholder="Sélectionnez la commune d'arrivée">
@@ -513,11 +529,13 @@
             <label for="fournisseur" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolierE">
-              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
-                [clearable]="true" placeholder="Sélectionnez la compagnie pétrolière">
+              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id"
+                formControlName="compagnie_petrolier_id" [clearable]="true"
+                placeholder="Sélectionnez la compagnie pétrolière">
               </ng-select>
 
-              <div *ngIf="editSortie.get('compagnie_petrolier_id')?.invalid && editSortie.get('compagnie_petrolier_id')?.touched">
+              <div
+                *ngIf="editSortie.get('compagnie_petrolier_id')?.invalid && editSortie.get('compagnie_petrolier_id')?.touched">
                 <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
               </div>
             </ng-container>
@@ -536,9 +554,11 @@
           <div class="mb-3">
             <label for="kilometrage" class="form-label">kilometrage <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
-              [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" formControlName="kilometrage">
+              [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched"
+              formControlName="kilometrage">
             <div *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched">
-              <small *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched" class="text-danger"> *le kilometrage
+              <small *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched"
+                class="text-danger"> *le kilometrage
                 est obligatoire</small>
             </div>
           </div>
@@ -548,9 +568,11 @@
           <div class="mb-3">
             <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
             <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
-              [class.invalid]="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" formControlName="objet">
+              [class.invalid]="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched"
+              formControlName="objet">
             <div *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched">
-              <small *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" class="text-danger"> *l'objet
+              <small *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" class="text-danger">
+                *l'objet
                 est obligatoire</small>
             </div>
           </div>
