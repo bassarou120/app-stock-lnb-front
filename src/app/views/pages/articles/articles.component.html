@@ -48,7 +48,7 @@
         <h6 class="card-title">Liste des Articles</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+            <input type="text" class="form-control form-control-sm" placeholder="Nom Article..."
               (keyup)="updateFilter($event)" />
           </div>
         </div>
@@ -83,11 +83,11 @@
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#edit_article" (click)="getEditForm(row)">
+                      data-bs-target="#edit_article" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#delete_article" (click)="getDeleteForm(row)">
+                      data-bs-target="#delete_article" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
                   </div>
@@ -132,7 +132,8 @@
 
               <!-- Code article -->
               <div class="col-2">
-                <input type="text" class="form-control form-control-lg" placeholder="Code Article" formControlName="code_article"
+                <input type="text" class="form-control form-control-lg" placeholder="Code Article"
+                  formControlName="code_article"
                   [class.is-invalid]="articleForm.get('code_article')?.invalid && articleForm.get('code_article')?.touched">
                 <div *ngIf="articleForm.get('code_article')?.invalid && articleForm.get('code_article')?.touched"
                   class="invalid-feedback">
@@ -142,7 +143,8 @@
 
               <!-- Nom de l'article -->
               <div class="col-3">
-                <input type="text" class="form-control form-control-lg" placeholder="Nom de l'Article" formControlName="libelle"
+                <input type="text" class="form-control form-control-lg" placeholder="Nom de l'Article"
+                  formControlName="libelle"
                   [class.is-invalid]="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched">
                 <div *ngIf="articleForm.get('libelle')?.invalid && articleForm.get('libelle')?.touched"
                   class="invalid-feedback">
@@ -171,7 +173,8 @@
 
               <!-- Description -->
               <div class="col-3">
-                <input type="text" class="form-control form-control-lg" placeholder="Description" formControlName="description"
+                <input type="text" class="form-control form-control-lg" placeholder="Description"
+                  formControlName="description"
                   [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
                 <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched"
                   class="invalid-feedback">
@@ -181,7 +184,8 @@
 
               <!-- Stock d'alerte -->
               <div class="col-1">
-                <input type="number" class="form-control form-control-lg text-center" placeholder="Stock" formControlName="stock_alerte"
+                <input type="number" class="form-control form-control-lg text-center" placeholder="Stock"
+                  formControlName="stock_alerte"
                   [class.is-invalid]="articleForm.get('stock_alerte')?.invalid && articleForm.get('stock_alerte')?.touched">
                 <div *ngIf="articleForm.get('stock_alerte')?.invalid && articleForm.get('stock_alerte')?.touched"
                   class="invalid-feedback">
@@ -320,6 +324,21 @@
       <!-- Contenu du modal -->
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="editArticle" (ngSubmit)="onClickSubmitEditArticle()" novalidate>
+
+          <!-- Code article -->
+          <div class="mb-3">
+            <label for="code_article" class="form-label">Code Article <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="code_article" placeholder="Entrez le code de l'Article"
+              autocomplete="off"
+              [class.invalid]="editArticle.get('code_article')?.invalid && editArticle.get('code_article')?.touched"
+              formControlName="code_article">
+            <div *ngIf="editArticle.get('code_article')?.invalid && editArticle.get('code_article')?.touched">
+              <small *ngIf="editArticle.get('code_article')?.invalid && editArticle.get('code_article')?.touched"
+                class="text-danger"> *le code de l'article est obligatoire</small>
+            </div>
+          </div>
+
+
           <!-- Nom de l'article -->
           <div class="mb-3">
             <label for="articleName" class="form-label">Article <span class="text-danger">*</span></label>
