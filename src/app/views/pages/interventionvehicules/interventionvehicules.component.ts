@@ -1,15 +1,14 @@
 import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
-import { InterventionsVehiculeService } from '../../../core/services/interventionvehicules/interventionvehicules.service'; // Assurez-vous que le chemin est correct
-import { InterventionVehicule, TypeIntervention, Vehicule } from '../../../core/services/interface/models'; // Assurez-vous que le chemin est correct
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { InterventionsVehiculeService } from '../../../core/services/interventionvehicules/interventionvehicules.service';
+import { InterventionVehicule, TypeIntervention, Vehicule, Commune } from '../../../core/services/interface/models'; // Assurez-vous que le chemin est correct et que Commune est bien importée
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms"; // Ajout de FormArray
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
-import { Commune } from '../../../core/services/interface/models';
 
 
 declare var bootstrap: any;
@@ -34,8 +33,8 @@ declare var bootstrap: any;
 export class InterventionVehiculeComponent implements OnInit {
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
-  rows: any[] = []; // Utilisez 'any[]' car la structure de 'Intervention' n'est pas directement réutilisable
-  temp: any[] = [];
+  rows: InterventionVehicule[] = []; // Utilisez l'interface InterventionVehicule
+  temp: InterventionVehicule[] = [];
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
@@ -52,6 +51,12 @@ export class InterventionVehiculeComponent implements OnInit {
   communes: Commune[] = [];
   typeInterventions: TypeIntervention[] = [];
 
+  // NOUVELLES PROPRIÉTÉS POUR GÉRER L'ÉTAT DE SOUMISSION
+  isAddingInterventionVehicule: boolean = false;
+  isEditingInterventionVehicule: boolean = false;
+  isDeletingInterventionVehicule: boolean = false;
+
+
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(private interventionVehiculeService: InterventionsVehiculeService, private formBuilder: FormBuilder) { }
@@ -67,7 +72,7 @@ export class InterventionVehiculeComponent implements OnInit {
       titre: ["", [Validators.required]],
       observation: ["", [Validators.required]],
       date_intervention: ["", [Validators.required]],
-      montant: ["", [Validators.required]],
+      montant: ["", [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0)
       type_intervention_id: [null, [Validators.required]],
       // commune_depart: [null, [Validators.required]],
       // commune_arriver: [null, [Validators.required]],
@@ -75,12 +80,12 @@ export class InterventionVehiculeComponent implements OnInit {
 
     this.editInterventionVehicule = this.formBuilder.group({
       id: [0, [Validators.required]],
-      vehicule_id: [0, [Validators.required]],
+      vehicule_id: [null, [Validators.required]], // Changé de 0 à null
       titre: ["", [Validators.required]],
       observation: ["", [Validators.required]],
       date_intervention: ["", [Validators.required]],
-      montant: ["", [Validators.required]],
-      type_intervention_id: [null, [Validators.required]],
+      montant: ["", [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0)
+      type_intervention_id: [null, [Validators.required]], // Changé de 0 à null
       // commune_depart: [null, [Validators.required]],
       // commune_arriver: [null, [Validators.required]],
     });
@@ -91,11 +96,25 @@ export class InterventionVehiculeComponent implements OnInit {
   }
 
   onClickSubmitAddInterventionVehicule() {
-    console.log(this.addInterventionVehicule.value);
-    const spinner = document.querySelector('.spinner-border');
+    // console.log('onClickSubmitAddInterventionVehicule appelé. isAddingInterventionVehicule:', this.isAddingInterventionVehicule); // Commenté
+
+    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+    if (this.isAddingInterventionVehicule) {
+      // console.warn('Soumission multiple détectée pour Intervention Véhicule. Annulation.'); // Commenté
+      return; // Empêche l'exécution si déjà en cours
+    }
+
+    const spinner = document.querySelector('.spinner-add-interv-vehicule'); // Assurez-vous que ce sélecteur correspond à votre HTML
 
     if (this.addInterventionVehicule.valid) {
-      if (spinner) spinner.classList.remove('d-none');
+      this.isAddingInterventionVehicule = true; // Désactiver le bouton
+      // console.log('isAddingInterventionVehicule mis à true.'); // Commenté
+
+      if (spinner) {
+        spinner.classList.remove('d-none');
+        // console.log('Spinner Intervention Véhicule affiché.'); // Commenté
+      }
+
       const formData = {
         ...this.addInterventionVehicule.value,
         date_intervention: this.formatDate(this.addInterventionVehicule.value.date_intervention), // Convertir la date
@@ -105,6 +124,8 @@ export class InterventionVehiculeComponent implements OnInit {
           this.loadInterventionVehicules();
           if (spinner) spinner.classList.add('d-none');
           this.addInterventionVehicule.reset();
+          this.isAddingInterventionVehicule = false; // Réactiver le bouton
+          // console.log('Soumission Intervention Véhicule réussie. isAddingInterventionVehicule mis à false.'); // Commenté
 
           const modal = document.getElementById('add_intervention_vehicule');
           // @ts-ignore
@@ -113,6 +134,7 @@ export class InterventionVehiculeComponent implements OnInit {
 
           setTimeout(() => {
             this.alertAjoutVisible = true;
+            // console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible); // Commenté
             setTimeout(() => {
               this.alertAjoutVisible = false;
             }, 2000);
@@ -121,22 +143,33 @@ export class InterventionVehiculeComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de l\'ajout de l\'intervention du véhicule :', error);
           if (spinner) spinner.classList.add('d-none');
+          this.isAddingInterventionVehicule = false; // Réactiver le bouton en cas d'erreur
+          // console.error('Soumission Intervention Véhicule échouée. isAddingInterventionVehicule mis à false.'); // Commenté
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.addInterventionVehicule); // Marquer les champs comme touchés
       alert("Désolé, le formulaire n'est pas bien renseigné");
+      // console.log('Formulaire Intervention Véhicule invalide.'); // Commenté
     }
   }
 
   onClickSubmitEditInterventionVehicule() {
-    console.log(this.editInterventionVehicule.value);
+    // console.log(this.editInterventionVehicule.value); // Commenté
+    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+    if (this.isEditingInterventionVehicule) {
+      // console.warn('Soumission multiple détectée pour édition Intervention Véhicule. Annulation.'); // Commenté
+      return; // Empêche l'exécution si déjà en cours
+    }
+
     const spinner = document.querySelector('.spinnerModif');
 
     if (this.editInterventionVehicule.valid) {
+      this.isEditingInterventionVehicule = true; // Désactiver le bouton
       if (spinner) spinner.classList.remove('d-none');
-      const id = this.editInterventionVehicule.value.id;
+      // const id = this.editInterventionVehicule.value.id; // Non utilisé, peut être supprimé
       const formData = {
         ...this.editInterventionVehicule.value,
         date_intervention: this.formatDate(this.editInterventionVehicule.value.date_intervention), // Convertir la date
@@ -146,6 +179,7 @@ export class InterventionVehiculeComponent implements OnInit {
           this.loadInterventionVehicules();
           if (spinner) spinner.classList.add('d-none');
           this.editInterventionVehicule.reset();
+          this.isEditingInterventionVehicule = false; // Réactiver le bouton
 
           const modal = document.getElementById('edit_intervention_vehicule');
           // @ts-ignore
@@ -154,6 +188,7 @@ export class InterventionVehiculeComponent implements OnInit {
 
           setTimeout(() => {
             this.alertModifVisible = true;
+            // console.log('Alert visible après fermeture du modal:', this.alertModifVisible); // Commenté
             setTimeout(() => {
               this.alertModifVisible = false;
             }, 2000);
@@ -162,26 +197,36 @@ export class InterventionVehiculeComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la modification de l\'intervention du véhicule :', error);
           if (spinner) spinner.classList.add('d-none');
+          this.isEditingInterventionVehicule = false; // Réactiver le bouton en cas d'erreur
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.editInterventionVehicule); // Marquer les champs comme touchés
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
 
   onClickSubmitDeleteInterventionVehicule() {
-    console.log(this.deleteInterventionVehicule.value);
+    // console.log(this.deleteInterventionVehicule.value); // Commenté
+    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+    if (this.isDeletingInterventionVehicule) {
+      // console.warn('Soumission multiple détectée pour suppression Intervention Véhicule. Annulation.'); // Commenté
+      return; // Empêche l'exécution si déjà en cours
+    }
+
     const spinner = document.querySelector('.spinnerDelete');
 
     if (this.deleteInterventionVehicule.valid) {
+      this.isDeletingInterventionVehicule = true; // Désactiver le bouton
       if (spinner) spinner.classList.remove('d-none');
       this.interventionVehiculeService.deleteInterventionVehicule(this.deleteInterventionVehicule.value).subscribe(
         (data: any) => {
           this.loadInterventionVehicules();
           if (spinner) spinner.classList.add('d-none');
           this.deleteInterventionVehicule.reset();
+          this.isDeletingInterventionVehicule = false; // Réactiver le bouton
 
           const modal = document.getElementById('delete_intervention_vehicule');
           // @ts-ignore
@@ -190,6 +235,7 @@ export class InterventionVehiculeComponent implements OnInit {
 
           setTimeout(() => {
             this.alertSuppVisible = true;
+            // console.log('Alert visible après fermeture du modal:', this.alertSuppVisible); // Commenté
             setTimeout(() => {
               this.alertSuppVisible = false;
             }, 2000);
@@ -198,6 +244,7 @@ export class InterventionVehiculeComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la suppression de l\'intervention du véhicule :', error);
           if (spinner) spinner.classList.add('d-none');
+          this.isDeletingInterventionVehicule = false; // Réactiver le bouton en cas d'erreur
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
@@ -207,12 +254,23 @@ export class InterventionVehiculeComponent implements OnInit {
     }
   }
 
+  // Fonction utilitaire pour marquer tous les champs comme touchés (validation)
+  markFormGroupTouched(formGroup: FormGroup | FormArray) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+
   loadInterventionVehicules(): void {
     this.interventionVehiculeService.getAllInterventionsVehicule().subscribe(
-      (data: InterventionVehicule[]) => { 
+      (data: InterventionVehicule[]) => {
         this.temp = [...data];
         this.rows = data;
-        console.log('Structure de this.rows :', this.rows);
+        // console.log('Structure de this.rows :', this.rows); // Commenté
         this.loadingIndicator = false;
       },
       error => {
@@ -222,7 +280,20 @@ export class InterventionVehiculeComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
 
+  //   this.rows = this.temp.filter(interventionVehicule =>
+  //     interventionVehicule.titre.toLowerCase().includes(val) ||
+  //     interventionVehicule.observation.toLowerCase().includes(val) ||
+  //     interventionVehicule.date_intervention.toLowerCase().includes(val) ||
+  //     // Vérifier si l'objet imbriqué existe avant d'accéder à ses propriétés
+  //     (interventionVehicule.vehicule && interventionVehicule.vehicule.immatriculation.toLowerCase().includes(val)) ||
+  //     (interventionVehicule.type_intervention && interventionVehicule.type_intervention.libelle_type_intervention.toLowerCase().includes(val))
+  //   );
+
+  //   this.table.offset = 0;
+  // }
 
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
@@ -277,10 +348,10 @@ export class InterventionVehiculeComponent implements OnInit {
   }
 
   loadCommunes(): void {
-    this.interventionVehiculeService.getAllCommunes().subscribe({ // Assurez-vous que cette méthode existe dans TrajetsService
+    this.interventionVehiculeService.getAllCommunes().subscribe({
       next: (data) => {
         this.communes = data; // Stocker la liste des communes
-        console.log('Communes chargées :', this.communes);
+        // console.log('Communes chargées :', this.communes); // Commenté
       },
       error: (err) => {
         console.error("Erreur lors du chargement des communes :", err);

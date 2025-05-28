@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
 import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule } from '../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms"; // Importez FormArray
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -39,9 +39,9 @@ export class ImmobilisationComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
   public addImmobilisation!: FormGroup;
   public editImmobilisation!: FormGroup;
@@ -55,6 +55,8 @@ export class ImmobilisationComponent implements OnInit {
 
   etatOptions: string[] = ['Bon', 'Usé', 'Défectueux', 'Irréparable'];
 
+  // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
+  isAddingImmobilisation: boolean = false; // Pour l'ajout d'une immobilisation
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -114,12 +116,27 @@ export class ImmobilisationComponent implements OnInit {
       id: [0, [Validators.required]],
     });
   }
+
   onClickSubmitAddImmobilisation() {
-    console.log(this.addImmobilisation.value);
-    const spinner = document.querySelector('.spinner-border');
+    console.log('onClickSubmitAddImmobilisation appelé. isAddingImmobilisation:', this.isAddingImmobilisation);
+
+    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+    if (this.isAddingImmobilisation) {
+      console.warn('Soumission multiple détectée pour Immobilisation. Annulation.');
+      return; // Empêche l'exécution si déjà en cours
+    }
+
+    const spinner = document.querySelector('.spinner-add-immobilisation'); // Assurez-vous que ce sélecteur correspond à votre HTML
 
     if (this.addImmobilisation.valid) {
-      if (spinner) spinner.classList.remove('d-none');
+      this.isAddingImmobilisation = true; // Désactiver le bouton
+      console.log('isAddingImmobilisation mis à true.');
+
+      if (spinner) {
+        spinner.classList.remove('d-none');
+        console.log('Spinner Immobilisation affiché.');
+      }
+
       const formData = {
         ...this.addImmobilisation.value,
         date_acquisition: this.formatDate(this.addImmobilisation.value.date_acquisition), // Convertir la date
@@ -129,7 +146,9 @@ export class ImmobilisationComponent implements OnInit {
           this.loadImmobilisations();
           if (spinner) spinner.classList.add('d-none');
           this.addImmobilisation.reset();
-          this.addImmobilisation.patchValue({ isVehicule: 1 });
+          this.addImmobilisation.patchValue({ isVehicule: 1 }); // Remettre la valeur par défaut si besoin
+          this.isAddingImmobilisation = false; // Réactiver le bouton
+          console.log('Soumission Immobilisation réussie. isAddingImmobilisation mis à false.');
 
           // Fermer le modal manuellement
           const modal = document.getElementById('add_immobilisation');
@@ -149,21 +168,28 @@ export class ImmobilisationComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de l\'ajout de la Categorie :', error);
+          console.error('Erreur lors de l\'ajout de l\'Immobilisation :', error);
           if (spinner) spinner.classList.add('d-none');
+          this.isAddingImmobilisation = false; // Réactiver le bouton en cas d'erreur
+          console.error('Soumission Immobilisation échouée. isAddingImmobilisation mis à false.');
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.addImmobilisation); // Marquer les champs comme touchés pour afficher les erreurs
       alert("Désolé, le formulaire n'est pas bien renseigné");
+      console.log('Formulaire Immobilisation invalide.');
     }
   }
 
   onClickSubmitEditImmobilisation() {
     console.log(this.editImmobilisation.value);
-    const spinner = document.querySelector('.spinnerModif');
+    const spinner = document.querySelector('.spinnerModif'); // Assurez-vous que c'est le bon sélecteur
 
+    // NOTE: Il serait bon d'avoir une propriété isEditingImmobilisation: boolean = false;
+    // et de la gérer de la même manière que pour l'ajout.
+    // this.isEditingImmobilisation = true; // Ajoutez ceci
     if (this.editImmobilisation.valid) {
       if (spinner) spinner.classList.remove('d-none');
       const id = this.editImmobilisation.value.id;
@@ -176,6 +202,7 @@ export class ImmobilisationComponent implements OnInit {
           this.loadImmobilisations();
           if (spinner) spinner.classList.add('d-none');
           this.editImmobilisation.reset();
+          // this.isEditingImmobilisation = false; // Ajoutez ceci
 
           // Fermer le modal manuellement
           const modal = document.getElementById('edit_immobilisation');
@@ -197,6 +224,7 @@ export class ImmobilisationComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la modification de l\'Immobilisation :', error);
           if (spinner) spinner.classList.add('d-none');
+          // this.isEditingImmobilisation = false; // Ajoutez ceci
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
@@ -210,6 +238,9 @@ export class ImmobilisationComponent implements OnInit {
     console.log(this.deleteImmobilisation.value);
     const spinner = document.querySelector('.spinnerDelete');
 
+    // NOTE: Il serait bon d'avoir une propriété isDeletingImmobilisation: boolean = false;
+    // et de la gérer de la même manière que pour l'ajout.
+    // this.isDeletingImmobilisation = true; // Ajoutez ceci
     if (this.deleteImmobilisation.valid) {
       if (spinner) spinner.classList.remove('d-none');
       this.immobilisationService.deleteImmobilisation(this.deleteImmobilisation.value).subscribe(
@@ -217,6 +248,7 @@ export class ImmobilisationComponent implements OnInit {
           this.loadImmobilisations();
           if (spinner) spinner.classList.add('d-none');
           this.deleteImmobilisation.reset();
+          // this.isDeletingImmobilisation = false; // Ajoutez ceci
 
           // Fermer le modal manuellement
           const modal = document.getElementById('delete_immobilisation');
@@ -238,6 +270,7 @@ export class ImmobilisationComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la supression de l\'Immobilisation :', error);
           if (spinner) spinner.classList.add('d-none');
+          // this.isDeletingImmobilisation = false; // Ajoutez ceci
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
@@ -247,6 +280,16 @@ export class ImmobilisationComponent implements OnInit {
     }
   }
 
+  // Fonction utilitaire pour marquer tous les champs comme touchés (validation)
+  markFormGroupTouched(formGroup: FormGroup | FormArray) { // Ajout de FormArray
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
 
 
   loadImmobilisations(): void {
@@ -390,7 +433,4 @@ export class ImmobilisationComponent implements OnInit {
     };
   }
 
-
 }
-
-

@@ -1,13 +1,11 @@
 <div *ngIf="loading">Chargement...</div>
 
 <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Demande Traité avec succès
+  Demande Traitée avec succès
 </ngb-alert>
 <ngb-alert *ngIf="alertModifAllVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Demande Traités avec succès
+  Demandes Traitées avec succès
 </ngb-alert>
-<!-- Alerte pour mofifier avec succès -->
-
 
 <div class="row">
   <div class="col-md-12 grid-margin stretch-card">
@@ -17,17 +15,10 @@
           <h4 class="card-title">Liste des Demandes de sorties</h4>
           <p class="text-secondary">Liste des Demandes de sorties</p>
         </div>
-        <!-- <div class="d-flex gap-2">
-          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-            data-bs-target="#add_sortie">
-            Ajouter
-          </button>
-        </div> -->
-      </div>
+        </div>
     </div>
   </div>
 </div>
-
 
 <div class="row">
   <div class="col-md-12 stretch-card">
@@ -40,16 +31,12 @@
               (keyup)="updateFilter($event)" />
           </div>
           <div class="col-xl-3 col-md-4 mb-2">
-            <!-- <ng-select [items]="['En attente', 'Refusé', 'Accordé']" bindLabel="" bindValue=""
-              [(ngModel)]="selectedStatut" placeholder="Filtrer par statut" (change)="onStatutFilterChange()">
-            </ng-select> -->
-          </div>
+            </div>
         </div>
       </div>
     </div>
   </div>
 </div>
-
 
 <table class="table table-bordered" *ngIf="!loading">
   <thead>
@@ -58,8 +45,6 @@
       <th>Personnel</th>
       <th>Bureau</th>
       <th>Date Demande</th>
-      <!-- <th>Date Création</th> -->
-      <!-- <th>Statut</th> -->
       <th>Total Articles</th>
       <th>Action</th>
     </tr>
@@ -71,8 +56,6 @@
         <td>{{ group.personnel }}</td>
         <td>{{ group.bureau }}</td>
         <td>{{ group.dateDemande }}</td>
-        <!-- <td>{{ group.dateCreation  }}</td> -->
-        <!-- <td>{{ group.statut }}</td> -->
         <td>{{ group.totalArticles }}</td>
         <td>
           <button class="btn btn-sm btn-primary" (click)="toggleGroup(group.code_mouvement)">
@@ -85,18 +68,16 @@
           <table class="table table-sm table-striped mb-0">
             <thead>
               <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tout_traiter" (click)="openToutTraiterModal(group.code_mouvement)"
-              [disabled]="!isGroupTraitable(group)"
+              [disabled]="!isGroupTraitable(group) || isProcessingAll"
               >
-                tout traiter
+                <span *ngIf="isProcessingAll" class="spinner-border spinner-border-sm text-light me-2" role="status" aria-hidden="true"></span>
+                {{ isProcessingAll ? 'Traitement en cours...' : 'Tout Traiter' }}
               </button>
               <tr>
                 <th>Code</th>
                 <th>Article</th>
                 <th>Description</th>
                 <th>Quantité Demandée</th>
-                <!-- <th>Personnel</th> -->
-                <!-- <th>Bureau</th> -->
-                <!-- <th>Date Mouvement</th> -->
                 <th>Statut</th>
                 <th>Action</th>
               </tr>
@@ -107,14 +88,12 @@
                 <td>{{ detail.article?.libelle || 'N/A' }}</td>
                 <td>{{ detail.description }}</td>
                 <td>{{ detail.qteDemande }}</td>
-                <!-- <td>{{ detail.employe?.fullnameEmploye || 'Non défini' }}</td> -->
-                <!-- <td>{{ detail.bureau?.libelle_bureau || 'Non défini' }}</td> -->
-                <!-- <td>{{ detail.date_mouvement  }}</td> -->
                 <td>{{ detail.statut }}</td>
                 <td>
                   <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit_statut_sortie"
-                    (click)="getStatutForm(detail)" [disabled]="detail.statut === 'Accordé'">
-                    Traiter
+                    (click)="getStatutForm(detail)" [disabled]="detail.statut === 'Accordé' || isStatutModifLoading">
+                    <span *ngIf="isStatutModifLoading && editStatutSortie.value.id === detail.id" class="spinner-border spinner-border-sm text-light me-2" role="status" aria-hidden="true"></span>
+                    {{ isStatutModifLoading && editStatutSortie.value.id === detail.id ? 'Traitement...' : 'Traiter' }}
                   </button>
                 </td>
               </tr>
@@ -127,9 +106,6 @@
 </table>
 
 
-
-
-<!-- Edit statut Modal -->
 <div id="edit_statut_sortie" class="modal fade" tabindex="-1" aria-labelledby="editStatutSortieLabel"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -151,15 +127,12 @@
               <small class="text-danger"> *Le statut est obligatoire</small>
             </div>
           </div>
-          <!-- QteDemandé -->
           <div class="mb-3">
             <label for="qteDemande" class="form-label">Quantité demandée <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qteDemande" placeholder="1" autocomplete="off"
               [class.invalid]="editStatutSortie.get('qteDemande')?.invalid && editStatutSortie.get('qteDemande')?.touched"
               formControlName="qteDemande" readonly>
-
           </div>
-          <!-- Qte -->
           <div class="mb-3">
             <label for="qte" class="form-label">Confirmez la Quantité <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qte" placeholder="0" autocomplete="off"
@@ -178,7 +151,6 @@
                 dépasser {{ quantiteDisponible }}</small>
             </div>
           </div>
-          <!--  date_mouvement -->
           <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd2.toggle()">
@@ -187,7 +159,6 @@
             <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
               [(ngModel)]="currentDate" ngbDatepicker #dAdd2="ngbDatepicker" formControlName="date_mouvement">
           </div>
-
           <div
             *ngIf="editStatutSortie.get('date_mouvement')?.invalid && editStatutSortie.get('date_mouvement')?.touched">
             <small class="text-danger"> *la date de la demande est obligatoire</small>
@@ -196,10 +167,11 @@
           <input type="hidden" formControlName="id">
 
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none spinnerStatutModif" role="status">
+            <button type="submit" class="btn btn-primary" [disabled]="isStatutModifLoading || editStatutSortie.invalid">
+              <span *ngIf="isStatutModifLoading" class="spinner-border spinner-border-sm text-light me-2 spinnerStatutModif" role="status" aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
-              </div> Confirmer
+              </span>
+              {{ isStatutModifLoading ? 'Traitement...' : 'Confirmer' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>
@@ -208,9 +180,6 @@
     </div>
   </div>
 </div>
-<!-- /Edit statut Modal -->
-
-<!-- Edit all -->
 <div id="tout_traiter" class="modal fade" tabindex="-1" aria-labelledby="tout_traiter"
   aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
@@ -223,7 +192,6 @@
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="edit_all" (ngSubmit)="onClickSubmitEditAllSortie()"
           novalidate>
-          <!--  date_mouvement -->
           <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd3.toggle()">
@@ -238,10 +206,11 @@
             <small class="text-danger"> *la date de la demande est obligatoire</small>
           </div>
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none spinnerStatutModifAll" role="status">
+            <button type="submit" class="btn btn-primary" [disabled]="isProcessingAll || edit_all.invalid">
+              <span *ngIf="isProcessingAll" class="spinner-border spinner-border-sm text-light me-2 spinner-process-all" role="status" aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
-              </div> Confirmer
+              </span>
+              {{ isProcessingAll ? 'Traitement en cours...' : 'Confirmer' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>
@@ -250,4 +219,3 @@
     </div>
   </div>
 </div>
-<!-- /Edit statut Modal -->

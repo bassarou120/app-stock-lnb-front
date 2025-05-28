@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { StatusImmoService } from '../../../../core/services/status-immo/status-immo.service';
 import { StatusImmo } from '../../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -30,13 +30,18 @@ export class StatusImmosComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
   public addStatusImmo!: FormGroup ;
   public editStatusImmo!: FormGroup ;
   public deleteStatusImmo!: FormGroup ;
+
+  // NOUVELLES PROPRIÉTÉS POUR GÉRER L'ÉTAT DE SOUMISSION DES BOUTONS
+  isAddingStatus: boolean = false;
+  isEditingStatus: boolean = false;
+  isDeletingStatus: boolean = false;
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -46,142 +51,156 @@ export class StatusImmosComponent implements OnInit {
     this.loadStatusImmos();
     this.addStatusImmo = this.formBuilder.group({
       libelle_status_immo: ["", [Validators.required]],
-   });
+    });
     this.editStatusImmo = this.formBuilder.group({
       id: [0, [Validators.required]],
       libelle_status_immo: ["", [Validators.required]],
-   });
+    });
     this.deleteStatusImmo = this.formBuilder.group({
       id: [0, [Validators.required]],
-   });
+    });
   }
+
   onClickSubmitAddStatusImmo() {
-  console.log(this.addStatusImmo.value);
-  const spinner = document.querySelector('.spinner-border');
+    console.log(this.addStatusImmo.value);
+    // Le sélecteur de spinner doit être plus spécifique si vous en avez plusieurs ou utilise les nouvelles propriétés
+    const spinner = document.querySelector('.spinner-add'); // Utilisez une classe spécifique pour ce spinner
 
-  if (this.addStatusImmo.valid) {
-    if (spinner) spinner.classList.remove('d-none');
-    this.statusImmoService.saveStatusImmos(this.addStatusImmo.value).subscribe(
-      (data: any) => {
-        this.loadStatusImmos();
-        if (spinner) spinner.classList.add('d-none');
-        this.addStatusImmo.reset();
+    if (this.addStatusImmo.valid) {
+      this.isAddingStatus = true; // Désactiver le bouton Ajouter
+      if (spinner) spinner.classList.remove('d-none'); // Afficher le spinner (si d-none est la classe pour cacher)
 
-        // Fermer le modal manuellement
-        const modal = document.getElementById('add_statusImmo');
-        // @ts-ignore - pour éviter les erreurs TypeScript
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
+      this.statusImmoService.saveStatusImmos(this.addStatusImmo.value).subscribe(
+        (data: any) => {
+          this.loadStatusImmos();
+          if (spinner) spinner.classList.add('d-none'); // Cacher le spinner
+          this.addStatusImmo.reset();
+          this.isAddingStatus = false; // Réactiver le bouton Ajouter
 
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
-        setTimeout(() => {
-          this.alertAjoutVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+          // Fermer le modal manuellement
+          const modal = document.getElementById('add_statusImmo');
+          // @ts-ignore - pour éviter les erreurs TypeScript
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
+          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
-            this.alertAjoutVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-      },
-      (error: any) => {
-        console.error('Erreur lors de l\'ajout du Status Immo :', error);
-        if (spinner) spinner.classList.add('d-none');
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      }
-    );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+            this.alertAjoutVisible = true;
+            console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+
+            // Utilisation de la transition pour faire apparaitre l'alerte
+            setTimeout(() => {
+              this.alertAjoutVisible = false;
+            }, 2000); // L'alerte disparaît après 2 secondes
+          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+        },
+        (error: any) => {
+          console.error('Erreur lors de l\'ajout du Status Immo :', error);
+          if (spinner) spinner.classList.add('d-none'); // Cacher le spinner
+          this.isAddingStatus = false; // Réactiver le bouton Ajouter en cas d'erreur
+          alert('Une erreur s\'est produite. Veuillez réessayer.');
+        }
+      );
+    } else {
+      if (spinner) spinner.classList.add('d-none'); // Cacher le spinner si le formulaire n'est pas valide
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+    }
   }
-}
 
-onClickSubmitEditStatusImmo(){
-  console.log(this.editStatusImmo.value);
-  const spinner = document.querySelector('.spinnerModif');
+  onClickSubmitEditStatusImmo(){
+    console.log(this.editStatusImmo.value);
+    // Le sélecteur de spinner doit être plus spécifique
+    const spinner = document.querySelector('.spinner-edit'); // Utilisez une classe spécifique pour ce spinner
 
-  if (this.editStatusImmo.valid) {
-    if (spinner) spinner.classList.remove('d-none');
-    const id = this.editStatusImmo.value.id;
-    this.statusImmoService.editStatusImmos(this.editStatusImmo.value).subscribe(
-      (data: any) => {
-        this.loadStatusImmos();
-        if (spinner) spinner.classList.add('d-none');
-        this.editStatusImmo.reset();
+    if (this.editStatusImmo.valid) {
+      this.isEditingStatus = true; // Désactiver le bouton Modifier
+      if (spinner) spinner.classList.remove('d-none'); // Afficher le spinner
 
-        // Fermer le modal manuellement
-        const modal = document.getElementById('edit_statusImmo');
-        // @ts-ignore - pour éviter les erreurs TypeScript
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
+      const id = this.editStatusImmo.value.id; // Non utilisé ici, mais laissé pour contexte
+      this.statusImmoService.editStatusImmos(this.editStatusImmo.value).subscribe(
+        (data: any) => {
+          this.loadStatusImmos();
+          if (spinner) spinner.classList.add('d-none'); // Cacher le spinner
+          this.editStatusImmo.reset();
+          this.isEditingStatus = false; // Réactiver le bouton Modifier
 
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
-        setTimeout(() => {
-          this.alertModifVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
+          // Fermer le modal manuellement
+          const modal = document.getElementById('edit_statusImmo');
+          // @ts-ignore - pour éviter les erreurs TypeScript
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
+          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
-            this.alertModifVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-      },
-      (error: any) => {
-        console.error('Erreur lors de la modification du StatusImmo :', error);
-        if (spinner) spinner.classList.add('d-none');
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      }
-    );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+            this.alertModifVisible = true;
+            console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
+
+            // Utilisation de la transition pour faire apparaitre l'alerte
+            setTimeout(() => {
+              this.alertModifVisible = false;
+            }, 2000); // L'alerte disparaît après 2 secondes
+          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+        },
+        (error: any) => {
+          console.error('Erreur lors de la modification du StatusImmo :', error);
+          if (spinner) spinner.classList.add('d-none'); // Cacher le spinner
+          this.isEditingStatus = false; // Réactiver le bouton Modifier en cas d'erreur
+          alert('Une erreur s\'est produite. Veuillez réessayer.');
+        }
+      );
+    } else {
+      if (spinner) spinner.classList.add('d-none'); // Cacher le spinner si le formulaire n'est pas valide
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+    }
   }
-}
 
-onClickSubmitDeleteStatusImmo(){
-  console.log(this.deleteStatusImmo.value);
-  const spinner = document.querySelector('.spinnerDelete');
+  onClickSubmitDeleteStatusImmo(){
+    console.log(this.deleteStatusImmo.value);
+    // Le sélecteur de spinner doit être plus spécifique
+    const spinner = document.querySelector('.spinner-delete'); // Utilisez une classe spécifique pour ce spinner
 
-  if (this.deleteStatusImmo.valid) {
-    if (spinner) spinner.classList.remove('d-none');
-    this.statusImmoService.deleteStatusImmos(this.deleteStatusImmo.value).subscribe(
-      (data: any) => {
-        this.loadStatusImmos();
-        if (spinner) spinner.classList.add('d-none');
-        this.deleteStatusImmo.reset();
+    if (this.deleteStatusImmo.valid) {
+      this.isDeletingStatus = true; // Désactiver le bouton Supprimer
+      if (spinner) spinner.classList.remove('d-none'); // Afficher le spinner
 
-        // Fermer le modal manuellement
-        const modal = document.getElementById('delete_statusImmo');
-        // @ts-ignore - pour éviter les erreurs TypeScript
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
+      this.statusImmoService.deleteStatusImmos(this.deleteStatusImmo.value).subscribe(
+        (data: any) => {
+          this.loadStatusImmos();
+          if (spinner) spinner.classList.add('d-none'); // Cacher le spinner
+          this.deleteStatusImmo.reset();
+          this.isDeletingStatus = false; // Réactiver le bouton Supprimer
 
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
-        setTimeout(() => {
-          this.alertSuppVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertSuppVisible);
+          // Fermer le modal manuellement
+          const modal = document.getElementById('delete_statusImmo');
+          // @ts-ignore - pour éviter les erreurs TypeScript
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
+          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
-            this.alertSuppVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-      },
-      (error: any) => {
-        console.error('Erreur lors de la supression de la marque :', error);
-        if (spinner) spinner.classList.add('d-none');
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      }
-    );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+            this.alertSuppVisible = true;
+            console.log('Alert visible après fermeture du modal:', this.alertSuppVisible);
+
+            // Utilisation de la transition pour faire apparaitre l'alerte
+            setTimeout(() => {
+              this.alertSuppVisible = false;
+            }, 2000); // L'alerte disparaît après 2 secondes
+          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+        },
+        (error: any) => {
+          console.error('Erreur lors de la supression du statut immobilier :', error);
+          if (spinner) spinner.classList.add('d-none'); // Cacher le spinner
+          this.isDeletingStatus = false; // Réactiver le bouton Supprimer en cas d'erreur
+          alert('Une erreur s\'est produite. Veuillez réessayer.');
+        }
+      );
+    } else {
+      if (spinner) spinner.classList.add('d-none'); // Cacher le spinner si le formulaire n'est pas valide
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+    }
   }
-}
 
-
-
-loadStatusImmos(): void {
+  loadStatusImmos(): void {
     this.statusImmoService.getAllStatusImmos().subscribe(
       (data: StatusImmo[]) => {
         this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
@@ -207,16 +226,14 @@ loadStatusImmos(): void {
 
   getEditForm(row: any){
     this.editStatusImmo.patchValue({
-     id:row.id,
-     libelle_status_immo:row.libelle_status_immo
+      id:row.id,
+      libelle_status_immo:row.libelle_status_immo
     })
   }
 
   getDeleteForm(row: any){
     this.deleteStatusImmo.patchValue({
-     id:row.id,
+      id:row.id,
     })
   }
 }
-
-

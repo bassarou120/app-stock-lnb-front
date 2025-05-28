@@ -2,9 +2,8 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { TransfertsService } from '../../../core/services/transfert/transfert.service';
-import { InterventionsService } from '../../../core/services/intervention/intervention.service';
-import { Immobilisation, TypeIntervention, Intervention, Transfert, Bureau, Employe } from '../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { Immobilisation, Bureau, Employe, Transfert } from '../../../core/services/interface/models'; // Supprimé TypeIntervention, Intervention car non utilisés ici
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms"; // Ajouté FormArray
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -26,7 +25,7 @@ declare var bootstrap: any;
     NgbDropdownModule,
     NgbDatepickerModule,
     MyNgSelectComponent,
-    // FeatherIconDirective
+    // FeatherIconDirective // Retiré le commentaire si vous l'utilisez réellement
   ],
   templateUrl: 'transfert.component.html'
 })
@@ -39,10 +38,9 @@ export class TransfertComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
-
+  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
   public addTransfert!: FormGroup;
   public editTransfert!: FormGroup;
@@ -52,11 +50,8 @@ export class TransfertComponent implements OnInit {
   bureaux: Bureau[] = []; // Liste des Bureaux,
   employes: Employe[] = []; // Liste des Employes,
 
-
-
-
-
-
+  // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
+  isAddingTransfert: boolean = false; // Pour l'ajout d'un transfert
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -70,8 +65,8 @@ export class TransfertComponent implements OnInit {
 
     this.addTransfert = this.formBuilder.group({
       immo_id: [null, [Validators.required]],
-      old_bureau_id: [ []],
-      old_employe_id: [ []],
+      old_bureau_id: [null], // Défini sur null pour les champs non requis initialement
+      old_employe_id: [null], // Défini sur null pour les champs non requis initialement
       bureau_id: [null, [Validators.required]],
       employe_id: [null, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
@@ -91,12 +86,27 @@ export class TransfertComponent implements OnInit {
       id: [0, [Validators.required]],
     });
   }
+
   onClickSubmitAddTransfert() {
-    console.log(this.addTransfert.value);
-    const spinner = document.querySelector('.spinner-border');
+    console.log('onClickSubmitAddTransfert appelé. isAddingTransfert:', this.isAddingTransfert);
+
+    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+    if (this.isAddingTransfert) {
+      console.warn('Soumission multiple détectée pour Transfert. Annulation.');
+      return; // Empêche l'exécution si déjà en cours
+    }
+
+    const spinner = document.querySelector('.spinner-add-transfert'); // Assurez-vous que ce sélecteur correspond à votre HTML
 
     if (this.addTransfert.valid) {
-      if (spinner) spinner.classList.remove('d-none');
+      this.isAddingTransfert = true; // Désactiver le bouton
+      console.log('isAddingTransfert mis à true.');
+
+      if (spinner) {
+        spinner.classList.remove('d-none');
+        console.log('Spinner Transfert affiché.');
+      }
+
       const formData = {
         ...this.addTransfert.value,
         date_mouvement: this.formatDate(this.addTransfert.value.date_mouvement), // Convertir la date
@@ -106,6 +116,8 @@ export class TransfertComponent implements OnInit {
           this.loadTransferts();
           if (spinner) spinner.classList.add('d-none');
           this.addTransfert.reset();
+          this.isAddingTransfert = false; // Réactiver le bouton
+          console.log('Soumission Transfert réussie. isAddingTransfert mis à false.');
 
           // Fermer le modal manuellement
           const modal = document.getElementById('add_transfert');
@@ -127,12 +139,16 @@ export class TransfertComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de l\'ajout du transfert :', error);
           if (spinner) spinner.classList.add('d-none');
+          this.isAddingTransfert = false; // Réactiver le bouton en cas d'erreur
+          console.error('Soumission Transfert échouée. isAddingTransfert mis à false.');
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.addTransfert); // Marquer les champs comme touchés pour afficher les erreurs
       alert("Désolé, le formulaire n'est pas bien renseigné");
+      console.log('Formulaire Transfert invalide.');
     }
   }
 
@@ -140,14 +156,23 @@ export class TransfertComponent implements OnInit {
     console.log(this.editTransfert.value);
     const spinner = document.querySelector('.spinnerModif');
 
+    // NOTE: Il serait bon d'avoir une propriété isEditingTransfert: boolean = false;
+    // et de la gérer de la même manière que pour l'ajout.
+    // this.isEditingTransfert = true; // Ajoutez ceci
     if (this.editTransfert.valid) {
       if (spinner) spinner.classList.remove('d-none');
       const id = this.editTransfert.value.id;
-      this.transfertService.editTransfert(this.editTransfert.value).subscribe(
+      // Convertir la date pour l'édition également
+      const formData = {
+        ...this.editTransfert.value,
+        date_mouvement: this.formatDate(this.editTransfert.value.date_mouvement),
+      };
+      this.transfertService.editTransfert(formData).subscribe( // Utiliser formData ici
         (data: any) => {
           this.loadTransferts();
           if (spinner) spinner.classList.add('d-none');
           this.editTransfert.reset();
+          // this.isEditingTransfert = false; // Ajoutez ceci
 
           // Fermer le modal manuellement
           const modal = document.getElementById('edit_transfert');
@@ -169,6 +194,7 @@ export class TransfertComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la modification du transfert :', error);
           if (spinner) spinner.classList.add('d-none');
+          // this.isEditingTransfert = false; // Ajoutez ceci
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
@@ -182,6 +208,9 @@ export class TransfertComponent implements OnInit {
     console.log(this.deleteTransfert.value);
     const spinner = document.querySelector('.spinnerDelete');
 
+    // NOTE: Il serait bon d'avoir une propriété isDeletingTransfert: boolean = false;
+    // et de la gérer de la même manière que pour l'ajout.
+    // this.isDeletingTransfert = true; // Ajoutez ceci
     if (this.deleteTransfert.valid) {
       if (spinner) spinner.classList.remove('d-none');
       this.transfertService.deleteTransfert(this.deleteTransfert.value).subscribe(
@@ -189,6 +218,7 @@ export class TransfertComponent implements OnInit {
           this.loadTransferts();
           if (spinner) spinner.classList.add('d-none');
           this.deleteTransfert.reset();
+          // this.isDeletingTransfert = false; // Ajoutez ceci
 
           // Fermer le modal manuellement
           const modal = document.getElementById('delete_transfert');
@@ -210,6 +240,7 @@ export class TransfertComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la supression du transfert :', error);
           if (spinner) spinner.classList.add('d-none');
+          // this.isDeletingTransfert = false; // Ajoutez ceci
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
@@ -217,6 +248,17 @@ export class TransfertComponent implements OnInit {
       if (spinner) spinner.classList.add('d-none');
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
+  }
+
+  // Fonction utilitaire pour marquer tous les champs comme touchés (validation)
+  markFormGroupTouched(formGroup: FormGroup | FormArray) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.markFormGroupTouched(control);
+      }
+    });
   }
 
   loadTransferts(): void {
@@ -233,8 +275,19 @@ export class TransfertComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
 
+  //   this.rows = this.temp.filter(transfert =>
+  //     transfert.observation.toLowerCase().includes(val) || // Filtrer par observation
+  //     transfert.date_mouvement.toLowerCase().includes(val) || // Filtrer par date
+  //     (transfert.immobilisation && transfert.immobilisation.designation.toLowerCase().includes(val)) || // Filtrer par désignation de l'immo
+  //     (transfert.new_bureau && transfert.new_bureau.libelle_bureau.toLowerCase().includes(val)) || // Filtrer par nouveau bureau
+  //     (transfert.new_employe && (transfert.new_employe.nom_employe + ' ' + transfert.new_employe.prenom_employe).toLowerCase().includes(val))
+  //   );
 
+  //   this.table.offset = 0;
+  // }
 
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
@@ -250,11 +303,12 @@ export class TransfertComponent implements OnInit {
     this.editTransfert.patchValue({
       id: row.id,
       immo_id: row.immo_id,
-      type_intervention_id: row.type_intervention_id,
-      titre: row.titre,
-      observation: row.observation,
+      old_bureau_id: row.old_bureau_id, // Peut-être que vous voulez afficher le libellé ici, pas seulement l'ID
+      old_employe_id: row.old_employe_id, // Idem
+      bureau_id: row.bureau_id,
+      employe_id: row.employe_id,
       date_mouvement: this.convertToNgbDate(row.date_mouvement),
-      cout: row.cout,
+      observation: row.observation,
     })
   }
 
@@ -300,23 +354,29 @@ export class TransfertComponent implements OnInit {
     console.log('ID de l\'IMMO sélectionné:', idImmo);
     if (!idImmo) {
       console.log('Aucun article sélectionné ou désélection effectuée');
+      // Réinitialiser les champs old_bureau_id et old_employe_id si l'immo est désélectionnée
+      this.addTransfert.patchValue({
+        old_bureau_id: null,
+        old_employe_id: null
+      });
       return;
     }
     this.transfertService.getOldInfo(idImmo).subscribe(
       (response) => {
-        console.log('Info Récupérée:',response);
-        // this.oldBureau=response.bureau;
-        // this.oldEmploye=response.employe;
-        // console.log('employe:', this.oldEmploye);
-        // console.log('bureau:', this.oldBureau);
-
+        console.log('Info Récupérée:', response);
         this.addTransfert.patchValue({
-          old_bureau_id: response.bureau,
-          old_employe_id: response.employe
+          old_bureau_id: response.bureau, // Assurez-vous que 'bureau' dans response est l'ID du bureau
+          old_employe_id: response.employe // Assurez-vous que 'employe' dans response est l'ID de l'employé
         });
       },
       (error) => {
         console.error('Erreur lors des Infos:', error);
+        // En cas d'erreur, réinitialiser ou gérer l'état
+        this.addTransfert.patchValue({
+          old_bureau_id: null,
+          old_employe_id: null
+        });
+        alert("Impossible de récupérer les anciennes informations pour cette immobilisation.");
       }
     );
   }
@@ -325,54 +385,18 @@ export class TransfertComponent implements OnInit {
     const year = date.year;
     const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
     const day = date.day.toString().padStart(2, '0');
-    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+    return `${year}-${month}-${day}`; // Format CCYY-MM-DD
   }
 
 
   // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
   convertToNgbDate(dateString: string): NgbDateStruct | null {
     if (!dateString) return null;
-    const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+    const parts = dateString.split('-'); // Séparer CCYY-MM-DD
     return {
       year: +parts[0],
       month: +parts[1],
       day: +parts[2],
     };
   }
-
-  //   updateQuantiteDisponible() {
-  //     const idArticle = this.addSortie.get('id_Article')?.value;
-  //     console.log('ID de l\'article sélectionné:', idArticle);
-
-  //     if (!idArticle) {
-  //       console.log('Aucun article sélectionné ou désélection effectuée');
-  //       this.quantiteDisponible = 0;
-  //       return;
-  //     }
-
-  //     this.sortieService.getQuantiteDisponible(idArticle).subscribe(
-  //       (response) => {
-  //         console.log('Quantité disponible:', response.data);
-  //         this.quantiteDisponible = response.data;
-
-  //         //  On met à jour le validateur max du champ qte
-  //     const qteControl = this.addSortie.get('qte');
-  //     qteControl?.setValidators([
-  //       Validators.required,
-  //       Validators.min(1),
-  //       Validators.max(this.quantiteDisponible)
-  //     ]);
-  //     qteControl?.updateValueAndValidity();
-
-  //       },
-  //       (error) => {
-  //         console.error('Erreur lors de la récupération de la quantité disponible:', error);
-  //         this.quantiteDisponible = 0;
-  //       }
-  //     );
-
-  // }
-
 }
-
-
