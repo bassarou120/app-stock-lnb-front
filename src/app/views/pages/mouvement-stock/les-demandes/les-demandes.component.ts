@@ -17,6 +17,7 @@ import { Subject, takeUntil } from 'rxjs'; // Importez Subject et takeUntil
 import { map } from 'rxjs/operators';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 
+declare var feather: any;
 declare var bootstrap: any;
 
 @Component({
@@ -67,6 +68,7 @@ export class SortieStockGroupedComponent implements OnInit {
     this.edit_all = this.formBuilder.group({
       code_mouvement: ['', Validators.required],
       date_mouvement: ['', Validators.required],
+      statut: ['', Validators.required],
     });
   }
 
@@ -99,8 +101,8 @@ export class SortieStockGroupedComponent implements OnInit {
   }
 
   toggleGroup(code: string) {
-    this.expandedGroupCode = this.expandedGroupCode === code ? null : code;
-  }
+  this.expandedGroupCode = this.expandedGroupCode === code ? null : code;
+}
 
   updateFilter(event: any): void {
     const val = event.target.value.toLowerCase();
