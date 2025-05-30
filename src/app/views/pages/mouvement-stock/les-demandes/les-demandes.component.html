@@ -198,10 +198,11 @@
           <input type="hidden" formControlName="id">
 
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none spinnerStatutModif" role="status">
+            <button type="submit" class="btn btn-primary" [disabled]="isStatutModifLoading">
+              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isStatutModifLoading" role="status">
                 <span class="visually-hidden">Loading...</span>
-              </div> Confirmer
+              </div>
+              {{ isStatutModifLoading ? 'Traitement...' : 'Confirmer' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>
@@ -247,10 +248,11 @@
             <small class="text-danger"> *la date de la demande est obligatoire</small>
           </div>
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none spinnerStatutModifAll" role="status">
+            <button type="submit" class="btn btn-primary" [disabled]="isProcessingAll">
+              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isProcessingAll" role="status">
                 <span class="visually-hidden">Loading...</span>
-              </div> Confirmer
+              </div>
+              {{ isProcessingAll ? 'Traitement en cours...' : 'Confirmer' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>

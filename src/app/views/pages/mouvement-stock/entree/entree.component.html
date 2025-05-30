@@ -248,10 +248,14 @@
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              (click)="onClickSubmitAddEntree()" [disabled]="isAddingSingleEntree" >
+              <span *ngIf="isAddingSingleEntree" class="spinner-border spinner-border-sm text-light me-2 spinner-single-add" role="status" aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
-              </div> Ajouter
+              </span>
+              {{ isAddingSingleEntree ? 'Ajout en cours...' : 'Ajouter' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>
@@ -580,10 +584,14 @@
 
           <!-- Boutons d'action -->
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary" [disabled]="!addEntreeMultipleForm.valid">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              (click)="onClickSubmitAddEntreeMultiple()" [disabled]="!addEntreeMultipleForm.valid || isAddingMultipleEntrees" >
+              <span *ngIf="isAddingMultipleEntrees" class="spinner-border spinner-border-sm text-light me-2 spinner-multiple-add" role="status" aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
-              </div> Ajouter
+              </span>
+              {{ isAddingMultipleEntrees ? 'Ajout en cours...' : 'Ajouter' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>

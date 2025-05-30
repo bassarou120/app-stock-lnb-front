@@ -239,11 +239,15 @@
 
           <!-- Boutons d'actions -->
           <div class="d-flex justify-content-center gap-3 mt-4">
-            <button type="submit" class="btn btn-primary btn-lg px-4">
-              <div class="spinner-border spinner-border-sm text-light d-none me-2" role="status">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              (click)="onClickSubmitAddVehicules()"
+              [disabled]="isAddingVehicules || addVehicule.invalid" >
+              <span *ngIf="isAddingVehicules" class="spinner-border spinner-border-sm text-light me-2 spinner-add-vehicule" role="status" aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
-              </div>
-              <i class="feather icon-save me-2"></i>Enregistrer les Véhicules
+              </span>
+              {{ isAddingVehicules ? 'Ajout en cours...' : 'Ajouter les véhicules' }}
             </button>
             <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">
               <i class="feather icon-x me-2"></i>Annuler
