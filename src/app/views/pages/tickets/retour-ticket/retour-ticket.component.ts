@@ -2,8 +2,8 @@ import { Component, ViewChild, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { RetourTicketService } from '../../../../core/services/retour-ticket/retour-ticket.service';
-import { RetourTicket, CompagniePetroliere, MouvementTicket, CouponTicket  } from '../../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
+import { RetourTicket, CompagniePetroliere, MouvementTicket, CouponTicket } from '../../../../core/services/interface/models';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -38,19 +38,25 @@ export class RetourTicketComponent implements OnInit {
   mouvementsTickets: MouvementTicket[] = []; // Liste des mouvements de sortie
   couponsTickets: CouponTicket[] = []; // Liste des coupons ticket
   compagniePetrolieres: CompagniePetroliere[] = []; // Liste des compagnies
-  ancienQteDuMvt: number; // Liste des compagnies
+  ancienQteDuMvt: number; // Quantité de l'ancien mouvement (utilisée pour la validation Max)
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
-  public addRetourTicket!: FormGroup ;
-  public editRetourTicket!: FormGroup ;
-  public deleteRetourTicket!: FormGroup ;
+  // --- NOUVELLE PROPRIÉTÉ POUR GÉRER LE CLIC MULTIPLE À L'AJOUT ---
+  isAdding: boolean = false; // Indicateur pour l'ajout
+  isEditing: boolean = false; // Indicateur pour la modification
+  isDeleting: boolean = false; // Indicateur pour la suppression
+  // ------------------------------------------------------------------
+
+  public addRetourTicket!: FormGroup;
+  public editRetourTicket!: FormGroup;
+  public deleteRetourTicket!: FormGroup;
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private retourTicketService: RetourTicketService,private formBuilder: FormBuilder,) {}
+  constructor(private retourTicketService: RetourTicketService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
     this.loadAllSortieTicketWhereNotInRetour();
@@ -62,30 +68,53 @@ export class RetourTicketComponent implements OnInit {
       mouvementTicket_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
       compagnie_petrolier_id: [null, [Validators.required]],
-      qte: [1 ,[Validators.required]],
-   });
+      qte: [1, [Validators.required]],
+    });
     this.editRetourTicket = this.formBuilder.group({
       id: [0, [Validators.required]],
       mouvementTicket_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
       compagnie_petrolier_id: [null, [Validators.required]],
-      qte: [1 ,[Validators.required]],
-   });
+      qte: [1, [Validators.required]],
+    });
     this.deleteRetourTicket = this.formBuilder.group({
       id: [0, [Validators.required]],
-   });
+    });
   }
 
-  onClickSubmitAddRetourTicket() {
-  console.log(this.addRetourTicket.value);
-  const spinner = document.querySelector('.spinner-border');
+  // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CHAMPS COMME TOUCHÉS ---
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+  // ---------------------------------------------------------------------
 
-  if (this.addRetourTicket.valid) {
-    if (spinner) spinner.classList.remove('d-none');
+  onClickSubmitAddRetourTicket() {
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isAdding) {
+      console.warn('Ajout de retour de ticket déjà en cours. Opération annulée.');
+      return;
+    }
+
+    // 2. Valider le formulaire
+    if (this.addRetourTicket.invalid) {
+      this.markFormGroupTouched(this.addRetourTicket); // Marque les champs pour afficher les erreurs
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      return; // Bloque la soumission si le formulaire est invalide
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isAdding = true;
+    console.log(this.addRetourTicket.value);
+
     this.retourTicketService.saveRetourTicket(this.addRetourTicket.value).subscribe(
       (data: any) => {
         this.loadRetourTickets();
-        if (spinner) spinner.classList.add('d-none');
+        this.loadAllSortieTicketWhereNotInRetour(); // Recharger les mouvements disponibles
         this.addRetourTicket.reset();
 
         // Fermer le modal manuellement
@@ -99,7 +128,6 @@ export class RetourTicketComponent implements OnInit {
           this.alertAjoutVisible = true;
           console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
           setTimeout(() => {
             this.alertAjoutVisible = false;
           }, 2000); // L'alerte disparaît après 2 secondes
@@ -107,28 +135,38 @@ export class RetourTicketComponent implements OnInit {
       },
       (error: any) => {
         console.error('Erreur lors de l\'ajout du retour de ticket :', error);
-        if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isAdding = false;
       }
     );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
   }
-  this.loadAllSortieTicketWhereNotInRetour();
-}
 
-onClickSubmitEditRetourTicket(){
-  console.log(this.editRetourTicket.value);
-  const spinner = document.querySelector('.spinnerModif');
+  onClickSubmitEditRetourTicket() {
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isEditing) {
+      console.warn('Modification de retour de ticket déjà en cours. Opération annulée.');
+      return;
+    }
 
-  if (this.editRetourTicket.valid) {
-    if (spinner) spinner.classList.remove('d-none');
+    // 2. Valider le formulaire
+    if (this.editRetourTicket.invalid) {
+      this.markFormGroupTouched(this.editRetourTicket);
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      return;
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isEditing = true;
+    console.log(this.editRetourTicket.value);
+
     const id = this.editRetourTicket.value.id;
     this.retourTicketService.editRetourTicket(this.editRetourTicket.value).subscribe(
       (data: any) => {
         this.loadRetourTickets();
-        if (spinner) spinner.classList.add('d-none');
+        this.loadAllSortieTicketWhereNotInRetour(); // Recharger les mouvements disponibles
         this.editRetourTicket.reset();
 
         // Fermer le modal manuellement
@@ -142,7 +180,6 @@ onClickSubmitEditRetourTicket(){
           this.alertModifVisible = true;
           console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
           setTimeout(() => {
             this.alertModifVisible = false;
           }, 2000); // L'alerte disparaît après 2 secondes
@@ -150,26 +187,37 @@ onClickSubmitEditRetourTicket(){
       },
       (error: any) => {
         console.error('Erreur lors de la modification du retour Ticket:', error);
-        if (spinner) spinner.classList.add('d-none');
         alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isEditing = false;
       }
     );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
   }
-}
 
-onClickSubmitDeleteRetourTicket(){
-  console.log(this.deleteRetourTicket.value);
-  const spinner = document.querySelector('.spinnerDelete');
+  onClickSubmitDeleteRetourTicket() {
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isDeleting) {
+      console.warn('Suppression de retour de ticket déjà en cours. Opération annulée.');
+      return;
+    }
 
-  if (this.deleteRetourTicket.valid) {
-    if (spinner) spinner.classList.remove('d-none');
+    // 2. Valider le formulaire
+    if (this.deleteRetourTicket.invalid) {
+      this.markFormGroupTouched(this.deleteRetourTicket);
+      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      return;
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isDeleting = true;
+    console.log(this.deleteRetourTicket.value);
+
     this.retourTicketService.deleteRetourTicket(this.deleteRetourTicket.value).subscribe(
       (data: any) => {
         this.loadRetourTickets();
-        if (spinner) spinner.classList.add('d-none');
+        this.loadAllSortieTicketWhereNotInRetour(); // Recharger les mouvements disponibles
         this.deleteRetourTicket.reset();
 
         // Fermer le modal manuellement
@@ -183,61 +231,58 @@ onClickSubmitDeleteRetourTicket(){
           this.alertSuppVisible = true;
           console.log('Alert visible après fermeture du modal:', this.alertSuppVisible);
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
           setTimeout(() => {
             this.alertSuppVisible = false;
           }, 2000); // L'alerte disparaît après 2 secondes
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de la supression du retour Ticket :', error);
-        if (spinner) spinner.classList.add('d-none');
+        console.error('Erreur lors de la suppression du retour Ticket :', error);
         alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isDeleting = false;
       }
     );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
   }
-}
 
-loadAllSortieTicketWhereNotInRetour(): void {
-  this.retourTicketService.getAllSortieTicketWhereNotInRetour().subscribe({
-    next: (data) => {
-      this.mouvementsTickets = data; // Stocker la liste des mouvement qui ne sont pas encore dans la table retour
-      console.error(" voici la liste" , this.mouvementsTickets);
-    },
-    error: (err) => {
-      console.error("Erreur lors du chargement des mouvements :", err);
-    }
-  });
-}
-loadCouponTickets(): void {
-  this.retourTicketService.getAllCouponTickets().subscribe({
-    next: (data) => {
-      this.couponsTickets = data; // Stocker la liste des coupons tickets
-    },
-    error: (err) => {
-      console.error("Erreur lors du chargement des coupons tickets :", err);
-    }
-  });
-}
-loadCompagniePetrolieres(): void {
-  this.retourTicketService.getAllCompagniePetrolieres().subscribe({
-    next: (data) => {
-      this.compagniePetrolieres = data; // Stocker la liste des compagniePetrolieres
-    },
-    error: (err) => {
-      console.error("Erreur lors du chargement des compagnies Petrolieres :", err);
-    }
-  });
-}
+  loadAllSortieTicketWhereNotInRetour(): void {
+    this.retourTicketService.getAllSortieTicketWhereNotInRetour().subscribe({
+      next: (data) => {
+        this.mouvementsTickets = data;
+        console.error(" voici la liste", this.mouvementsTickets);
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des mouvements :", err);
+      }
+    });
+  }
+  loadCouponTickets(): void {
+    this.retourTicketService.getAllCouponTickets().subscribe({
+      next: (data) => {
+        this.couponsTickets = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des coupons tickets :", err);
+      }
+    });
+  }
+  loadCompagniePetrolieres(): void {
+    this.retourTicketService.getAllCompagniePetrolieres().subscribe({
+      next: (data) => {
+        this.compagniePetrolieres = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des compagnies Petrolieres :", err);
+      }
+    });
+  }
 
-
-loadRetourTickets(): void {
+  loadRetourTickets(): void {
     this.retourTicketService.getAllRetourTickets().subscribe(
       (data: RetourTicket[]) => {
-        this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
+        this.temp = [...data];
         this.rows = data;
         this.loadingIndicator = false;
       },
@@ -258,23 +303,21 @@ loadRetourTickets(): void {
     this.table.offset = 0;
   }
 
-  getEditForm(row: any){
+  getEditForm(row: any) {
     this.editRetourTicket.patchValue({
-     id:row.id,
-     mouvementTicket_id:row.mouvementTicket_id,
-     compagnie_petrolier_id:row.compagnie_petrolier_id,
-     coupon_ticket_id:row.coupon_ticket_id,
-     qte:row.qte,
+      id: row.id,
+      mouvementTicket_id: row.mouvementTicket_id,
+      compagnie_petrolier_id: row.compagnie_petrolier_id,
+      coupon_ticket_id: row.coupon_ticket_id,
+      qte: row.qte,
     })
   }
 
-  getDeleteForm(row: any){
+  getDeleteForm(row: any) {
     this.deleteRetourTicket.patchValue({
-     id:row.id,
+      id: row.id,
     })
   }
-
-
 
   getMouvementtInfo() {
     const idMouvement = this.addRetourTicket.get('mouvementTicket_id')?.value;
@@ -285,27 +328,23 @@ loadRetourTickets(): void {
     }
     this.retourTicketService.getMouvementInfo(idMouvement).subscribe(
       (response) => {
-        console.log('Info Récupérée:',response);
+        console.log('Info Récupérée:', response);
         this.addRetourTicket.patchValue({
           compagnie_petrolier_id: response.compagnie_petrolier_id,
           coupon_ticket_id: response.coupon_ticket_id
         });
-        this.ancienQteDuMvt=response.quantite;
+        this.ancienQteDuMvt = response.quantite; // Assuming 'quantite' is the property holding the max quantity
         const qteControl = this.addRetourTicket.get('qte');
-    qteControl?.setValidators([
-      Validators.required,
-      Validators.min(1),
-      Validators.max(this.ancienQteDuMvt)
-    ]);
-    qteControl?.updateValueAndValidity();
+        qteControl?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(this.ancienQteDuMvt)
+        ]);
+        qteControl?.updateValueAndValidity();
       },
       (error) => {
         console.error('Erreur lors des Infos:', error);
       }
     );
   }
- }
-
-
-
-
+}

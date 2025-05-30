@@ -54,17 +54,18 @@ export class SortieComponent implements OnInit {
   compagnie_petrolier_id: number = 0;
 
 
-
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
   public addSortie!: FormGroup;
   public editSortie!: FormGroup;
   public deleteSortie!: FormGroup;
 
   communes: Commune[] = []; // Liste des communes
-  // Fichiers sélectionnés
+
+  // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION D'AJOUT
+  isAddingSortie: boolean = false;
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -83,13 +84,13 @@ export class SortieComponent implements OnInit {
       compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
-      kilometrage: [null, [Validators.required]],
-      employe_id: [null, [Validators.required]],
+      kilometrage: [null, [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0)
+      employe_id: [null, [Validators.required]], // Rendu requis si l'employé est toujours obligatoire
       commune_depart: [null, [Validators.required]],
       commune_arriver: [null, [Validators.required]],
       description: ["", []],
       objet: ["", []],
-      qte: [1, [Validators.required]],
+      qte: [1, [Validators.required, Validators.min(1)]], // Ajout d'un validateur min(1)
       date: ["", [Validators.required]],
       trajet_aller_retour: [false, []],
     });
@@ -99,13 +100,13 @@ export class SortieComponent implements OnInit {
       compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
-      kilometrage: [null, [Validators.required]],
+      kilometrage: [null, [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0)
       employe_id: [null, []],
       commune_depart: [null, [Validators.required]],
       commune_arriver: [null, [Validators.required]],
       description: ["", []],
       objet: ["", []],
-      qte: [1, [Validators.required]],
+      qte: [1, [Validators.required, Validators.min(1)]], // Ajout d'un validateur min(1)
       date: ["", [Validators.required]],
       trajet_aller_retour: [false, []],
     });
@@ -115,11 +116,25 @@ export class SortieComponent implements OnInit {
   }
 
   onClickSubmitAddSortie() {
-    console.log(this.addSortie.value);
-    const spinner = document.querySelector('.spinner-border');
+    // console.log('onClickSubmitAddSortie appelé. isAddingSortie:', this.isAddingSortie); // Commenté
+
+    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+    if (this.isAddingSortie) {
+      // console.warn('Soumission multiple détectée pour Sortie. Annulation.'); // Commenté
+      return; // Empêche l'exécution si déjà en cours
+    }
+
+    const spinner = document.querySelector('.spinner-add-sortie'); // Assurez-vous que ce sélecteur correspond à votre HTML
 
     if (this.addSortie.valid) {
-      if (spinner) spinner.classList.remove('d-none');
+      this.isAddingSortie = true; // Désactiver le bouton
+      // console.log('isAddingSortie mis à true.'); // Commenté
+
+      if (spinner) {
+        spinner.classList.remove('d-none');
+        // console.log('Spinner Sortie affiché.'); // Commenté
+      }
+
       const formData = {
         ...this.addSortie.value,
         date: this.formatDate(this.addSortie.value.date), // Convertir la date
@@ -129,6 +144,9 @@ export class SortieComponent implements OnInit {
           this.loadSorties();
           if (spinner) spinner.classList.add('d-none');
           this.addSortie.reset();
+          this.isAddingSortie = false; // Réactiver le bouton
+          // console.log('Soumission Sortie réussie. isAddingSortie mis à false.'); // Commenté
+
 
           // Fermer le modal manuellement
           const modal = document.getElementById('add_sortie');
@@ -139,7 +157,7 @@ export class SortieComponent implements OnInit {
           // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertAjoutVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+            // console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible); // Commenté
 
             // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
@@ -148,26 +166,42 @@ export class SortieComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de l\'ajout de l\'entree :', error);
+          console.error('Erreur lors de l\'ajout de la sortie :', error);
           if (spinner) spinner.classList.add('d-none');
+          this.isAddingSortie = false; // Réactiver le bouton en cas d'erreur
+          // console.error('Soumission Sortie échouée. isAddingSortie mis à false.'); // Commenté
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      console.log("Erreurs du formulaire :", this.addSortie.errors);
-      console.log("Statut des champs :", this.addSortie.controls);
+      // console.log("Erreurs du formulaire :", this.addSortie.errors); // Commenté
+      // console.log("Statut des champs :", this.addSortie.controls); // Commenté
+      this.markFormGroupTouched(this.addSortie); // Marquer les champs comme touchés
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
+  }
+
+  // Fonction utilitaire pour marquer tous les champs comme touchés (validation)
+  markFormGroupTouched(formGroup: FormGroup | FormArray) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.markFormGroupTouched(control);
+      }
+    });
   }
 
   onClickSubmitEditSortie() {
     console.log(this.editSortie.value);
     const spinner = document.querySelector('.spinnerModif');
 
+    // NOTE: Il serait bon d'ajouter une propriété isEditingSortie: boolean = false;
+    // et de la gérer comme isAddingSortie.
     if (this.editSortie.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      const id = this.editSortie.value.id;
+      // const id = this.editSortie.value.id; // Non utilisé
       const formData = {
         ...this.editSortie.value,
         date: this.formatDate(this.editSortie.value.date), // Convertir la date
@@ -203,6 +237,7 @@ export class SortieComponent implements OnInit {
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.editSortie); // Marquer les champs comme touchés
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
@@ -211,6 +246,8 @@ export class SortieComponent implements OnInit {
     console.log(this.deleteSortie.value);
     const spinner = document.querySelector('.spinnerDelete');
 
+    // NOTE: Il serait bon d'ajouter une propriété isDeletingSortie: boolean = false;
+    // et de la gérer comme isAddingSortie.
     if (this.deleteSortie.valid) {
       if (spinner) spinner.classList.remove('d-none');
       this.sortieService.deleteMouvementTicketSortie(this.deleteSortie.value).subscribe(
@@ -276,7 +313,7 @@ export class SortieComponent implements OnInit {
     this.sortieService.getAllCommunes().subscribe({ // Assurez-vous que cette méthode existe dans TrajetsService
       next: (data) => {
         this.communes = data; // Stocker la liste des communes
-        console.log('Communes chargées :', this.communes);
+        // console.log('Communes chargées :', this.communes); // Commenté
       },
       error: (err) => {
         console.error("Erreur lors du chargement des communes :", err);
@@ -306,17 +343,6 @@ export class SortieComponent implements OnInit {
     });
   }
 
-  // loadCouponTickets(): void {
-  //   this.sortieService.getAllCouponTickets().subscribe({
-  //     next: (data) => {
-  //       this.couponTickets = data; // Stocker la liste des couponTickets
-  //     },
-  //     error: (err) => {
-  //       console.error("Erreur lors du chargement des couponTickets :", err);
-  //     }
-  //   });
-  // }
-
   loadCouponTicketsWithCompagnies(): void {
     this.sortieService.getCouponTicketsWithCompagnies().subscribe({
       next: (res) => {
@@ -329,7 +355,7 @@ export class SortieComponent implements OnInit {
               compagnie_petrolier_id: item.compagnie.id
             };
           });
-          console.log("Bonjour", this.couponTicketsWithCompagnies);
+          // console.log("Bonjour", this.couponTicketsWithCompagnies); // Commenté
         }
       },
       error: (err) => {
@@ -337,12 +363,6 @@ export class SortieComponent implements OnInit {
       }
     });
   }
-
-
-
-
-
-
 
   loadSorties(): void {
     this.sortieService.getAllMouvementTicketSortie().subscribe(
@@ -352,7 +372,7 @@ export class SortieComponent implements OnInit {
         this.loadingIndicator = false;
       },
       error => {
-        console.error('Erreur lors du chargement des Mouvements Ticket Entree', error);
+        console.error('Erreur lors du chargement des Mouvements Ticket Sortie', error); // Correction du message
         this.loadingIndicator = false;
       }
     );
@@ -375,7 +395,7 @@ export class SortieComponent implements OnInit {
       compagnie_petrolier_id: row.compagnie_petrolier_id,
       coupon_ticket_id: row.coupon_ticket_id,
       kilometrage: row.kilometrage,
-      employe_id: row.employe?.id,
+      employe_id: row.employe_id, // Utilisez employe_id directement
       commune_depart: row.commune_depart,
       commune_arriver: row.commune_arriver,
       description: row.description,
@@ -395,14 +415,14 @@ export class SortieComponent implements OnInit {
     const year = date.year;
     const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
     const day = date.day.toString().padStart(2, '0');
-    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+    return `${year}-${month}-${day}`; // Format CCYY-MM-DD
   }
 
 
   // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
   convertToNgbDate(dateString: string): NgbDateStruct | null {
     if (!dateString) return null;
-    const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+    const parts = dateString.split('-'); // Séparer CCYY-MM-DD
     return {
       year: +parts[0],
       month: +parts[1],
@@ -414,51 +434,20 @@ export class SortieComponent implements OnInit {
     return employe ? `${employe.nom} ${employe.prenom}` : '';
   }
 
-  //   updateQuantiteDisponibleCoupon() {
-  //     const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
-  //     console.log('ID du coupon sélectionné:', idCoupon);
-
-  //     if (!idCoupon) {
-  //       console.log('Aucun coupon sélectionné ou désélection effectuée');
-  //       this.quantiteDisponibleCoupon = 0;
-  //       return;
-  //     }
-
-  //     this.sortieService.getQuantiteDisponibleCoupon(idCoupon).subscribe(
-  //       (response) => {
-  //         console.log('Quantité disponible:', response.data);
-  //         this.quantiteDisponibleCoupon = response.data;
-
-  //         // 🔥 On met à jour le validateur max du champ qte
-  //         this.addSortie.get('qte')?.setValidators([
-  //           Validators.required,
-  //           Validators.min(1),
-  //           Validators.max(this.quantiteDisponibleCoupon)
-  //         ]);
-  //         this.addSortie.get('qte')?.updateValueAndValidity();
-
-  //       },
-  //       (error) => {
-  //         console.error('Erreur lors de la récupération de la quantité disponible:', error);
-  //         this.quantiteDisponibleCoupon = 0;
-  //       }
-  //     );
-
-  // }
   updateQuantiteDisponible() {
     const idCoupon = this.addSortie.get('coupon_ticket_id')?.value;
     const idCompagnie = this.addSortie.get('compagnie_petrolier_id')?.value;
-    console.log('ID du coupon sélectionné:', idCoupon);
+    // console.log('ID du coupon sélectionné:', idCoupon); // Commenté
 
     if (!idCoupon) {
-      console.log('Aucun article sélectionné ou désélection effectuée');
+      // console.log('Aucun article sélectionné ou désélection effectuée'); // Commenté
       this.quantiteDisponible = 0;
       return;
     }
 
     this.sortieService.getQuantiteDisponible(idCoupon, idCompagnie).subscribe(
       (response) => {
-        console.log('Quantité disponible:', response.data);
+        // console.log('Quantité disponible:', response.data); // Commenté
         this.quantiteDisponible = response.data;
 
         // 🔥 On met à jour le validateur max du champ qte
@@ -484,8 +473,8 @@ export class SortieComponent implements OnInit {
       this.coupon_ticket_id = event.coupon_ticket_id;
       this.compagnie_petrolier_id = event.compagnie_petrolier_id;
 
-      console.log('Coupon ID:', this.coupon_ticket_id);
-      console.log('Compagnie ID:', this.compagnie_petrolier_id);
+      // console.log('Coupon ID:', this.coupon_ticket_id); // Commenté
+      // console.log('Compagnie ID:', this.compagnie_petrolier_id); // Commenté
 
       this.addSortie.patchValue({
         coupon_ticket_id: this.coupon_ticket_id,
@@ -496,6 +485,9 @@ export class SortieComponent implements OnInit {
     }
   }
 
+  // NOTE : Si `calculerQuantiteTicket` met à jour `qte`, assurez-vous qu'elle est appelée APRÈS
+  // que `updateQuantiteDisponible` ait mis à jour les validateurs, ou adaptez la logique.
+  // Idéalement, `calculerQuantiteTicket` devrait aussi mettre à jour les validateurs de `qte` si la quantité calculée dépasse la quantité disponible.
   calculerQuantiteTicket() {
     const data = {
       commune_depart: this.addSortie.get('commune_depart')?.value,
@@ -504,26 +496,41 @@ export class SortieComponent implements OnInit {
       coupon_ticket_id: this.addSortie.get('coupon_ticket_id')?.value,
     };
 
+    // Vérifier si toutes les données nécessaires sont présentes
+    if (!data.commune_depart || !data.commune_arriver || !data.coupon_ticket_id) {
+      // console.warn('Données manquantes pour calculer la quantité de ticket.'); // Commenté
+      return;
+    }
+
     // Appelle le service
     this.sortieService.getQuantiteTicketAttribution(data).subscribe({
       next: (res) => {
-        this.addSortie.patchValue({ qte: res.qteTicket });
+        const qteCalculee = res.qteTicket;
+        const qteControl = this.addSortie.get('qte');
+
+        // Appliquer la quantité calculée seulement si elle ne dépasse pas la quantité disponible
+        if (qteCalculee <= this.quantiteDisponible) {
+          this.addSortie.patchValue({ qte: qteCalculee });
+          // console.log('Quantité de ticket calculée et appliquée:', qteCalculee); // Commenté
+        } else {
+          // Si la quantité calculée dépasse la disponible, alerter l'utilisateur ou ajuster
+          alert(`La quantité calculée (${qteCalculee}) dépasse la quantité disponible (${this.quantiteDisponible}).`);
+          this.addSortie.patchValue({ qte: this.quantiteDisponible }); // Ou laisser vide, ou mettre 1
+          // console.warn('Quantité calculée trop élevée, ajustée à la quantité disponible.'); // Commenté
+        }
+
+        // Il est crucial de mettre à jour les validateurs après toute modification de la quantité disponible ou calculée
+        qteControl?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(this.quantiteDisponible) // Toujours baser sur la quantité disponible réelle
+        ]);
+        qteControl?.updateValueAndValidity();
       },
       error: (err) => {
         console.error('Erreur de calcul de ticket', err);
-        // Tu peux aussi afficher un message d'erreur à l'utilisateur ici
+        alert('Une erreur est survenue lors du calcul de la quantité de ticket. Veuillez réessayer.');
       },
     });
   }
-
-
-
-
-
-
 }
-
-
-
-
-

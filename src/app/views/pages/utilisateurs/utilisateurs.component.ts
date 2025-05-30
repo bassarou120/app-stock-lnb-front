@@ -47,13 +47,19 @@ export class UtilisateurComponent implements OnInit {
 
 
   // sexeOptions = [
-  //   { label: 'Masculin', value: 'Masculin' },
-  //   { label: 'Féminin', value: 'Féminin' }
+  //   { label: 'Masculin', value: 'Masculin' },
+  //   { label: 'Féminin', value: 'Féminin' }
   // ];
 
   alertAjoutVisible: boolean = false;
   alertModifVisible: boolean = false;
   alertSuppVisible: boolean = false;
+
+  // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
+  isAdding: boolean = false;    // Indicateur pour l'opération d'ajout
+  isEditing: boolean = false;   // Indicateur pour l'opération de modification
+  isDeleting: boolean = false;  // Indicateur pour l'opération de suppression
+  // -----------------------------------------------------------
 
   public addUserForm!: FormGroup;
   public editUserForm!: FormGroup;
@@ -64,7 +70,7 @@ export class UtilisateurComponent implements OnInit {
   @ViewChild('editUserContent') editUserContent!: TemplateRef<any>;
   @ViewChild('deleteUserContent') deleteUserContent!: TemplateRef<any>;
 
-  loading: boolean = false;
+  loading: boolean = false; // Note: this.loading is used for onViewUserProfile, but for CRUD operations, we will use isAdding/isEditing/isDeleting for button control
 
   constructor(
     private utilisateurService: UtilisateurService,
@@ -88,10 +94,10 @@ export class UtilisateurComponent implements OnInit {
   initForms(): void {
     this.addUserForm = this.formBuilder.group({
       employe_id: [null, [Validators.required]], // Champ pour l'ID de l'employé sélectionné
-      nom: [{ value: '', disabled: false }, [Validators.required]], // Corrected: Use 'nom' from Employe
-      surname: [{ value: '', disabled: false }], // Removed Validators.required if surname is not in Employe
-      email: [{ value: '', disabled: false }, [Validators.required, Validators.email]],
-      telephone: [{ value: '', disabled: false }, [Validators.required]], // Corrected: Use 'telephone' from Employe
+      nom: [{ value: '', disabled: true }, [Validators.required]], // Corrected: Use 'nom' from Employe; disabled: true to prevent manual editing
+      surname: [{ value: '', disabled: true }], // Removed Validators.required if surname is not in Employe; disabled: true
+      email: [{ value: '', disabled: true }, [Validators.required, Validators.email]], // disabled: true
+      telephone: [{ value: '', disabled: true }, [Validators.required]], // Corrected: Use 'telephone' from Employe; disabled: true
       // sexe: [null, [Validators.required]], // This must be chosen manually as 'sexe' is not in Employe
       // password: ['', [Validators.required, Validators.minLength(8)]],
       role_id: [null, [Validators.required]],
@@ -139,9 +145,9 @@ export class UtilisateurComponent implements OnInit {
       this.addUserForm.patchValue({
         nom: this.selectedEmploye.nom,
         // surname: this.selectedEmploye.prenom, // ATTENTION: Ton interface Employe n'a pas 'prenom'.
-                                       // Si tu as 'prenom' dans tes données réelles,
-                                       // tu dois l'ajouter à ton interface Employe.
-                                       // Pour l'instant, je le commente si ton interface ne l'a pas.
+        //                                        // Si tu as 'prenom' dans tes données réelles,
+        //                                        // tu dois l'ajouter à ton interface Employe.
+        //                                        // Pour l'instant, je le commente si ton interface ne l'a pas.
         email: this.selectedEmploye.email,
         telephone: this.selectedEmploye.telephone,
         // sexe: null // Sexe n'est pas dans Employe, il reste manuel
@@ -161,19 +167,39 @@ export class UtilisateurComponent implements OnInit {
     }
   }
 
+  // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+  // ---------------------------------------------------------------------
+
   // --- Opérations CRUD Utilisateur ---
   onClickSubmitAddUser(): void {
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isAdding) {
+      console.warn('Ajout utilisateur déjà en cours. Opération annulée.');
+      return;
+    }
+
     // getRawValue() est crucial pour récupérer les valeurs des champs désactivés
     const formData = this.addUserForm.getRawValue();
     console.log("Données du formulaire d'ajout utilisateur (avant envoi) :", formData);
 
+    // 2. Valider le formulaire
     if (this.addUserForm.invalid) {
-      this.addUserForm.markAllAsTouched();
+      this.markFormGroupTouched(this.addUserForm); // Marque les champs pour afficher les erreurs de validation
       alert("Désolé, le formulaire n'est pas bien renseigné.");
       return;
     }
 
-    this.loading = true;
+    // 3. Activer l'indicateur de chargement
+    this.isAdding = true;
+    // this.loading = true; // L'indicateur 'loading' général peut être remplacé par isAdding
 
     // Envoi des données nécessaires au backend.
     // Le backend récupérera les détails complets de l'employé via l'employe_id.
@@ -190,7 +216,7 @@ export class UtilisateurComponent implements OnInit {
     this.utilisateurService.saveUser(dataToSend).subscribe({
       next: (data: any) => {
         this.loadUsers(); // Recharge la liste des utilisateurs après l'ajout
-        this.loading = false;
+        // this.loading = false; // Géré par complete
         // Réinitialisation du formulaire, y compris les champs désactivés
         this.addUserForm.reset({ active: true, employe_id: null, role_id: null });
         this.selectedEmploye = null; // Réinitialise l'employé sélectionné
@@ -200,10 +226,17 @@ export class UtilisateurComponent implements OnInit {
           bsModal?.hide();
         }
         // this.showAlert('ajout');
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          console.log('Alert ajout visible après fermeture du modal:', this.alertAjoutVisible);
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000);
+        }, 200);
       },
       error: (error: any) => {
         console.error('Erreur lors de l\'ajout de l\'utilisateur :', error);
-        this.loading = false;
+        // this.loading = false; // Géré par complete
 
         if (error.status === 422 && error.error && error.error.errors) {
           let errorMessage = 'Erreur de validation :<br>';
@@ -216,21 +249,35 @@ export class UtilisateurComponent implements OnInit {
         } else {
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isAdding = false;
       }
     });
   }
 
   onClickSubmitEditUser(): void {
-    console.log("Formulaire modification envoyé:", this.editUserForm.value);
-    const spinner = document.querySelector('.spinnerEdit'); // Assure-toi d'avoir un spinner pour la modification
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isEditing) {
+      console.warn('Modification utilisateur déjà en cours. Opération annulée.');
+      return;
+    }
 
+    console.log("Formulaire modification envoyé:", this.editUserForm.value);
+    // const spinner = document.querySelector('.spinnerEdit'); // Ce spinner sera géré par [disabled] et le texte du bouton
+
+    // 2. Valider le formulaire
     if (this.editUserForm.invalid) {
-      if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.editUserForm);
+      // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
       alert("Désolé, le formulaire de modification n'est pas bien renseigné.");
       return;
     }
 
-    if (spinner) spinner.classList.remove('d-none');
+    // 3. Activer l'indicateur de chargement
+    this.isEditing = true;
+    // if (spinner) spinner.classList.remove('d-none'); // Géré par isEditing
 
     const userId: string = this.editUserForm.value.id;
     // On n'envoie que les champs que l'on veut modifier
@@ -242,7 +289,7 @@ export class UtilisateurComponent implements OnInit {
     this.utilisateurService.updateUser(userId, userDataToUpdate).subscribe({
       next: (data: User) => {
         this.loadUsers(); // Recharge la liste des utilisateurs pour voir les changements
-        if (spinner) spinner.classList.add('d-none');
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         this.editUserForm.reset(); // Réinitialise le formulaire de modification
         this.modalService.dismissAll(); // Ferme la modale de modification
 
@@ -257,30 +304,44 @@ export class UtilisateurComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erreur lors de la modification de l\'utilisateur :', error);
-        if (spinner) spinner.classList.add('d-none');
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         alert('Une erreur s\'est produite lors de la modification. Veuillez réessayer.');
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isEditing = false;
       }
     });
   }
 
 
   onClickSubmitDeleteUser(): void {
-    console.log("Formulaire suppression envoyé:", this.deleteUserForm.value);
-    const spinner = document.querySelector('.spinnerDelete'); // Assure-toi que ce spinner est lié au bouton de suppression
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isDeleting) {
+      console.warn('Suppression utilisateur déjà en cours. Opération annulée.');
+      return;
+    }
 
+    console.log("Formulaire suppression envoyé:", this.deleteUserForm.value);
+    // const spinner = document.querySelector('.spinnerDelete'); // Ce spinner sera géré par [disabled] et le texte du bouton
+
+    // 2. Valider le formulaire
     if (this.deleteUserForm.invalid) {
+      this.markFormGroupTouched(this.deleteUserForm);
       alert("Erreur: ID de l'utilisateur à supprimer non trouvé.");
       return;
     }
 
-    if (spinner) spinner.classList.remove('d-none');
+    // 3. Activer l'indicateur de chargement
+    this.isDeleting = true;
+    // if (spinner) spinner.classList.remove('d-none'); // Géré par isDeleting
 
     const userId: string = this.deleteUserForm.value.id;
 
     this.utilisateurService.deleteUser(userId).subscribe({
       next: (data: any) => {
         this.loadUsers(); // Recharge la liste des utilisateurs
-        if (spinner) spinner.classList.add('d-none');
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         this.deleteUserForm.reset();
 
         // Ferme la modale via NgbModal
@@ -297,8 +358,12 @@ export class UtilisateurComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erreur lors de la suppression de l\'utilisateur :', error);
-        if (spinner) spinner.classList.add('d-none');
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         alert('Une erreur s\'est produite lors de la suppression. Veuillez réessayer.');
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isDeleting = false;
       }
     });
   }
@@ -401,18 +466,18 @@ export class UtilisateurComponent implements OnInit {
 
   // --- Gestion des Alertes ---
   // showAlert(type: 'ajout' | 'modif' | 'supp'): void {
-  //   if (type === 'ajout') {
-  //     this.alertAjoutVisible = true;
-  //   } else if (type === 'modif') {
-  //     this.alertModifVisible = true;
-  //   } else if (type === 'supp') {
-  //     this.alertSuppVisible = true;
-  //   }
+  //   if (type === 'ajout') {
+  //     this.alertAjoutVisible = true;
+  //   } else if (type === 'modif') {
+  //     this.alertModifVisible = true;
+  //   } else if (type === 'supp') {
+  //     this.alertSuppVisible = true;
+  //   }
 
-  //   setTimeout(() => {
-  //     this.alertAjoutVisible = false;
-  //     this.alertModifVisible = false;
-  //     this.alertSuppVisible = false;
-  //   }, 2000);
+  //   setTimeout(() => {
+  //     this.alertAjoutVisible = false;
+  //     this.alertModifVisible = false;
+  //     this.alertSuppVisible = false;
+  //   }, 2000);
   // }
 }
