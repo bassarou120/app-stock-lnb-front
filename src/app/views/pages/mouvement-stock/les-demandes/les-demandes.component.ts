@@ -13,6 +13,9 @@ import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { Subject, takeUntil } from 'rxjs';
 import { map } from 'rxjs/operators';
+// import { AbstractControl, ValidatorFn } from '@angular/forms';
+
+declare var bootstrap: any;
 
 @Component({
   selector: 'app-sortie',
@@ -90,6 +93,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
     this.edit_all = this.formBuilder.group({
       code_mouvement: ['', Validators.required],
       date_mouvement: ['', Validators.required],
+      statut: ['', Validators.required],
     });
   }
 
@@ -130,8 +134,8 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
   }
 
   toggleGroup(code: string) {
-    this.expandedGroupCode = this.expandedGroupCode === code ? null : code;
-  }
+  this.expandedGroupCode = this.expandedGroupCode === code ? null : code;
+}
 
   updateFilter(event: any): void {
     const val = event.target.value.toLowerCase();
