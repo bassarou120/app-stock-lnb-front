@@ -73,8 +73,7 @@ export class StatusImmosComponent implements OnInit {
 
   onClickSubmitAddStatusImmo() {
     console.log(this.addStatusImmo.value);
-    // Le sélecteur de spinner doit être plus spécifique si vous en avez plusieurs ou utilise les nouvelles propriétés
-    // const spinner = document.querySelector('.spinner-add'); // Non nécessaire avec les nouvelles propriétés isAddingStatus
+    // const spinner = document.querySelector('.spinner-add');
 
     // Vérifier si une soumission est déjà en cours
     if (this.isAddingStatus) {
@@ -122,15 +121,15 @@ export class StatusImmosComponent implements OnInit {
     );
     } else {
       this.markFormGroupTouched(this.addStatusImmo); // Marque tous les champs comme touchés pour afficher les erreurs
-      // if (spinner) spinner.classList.add('d-none'); // Non nécessaire avec les nouvelles propriétés isAddingStatus
+      // if (spinner) spinner.classList.add('d-none');
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
 
   onClickSubmitEditStatusImmo(){
     console.log(this.editStatusImmo.value);
-    // Le sélecteur de spinner doit être plus spécifique
-    // const spinner = document.querySelector('.spinner-edit'); // Non nécessaire avec les nouvelles propriétés isEditingStatus
+
+    // const spinner = document.querySelector('.spinner-edit'); 
 
     // Vérifier si une soumission est déjà en cours
     if (this.isEditingStatus) {
@@ -140,9 +139,9 @@ export class StatusImmosComponent implements OnInit {
 
     if (this.editStatusImmo.valid) {
       this.isEditingStatus = true; // Désactiver le bouton Modifier
-      // if (spinner) spinner.classList.remove('d-none'); // Géré par [class.d-none]
+      // if (spinner) spinner.classList.remove('d-none');
 
-      const id = this.editStatusImmo.value.id; // Non utilisé ici, mais laissé pour contexte
+      const id = this.editStatusImmo.value.id; 
       this.statusImmoService.editStatusImmos(this.editStatusImmo.value).subscribe(
         {
             next: (data: any) => {
