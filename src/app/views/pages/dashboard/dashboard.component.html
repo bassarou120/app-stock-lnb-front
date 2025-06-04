@@ -227,7 +227,7 @@
   </div>
 </div> -->
 
-<!-- <div class="row">
+ <!-- <div class="row">
   <div class="col-lg-5 col-xl-4 grid-margin grid-margin-lg-0 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -239,10 +239,6 @@
             </a>
             <div ngbDropdownMenu aria-labelledby="dropdownMenuButton6">
               <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
             </div>
           </div>
         </div>
@@ -310,99 +306,107 @@
         </div>
       </div>
     </div>
-  </div>
-  <div class="col-lg-7 col-xl-8 stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex justify-content-between align-items-baseline mb-2">
-          <h6 class="card-title mb-0">Projects</h6>
-          <div ngbDropdown class="mb-2">
-            <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton7">
-              <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
-            </a>
-            <div ngbDropdownMenu aria-labelledby="dropdownMenuButton7">
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">View</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span class="">Edit</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span class="">Delete</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span class="">Print</span></a>
-              <a ngbDropdownItem class="d-flex align-items-center" href="" (click)="false"><i data-feather="download" appFeatherIcon class="icon-sm me-2"></i> <span class="">Download</span></a>
+  </div> -->
+  <div class="row">
+    <div class="col-lg-5 col-xl-4 grid-margin grid-margin-lg-0 stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-baseline mb-2">
+            <h6 class="card-title mb-0">Utilisateurs du Système</h6>
+            <div ngbDropdown class="mb-2">
+              <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton6">
+                <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+              </a>
+              <div ngbDropdownMenu aria-labelledby="dropdownMenuButton6">
+                <a ngbDropdownItem class="d-flex align-items-center" routerLink="/utilisateurs"><i data-feather="users" appFeatherIcon class="icon-sm me-2"></i> <span class="">Voir tous les utilisateurs</span></a>
+              </div>
             </div>
           </div>
-        </div>
-        <div class="table-responsive">
-          <table class="table table-hover mb-0">
-            <thead>
-              <tr>
-                <th class="pt-0">#</th>
-                <th class="pt-0">Project Name</th>
-                <th class="pt-0">Start Date</th>
-                <th class="pt-0">Due Date</th>
-                <th class="pt-0">Status</th>
-                <th class="pt-0">Assign</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>1</td>
-                <td>NobleUI jQuery</td>
-                <td>01/01/2024</td>
-                <td>26/04/2024</td>
-                <td><span class="badge bg-danger">Released</span></td>
-                <td>Leonardo Payne</td>
-              </tr>
-              <tr>
-                <td>2</td>
-                <td>NobleUI Angular</td>
-                <td>01/01/2024</td>
-                <td>26/04/2024</td>
-                <td><span class="badge bg-success">Review</span></td>
-                <td>Carl Henson</td>
-              </tr>
-              <tr>
-                <td>3</td>
-                <td>NobleUI ReactJs</td>
-                <td>01/05/2024</td>
-                <td>10/09/2024</td>
-                <td><span class="badge bg-info">Pending</span></td>
-                <td>Jensen Combs</td>
-              </tr>
-              <tr>
-                <td>4</td>
-                <td>NobleUI VueJs</td>
-                <td>01/01/2024</td>
-                <td>31/11/2024</td>
-                <td><span class="badge bg-warning">Work in Progress</span>
-                </td>
-                <td>Amiah Burton</td>
-              </tr>
-              <tr>
-                <td>5</td>
-                <td>NobleUI Laravel</td>
-                <td>01/01/2024</td>
-                <td>31/12/2024</td>
-                <td><span class="badge bg-danger text-white">Coming soon</span></td>
-                <td>Yaretzi Mayo</td>
-              </tr>
-              <tr>
-                <td>6</td>
-                <td>NobleUI NodeJs</td>
-                <td>01/01/2024</td>
-                <td>31/12/2024</td>
-                <td><span class="badge bg-primary">Coming soon</span></td>
-                <td>Carl Henson</td>
-              </tr>
-              <tr>
-                <td class="border-bottom">3</td>
-                <td class="border-bottom">NobleUI EmberJs</td>
-                <td class="border-bottom">01/05/2024</td>
-                <td class="border-bottom">10/11/2024</td>
-                <td class="border-bottom"><span class="badge bg-info">Pending</span></td>
-                <td class="border-bottom">Jensen Combs</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="d-flex flex-column">
+            @for (user of usersWithRoles; track user.id) {
+              <a href="" (click)="false" class="d-flex align-items-center border-bottom pb-3 pt-3">
+                <div class="me-3">
+                  <img src="images/faces/user.png" alt="Avatar par défaut" class="img-fluid rounded-circle" style="max-width: 50px; max-height: 50px;">
+                </div>
+                <div class="w-100">
+                  <div class="d-flex justify-content-between">
+                    <h6 class="text-body mb-2">{{ user.name }} {{ user.surname || '' }}</h6>
+                    <p class="text-secondary fs-12px">{{ user.last_activity | date:'shortDate' }}</p>
+                  </div>
+                  <p class="text-secondary fs-13px">
+                    Rôle : {{ getRoleDisplay(user) }}
+                  </p>
+                </div>
+              </a>
+            } @empty {
+              <div class="p-3 text-center text-muted">
+                Aucun utilisateur trouvé.
+              </div>
+            }
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>  -->
+    <div class="col-lg-7 col-xl-8 stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-baseline mb-2">
+            <h6 class="card-title mb-0">État du Stock</h6>
+            <div ngbDropdown class="mb-2">
+              <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton7">
+                <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+              </a>
+              <div ngbDropdownMenu aria-labelledby="dropdownMenuButton6">
+                <a ngbDropdownItem class="d-flex align-items-center" routerLink="/etat-de-stock"><i data-feather="users" appFeatherIcon class="icon-sm me-2"></i> <span class="">Voir tous les utilisateurs</span></a>
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th class="pt-0">N°</th>
+                  <th class="pt-0">Code Article</th>
+                  <th class="pt-0">Article</th>
+                  <th class="pt-0">Catégorie</th>
+                  <th class="pt-0">Qte Actuelle</th>
+                  <th class="pt-0">Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (article of latestArticlesWithStock; track article.id; let i = $index) {
+                  <tr>
+                    <td>{{ i + 1 }}</td>
+                    <td>{{ article.code_article || 'N/A' }}</td>
+                    <td>{{ article.libelle }}</td>
+                    <td>{{ getCategoryName(article.id_cat) }}</td>
+                    <td>
+                      <span
+                        [class]="getArticleStockBadgeClass(article.stock?.Qte_actuel || 0, article.seuil_alerte)"
+                        class="text-white p-1 rounded d-inline-block"
+                        style="min-width: 50px; text-align: center;"
+                      >
+                        {{ article.stock?.Qte_actuel || 0 }}
+                      </span>
+                    </td>
+                    <!-- <td>{{ article.seuil_alerte }}</td> -->
+                    <td>
+                      <span [class]="getArticleStockBadgeClass(article.stock?.Qte_actuel || 0, article.seuil_alerte)">
+                        {{ getArticleStockStatusText(article.stock?.Qte_actuel || 0, article.seuil_alerte) }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-4">
+                      Aucun article afficher.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>  
