@@ -459,7 +459,11 @@ export const MENU: MenuItem[] = [
       {
         label: 'Rôles',
         link: '/parametres/roles',
-      }
+      },
+      {
+        label: 'Permissions',
+        link: '/parametres/permissions',
+      },
     ]
   },
   {

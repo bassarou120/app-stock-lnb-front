@@ -1,0 +1,263 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Rôles et permissions</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Permissions</li>
+  </ol>
+</nav>
+
+<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Rôle ajouté avec succès !
+</ngb-alert>
+<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+  Rôle modifié avec succès !
+</ngb-alert>
+<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+  Rôle supprimé avec succès !
+</ngb-alert>
+
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Gestion des Permissions</h4>
+          <p class="text-secondary">Liste et gestion des permissions des utilisateurs</p>
+        </div>
+        <!-- <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_role">
+          <i class="fas fa-plus"></i> Ajouter un Rôle
+        </button> -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-5 col-md-3 pe-0">
+    <ul ngbNav #verticalNav="ngbNav" class="nav-tabs nav-tabs-vertical" orientation="vertical">
+      <li [ngbNavItem]="1">
+        <a ngbNavLink>Admin</a>
+        <ng-template ngbNavContent>
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #009b3a; color: white;">
+                <th style="padding: 10px; text-align: left;">Modules</th>
+                <th style="padding: 10px; text-align: center;">Statut</th>
+                <th style="padding: 10px; text-align: left;">Fonctionnalités</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Gestion du personnel -->
+              <tr>
+                <td style="padding: 10px;"><strong>Gestion du personnel</strong></td>
+                <td style="text-align: center;">
+                  <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                </td>
+                <td>
+                  <ul style="list-style: none; padding-left: 0;">
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Ajout du personnel
+                    </li>
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Modification du personnel
+                    </li>
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Suppression du personnel
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              <!-- Gestion du personnel -->
+              <tr>
+                <td style="padding: 10px;"><strong>Gestion du personnel</strong></td>
+                <td style="text-align: center;">
+                  <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                </td>
+                <td>
+                  <ul style="list-style: none; padding-left: 0;">
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Ajout du personnel
+                    </li>
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Modification du personnel
+                    </li>
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Suppression du personnel
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+              <!-- Gestion du personnel -->
+              <tr>
+                <td style="padding: 10px;"><strong>Gestion du personnel</strong></td>
+                <td style="text-align: center;">
+                  <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                </td>
+                <td>
+                  <ul style="list-style: none; padding-left: 0;">
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Ajout du personnel
+                    </li>
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Modification du personnel
+                    </li>
+                    <li>
+                      <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                      Suppression du personnel
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="2">
+        <a ngbNavLink>Manager</a>
+        <ng-template ngbNavContent>
+          <h6 class="mb-2">Manager</h6>
+          <p>Exercitation +1 labore velit, blog sartorial PBR leggings next level wes anderson artisan four loko
+            farm-to-table craft beer twee. Qui photo booth letterpress, commodo enim craft beer mlkshk aliquip jean
+            shorts
+            ullamco ad vinyl cillum PBR. Homo nostrud organic, assumenda labore aesthetic magna delectus mollit.</p>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="3">
+        <a ngbNavLink>Collaborateur</a>
+        <ng-template ngbNavContent>
+          <h6 class="mb-2">Collaborateur</h6>
+          <p>Sed commodo, leo at suscipit dictum, quam est porttitor sapien, eget sodales nibh elit id diam. Nulla
+            facilisi.
+            Donec egestas ligula vitae odio interdum aliquet. Duis lectus turpis, luctus eget tincidunt eu, congue et
+            odio.
+            Duis pharetra et nisl at faucibus.</p>
+        </ng-template>
+      </li>
+      <li [ngbNavItem]="4">
+        <a ngbNavLink>DAF</a>
+        <ng-template ngbNavContent>
+          <h6 class="mb-2">DAF</h6>
+          <p>Sed commodo, leo at suscipit dictum, quam est porttitor sapien, eget sodales nibh elit id diam.</p>
+        </ng-template>
+      </li>
+      <!-- <li [ngbNavItem]="5">
+        <a ngbNavLink class="disabled">DAF</a>
+        <ng-template ngbNavContent>
+          <h6 class="mb-2">DAF</h6>
+          <p>Sed commodo, leo at suscipit dictum, quam est porttitor sapien, eget sodales nibh elit id diam.</p>
+        </ng-template>
+      </li> -->
+    </ul>
+  </div>
+  <div class="col-7 col-md-9 ps-0">
+    <div [ngbNavOutlet]="verticalNav" class="tab-content-vertical border p-3"></div>
+  </div>
+</div>
+
+
+<div id="add_role" class="modal fade" tabindex="-1" aria-labelledby="addRoleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addRoleModalLabel">Ajouter un Rôle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="addRoleForm" (ngSubmit)="onClickSubmitAddRole()" novalidate>
+          <div class="mb-3">
+            <label for="roleName" class="form-label">Libellé du Rôle <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="roleName" placeholder="Entrez le libellé du rôle"
+              autocomplete="off"
+              [class.is-invalid]="addRoleForm.get('libelle_role')?.invalid && addRoleForm.get('libelle_role')?.touched"
+              formControlName="libelle_role">
+            <div *ngIf="addRoleForm.get('libelle_role')?.invalid && addRoleForm.get('libelle_role')?.touched">
+              <small *ngIf="addRoleForm.get('libelle_role')?.errors?.['required']" class="text-danger"> *Le libellé du
+                rôle est obligatoire</small>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="addRoleForm.invalid">
+              <div class="spinner-border spinner-border-sm text-light d-none spinner-add-role" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Ajouter
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="edit_role" class="modal fade" tabindex="-1" aria-labelledby="editRoleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editRoleModalLabel">Modifier le Rôle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editRoleForm" (ngSubmit)="onClickSubmitEditRole()" novalidate>
+          <input type="hidden" formControlName="id">
+          <div class="mb-3">
+            <label for="editRoleName" class="form-label">Libellé du Rôle <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="editRoleName" placeholder="Entrez le libellé du rôle"
+              autocomplete="off"
+              [class.is-invalid]="editRoleForm.get('libelle_role')?.invalid && editRoleForm.get('libelle_role')?.touched"
+              formControlName="libelle_role">
+            <div *ngIf="editRoleForm.get('libelle_role')?.invalid && editRoleForm.get('libelle_role')?.touched">
+              <small *ngIf="editRoleForm.get('libelle_role')?.errors?.['required']" class="text-danger"> *Le libellé du
+                rôle est obligatoire</small>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="editRoleForm.invalid">
+              <div class="spinner-border spinner-border-sm text-light d-none spinner-edit-role" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="delete_role" class="modal fade" tabindex="-1" aria-labelledby="deleteRoleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteRoleModalLabel">Suppression rôle</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteRoleForm" (ngSubmit)="onClickSubmitDeleteRole()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer ce Rôle ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinner-delete-role" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
