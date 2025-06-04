@@ -5,7 +5,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { environment } from "../../../../environments/environment";
-import { Article, Categorie } from "../interface/models"; // Assure-toi que les interfaces sont bien importées
+import { Article, Categorie } from "../interface/models"; 
 
 @Injectable({
   providedIn: 'root',
@@ -84,7 +84,7 @@ export class ArticleService {
     );
   }
 
-  // --- ASSURE-TOI QUE CETTE MÉTHODE EST BIEN PRÉSENTE ET À L'INTÉRIEUR DE LA CLASSE ---
+  
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: HttpErrorResponse): Observable<T> => {
       console.error(`${operation} failed:`, error);
