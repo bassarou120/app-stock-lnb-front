@@ -370,3 +370,15 @@ export interface LoginResponse {
   perm: any[]; // remplace `any` si tu veux typer les permissions
 }
 
+export interface DashboardData {
+  total_article_en_alerte: number;
+  total_article: number;
+  total_demandes_en_attente: number;
+  total_demandes_accorde: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}

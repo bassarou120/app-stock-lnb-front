@@ -11,238 +11,284 @@ import { HttpClientModule } from '@angular/common/http';
 declare var bootstrap: any; // Pour interagir avec les modales Bootstrap via JS
 
 @Component({
-  selector: 'app-role',
-  standalone: true,
-  imports: [
-    RouterLink,
-    NgxDatatableModule,
-    ReactiveFormsModule,
-    CommonModule,
-    NgbAlertModule,
-    NgbDropdownModule,
-    HttpClientModule, // Importez HttpClientModule ici (si ce n'est pas déjà fait au niveau global)
-  ],
-  templateUrl: './roles.component.html'
+  selector: 'app-role',
+  standalone: true,
+  imports: [
+    RouterLink,
+    NgxDatatableModule,
+    ReactiveFormsModule,
+    CommonModule,
+    NgbAlertModule,
+    NgbDropdownModule,
+    HttpClientModule, // Importez HttpClientModule ici (si ce n'est pas déjà fait au niveau global)
+  ],
+  templateUrl: './roles.component.html'
 })
 export class RoleComponent implements OnInit {
 
-  rows: Role[] = [];
-  temp: Role[] = [];
-  loadingIndicator = true;
-  reorderable = true;
-  ColumnMode = ColumnMode;
+  rows: Role[] = [];
+  temp: Role[] = [];
+  loadingIndicator = true;
+  reorderable = true;
+  ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false;
-  alertModifVisible: boolean = false;
-  alertSuppVisible: boolean = false;
+  alertAjoutVisible: boolean = false;
+  alertModifVisible: boolean = false;
+  alertSuppVisible: boolean = false;
 
-  public addRoleForm!: FormGroup;
-  public editRoleForm!: FormGroup;
-  public deleteRoleForm!: FormGroup;
+  // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
+  isAdding: boolean = false;    // Indicateur pour l'opération d'ajout
+  isEditing: boolean = false;   // Indicateur pour l'opération de modification
+  isDeleting: boolean = false;  // Indicateur pour l'opération de suppression
+  // -----------------------------------------------------------
 
-  @ViewChild('table') table!: DatatableComponent;
+  public addRoleForm!: FormGroup;
+  public editRoleForm!: FormGroup;
+  public deleteRoleForm!: FormGroup;
 
-  constructor(
-    private roleService: RoleService,
-    private formBuilder: FormBuilder,
-  ) { }
+  @ViewChild('table') table!: DatatableComponent;
 
-  ngOnInit(): void {
-    this.initForms();
-    this.loadRoles();
-  }
+  constructor(
+    private roleService: RoleService,
+    private formBuilder: FormBuilder,
+  ) { }
 
-  initForms(): void {
-    this.addRoleForm = this.formBuilder.group({
-      libelle_role: ["", [Validators.required]]
-    });
+  ngOnInit(): void {
+    this.initForms();
+    this.loadRoles();
+  }
 
-    this.editRoleForm = this.formBuilder.group({
-      id: ["", [Validators.required]],
-      libelle_role: ["", [Validators.required]]
-    });
+  initForms(): void {
+    this.addRoleForm = this.formBuilder.group({
+      libelle_role: ["", [Validators.required]]
+    });
 
-    this.deleteRoleForm = this.formBuilder.group({
-      id: ["", [Validators.required]],
-    });
-  }
+    this.editRoleForm = this.formBuilder.group({
+      id: ["", [Validators.required]],
+      libelle_role: ["", [Validators.required]]
+    });
 
-  // --- Chargement des rôles ---
-  loadRoles(): void {
-    this.loadingIndicator = true;
-    this.roleService.getAllRoles().subscribe({
-      next: (data: Role[]) => {
-        this.temp = [...data];
-        this.rows = data;
-        this.loadingIndicator = false;
-        console.log("Liste des rôles :", this.rows);
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement des rôles :', err);
-        this.loadingIndicator = false;
-        alert('Impossible de charger les rôles. Veuillez réessayer plus tard.');
+    this.deleteRoleForm = this.formBuilder.group({
+      id: ["", [Validators.required]],
+    });
+  }
+
+  // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
       }
     });
   }
+  // ---------------------------------------------------------------------
 
-  // --- Ajout de rôle ---
-  onClickSubmitAddRole(): void {
-    console.log("Données du formulaire d'ajout rôle (avant envoi) :", this.addRoleForm.value);
-    const spinner = document.querySelector('.spinner-add-role');
+  // --- Chargement des rôles ---
+  loadRoles(): void {
+    this.loadingIndicator = true;
+    this.roleService.getAllRoles().subscribe({
+      next: (data: Role[]) => {
+        this.temp = [...data];
+        this.rows = data;
+        this.loadingIndicator = false;
+        console.log("Liste des rôles :", this.rows);
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des rôles :', err);
+        this.loadingIndicator = false;
+        alert('Impossible de charger les rôles. Veuillez réessayer plus tard.');
+      }
+    });
+  }
 
-    if (this.addRoleForm.valid) {
-      if (spinner) spinner.classList.remove('d-none');
+  // --- Ajout de rôle ---
+  onClickSubmitAddRole(): void {
+    console.log("Données du formulaire d'ajout rôle (avant envoi) :", this.addRoleForm.value);
 
-      this.roleService.saveRole(this.addRoleForm.value).subscribe({
-        next: (newRole: Role) => {
-          this.loadRoles();
-          if (spinner) spinner.classList.add('d-none');
-          this.addRoleForm.reset();
-
-          // Fermer le modal manuellement
-          const modal = document.getElementById('add_role');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          // Afficher l'alerte de succès après la fermeture du modal
-          setTimeout(() => {
-            this.alertAjoutVisible = true;
-            console.log('Alert ajout visible après fermeture du modal:', this.alertAjoutVisible);
-            setTimeout(() => {
-              this.alertAjoutVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        error: (error: any) => {
-          console.error('Erreur lors de l\'ajout du rôle :', error);
-          if (spinner) spinner.classList.add('d-none');
-          let errorMessage = 'Une erreur s\'est produite lors de l\'ajout.';
-          if (error.status === 422 && error.error && error.error.libelle_role) {
-            errorMessage = `Erreur de validation : ${error.error.libelle_role[0]}`;
-          }
-          alert(errorMessage);
-        }
-      });
-    } else {
-      this.addRoleForm.markAllAsTouched();
-      if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isAdding) {
+      console.warn('Ajout de rôle déjà en cours. Opération annulée.');
+      return;
     }
-  }
 
-  // --- Modification de rôle ---
-  onClickSubmitEditRole(): void {
-    console.log("Données du formulaire de modification rôle (avant envoi) :", this.editRoleForm.value);
-    const spinner = document.querySelector('.spinner-edit-role');
+    // 2. Valider le formulaire
+    if (this.addRoleForm.invalid) {
+      this.markFormGroupTouched(this.addRoleForm);
+      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      return;
+    }
 
-    if (this.editRoleForm.valid) {
-      if (spinner) spinner.classList.remove('d-none');
-      const id = this.editRoleForm.value.id;
-      const dataToUpdate = { libelle_role: this.editRoleForm.value.libelle_role };
+    // 3. Activer l'indicateur de chargement
+    this.isAdding = true;
 
-      this.roleService.updateRole(id, dataToUpdate).subscribe({
-        next: (updatedRole: Role) => {
-          this.loadRoles();
-          if (spinner) spinner.classList.add('d-none');
-          this.editRoleForm.reset();
+    this.roleService.saveRole(this.addRoleForm.value).subscribe({
+      next: (newRole: Role) => {
+        this.loadRoles();
+        this.addRoleForm.reset();
 
-          // Fermer le modal manuellement
-          const modal = document.getElementById('edit_role');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
+        // Fermer le modal manuellement
+        const modal = document.getElementById('add_role');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
 
-          // Afficher l'alerte de succès après la fermeture du modal
-          setTimeout(() => {
-            this.alertModifVisible = true;
-            console.log('Alert modification visible après fermeture du modal:', this.alertModifVisible);
-            setTimeout(() => {
-              this.alertModifVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        error: (error: any) => {
-          console.error('Erreur lors de la modification du rôle :', error);
-          if (spinner) spinner.classList.add('d-none');
-          let errorMessage = 'Une erreur s\'est produite lors de la modification.';
-          if (error.status === 422 && error.error && error.error.libelle_role) {
-            errorMessage = `Erreur de validation : ${error.error.libelle_role[0]}`;
-          }
-          alert(errorMessage);
-        }
-      });
-    } else {
-      this.editRoleForm.markAllAsTouched();
-      if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+        // Afficher l'alerte de succès après la fermeture du modal
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          console.log('Alert ajout visible après fermeture du modal:', this.alertAjoutVisible);
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de l\'ajout du rôle :', error);
+        let errorMessage = 'Une erreur s\'est produite lors de l\'ajout.';
+        if (error.status === 422 && error.error && error.error.libelle_role) {
+          errorMessage = `Erreur de validation : ${error.error.libelle_role[0]}`;
+        }
+        alert(errorMessage);
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isAdding = false;
+      }
+    });
+  }
+
+  // --- Modification de rôle ---
+  onClickSubmitEditRole(): void {
+    console.log("Données du formulaire de modification rôle (avant envoi) :", this.editRoleForm.value);
+
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isEditing) {
+      console.warn('Modification de rôle déjà en cours. Opération annulée.');
+      return;
     }
-  }
 
-  // --- Suppression de rôle ---
-  onClickSubmitDeleteRole(): void {
-    console.log("ID rôle pour suppression (avant envoi) :", this.deleteRoleForm.value);
-    const spinner = document.querySelector('.spinner-delete-role');
+    // 2. Valider le formulaire
+    if (this.editRoleForm.invalid) {
+      this.markFormGroupTouched(this.editRoleForm);
+      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      return;
+    }
 
-    if (this.deleteRoleForm.valid) {
-      if (spinner) spinner.classList.remove('d-none');
-      const idToDelete = this.deleteRoleForm.value.id;
+    // 3. Activer l'indicateur de chargement
+    this.isEditing = true;
 
-      this.roleService.deleteRole(idToDelete).subscribe({
-        next: () => {
-          this.loadRoles();
-          if (spinner) spinner.classList.add('d-none');
-          this.deleteRoleForm.reset();
+    const id = this.editRoleForm.value.id;
+    const dataToUpdate = { libelle_role: this.editRoleForm.value.libelle_role };
 
-          // Fermer le modal manuellement
-          const modal = document.getElementById('delete_role');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
+    this.roleService.updateRole(id, dataToUpdate).subscribe({
+      next: (updatedRole: Role) => {
+        this.loadRoles();
+        this.editRoleForm.reset();
 
-          // Afficher l'alerte de succès après la fermeture du modal
-          setTimeout(() => {
-            this.alertSuppVisible = true;
-            console.log('Alert suppression visible après fermeture du modal:', this.alertSuppVisible);
-            setTimeout(() => {
-              this.alertSuppVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        error: (error: any) => {
-          console.error('Erreur lors de la suppression du rôle :', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite lors de la suppression. Veuillez réessayer.');
-        }
-      });
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      alert("Erreur: ID du rôle à supprimer non trouvé.");
+        // Fermer le modal manuellement
+        const modal = document.getElementById('edit_role');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        // Afficher l'alerte de succès après la fermeture du modal
+        setTimeout(() => {
+          this.alertModifVisible = true;
+          console.log('Alert modification visible après fermeture du modal:', this.alertModifVisible);
+          setTimeout(() => {
+            this.alertModifVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de la modification du rôle :', error);
+        let errorMessage = 'Une erreur s\'est produite lors de la modification.';
+        if (error.status === 422 && error.error && error.error.libelle_role) {
+          errorMessage = `Erreur de validation : ${error.error.libelle_role[0]}`;
+        }
+        alert(errorMessage);
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isEditing = false;
+      }
+    });
+  }
+
+  // --- Suppression de rôle ---
+  onClickSubmitDeleteRole(): void {
+    console.log("ID rôle pour suppression (avant envoi) :", this.deleteRoleForm.value);
+
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isDeleting) {
+      console.warn('Suppression de rôle déjà en cours. Opération annulée.');
+      return;
     }
-  }
 
-  // --- Filtrage du tableau ---
-  updateFilter(event: KeyboardEvent): void {
-    const val = (event.target as HTMLInputElement).value.toLowerCase();
-    this.rows = this.temp.filter(role =>
-      (role.libelle_role && role.libelle_role.toLowerCase().includes(val)) || !val
-    );
-    this.table.offset = 0;
-  }
+    // 2. Valider le formulaire
+    if (this.deleteRoleForm.invalid) {
+      alert("Erreur: ID du rôle à supprimer non trouvé.");
+      return;
+    }
 
-  // --- Pré-remplir les formulaires (sans ouvrir les modales ici) ---
-  getEditForm(row: Role): void {
-    this.editRoleForm.patchValue({
-      id: row.id,
-      libelle_role: row.libelle_role
-    });
-    // La modale est ouverte par data-bs-toggle dans le HTML
-  }
+    // 3. Activer l'indicateur de chargement
+    this.isDeleting = true;
 
-  getDeleteForm(row: Role): void {
-    this.deleteRoleForm.patchValue({
-      id: row.id,
-    });
-    // La modale est ouverte par data-bs-toggle dans le HTML
-  }
+    const idToDelete = this.deleteRoleForm.value.id;
+
+    this.roleService.deleteRole(idToDelete).subscribe({
+      next: () => {
+        this.loadRoles();
+        this.deleteRoleForm.reset();
+
+        // Fermer le modal manuellement
+        const modal = document.getElementById('delete_role');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        // Afficher l'alerte de succès après la fermeture du modal
+        setTimeout(() => {
+          this.alertSuppVisible = true;
+          console.log('Alert suppression visible après fermeture du modal:', this.alertSuppVisible);
+          setTimeout(() => {
+            this.alertSuppVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de la suppression du rôle :', error);
+        alert('Une erreur s\'est produite lors de la suppression. Veuillez réessayer.');
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isDeleting = false;
+      }
+    });
+  }
+
+  // --- Filtrage du tableau ---
+  updateFilter(event: KeyboardEvent): void {
+    const val = (event.target as HTMLInputElement).value.toLowerCase();
+    this.rows = this.temp.filter(role =>
+      (role.libelle_role && role.libelle_role.toLowerCase().includes(val)) || !val
+    );
+    this.table.offset = 0;
+  }
+
+  // --- Pré-remplir les formulaires (sans ouvrir les modales ici) ---
+  getEditForm(row: Role): void {
+    this.editRoleForm.patchValue({
+      id: row.id,
+      libelle_role: row.libelle_role
+    });
+    // La modale est ouverte par data-bs-toggle dans le HTML
+  }
+
+  getDeleteForm(row: Role): void {
+    this.deleteRoleForm.patchValue({
+      id: row.id,
+    });
+    // La modale est ouverte par data-bs-toggle dans le HTML
+  }
 }
