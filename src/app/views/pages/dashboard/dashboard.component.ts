@@ -6,9 +6,16 @@ import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.di
 import { ThemeCssVariableService, ThemeCssVariablesType } from '../../../core/services/theme-css-variable.service';
 import { DashboardStockService } from '../../../core/services/dashboardStock/dashboardStock.service';
 import { RouterModule } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
-// Importer l'interface DashboardData que nous avons définie
-import { DashboardData } from '../../../core/services/interface/models';
+// IMPORTANT: Remove these imports from the component!
+// import { Observable } from 'rxjs';
+// import { HttpClient } from '@angular/common/http';
+// import { map } from 'rxjs/operators';
+
+// Import your interfaces
+import { Article, Categorie, DashboardData, User } from '../../../core/services/interface/models';
+import { ArticleService } from '../../../core/services/articles/articles.service';
 
 
 @Component({
@@ -20,20 +27,19 @@ import { DashboardData } from '../../../core/services/interface/models';
     RouterModule,
     NgbDatepickerModule,
     NgApexchartsModule,
-    FeatherIconDirective
+    FeatherIconDirective,
+    CommonModule
   ],
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss'
 })
 export class DashboardComponent implements OnInit {
 
-  
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
-
-  
   dataTableauBord: DashboardData | null = null;
+  latestArticlesWithStock: Article[] = []; // <-- Propriété pour les articles avec stock
+  categories: Categorie[] = []; // <-- Propriété pour les catégories
 
-  
   public customersChartOptions: ApexOptions | any;
   public ordersChartOptions: ApexOptions | any;
   public growthChartOptions: ApexOptions | any;
@@ -41,17 +47,22 @@ export class DashboardComponent implements OnInit {
   public monthlySalesChartOptions: ApexOptions | any;
   public cloudStorageChartOptions: ApexOptions | any;
 
-  // Injection du service pour les variables CSS du thème
   themeCssVariables = inject(ThemeCssVariableService).getThemeCssVariables();
+  usersWithRoles: User[] = [];
 
-  // Injection du DashboardStockService via le constructeur
-  constructor(private dashboardStockService: DashboardStockService) {}
+  // Correct service injection
+  constructor(private dashboardStockService: DashboardStockService, private articleService: ArticleService) {
+    // console.log here is fine
+  }
 
   ngOnInit(): void {
-    // Appelle la méthode pour récupérer les données du tableau de bord au démarrage du composant
     this.getTableauBord();
+    this.getUsersWithRolesData(); // This correctly calls the method that subscribes to the service
+    this.loadCategories(); // Charge les catégories
+    this.loadLatestArticlesWithStock(); // Charge les derniers articles avec stock
 
-    // Initialise les options de vos graphiques en leur passant les variables de thème
+
+    // Initialize chart options
     this.customersChartOptions = this.getCustomersChartOptions(this.themeCssVariables);
     this.ordersChartOptions = this.getOrdersChartOptions(this.themeCssVariables);
     this.growthChartOptions = this.getGrowthChartOptions(this.themeCssVariables);
@@ -60,9 +71,7 @@ export class DashboardComponent implements OnInit {
     this.cloudStorageChartOptions = this.getCloudStorageChartOptions(this.themeCssVariables);
   }
 
-  
   getTableauBord() {
-    // Souscrit à l'observable du service pour recevoir les données
     this.dashboardStockService.getdashInfoStock().subscribe(
       (data: DashboardData) => {
         this.dataTableauBord = data;
@@ -70,9 +79,92 @@ export class DashboardComponent implements OnInit {
       },
       (error: any) => {
         console.error('Erreur lors du chargement des données du tableau de bord :', error);
-        // Gestion des erreurs : vous pouvez afficher un message d'erreur à l'utilisateur ici
       }
     );
+  }
+
+  /**
+   * Charge la liste des catégories.
+   */
+  loadCategories(): void {
+    this.articleService.getAllCategories().subscribe({
+      next: (data) => {
+        this.categories = data;
+        console.log('Catégories chargées dans le dashboard:', this.categories);
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des catégories dans le dashboard :", err);
+      }
+    });
+  }
+
+  /**
+   * Charge les 6 premiers articles avec leur état de stock.
+   */
+  loadLatestArticlesWithStock(): void {
+    this.articleService.getLatestArticlesWithStock().subscribe(
+      (articles: Article[]) => {
+        this.latestArticlesWithStock = articles;
+        console.log('Derniers articles avec stock chargés pour le dashboard:', this.latestArticlesWithStock);
+      },
+      error => {
+        console.error('Erreur lors du chargement des derniers articles avec stock :', error);
+      }
+    );
+  }
+
+  // Méthode pour obtenir le nom de la catégorie
+  getCategoryName(categoryId: number | undefined): string {
+    if (categoryId === undefined || categoryId === null) return 'N/A';
+    const category = this.categories.find(cat => cat.id === categoryId);
+    return category ? category.libelle_categorie_article : 'Inconnu';
+  }
+
+  // Méthode pour obtenir la classe de badge en fonction de la quantité disponible
+  getArticleStockBadgeClass(currentStock: number, alertStock: number): string {
+    if (currentStock <= 0) {
+      return 'badge bg-danger'; // Rupture
+    } else if (currentStock <= alertStock) {
+      return 'badge bg-warning'; // Alerte
+    } else {
+      return 'badge bg-success'; // En stock
+    }
+  }
+
+  // Méthode pour obtenir le texte du statut du stock
+  getArticleStockStatusText(currentStock: number, alertStock: number): string {
+    if (currentStock <= 0) {
+      return 'Rupture';
+    } else if (currentStock <= alertStock) {
+      return 'Alerte';
+    } else {
+      return 'En stock';
+    }
+  }
+
+  getUsersWithRolesData() {
+    this.dashboardStockService.getUsersWithRoles().subscribe(
+      (data: User[]) => {
+        console.log('Users data received in component:', data);
+        this.usersWithRoles = data.filter(user => {
+          // Vérifie si l'utilisateur a un rôle et si ce rôle n'est PAS 'admin' ou 'super-admin'
+          return user.role && 
+                 user.role.libelle_role !== 'Admin' && 
+                 user.role.libelle_role !== 'Super Admin';
+        });
+        console.log('Users data after filtering (admin/super-admin excluded):', this.usersWithRoles);
+        this.usersWithRoles.forEach(user => {
+            (user as any).roleDisplay = user.role ? user.role.libelle_role : 'Pas de rôle';
+        });
+      },
+      (error: any) => {
+        console.error('Error fetching users:', error);
+      }
+    );
+  }
+
+  getRoleDisplay(user: User): string {
+    return user.role ? user.role.libelle_role : 'Pas de rôle';
   }
 
 
