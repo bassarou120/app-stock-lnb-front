@@ -7,7 +7,7 @@
           <p class="text-secondary">Etat du Stock</p>
         </div>
         <div class="d-flex gap-2">
-        <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadEtatStock()">
+        <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="exportExcel()">
           <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
           Imprimer
         </button>
@@ -59,7 +59,7 @@
             <ngx-datatable-column name="Qte Actuelle">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div
-                  
+
                   [ngStyle]="{
                     'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
                   }" class="text-white p-1 rounded d-inline-block"
