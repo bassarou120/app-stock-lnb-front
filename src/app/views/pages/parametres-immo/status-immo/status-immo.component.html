@@ -119,16 +119,13 @@
 <div id="add_statusImmo" class="modal fade" tabindex="-1" aria-labelledby="addStatusImmoLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <!-- En-tête du modal -->
       <div class="modal-header">
         <h5 class="modal-title" id="addStatusImmoLabel">Ajouter un status d'Immobilisation</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <!-- Contenu du modal -->
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="addStatusImmo" (ngSubmit)="onClickSubmitAddStatusImmo()" novalidate>
-          <!-- Nom de la marque -->
           <div class="mb-3">
             <label for="statusName" class="form-label">Status <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="statusName" placeholder="Entrez le status"
@@ -141,12 +138,15 @@
             </div>
           </div>
 
-          <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="isAddingStatus" >
+              <div *ngIf="isAddingStatus" class="spinner-border spinner-border-sm text-light me-2 spinner-add" role="status">
                 <span class="visually-hidden">Loading...</span>
-              </div> Ajouter
+              </div>
+              {{ isAddingStatus ? 'Ajout en cours...' : 'Ajouter' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>

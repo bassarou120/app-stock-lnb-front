@@ -3,70 +3,104 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MagazinsService } from '../../../../core/services/magazins/magazins.service';
 import { Magazin } from '../../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 
 @Component({
-  selector: 'app-magazins',
-  standalone: true,
-  imports: [
-    RouterLink,
-    NgxDatatableModule,
-    ReactiveFormsModule,
-    CommonModule,
-    NgbAlertModule,
-    NgbDropdownModule
-  ],
-  templateUrl: 'magazins.component.html'
+  selector: 'app-magazins',
+  standalone: true,
+  imports: [
+    RouterLink,
+    NgxDatatableModule,
+    ReactiveFormsModule,
+    CommonModule,
+    NgbAlertModule,
+    NgbDropdownModule
+  ],
+  templateUrl: 'magazins.component.html'
 })
 export class MagazinsComponent implements OnInit {
 
-  rows: Magazin[] = [];
-  temp: Magazin[] = [];
-  loadingIndicator = true;
-  reorderable = true;
-  ColumnMode = ColumnMode;
+  rows: Magazin[] = [];
+  temp: Magazin[] = [];
+  loadingIndicator = true;
+  reorderable = true;
+  ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
-  public addMagazin!: FormGroup ;
-  public editMagazin!: FormGroup ;
-  public deleteMagazin!: FormGroup ;
+  // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
+  isAdding: boolean = false;    // Indicateur pour l'opération d'ajout
+  isEditing: boolean = false;   // Indicateur pour l'opération de modification
+  isDeleting: boolean = false;  // Indicateur pour l'opération de suppression
+  // -----------------------------------------------------------
 
-  @ViewChild('table') table!: DatatableComponent;
+  public addMagazin!: FormGroup ;
+  public editMagazin!: FormGroup ;
+  public deleteMagazin!: FormGroup ;
 
-  constructor(private magazinsService: MagazinsService, private formBuilder: FormBuilder,) {}
+  @ViewChild('table') table!: DatatableComponent;
 
-  ngOnInit(): void {
-    this.loadMagazins();
-    this.addMagazin = this.formBuilder.group({
-      libelle_magazin: ["", [Validators.required]],
-      localisation: ["", [Validators.required]],
-   });
-    this.editMagazin = this.formBuilder.group({
-      id: [0, [Validators.required]],
-      libelle_magazin: ["", [Validators.required]],
-      localisation: ["", [Validators.required]],
-   });
-    this.deleteMagazin = this.formBuilder.group({
-      id: [0, [Validators.required]],
-   });
+  constructor(private magazinsService: MagazinsService, private formBuilder: FormBuilder,) {}
+
+  ngOnInit(): void {
+    this.loadMagazins();
+    this.addMagazin = this.formBuilder.group({
+      libelle_magazin: ["", [Validators.required]],
+      localisation: ["", [Validators.required]],
+   });
+    this.editMagazin = this.formBuilder.group({
+      id: [0, [Validators.required]],
+      libelle_magazin: ["", [Validators.required]],
+      localisation: ["", [Validators.required]],
+   });
+    this.deleteMagazin = this.formBuilder.group({
+      id: [0, [Validators.required]],
+   });
+  }
+
+  // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
   }
-  onClickSubmitAddMagazin() {
-  console.log(this.addMagazin.value);
-  const spinner = document.querySelector('.spinner-border');
+  // ---------------------------------------------------------------------
 
-  if (this.addMagazin.valid) {
-    if (spinner) spinner.classList.remove('d-none');
-    this.magazinsService.saveMagazin(this.addMagazin.value).subscribe(
-      (data: any) => {
+  onClickSubmitAddMagazin() {
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isAdding) {
+      console.warn('Ajout de magasin déjà en cours. Opération annulée.');
+      return;
+    }
+
+    console.log(this.addMagazin.value);
+    // const spinner = document.querySelector('.spinner-border'); // Ce spinner sera géré par [disabled] et le texte du bouton
+
+    // 2. Valider le formulaire
+    if (this.addMagazin.invalid) {
+      this.markFormGroupTouched(this.addMagazin); // Marque tous les champs comme touchés pour afficher les erreurs
+      // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+      return;
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isAdding = true;
+    // if (spinner) spinner.classList.remove('d-none'); // Géré par isAdding
+
+    this.magazinsService.saveMagazin(this.addMagazin.value).subscribe({
+      next: (data: any) => {
         this.loadMagazins();
-        if (spinner) spinner.classList.add('d-none');
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         this.addMagazin.reset();
 
         // Fermer le modal manuellement
@@ -86,29 +120,45 @@ export class MagazinsComponent implements OnInit {
           }, 2000); // L'alerte disparaît après 2 secondes
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
-      (error: any) => {
-        console.error('Erreur lors de l\'ajout du magazin :', error);
-        if (spinner) spinner.classList.add('d-none');
+      error: (error: any) => {
+        console.error('Erreur lors de l\'ajout du magasin :', error);
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isAdding = false;
       }
-    );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    });
   }
-}
 
-onClickSubmitEditMagazin(){
-  console.log(this.editMagazin.value);
-  const spinner = document.querySelector('.spinnerModif');
+  onClickSubmitEditMagazin(){
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isEditing) {
+      console.warn('Modification de magasin déjà en cours. Opération annulée.');
+      return;
+    }
 
-  if (this.editMagazin.valid) {
-    if (spinner) spinner.classList.remove('d-none');
+    console.log(this.editMagazin.value);
+    // const spinner = document.querySelector('.spinnerModif'); // Ce spinner sera géré par [disabled] et le texte du bouton
+
+    // 2. Valider le formulaire
+    if (this.editMagazin.invalid) {
+      this.markFormGroupTouched(this.editMagazin);
+      // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+      return;
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isEditing = true;
+    // if (spinner) spinner.classList.remove('d-none'); // Géré par isEditing
+
     const id = this.editMagazin.value.id;
-    this.magazinsService.editMagazin(this.editMagazin.value).subscribe(
-      (data: any) => {
+    this.magazinsService.editMagazin(this.editMagazin.value).subscribe({
+      next: (data: any) => {
         this.loadMagazins();
-        if (spinner) spinner.classList.add('d-none');
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         this.editMagazin.reset();
 
         // Fermer le modal manuellement
@@ -128,28 +178,43 @@ onClickSubmitEditMagazin(){
           }, 2000); // L'alerte disparaît après 2 secondes
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
-      (error: any) => {
-        console.error('Erreur lors de la modification du magazin :', error);
-        if (spinner) spinner.classList.add('d-none');
+      error: (error: any) => {
+        console.error('Erreur lors de la modification du magasin :', error);
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isEditing = false;
       }
-    );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    });
   }
-}
 
-onClickSubmitDeleteMagazin(){
-  console.log(this.deleteMagazin.value);
-  const spinner = document.querySelector('.spinnerDelete');
+  onClickSubmitDeleteMagazin(){
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isDeleting) {
+      console.warn('Suppression de magasin déjà en cours. Opération annulée.');
+      return;
+    }
 
-  if (this.deleteMagazin.valid) {
-    if (spinner) spinner.classList.remove('d-none');
-    this.magazinsService.deleteMagazin(this.deleteMagazin.value).subscribe(
-      (data: any) => {
+    console.log(this.deleteMagazin.value);
+    // const spinner = document.querySelector('.spinnerDelete'); // Ce spinner sera géré par [disabled] et le texte du bouton
+
+    // 2. Valider le formulaire
+    if (this.deleteMagazin.invalid) {
+      this.markFormGroupTouched(this.deleteMagazin);
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+      return;
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isDeleting = true;
+    // if (spinner) spinner.classList.remove('d-none'); // Géré par isDeleting
+
+    this.magazinsService.deleteMagazin(this.deleteMagazin.value).subscribe({
+      next: (data: any) => {
         this.loadMagazins();
-        if (spinner) spinner.classList.add('d-none');
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         this.deleteMagazin.reset();
 
         // Fermer le modal manuellement
@@ -169,57 +234,54 @@ onClickSubmitDeleteMagazin(){
           }, 2000); // L'alerte disparaît après 2 secondes
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
-      (error: any) => {
-        console.error('Erreur lors de la supression du magazin :', error);
-        if (spinner) spinner.classList.add('d-none');
+      error: (error: any) => {
+        console.error('Erreur lors de la suppression du magasin :', error);
+        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
         alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+        this.isDeleting = false;
       }
-    );
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    });
   }
-}
-
 
 
 loadMagazins(): void {
-    this.magazinsService.getAllMagazins().subscribe(
-      (data: Magazin[]) => {
-        this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
-        this.rows = data;
-        this.loadingIndicator = false;
-      },
-      error => {
-        console.error('Erreur lors du chargement des Magazin', error);
-        this.loadingIndicator = false;
-      }
-    );
-  }
+    this.magazinsService.getAllMagazins().subscribe(
+      (data: Magazin[]) => {
+        this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
+        this.rows = data;
+        this.loadingIndicator = false;
+      },
+      error => {
+        console.error('Erreur lors du chargement des Magazin', error);
+        this.loadingIndicator = false;
+      }
+    );
+  }
 
-  updateFilter(event: KeyboardEvent): void {
-    const val = (event.target as HTMLInputElement).value.toLowerCase();
+  updateFilter(event: KeyboardEvent): void {
+    const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(magazin =>
-      magazin.libelle_magazin.toLowerCase().includes(val)
-    );
+    this.rows = this.temp.filter(magazin =>
+      magazin.libelle_magazin.toLowerCase().includes(val)
+    );
 
-    this.table.offset = 0;
-  }
+    this.table.offset = 0;
+  }
 
-  getEditForm(row: any){
-    this.editMagazin.patchValue({
-     id:row.id,
-     libelle_magazin:row.libelle_magazin,
-     localisation:row.localisation
-    })
-  }
+  getEditForm(row: any){
+    this.editMagazin.patchValue({
+     id:row.id,
+     libelle_magazin:row.libelle_magazin,
+     localisation:row.localisation
+    })
+  }
 
-  getDeleteForm(row: any){
-    this.deleteMagazin.patchValue({
-     id:row.id,
-    })
-  }
+  getDeleteForm(row: any){
+    this.deleteMagazin.patchValue({
+     id:row.id,
+    })
+  }
 }
-
-

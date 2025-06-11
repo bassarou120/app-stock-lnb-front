@@ -178,6 +178,9 @@ export interface Article {
   description: number;
   created_at: string;
   updated_at: string;
+  seuil_alerte: number;
+  stock?: ArticleStockInfo; // <-- Ceci lie les informations de stock à l'article
+  code_article?: string; // Ajouté, car utilisé dans ton template HTML pour la colonne "Code"
 }
 
 export interface Vehicule {
@@ -370,3 +373,39 @@ export interface LoginResponse {
   perm: any[]; // remplace `any` si tu veux typer les permissions
 }
 
+export interface DashboardData {
+  total_article_en_alerte: number;
+  total_article: number;
+  total_demandes_en_attente: number;
+  total_demandes_accorde: number;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
+// Interface pour la réponse de pagination de Laravel
+export interface PaginatedResponse<T> {
+  current_page: number;
+  data: T[]; // Le tableau des utilisateurs (User[])
+  first_page_url: string;
+  from: number;
+  last_page: number;
+  last_page_url: string;
+  links: any[]; // Peut être typé plus précisément si besoin
+  next_page_url: string | null;
+  path: string;
+  per_page: number;
+  prev_page_url: string | null;
+  to: number;
+  total: number;
+}
+
+export interface ArticleStockInfo {
+  id?: number; // ID de l'entrée de stock
+  Qte_actuel: number; // Quantité actuelle de l'article en stock
+  // Ajoute ici d'autres propriétés si ton objet 'stock' de l'API en contient
+  // Exemple: id_article?: number;
+}

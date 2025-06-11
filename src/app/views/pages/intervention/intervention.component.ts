@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsService } from '../../../core/services/intervention/intervention.service';
 import { Immobilisation, TypeIntervention, Intervention } from '../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms"; // Ajouté FormArray
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
@@ -39,9 +39,9 @@ export class InterventionComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
+  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
+  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
   public addIntervention!: FormGroup;
   public editIntervention!: FormGroup;
@@ -50,6 +50,8 @@ export class InterventionComponent implements OnInit {
   immobilisations: Immobilisation[] = []; // Liste des immos
   typeInterventions: TypeIntervention[] = []; // Liste des types d'intervention
 
+  // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
+  isAddingIntervention: boolean = false; // Pour l'ajout d'une intervention
 
 
   @ViewChild('table') table!: DatatableComponent;
@@ -67,27 +69,41 @@ export class InterventionComponent implements OnInit {
       titre: ["", [Validators.required]],
       observation: ["", [Validators.required]],
       date_intervention: ["", [Validators.required]],
-      cout: ["", [Validators.required]],
+      cout: ["", [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0) pour le coût
     });
     this.editIntervention = this.formBuilder.group({
       id: [0, [Validators.required]],
-      immo_id: [0, [Validators.required]],
-      type_intervention_id: [0, [Validators.required]],
+      immo_id: [null, [Validators.required]], // Changé de 0 à null pour la cohérence avec les sélecteurs
+      type_intervention_id: [null, [Validators.required]], // Changé de 0 à null
       titre: ["", [Validators.required]],
       observation: ["", [Validators.required]],
       date_intervention: ["", [Validators.required]],
-      cout: ["", [Validators.required]],
+      cout: ["", [Validators.required, Validators.min(0)]],
     });
     this.deleteIntervention = this.formBuilder.group({
       id: [0, [Validators.required]],
     });
   }
   onClickSubmitAddIntervention() {
-    console.log(this.addIntervention.value);
-    const spinner = document.querySelector('.spinner-border');
+    // console.log('onClickSubmitAddIntervention appelé. isAddingIntervention:', this.isAddingIntervention); // Commenté
+
+    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+    if (this.isAddingIntervention) {
+      // console.warn('Soumission multiple détectée pour Intervention. Annulation.'); // Commenté
+      return; // Empêche l'exécution si déjà en cours
+    }
+
+    const spinner = document.querySelector('.spinner-add-intervention'); // Assurez-vous que ce sélecteur correspond à votre HTML
 
     if (this.addIntervention.valid) {
-      if (spinner) spinner.classList.remove('d-none');
+      this.isAddingIntervention = true; // Désactiver le bouton
+      // console.log('isAddingIntervention mis à true.'); // Commenté
+
+      if (spinner) {
+        spinner.classList.remove('d-none');
+        // console.log('Spinner Intervention affiché.'); // Commenté
+      }
+
       const formData = {
         ...this.addIntervention.value,
         date_intervention: this.formatDate(this.addIntervention.value.date_intervention), // Convertir la date
@@ -97,6 +113,8 @@ export class InterventionComponent implements OnInit {
           this.loadInterventions();
           if (spinner) spinner.classList.add('d-none');
           this.addIntervention.reset();
+          this.isAddingIntervention = false; // Réactiver le bouton
+          // console.log('Soumission Intervention réussie. isAddingIntervention mis à false.'); // Commenté
 
           // Fermer le modal manuellement
           const modal = document.getElementById('add_intervention');
@@ -107,7 +125,7 @@ export class InterventionComponent implements OnInit {
           // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertAjoutVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+            // console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible); // Commenté
 
             // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
@@ -118,22 +136,29 @@ export class InterventionComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de l\'ajout de l\'intervention :', error);
           if (spinner) spinner.classList.add('d-none');
+          this.isAddingIntervention = false; // Réactiver le bouton en cas d'erreur
+          // console.error('Soumission Intervention échouée. isAddingIntervention mis à false.'); // Commenté
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.addIntervention); // Marquer les champs comme touchés pour afficher les erreurs
       alert("Désolé, le formulaire n'est pas bien renseigné");
+      // console.log('Formulaire Intervention invalide.'); // Commenté
     }
   }
 
   onClickSubmitEditIntervention() {
-    console.log(this.editIntervention.value);
+    // console.log(this.editIntervention.value); // Commenté
     const spinner = document.querySelector('.spinnerModif');
 
+    // NOTE: Il serait bon d'avoir une propriété isEditingIntervention: boolean = false;
+    // et de la gérer de la même manière que pour l'ajout.
+    // this.isEditingIntervention = true; // Ajoutez ceci
     if (this.editIntervention.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      const id = this.editIntervention.value.id;
+      // const id = this.editIntervention.value.id; // Non utilisé, peut être supprimé
       const formData = {
         ...this.editIntervention.value,
         date_intervention: this.formatDate(this.editIntervention.value.date_intervention), // Convertir la date
@@ -143,6 +168,7 @@ export class InterventionComponent implements OnInit {
           this.loadInterventions();
           if (spinner) spinner.classList.add('d-none');
           this.editIntervention.reset();
+          // this.isEditingIntervention = false; // Ajoutez ceci
 
           // Fermer le modal manuellement
           const modal = document.getElementById('edit_intervention');
@@ -153,8 +179,7 @@ export class InterventionComponent implements OnInit {
           // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertModifVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
-
+            // console.log('Alert visible après fermeture du modal:', this.alertModifVisible); // Commenté
             // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
               this.alertModifVisible = false;
@@ -164,19 +189,24 @@ export class InterventionComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la modification de l\'intervention :', error);
           if (spinner) spinner.classList.add('d-none');
+          // this.isEditingIntervention = false; // Ajoutez ceci
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.editIntervention); // Marquer les champs comme touchés
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
 
   onClickSubmitDeleteIntervention() {
-    console.log(this.deleteIntervention.value);
+    // console.log(this.deleteIntervention.value); // Commenté
     const spinner = document.querySelector('.spinnerDelete');
 
+    // NOTE: Il serait bon d'avoir une propriété isDeletingIntervention: boolean = false;
+    // et de la gérer de la même manière que pour l'ajout.
+    // this.isDeletingIntervention = true; // Ajoutez ceci
     if (this.deleteIntervention.valid) {
       if (spinner) spinner.classList.remove('d-none');
       this.interventionService.deleteIntervention(this.deleteIntervention.value).subscribe(
@@ -184,6 +214,7 @@ export class InterventionComponent implements OnInit {
           this.loadInterventions();
           if (spinner) spinner.classList.add('d-none');
           this.deleteIntervention.reset();
+          // this.isDeletingIntervention = false; // Ajoutez ceci
 
           // Fermer le modal manuellement
           const modal = document.getElementById('delete_intervention');
@@ -194,7 +225,7 @@ export class InterventionComponent implements OnInit {
           // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertSuppVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertSuppVisible);
+            // console.log('Alert visible après fermeture du modal:', this.alertSuppVisible); // Commenté
 
             // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
@@ -205,6 +236,7 @@ export class InterventionComponent implements OnInit {
         (error: any) => {
           console.error('Erreur lors de la supression de l\'intervention :', error);
           if (spinner) spinner.classList.add('d-none');
+          // this.isDeletingIntervention = false; // Ajoutez ceci
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
@@ -214,22 +246,45 @@ export class InterventionComponent implements OnInit {
     }
   }
 
+  // Fonction utilitaire pour marquer tous les champs comme touchés (validation)
+  markFormGroupTouched(formGroup: FormGroup | FormArray) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+
+      if (control instanceof FormGroup || control instanceof FormArray) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+
   loadInterventions(): void {
-      this.interventionService.getAllInterventions().subscribe(
-        (data: Intervention[]) => {
-          this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
-          this.rows = data;
-          this.loadingIndicator = false;
-        },
-        error => {
-          console.error('Erreur lors du chargement des Interventions', error);
-          this.loadingIndicator = false;
-        }
-      );
-    }
+    this.interventionService.getAllInterventions().subscribe(
+      (data: Intervention[]) => {
+        this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
+        this.rows = data;
+        this.loadingIndicator = false;
+      },
+      error => {
+        console.error('Erreur lors du chargement des Interventions', error);
+        this.loadingIndicator = false;
+      }
+    );
+  }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
 
+  //   this.rows = this.temp.filter(intervention =>
+  //     intervention.titre.toLowerCase().includes(val) ||
+  //     intervention.observation.toLowerCase().includes(val) ||
+  //     intervention.date_intervention.toLowerCase().includes(val) ||
+  //     // Vérifier si l'objet imbriqué existe avant d'accéder à ses propriétés
+  //     (intervention.immobilisation && intervention.immobilisation.designation.toLowerCase().includes(val)) ||
+  //     (intervention.type_intervention && intervention.type_intervention.libelle_type_intervention.toLowerCase().includes(val))
+  //   );
 
+  //   this.table.offset = 0;
+  // }
 
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
@@ -300,5 +355,3 @@ export class InterventionComponent implements OnInit {
   }
 
 }
-
-

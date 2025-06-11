@@ -212,11 +212,11 @@
 
           <!-- Boutons d'actions -->
           <div class="d-flex justify-content-center gap-3 mt-4">
-            <button type="submit" class="btn btn-primary btn-lg px-4">
-              <div class="spinner-border spinner-border-sm text-light d-none me-2" role="status">
-                <span class="visually-hidden">Loading...</span>
+            <button type="submit" class="btn btn-primary" [disabled]="isAdding">
+              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isAdding" role="status">
+                <span class="visually-hidden">Chargement...</span>
               </div>
-              <i class="feather icon-save me-2"></i>Enregistrer les articles
+              {{ isAdding ? 'Ajout en cours...' : 'Enregistrer les articles' }}
             </button>
             <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">
               <i class="feather icon-x me-2"></i>Annuler

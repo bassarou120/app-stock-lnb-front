@@ -454,7 +454,17 @@ export const MENU: MenuItem[] = [
   {
     label: 'Rôles et Permisions',
     icon: 'user-check',
-    link: ''
+    // link: ''
+    subItems: [
+      {
+        label: 'Rôles',
+        link: '/parametres/roles',
+      },
+      {
+        label: 'Permissions',
+        link: '/parametres/permissions',
+      },
+    ]
   },
   {
     label: 'Paramètres',

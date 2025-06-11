@@ -154,10 +154,11 @@
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+            <button type="submit" class="btn btn-primary" [disabled]="isAdding">
+              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isAdding" role="status">
                 <span class="visually-hidden">Loading...</span>
-              </div> Ajouter
+              </div>
+              {{ isAdding ? 'Ajout en cours...' : 'Ajouter' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>

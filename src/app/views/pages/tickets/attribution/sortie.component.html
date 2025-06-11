@@ -362,10 +362,16 @@
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2 mt-3">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none" role="status">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              (click)="onClickSubmitAddSortie()"
+              [disabled]="isAddingSortie || addSortie.invalid"
+            >
+              <span *ngIf="isAddingSortie" class="spinner-border spinner-border-sm text-light me-2 spinner-add-sortie" role="status" aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
-              </div> Ajouter
+              </span>
+              {{ isAddingSortie ? 'Ajout en cours...' : 'Ajouter' }}
             </button>
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
           </div>

@@ -38,11 +38,17 @@ export class AnnulationTicketComponent implements OnInit {
   mouvementsTickets: MouvementTicket[] = []; // Liste des mouvements de sortie non annulés
   couponsTickets: CouponTicket[] = []; // Liste des coupons ticket
   compagniePetrolieres: CompagniePetroliere[] = []; // Liste des compagnies
-  ancienQteDuMvt: number;
+  ancienQteDuMvt: number; // Stocke la quantité d'origine du mouvement pour la validation
 
   alertAjoutVisible: boolean = false;
   alertModifVisible: boolean = false;
   alertSuppVisible: boolean = false;
+
+  // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
+  isAdding: boolean = false;    // Indicateur pour l'opération d'ajout
+  isEditing: boolean = false;   // Indicateur pour l'opération de modification
+  isDeleting: boolean = false;  // Indicateur pour l'opération de suppression
+  // -------------------------------------------------
 
   public addAnnulationTicket!: FormGroup;
   public editAnnulationTicket!: FormGroup;
@@ -76,113 +82,157 @@ export class AnnulationTicketComponent implements OnInit {
     });
   }
 
+  // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
+  private markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
+  }
+  // -----------------------------------------------------------
+
   onClickSubmitAddAnnulationTicket() {
-    console.log(this.addAnnulationTicket.value);
-    const spinner = document.querySelector('.spinner-border');
-
-    if (this.addAnnulationTicket.valid) {
-      if (spinner) spinner.classList.remove('d-none');
-      this.annulationTicketService.saveAnnulationTickett(this.addAnnulationTicket.value).subscribe(
-        (data: any) => {
-          this.loadAnnulationTickets();
-          if (spinner) spinner.classList.add('d-none');
-          this.addAnnulationTicket.reset();
-
-          const modal = document.getElementById('add_annulation');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertAjoutVisible = true;
-            setTimeout(() => {
-              this.alertAjoutVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de l\'ajout de l\'annulation du ticket :', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isAdding) {
+      console.warn('Ajout d\'annulation de ticket déjà en cours. Opération annulée.');
+      return;
     }
+
+    // 2. Valider le formulaire
+    if (this.addAnnulationTicket.invalid) {
+      this.markFormGroupTouched(this.addAnnulationTicket); // Marque les champs pour afficher les erreurs de validation
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      return; // Bloque la soumission si le formulaire est invalide
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isAdding = true;
+    console.log(this.addAnnulationTicket.value);
+
+    this.annulationTicketService.saveAnnulationTickett(this.addAnnulationTicket.value).subscribe(
+      (data: any) => {
+        this.loadAnnulationTickets();
+        this.loadAllSortieTicketWhereNotInAnnulation(); // Recharger les mouvements disponibles
+        this.addAnnulationTicket.reset();
+
+        const modal = document.getElementById('add_annulation');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        console.error('Erreur lors de l\'ajout de l\'annulation du ticket :', error);
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
+        this.isAdding = false;
+      }
+    );
   }
 
   onClickSubmitEditAnnulationTicket() {
-    console.log(this.editAnnulationTicket.value);
-    const spinner = document.querySelector('.spinnerModif');
-
-    if (this.editAnnulationTicket.valid) {
-      if (spinner) spinner.classList.remove('d-none');
-      const id = this.editAnnulationTicket.value.id;
-      this.annulationTicketService.editAnnulationTicket(this.editAnnulationTicket.value).subscribe(
-        (data: any) => {
-          this.loadAnnulationTickets();
-          if (spinner) spinner.classList.add('d-none');
-          this.editAnnulationTicket.reset();
-
-          const modal = document.getElementById('edit_annulationTicket');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertModifVisible = true;
-            setTimeout(() => {
-              this.alertModifVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de la modification de l\'annulation du ticket:', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isEditing) {
+      console.warn('Modification d\'annulation de ticket déjà en cours. Opération annulée.');
+      return;
     }
+
+    // 2. Valider le formulaire
+    if (this.editAnnulationTicket.invalid) {
+      this.markFormGroupTouched(this.editAnnulationTicket);
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      return;
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isEditing = true;
+    console.log(this.editAnnulationTicket.value);
+
+    const id = this.editAnnulationTicket.value.id;
+    this.annulationTicketService.editAnnulationTicket(this.editAnnulationTicket.value).subscribe(
+      (data: any) => {
+        this.loadAnnulationTickets();
+        this.loadAllSortieTicketWhereNotInAnnulation(); // Recharger les mouvements disponibles
+        this.editAnnulationTicket.reset();
+
+        const modal = document.getElementById('edit_annulationTicket');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertModifVisible = true;
+          setTimeout(() => {
+            this.alertModifVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        console.error('Erreur lors de la modification de l\'annulation du ticket:', error);
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
+        this.isEditing = false;
+      }
+    );
   }
 
   onClickSubmitDeleteAnnulationTicket() {
-    console.log(this.deleteAnnulationTicket.value);
-    const spinner = document.querySelector('.spinnerDelete');
-
-    if (this.deleteAnnulationTicket.valid) {
-      if (spinner) spinner.classList.remove('d-none');
-      this.annulationTicketService.deleteAnnulationTicket(this.deleteAnnulationTicket.value).subscribe(
-        (data: any) => {
-          this.loadAnnulationTickets();
-          if (spinner) spinner.classList.add('d-none');
-          this.deleteAnnulationTicket.reset();
-
-          const modal = document.getElementById('delete_annulation');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertSuppVisible = true;
-            setTimeout(() => {
-              this.alertSuppVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de la suppression de l\'annulation du ticket :', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isDeleting) {
+      console.warn('Suppression d\'annulation de ticket déjà en cours. Opération annulée.');
+      return;
     }
+
+    // 2. Valider le formulaire
+    if (this.deleteAnnulationTicket.invalid) {
+      this.markFormGroupTouched(this.deleteAnnulationTicket);
+      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      return;
+    }
+
+    // 3. Activer l'indicateur de chargement
+    this.isDeleting = true;
+    console.log(this.deleteAnnulationTicket.value);
+
+    this.annulationTicketService.deleteAnnulationTicket(this.deleteAnnulationTicket.value).subscribe(
+      (data: any) => {
+        this.loadAnnulationTickets();
+        this.loadAllSortieTicketWhereNotInAnnulation(); // Recharger les mouvements disponibles
+        this.deleteAnnulationTicket.reset();
+
+        const modal = document.getElementById('delete_annulation');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertSuppVisible = true;
+          setTimeout(() => {
+            this.alertSuppVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        console.error('Erreur lors de la suppression de l\'annulation du ticket :', error);
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      () => {
+        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
+        this.isDeleting = false;
+      }
+    );
   }
 
   loadAllSortieTicketWhereNotInAnnulation(): void {
@@ -272,9 +322,9 @@ export class AnnulationTicketComponent implements OnInit {
         this.addAnnulationTicket.patchValue({
           compagnie_petrolier_id: response.compagnie_petrolier_id,
           coupon_ticket_id: response.coupon_ticket_id,
-          qte: response.quantite 
+          qte: response.quantite
         });
-        this.ancienQteDuMvt = response.quantite;
+        this.ancienQteDuMvt = response.quantite; // Supposons que 'quantite' est la propriété contenant la quantité maximale
         const qteControl = this.addAnnulationTicket.get('qte');
         qteControl?.setValidators([
           Validators.required,
