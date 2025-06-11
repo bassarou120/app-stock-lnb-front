@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
 import { Immobilisation, TypeIntervention, Intervention } from "../interface/models";
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -56,5 +56,20 @@ export class InterventionsService {
     );
   }
 
+  imprimerInterventions(): Observable<Blob> {
+    const printUrl = `${environment.backend}/interventions/imprimer`;
+    console.log('Requête PDF pour les interventions vers:', printUrl);
+    return this.http.get(printUrl, { responseType: 'blob' }).pipe(
+      tap(() => console.log('PDF des interventions reçu avec succès.')),
+      catchError(this.handleError<Blob>('imprimerInterventions'))
+    );
+  }
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed:`, error);
+      // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
+      return of(result as T);
+    };
+  }
 
 }

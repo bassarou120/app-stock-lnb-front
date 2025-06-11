@@ -408,31 +408,3 @@ export interface ArticleStockInfo {
   Qte_actuel: number;
 
 }
-
-export interface Module {
-  id: number;
-  libelle_module: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-export interface Fonctionnalite {
-  id: number;
-  libelle_fonctionnalite: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-
-export interface Permission {
-  id: number;
-  role_id: number;
-  module_id: number;
-  fonctionnalite_id: number;
-  is_active: boolean;
-  created_at?: string;
-  updated_at?: string;
-  role?: Role; 
-  module?: Module; 
-  fonctionnalite?: Fonctionnalite; 
-}
