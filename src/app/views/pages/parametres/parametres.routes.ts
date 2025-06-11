@@ -26,5 +26,9 @@ export default [
     path: 'roles', // The URL path for this route
     loadComponent: () => import('./roles/roles.component').then(m => m.RoleComponent),
   },
+  {
+    path: 'permissions', // The URL path for this route
+    loadComponent: () => import('./permissions/permissions.component').then(m => m.PermissionComponent),
+  },
 
 ] as Routes;
