@@ -132,4 +132,17 @@ applyFilters(): void {
       console.error('Erreur lors du téléchargement du PDF', error);
     });
   }
+
+  exportExcel() {
+    this.articleService.downloadExcel().subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'etat_du_stock.xlsx';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }, error => {
+      console.error('Erreur lors du téléchargement du fichier', error);
+    });
+  }
 }
