@@ -42,21 +42,20 @@
         <thead>
           <tr style="background-color: #009b3a; color: white;">
             <th>Modules</th>
-            <th class="text-center">Statut</th>
+            <!-- <th class="text-center">Statut</th> -->
             <th>Fonctionnalités</th>
           </tr>
         </thead>
         <tbody>
           <tr *ngFor="let moduleEntry of role.value | keyvalue">
             <td><strong>{{ moduleEntry.key }}</strong></td>
-            <td class="text-center">
-              <!-- Case cochée si toutes les fonctionnalités sont actives -->
+            <!-- <td class="text-center">
               <input
                 type="checkbox"
                 class="form-check-input"
                 [checked]="isModuleFullyChecked(moduleEntry.value)"
               />
-            </td>
+            </td> -->
             <td>
               <ul class="list-unstyled mb-0">
                 <li *ngFor="let p of moduleEntry.value">

@@ -5,7 +5,7 @@ import { Observable, of } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 
 import { environment } from "../../../../environments/environment";
-import { Article, Categorie } from "../interface/models"; 
+import { Article, Categorie } from "../interface/models";
 
 @Injectable({
   providedIn: 'root',
@@ -84,7 +84,13 @@ export class ArticleService {
     );
   }
 
-  
+  downloadExcel() {
+    return this.http.get(`${this.url}/etat_stock-imprimer-excel`, {
+      responseType: 'blob' // important pour gérer les fichiers binaires
+    });
+  }
+
+
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: HttpErrorResponse): Observable<T> => {
       console.error(`${operation} failed:`, error);

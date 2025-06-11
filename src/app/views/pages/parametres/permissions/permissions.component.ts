@@ -7,6 +7,9 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDropdownModule, NgbNavModule  } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
+import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
+import Swal from 'sweetalert2';
+
 
 declare var bootstrap: any;
 
@@ -21,7 +24,8 @@ declare var bootstrap: any;
     NgbAlertModule,
     NgbDropdownModule,
     HttpClientModule,
-    NgbNavModule
+    NgbNavModule,
+    SweetAlert2Module
   ],
   templateUrl: './permissions.component.html'
 })
@@ -93,7 +97,21 @@ onPermissionToggle(permission: any): void {
     next: () => {
       // Mettre à jour l'état local
       // permission.is_active = payload.is_active;
-      this.permissionService.getPermissions()
+      // Affiche une notification de succès
+      Swal.fire({
+        toast: true,
+        position: 'top-end',
+        icon: 'success',
+        title: 'Permission modifiée avec succès',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true
+      });
+      this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
+      this.permissions = permissions;
+      this.groupPermissionsByRoleAndModule();
+    });
+
     },
     error: (err) => {
       console.error('Erreur lors de la mise à jour :', err);
