@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
 import { Transfert, Employe, Immobilisation, Bureau } from "../interface/models";
-import { map } from 'rxjs/operators';
+import { catchError, map } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -65,6 +65,20 @@ export class TransfertsService {
           );
         }
 
+        // imprimerTransfert(): Observable<Blob> {
+        //   return this.http.get(`${this.url}/transfert-imprimer`, { responseType: 'blob' }).pipe(
+        //     catchError(this.handleError<Blob>('imprimerTransfert'))
+        //   );
+        // }
+
+        // private handleError<T>(operation = 'operation', result?: T) {
+        //   return (error: HttpErrorResponse): Observable<T> => {
+        //     console.error(`${operation} failed:`, error);
+        //     // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
+        //     return of(result as T);
+        //   };
+        // }
+        
         getOldInfo(idImmo: number): Observable<any> {
           return this.http.get<any>(`${this.url}/ancien-info/${idImmo}`);
         }
