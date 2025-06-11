@@ -409,3 +409,24 @@ export interface ArticleStockInfo {
   // Ajoute ici d'autres propriétés si ton objet 'stock' de l'API en contient
   // Exemple: id_article?: number;
 }
+
+
+export interface Permission {
+  id: number;
+  role_id: number;
+  module_id: number;
+  fonctionnalite_id: number;
+  is_active: boolean;
+  role: {
+    id: number;
+    libelle_role: string;
+  };
+  module: {
+    id: number;
+    libelle_module: string;
+  };
+  fonctionnalite: {
+    id: number;
+    libelle_fonctionnalite: string;
+  };
+}
