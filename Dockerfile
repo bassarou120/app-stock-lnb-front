@@ -19,7 +19,7 @@ COPY /src/environments/prod.environment.ts /usr/src/app/src/environments/environ
 RUN npm install --force
 
 # Build Angular
-RUN npm run build
+RUN npm run build --force
 
 # production environment
 FROM nginx:1.13.9-alpine
