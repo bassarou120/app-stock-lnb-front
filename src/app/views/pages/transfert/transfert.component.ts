@@ -400,15 +400,22 @@ export class TransfertComponent implements OnInit {
     };
   }
 
-  // downloadTransfert() {
-  //   this.transfertService.imprimerTransfert().subscribe((response: Blob) => {
-  //     const fileURL = window.URL.createObjectURL(response);
-  //     const a = document.createElement('a');
-  //     a.href = fileURL;
-  //     a.download = 'transfert.pdf'; // Nom du fichier à télécharger
-  //     a.click();
-  //   }, error => {
-  //     console.error('Erreur lors du téléchargement du PDF', error);
-  //   });
-  // }
+  downloadTransfertsPDF(): void {
+    this.transfertService.imprimerTransferts().subscribe(
+      (response: Blob) => {
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = 'liste_transferts.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+      },
+      error => {
+        console.error('Erreur lors du téléchargement du PDF des transferts:', error);
+        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+      }
+    );
+  }
 }

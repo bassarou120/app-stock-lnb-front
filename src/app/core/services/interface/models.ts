@@ -179,8 +179,8 @@ export interface Article {
   created_at: string;
   updated_at: string;
   seuil_alerte: number;
-  stock?: ArticleStockInfo; // <-- Ceci lie les informations de stock à l'article
-  code_article?: string; // Ajouté, car utilisé dans ton template HTML pour la colonne "Code"
+  stock?: ArticleStockInfo;
+  code_article?: string;
 }
 
 export interface Vehicule {
@@ -288,12 +288,12 @@ export interface Utilisateur {
   phone: string;
   sexe: 'Masculin' | 'Féminin';
   active: boolean;
-  photo?: string; // Optionnel
-  role_id: number; // ID du rôle
-  role?: Role; // Relation avec le rôle (sera chargée si eager loaded)
-  employe_id?: number; // ID de l'employé (si la colonne existe et est utilisée)
-  employe?: Employe; // Relation avec l'employé (sera chargée si eager loaded)
-  last_activity?: Date; // Si tu as ce champ
+  photo?: string; 
+  role_id: number; 
+  role?: Role;
+  employe_id?: number; 
+  employe?: Employe; 
+  last_activity?: Date;
   created_at?: Date;
   updated_at?: Date;
 }
@@ -370,7 +370,7 @@ export interface User {
 export interface LoginResponse {
   token: string;
   user: User;
-  perm: any[]; // remplace `any` si tu veux typer les permissions
+  perm: any[]; 
 }
 
 export interface DashboardData {
@@ -386,15 +386,15 @@ export interface ApiResponse<T> {
   data: T;
 }
 
-// Interface pour la réponse de pagination de Laravel
+
 export interface PaginatedResponse<T> {
   current_page: number;
-  data: T[]; // Le tableau des utilisateurs (User[])
+  data: T[]; 
   first_page_url: string;
   from: number;
   last_page: number;
   last_page_url: string;
-  links: any[]; // Peut être typé plus précisément si besoin
+  links: any[]; 
   next_page_url: string | null;
   path: string;
   per_page: number;

@@ -458,4 +458,23 @@ export class EntreeComponent implements OnInit {
     };
   }
 
+  downloadMouvementsEntreePDF(): void {
+    this.entreeService.imprimerMouvementsEntree().subscribe(
+      (response: Blob) => {
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = 'liste_mouvements_entrees.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+      },
+      error => {
+        console.error('Erreur lors du téléchargement du PDF des mouvements d\'entrée:', error);
+        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+      }
+    );
+  }
+
 }

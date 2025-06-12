@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
 import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule } from "../interface/models";
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -86,4 +86,19 @@ export class ImmobilisationsService {
     );
   }
 
+  imprimerImmos(): Observable<Blob> {
+    const printUrl = `${environment.backend}/immobilisations/imprimer`; // L'URL de ton endpoint Laravel pour l'impression
+    console.log('Requête PDF pour les immobilisations vers:', printUrl);
+    return this.http.get(printUrl, { responseType: 'blob' }).pipe(
+      tap(() => console.log('PDF des immobilisations reçu.')),
+      catchError(this.handleError<Blob>('imprimerImmos'))
+    );
+  }
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed:`, error);
+      // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
+      return of(result as T);
+    };
+  }
 }

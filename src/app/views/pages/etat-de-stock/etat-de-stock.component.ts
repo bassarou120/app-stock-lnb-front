@@ -31,7 +31,7 @@ export class EtatStockComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleService: ArticleService) {}
+  constructor(private articleService: ArticleService){}
 
   // Variable pour stocker le texte de recherche
   searchText: string = '';

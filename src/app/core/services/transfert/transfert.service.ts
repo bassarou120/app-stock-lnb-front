@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
 import { Transfert, Employe, Immobilisation, Bureau } from "../interface/models";
-import { catchError, map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -65,19 +65,22 @@ export class TransfertsService {
           );
         }
 
-        // imprimerTransfert(): Observable<Blob> {
-        //   return this.http.get(`${this.url}/transfert-imprimer`, { responseType: 'blob' }).pipe(
-        //     catchError(this.handleError<Blob>('imprimerTransfert'))
-        //   );
-        // }
+        imprimerTransferts(): Observable<Blob> {
+          const printUrl = `${environment.backend}/transferts/imprimer`; // L'URL de ton endpoint Laravel pour l'impression
+          console.log('Requête PDF pour les transferts vers:', printUrl);
+          return this.http.get(printUrl, { responseType: 'blob' }).pipe(
+            tap(() => console.log('PDF des transferts reçu.')),
+            catchError(this.handleError<Blob>('imprimerTransferts'))
+          );
+        }
 
-        // private handleError<T>(operation = 'operation', result?: T) {
-        //   return (error: HttpErrorResponse): Observable<T> => {
-        //     console.error(`${operation} failed:`, error);
-        //     // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
-        //     return of(result as T);
-        //   };
-        // }
+        private handleError<T>(operation = 'operation', result?: T) {
+          return (error: HttpErrorResponse): Observable<T> => {
+            console.error(`${operation} failed:`, error);
+            // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
+            return of(result as T);
+          };
+        }
         
         getOldInfo(idImmo: number): Observable<any> {
           return this.http.get<any>(`${this.url}/ancien-info/${idImmo}`);
