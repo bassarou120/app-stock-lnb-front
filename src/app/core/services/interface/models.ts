@@ -404,11 +404,6 @@ export interface PaginatedResponse<T> {
 }
 
 export interface ArticleStockInfo {
-<<<<<<< HEAD
-  id?: number; 
-  Qte_actuel: number;
-
-=======
   id?: number; // ID de l'entrée de stock
   Qte_actuel: number; // Quantité actuelle de l'article en stock
   // Ajoute ici d'autres propriétés si ton objet 'stock' de l'API en contient
@@ -434,5 +429,4 @@ export interface Permission {
     id: number;
     libelle_fonctionnalite: string;
   };
->>>>>>> philemon_dev
 }
