@@ -399,4 +399,16 @@ export class TransfertComponent implements OnInit {
       day: +parts[2],
     };
   }
+
+  // downloadTransfert() {
+  //   this.transfertService.imprimerTransfert().subscribe((response: Blob) => {
+  //     const fileURL = window.URL.createObjectURL(response);
+  //     const a = document.createElement('a');
+  //     a.href = fileURL;
+  //     a.download = 'transfert.pdf'; // Nom du fichier à télécharger
+  //     a.click();
+  //   }, error => {
+  //     console.error('Erreur lors du téléchargement du PDF', error);
+  //   });
+  // }
 }
