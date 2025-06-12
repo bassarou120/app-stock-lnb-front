@@ -16,9 +16,12 @@ COPY . /usr/src/app
 COPY /src/environments/prod.environment.ts /usr/src/app/src/environments/environment.ts
 
 # Installation des dépendances
-RUN npm install --force
-
-# Build Angular
+#RUN npm install --force
+#
+## Build Angular
+#RUN npm run build --force
+RUN npm install --legacy-peer-deps
+RUN npm rebuild
 RUN npm run build --force
 
 # production environment
