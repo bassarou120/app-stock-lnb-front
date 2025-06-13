@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable, of} from 'rxjs';
 
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
 import { MouvementStock, Article, Fournisseur } from "../interface/models";
 import { catchError, map, tap } from 'rxjs/operators';
@@ -78,4 +78,41 @@ export class MouvementStockService  {
       return of(result as T);
     };
   }
+
+getRapportEntreeStock(params: {
+  date_debut: string;
+  date_fin: string;
+  libelle?: string;
+  id_fournisseur?: number;
+}): Observable<{
+  success: boolean;
+  message: string;
+  data: {
+    current_page: number;
+    data: any[]; // Tu peux remplacer `any` par un type `MouvementStock` si tu en as un
+  };
+}> {
+  const url = `${this.apiUrl}/rapport-entrestock`;
+
+  return this.http.get<{
+    success: boolean;
+    message: string;
+    data: {
+      current_page: number;
+      data: any[];
+    };
+  }>(url, { params: this.buildHttpParams(params) });
+}
+
+private buildHttpParams(params: any): HttpParams {
+    let httpParams = new HttpParams();
+    Object.keys(params).forEach(key => {
+      if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+        httpParams = httpParams.set(key, params[key]);
+      }
+    });
+    return httpParams;
+  }
+
+
 }
