@@ -1,10 +1,19 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
+import { MouvementStockService } from '../../../../core/services/mouvementstock/entree.service';
 import { ArticleService } from '../../../../core/services/articles/articles.service';
-import { Categorie, Article } from '../../../../core/services/interface/models';
+import { StockService } from '../../../../core/services/rapport/stock/stock.service';
+import { FournisseursService } from '../../../../core/services/fournisseurs/fournisseurs.service';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
+import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
+import { Categorie, Article, MouvementStock, Fournisseur, TypeMouvement } from '../../../../core/services/interface/models';
+
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';  // Ajoutez cette importation
+
+
 
 declare var bootstrap: any;
 
@@ -16,29 +25,70 @@ declare var bootstrap: any;
     NgSelectModule,
     CommonModule,
     FormsModule,  // Ajoutez ce module pour utiliser ngModel
+    NgxDatatableModule,
+    ReactiveFormsModule,
+    NgbDatepickerModule,
+    CommonModule,
+    FormsModule,
   ],
   templateUrl: 'stock.component.html',
   styleUrls: ['stock.component.scss']
 })
 export class StockComponent implements OnInit {
+    currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: Article[] = [];
   temp: Article[] = [];
+
+  rowsmouvemententre: MouvementStock[] = [];
+  tempmouvemententre: MouvementStock[] = [];
+
   loadingIndicator = true;
+
+// Pour les fournisseurs
+rowsFournisseur: Fournisseur[] = [];
+tempFournisseur: Fournisseur[] = [];
+loadingIndicatorFournisseur = true;
+
   reorderable = true;
   ColumnMode = ColumnMode;
   categories: Categorie[] = []; // Liste des catégories d'articles
   selectedCategoryId: number | null = null;  // Ajoutez cette propriété
 
+  mouvements: MouvementStock[] = [];  // tableau pour stocker les mouvements
+  loading: boolean = false;            // booléen pour indiquer le chargement
+  errorMessage: string = '';
+  articles: Article[] = []; // Liste des types articles
+  fournisseurs: Fournisseur[] = []; // Liste des Fournisseurs
+  entreestock : MouvementStock[] = [];
+  typeMouvements:TypeMouvement[] = [];
+
+  public formRecherche!: FormGroup;
+
+
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleService: ArticleService){}
+  constructor(private articleService: ArticleService, private stockService: StockService, private fournisseurService: FournisseursService, private formBuilder: FormBuilder){}
+
 
   // Variable pour stocker le texte de recherche
   searchText: string = '';
   ngOnInit(): void {
     this.loadCategories();
     this.loadArticles();
+    this.loadFournisseurs();
+    this.loadTypeMouvement();
+
+    this.formRecherche = this.formBuilder.group({
+      id_type_mouvement: [null, [Validators.required]],
+      id_Article: [null, [Validators.required]],
+      id_fournisseur: [null, [Validators.required]],
+      date_debut: [null, Validators.required],  // ou une valeur par défaut comme new Date()
+      date_fin: [null, Validators.required],
+    });
+
   }
+
+
 
   loadCategories(): void {
     this.articleService.getAllCategories().subscribe({
@@ -51,11 +101,24 @@ export class StockComponent implements OnInit {
     });
   }
 
+
+  loadFournisseurs(): void {
+    this.fournisseurService.getAllFournisseurs().subscribe(
+      (data: Fournisseur[]) => {
+        this.fournisseurs = data;
+        this.loadingIndicator = false;
+      },
+      error => {
+        console.error('Erreur lors du chargement des Fournisseurs', error);
+        this.loadingIndicator = false;
+      }
+    );
+  }
+
   loadArticles(): void {
     this.articleService.getAllArticles().subscribe(
       (data: Article[]) => {
-        this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
-        this.rows = data;
+        this.articles = data;
         this.loadingIndicator = false;
       },
       error => {
@@ -64,6 +127,8 @@ export class StockComponent implements OnInit {
       }
     );
   }
+
+
 
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
@@ -145,4 +210,43 @@ applyFilters(): void {
       console.error('Erreur lors du téléchargement du fichier', error);
     });
   }
+
+loadRapport_entrerstock(): void {
+  if (this.formRecherche.invalid) {
+    this.errorMessage = "Veuillez remplir les champs obligatoires.";
+    return;
+  }
+
+  const params = this.formRecherche.value;
+
+  this.loading = true;
+  this.errorMessage = '';
+
+  this.stockService.getRapportEntreeStock(params).subscribe({
+    next: (resultats) => {
+      this.mouvements = resultats.data.data;
+      this.loading = false;
+    },
+    error: (err) => {
+      this.errorMessage = "Erreur lors du chargement des mouvements d'entrée.";
+      console.error('Erreur API:', err);
+      this.loading = false;
+    }
+  });
+}
+
+  loadTypeMouvement(): void {
+    this.stockService.getAllTypeMouvement().subscribe(
+      (data: TypeMouvement[]) => {
+        this.typeMouvements = data;
+        this.loadingIndicator = false;
+      },
+      (error) => {
+        console.error("Erreur de chargement :", error);
+        this.loadingIndicator = false;
+      }
+
+    );
+  }
+
 }
