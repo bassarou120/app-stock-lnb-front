@@ -467,6 +467,25 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
+    label: 'Rapports',
+    isTitle: true
+  },
+  {
+    label: 'Rapport Stock',
+    icon: 'file',
+    link: '/utilisateurs'
+  },
+  {
+    label: 'Rapport Immo',
+    icon: 'file',
+    link: '/utilisateurs'
+  },
+  {
+    label: 'Rapport parc',
+    icon: 'file',
+    link: '/utilisateurs'
+  },
+  {
     label: 'Paramètres',
     isTitle: true
   },
@@ -497,7 +516,7 @@ export const MENU: MenuItem[] = [
     ]
   },
   {
-    label: 'Paramètres Pack',
+    label: 'Paramètres Parc',
     icon: 'truck',
     subItems: [
       {
