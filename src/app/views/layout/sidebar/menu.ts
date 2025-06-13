@@ -473,17 +473,17 @@ export const MENU: MenuItem[] = [
   {
     label: 'Rapport Stock',
     icon: 'file',
-    link: '/utilisateurs'
+    link: '/rapports/stock'
   },
   {
     label: 'Rapport Immo',
     icon: 'file',
-    link: '/utilisateurs'
+    link: '/rapports/immo'
   },
   {
     label: 'Rapport parc',
     icon: 'file',
-    link: '/utilisateurs'
+    link: '/rapports/parc'
   },
   {
     label: 'Paramètres',
