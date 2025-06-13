@@ -36,7 +36,7 @@ declare var bootstrap: any;
 })
 export class StockComponent implements OnInit {
     currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
-  rows: Article[] = [];
+  rows: any[] = [];
   temp: Article[] = [];
 
   rowsmouvemententre: MouvementStock[] = [];
@@ -61,6 +61,8 @@ loadingIndicatorFournisseur = true;
   fournisseurs: Fournisseur[] = []; // Liste des Fournisseurs
   entreestock : MouvementStock[] = [];
   typeMouvements:TypeMouvement[] = [];
+  date_debut: any;
+date_fin: any;
 
   public formRecherche!: FormGroup;
 
@@ -79,9 +81,9 @@ loadingIndicatorFournisseur = true;
     this.loadTypeMouvement();
 
     this.formRecherche = this.formBuilder.group({
-      id_type_mouvement: [null, [Validators.required]],
-      id_Article: [null, [Validators.required]],
-      id_fournisseur: [null, [Validators.required]],
+      id_type_mouvement: [1, [Validators.required]],
+      id_Article: [null, []],
+      id_fournisseur: [null, []],
       date_debut: [null, Validators.required],  // ou une valeur par défaut comme new Date()
       date_fin: [null, Validators.required],
     });
@@ -212,6 +214,7 @@ applyFilters(): void {
   }
 
 loadRapport_entrerstock(): void {
+  console.log("Appelle....")
   if (this.formRecherche.invalid) {
     this.errorMessage = "Veuillez remplir les champs obligatoires.";
     return;
@@ -221,11 +224,17 @@ loadRapport_entrerstock(): void {
 
   this.loading = true;
   this.errorMessage = '';
-
-  this.stockService.getRapportEntreeStock(params).subscribe({
+  const formData = {
+        ...this.formRecherche.value,
+        date_fin: this.formatDate(this.formRecherche.value.date_fin), // Convertir la date
+        date_debut: this.formatDate(this.formRecherche.value.date_debut), // Convertir la date
+      };
+      console.log(formData);
+  this.stockService.getRapportEntreeStock(formData).subscribe({
     next: (resultats) => {
-      this.mouvements = resultats.data.data;
+      this.rows = resultats.data.data;
       this.loading = false;
+      console.log(this.rows);
     },
     error: (err) => {
       this.errorMessage = "Erreur lors du chargement des mouvements d'entrée.";
@@ -247,6 +256,25 @@ loadRapport_entrerstock(): void {
       }
 
     );
+  }
+
+  formatDate(date: NgbDateStruct): string {
+    const year = date.year;
+    const month = date.month.toString().padStart(2, '0');
+    const day = date.day.toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+
+  // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+  convertToNgbDate(dateString: string): NgbDateStruct | null {
+    if (!dateString) return null;
+    const parts = dateString.split('-');
+    return {
+      year: +parts[0],
+      month: +parts[1],
+      day: +parts[2],
+    };
   }
 
 }

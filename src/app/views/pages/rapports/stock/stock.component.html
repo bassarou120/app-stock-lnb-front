@@ -3,23 +3,21 @@
     <div class="card">
       <div class="card-body d-flex justify-content-between">
         <div>
-          <h4 class="card-title">Rapport du Stock</h4>
-          <p class="text-secondary">Rapport du Stock</p>
+          <h4 class="card-title">Rapport Stock</h4>
+          <p class="text-secondary">Rapport Stock</p>
         </div>
         <div class="d-flex gap-2">
-          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadEtatStock()">
-            <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
-            Imprimer
-          </button>
-        </div>
+        <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadEtatStock()">
+          <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+          Imprimer
+        </button>
       </div>
-
-
-
-      <div class="card-body d-flex justify-content-between">
-        <div class="row">
-
-          <!-- Sélectionner un type mouvement -->
+      </div>
+      <div class="card-body">
+        <div>
+          <form class="forms-sample" [formGroup]="formRecherche"  novalidate>
+            <!-- Sélectionner un type mouvement -->
+          <div class="row">
           <div class="col-md-4 mb-1">
             <label for="typeMouvements" class="form-label">Type de rapport <span class="text-danger">*</span></label>
 
@@ -64,7 +62,6 @@
                 <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
               </div>
             </ng-template>
-
           </div>
 
           <!-- Sélectionner un fournisseur -->
@@ -89,44 +86,43 @@
               </div>
             </ng-template>
           </div>
-
           <!--  date_debut -->
-          <div class="col-md-2 mb-1">
+          <div class="col-md-4 mb-1">
             <label for="date_mouvement" class="form-label">Date debut <span class="text-danger">*</span></label>
             <div class="input-group mb-3">
-              
+
               <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddAdd.toggle()">
                 <i data-feather="calendar"></i>
               </button>
-              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-                [(ngModel)]="currentDate" ngbDatepicker #ddAdd="ngbDatepicker" formControlName="date_debut">
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddAdd"
+                [(ngModel)]="date_debut" ngbDatepicker #ddAdd="ngbDatepicker" formControlName="date_debut">
             </div>
           </div>
 
 
           <!--  date_fin -->
-          <div class="col-md-2 mb-1">
+          <div class="col-md-4 mb-1">
             <label for="date_mouvement" class="form-label">Date fin <span class="text-danger">*</span></label>
             <div class="input-group mb-3">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dfAdd.toggle()">
               <i data-feather="calendar"></i>
             </button>
             <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-              [(ngModel)]="currentDate" ngbDatepicker #dfAdd="ngbDatepicker" formControlName="date_fin">
+              [(ngModel)]="date_fin" ngbDatepicker #dfAdd="ngbDatepicker" formControlName="date_fin">
+          </div>
           </div>
 
-
-          </div>
-
-          <div class="col-md-2" style="margin-top:27px;">
-            <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadEtatStock()">
+          <div class="col-md-4" style="margin-top:27px;">
+            <button type="button" class="btn btn-primary btn-icon-text align-self-center" (click)="loadRapport_entrerstock()">
               <i class="btn-icon-prepend" data-feather="refresh-ccw" appFeatherIcon></i>
               Charger Rapport
             </button>
           </div>
 
+          </div>
+          </form>
+        </div>
       </div>
-
     </div>
   </div>
 </div>
@@ -136,7 +132,7 @@
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
-        <h6 class="card-title">Rapport du Stock</h6>
+        <h6 class="card-title">Rapport Stock</h6>
         <div class="row mb-3 d-flex justify-content-between">
           <div class="col-xl-3 col-md-4">
             <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
@@ -163,25 +159,23 @@
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Code" prop="code_article"></ngx-datatable-column>
-            <ngx-datatable-column name="Articles" prop="libelle"></ngx-datatable-column>
-            <ngx-datatable-column name="Catégorie">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ getCategoryName(row.id_cat) || 'N/A' }}
-              </ng-template>
-            </ngx-datatable-column>
+            <ngx-datatable-column name="Code" prop="article.code_article"></ngx-datatable-column>
+            <ngx-datatable-column name="Categorie article" prop="article.categorie.libelle_categorie_article"></ngx-datatable-column>
+            <ngx-datatable-column name="Articles" prop="article.libelle"></ngx-datatable-column>
             <ngx-datatable-column name="Qte Actuelle">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                <div
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <div
+                    [ngStyle]="{
+                      'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
+                        }" class="text-white p-1 rounded d-inline-block"
+                           style="min-width: 50px; text-align: center;">
+                    {{ row.article.stock?.Qte_actuel || 0 }}
+                  </div>
+                  </ng-template>
+              </ngx-datatable-column>
+            <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
 
-                  [ngStyle]="{
-                    'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
-                  }" class="text-white p-1 rounded d-inline-block"
-                        style="min-width: 50px; text-align: center;">
-                  {{ row.stock?.Qte_actuel || 0 }}
-                </div>
-              </ng-template>
-            </ngx-datatable-column>
+
             <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
           </ngx-datatable>
         </div>

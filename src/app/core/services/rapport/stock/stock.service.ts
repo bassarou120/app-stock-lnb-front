@@ -22,27 +22,33 @@ export class StockService {
 getRapportEntreeStock(params: {
   date_debut: string;
   date_fin: string;
-  id_article?: string;
-  id_fournisseur?: number;
+  id_article?: number | null;
+  id_fournisseur?: number | null;
+  id_type_mouvement?: number | null;
 }): Observable<{
   success: boolean;
   message: string;
   data: {
     current_page: number;
-    data: any[]; // Tu peux remplacer `any` par un type `MouvementStock` si tu en as un
+    data: any[];
   };
 }> {
   const url = `${this.apiUrl}/rapport-entrestock`;
 
-  return this.http.get<{
+  return this.http.post<{
     success: boolean;
     message: string;
     data: {
       current_page: number;
       data: any[];
     };
-  }>(url, { params: this.buildHttpParams(params) });
+  }>(url, params, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
 }
+
 
 private buildHttpParams(params: any): HttpParams {
     let httpParams = new HttpParams();
