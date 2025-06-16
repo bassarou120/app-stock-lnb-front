@@ -300,16 +300,20 @@ export interface Utilisateur {
 
 
 export interface Transfert {
-  id: number;
+  id?: number;
   immo_id: number;
-  old_bureau_id: number;
-  old_employe_id: number;
+  immobilisation?: Immobilisation; // Relation Immobilisation
+  old_bureau_id?: number;
+  old_bureau?: Bureau; // Relation Ancien Bureau
   bureau_id: number;
+  bureau?: Bureau; // Relation Nouveau Bureau
+  old_employe_id?: number;
+  old_employe?: Employe; // Relation Ancien Employe
   employe_id: number;
+  employe?: Employe; // Relation Nouveau Employe
   date_mouvement: string;
-  observation: string;
-  created_at: string;
-  updated_at: string;
+  observation?: string;
+  motif?: string; // Ajouté si présent dans ta BDD pour les transferts
 }
 
 export interface Trajet{
@@ -436,4 +440,10 @@ export interface Permission {
     id: number;
     libelle_fonctionnalite: string;
   };
+}
+
+export interface BackendPostResource<T> { // Exporté pour être utilisé dans le composant
+  success: boolean;
+  message: string;
+  data: T; // Le type de 'data' dépend du contenu
 }
