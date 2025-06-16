@@ -18,7 +18,7 @@ export class IdleService {
   );
 
   private timerSubscription!: Subscription;
-  private timeoutInMs = 5 * 1000;
+  private timeoutInMs = 5 * 60 * 1000;
 
   constructor(private router: Router, private ngZone: NgZone) {}
 

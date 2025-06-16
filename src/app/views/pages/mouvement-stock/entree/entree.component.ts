@@ -56,6 +56,11 @@ export class EntreeComponent implements OnInit {
 
   public url: string = environment.base_url_backend;
 
+  mouvements: MouvementStock[] = [];  // tableau pour stocker les mouvements
+  loading: boolean = false;            // booléen pour indiquer le chargement
+  errorMessage: string = '';           // message d’erreur
+
+
   // NOUVELLES PROPRIÉTÉS POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingSingleEntree: boolean = false; // Pour l'ajout d'une seule entrée
   isAddingMultipleEntrees: boolean = false; // Pour l'ajout multiple d'entrées
@@ -476,5 +481,7 @@ export class EntreeComponent implements OnInit {
       }
     );
   }
+
+
 
 }

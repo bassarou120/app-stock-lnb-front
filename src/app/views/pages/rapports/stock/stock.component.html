@@ -1,0 +1,185 @@
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Rapport Stock</h4>
+          <p class="text-secondary">Rapport Stock</p>
+        </div>
+        <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadEtatStock()">
+          <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+          Imprimer
+        </button>
+      </div>
+      </div>
+      <div class="card-body">
+        <div>
+          <form class="forms-sample" [formGroup]="formRecherche"  novalidate>
+            <!-- Sélectionner un type mouvement -->
+          <div class="row">
+          <div class="col-md-4 mb-1">
+            <label for="typeMouvements" class="form-label">Type de rapport <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="typeMouvements && typeMouvements.length > 0; else noArticle">
+              <ng-select [items]="typeMouvements" bindLabel="libelle_type_mouvement" bindValue="id" formControlName="id_type_mouvement"
+                [clearable]="true" placeholder="Sélectionnez le type de rapport">
+              </ng-select>
+
+              <div *ngIf="formRecherche.get('id_type_mouvement')?.invalid && formRecherche.get('id_type_mouvement')?.touched">
+                <small class="text-danger"> *Le Type de rapport</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun type mouvement n'existe -->
+            <ng-template #noArticle>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+              </div>
+            </ng-template>
+
+          </div>
+
+          <!-- Sélectionner un article -->
+          <div class="col-md-4 mb-1">
+            <label for="articles" class="form-label">Article <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="articles && articles.length > 0; else noArticle">
+              <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
+                [clearable]="true" placeholder="Sélectionnez l'Article">
+              </ng-select>
+
+              <div *ngIf="formRecherche.get('id_Article')?.invalid && formRecherche.get('id_Article')?.touched">
+                <small class="text-danger"> *L'Article est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun article n'existe -->
+            <ng-template #noArticle>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un fournisseur -->
+          <div class="col-md-4 mb-1">
+            <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
+              <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
+                [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+              </ng-select>
+
+              <div *ngIf="formRecherche.get('id_fournisseur')?.invalid && formRecherche.get('id_fournisseur')?.touched">
+                <small class="text-danger"> *Le fournisseur est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun Fournisseur n'existe -->
+            <ng-template #noFournisseur>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+          <!--  date_debut -->
+          <div class="col-md-4 mb-1">
+            <label for="date_mouvement" class="form-label">Date debut <span class="text-danger">*</span></label>
+            <div class="input-group mb-3">
+
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddAdd.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddAdd"
+                [(ngModel)]="date_debut" ngbDatepicker #ddAdd="ngbDatepicker" formControlName="date_debut">
+            </div>
+          </div>
+
+
+          <!--  date_fin -->
+          <div class="col-md-4 mb-1">
+            <label for="date_mouvement" class="form-label">Date fin <span class="text-danger">*</span></label>
+            <div class="input-group mb-3">
+            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dfAdd.toggle()">
+              <i data-feather="calendar"></i>
+            </button>
+            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+              [(ngModel)]="date_fin" ngbDatepicker #dfAdd="ngbDatepicker" formControlName="date_fin">
+          </div>
+          </div>
+
+          <div class="col-md-4" style="margin-top:27px;">
+            <button type="button" class="btn btn-primary btn-icon-text align-self-center" (click)="loadRapport_entrerstock()">
+              <i class="btn-icon-prepend" data-feather="refresh-ccw" appFeatherIcon></i>
+              Charger Rapport
+            </button>
+          </div>
+
+          </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Rapport Stock</h6>
+        <div class="row mb-3 d-flex justify-content-between">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+          <div class="col-xl-3 col-md-4 ml-2">
+            <ng-select
+              [items]="categories"
+              bindLabel="libelle_categorie_article"
+              bindValue="id"
+              placeholder="Toutes les catégories"
+              clearable="true"
+              (change)="filterByCategory($event)"
+              [(ngModel)]="selectedCategoryId">
+            </ng-select>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Code" prop="article.code_article"></ngx-datatable-column>
+            <ngx-datatable-column name="Categorie article" prop="article.categorie.libelle_categorie_article"></ngx-datatable-column>
+            <ngx-datatable-column name="Articles" prop="article.libelle"></ngx-datatable-column>
+            <ngx-datatable-column name="Qte Actuelle">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <div
+                    [ngStyle]="{
+                      'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
+                        }" class="text-white p-1 rounded d-inline-block"
+                           style="min-width: 50px; text-align: center;">
+                    {{ row.article.stock?.Qte_actuel || 0 }}
+                  </div>
+                  </ng-template>
+              </ngx-datatable-column>
+            <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
+
+
+            <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

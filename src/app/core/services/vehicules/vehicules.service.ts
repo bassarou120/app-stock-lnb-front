@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
-import { Observable} from 'rxjs';
+import { Observable, of } from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
 import { Vehicule, Marque, Modele } from "../interface/models";
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
 })
 export class VehiculeService  {
   private url: string = environment.backend;
+  private apiUrl = `${environment.backend}`; // URL de base
+
 
   constructor(private http: HttpClient) {}
 
@@ -61,4 +63,22 @@ export class VehiculeService  {
       )
     );
   }
+
+  imprimerVehicule(): Observable<Blob> {
+    const printUrl = `${this.apiUrl}/vehicules-imprimer`; // L'URL de ton endpoint Laravel pour l'impression
+    console.log('Requête PDF pour les la liste des vehicules vers:', printUrl);
+    return this.http.get(printUrl, { responseType: 'blob' }).pipe(
+      tap(() => console.log('PDF de la liste des véhicules.')),
+      catchError(this.handleError<Blob>('imprimerVehicule'))
+    );
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed:`, error);
+      // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
+      return of(result as T);
+    };
+  }
+
 }
