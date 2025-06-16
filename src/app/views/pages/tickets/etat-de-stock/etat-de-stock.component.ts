@@ -106,7 +106,24 @@ export class EtatStockComponent implements OnInit {
     this.table.offset = 0;
   }
 
-
+  downloadEtatStockTicketsPDF(): void {
+    this.couponTicketService.imprimerEtatStockTickets().subscribe(
+      (response: Blob) => {
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = 'etat_stock_tickets.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+      },
+      error => {
+        console.error('Erreur lors du téléchargement du PDF de l\'état de stock des tickets:', error);
+        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+      }
+    );
+  }
 
 
 }

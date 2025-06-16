@@ -34,14 +34,14 @@ export class TypesInterventionComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;  
+  alertModifVisible: boolean = false;  
+  alertSuppVisible: boolean = false; 
 
   // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
-  isAdding: boolean = false;    // Indicateur pour l'opération d'ajout
-  isEditing: boolean = false;   // Indicateur pour l'opération de modification
-  isDeleting: boolean = false;  // Indicateur pour l'opération de suppression
+  isAdding: boolean = false;    
+  isEditing: boolean = false;   
+  isDeleting: boolean = false;  
   // -----------------------------------------------------------
 
   public addTypeIntervention!: FormGroup ;
@@ -53,24 +53,64 @@ export class TypesInterventionComponent implements OnInit {
   constructor(private typeInterventionService: TypeInterventionService, private formBuilder: FormBuilder,) {}
 
   ngOnInit(): void {
-    this.loadTypeInterventions();
-    this.addTypeIntervention = this.formBuilder.group({
-      libelle_type_intervention: ["", [Validators.required]],
-      applicable_seul_vehicule: [1, [Validators.required]],
-      observation: ["", []],
-      date_expiration: ["", [Validators.required]],
-   });
-    this.editTypeIntervention = this.formBuilder.group({
-      id: [0, [Validators.required]],
-      libelle_type_intervention: ["", [Validators.required]],
-      applicable_seul_vehicule: [1, [Validators.required]],
-      observation: ["", []],
-      date_expiration: ["", [Validators.required]],
-   });
-    this.deleteTypeIntervention = this.formBuilder.group({
-      id: [0, [Validators.required]],
-   });
-  }
+  this.loadTypeInterventions();
+  this.initForms(); // Appeler une méthode pour initialiser les formulaires
+}
+
+initForms(): void {
+  // Formulaire d'ajout
+  this.addTypeIntervention = this.formBuilder.group({
+    libelle_type_intervention: ["", [Validators.required]],
+    applicable_seul_vehicule: [0, [Validators.required]], // Valeur par défaut 0 (false)
+    observation: ["", []],
+    has_expiration_date: [false], // Nouvelle propriété pour la checkbox
+    date_expiration: [null] // Initialiser à null, le validateur sera ajouté/retiré
+  });
+
+  // Écouter les changements sur 'has_expiration_date' pour le formulaire d'ajout
+  this.addTypeIntervention.get('has_expiration_date')?.valueChanges.subscribe(hasExpiration => {
+    const dateExpirationControl = this.addTypeIntervention.get('date_expiration');
+    if (dateExpirationControl) {
+      if (hasExpiration) {
+        dateExpirationControl.setValidators(Validators.required);
+      } else {
+        dateExpirationControl.clearValidators();
+        dateExpirationControl.patchValue(null); // Vider la valeur si la checkbox est décochée
+      }
+      dateExpirationControl.updateValueAndValidity(); // Mettre à jour la validité
+    }
+  });
+
+
+  // Formulaire d'édition
+  this.editTypeIntervention = this.formBuilder.group({
+    id: [0, [Validators.required]],
+    libelle_type_intervention: ["", [Validators.required]],
+    applicable_seul_vehicule: [0, [Validators.required]], // Valeur par défaut 0
+    observation: ["", []],
+    has_expiration_date: [false], // Nouvelle propriété pour la checkbox
+    date_expiration: [null] // Initialiser à null
+  });
+
+  // Écouter les changements sur 'has_expiration_date' pour le formulaire d'édition
+  this.editTypeIntervention.get('has_expiration_date')?.valueChanges.subscribe(hasExpiration => {
+    const dateExpirationControl = this.editTypeIntervention.get('date_expiration');
+    if (dateExpirationControl) {
+      if (hasExpiration) {
+        dateExpirationControl.setValidators(Validators.required);
+      } else {
+        dateExpirationControl.clearValidators();
+        dateExpirationControl.patchValue(null); // Vider la valeur si la checkbox est décochée
+      }
+      dateExpirationControl.updateValueAndValidity();
+    }
+  });
+
+  // Formulaire de suppression (pas de changement ici)
+  this.deleteTypeIntervention = this.formBuilder.group({
+    id: [0, [Validators.required]],
+  });
+}
 
   // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
   private markFormGroupTouched(formGroup: FormGroup) {
@@ -83,10 +123,7 @@ export class TypesInterventionComponent implements OnInit {
   }
   // ---------------------------------------------------------------------
 
-  onClickSubmitAddTypeIntervention() {
-    console.log(this.addTypeIntervention.value);
-    // const spinner = document.querySelector('.spinner-border'); // Ce spinner sera géré par [disabled] et le texte du bouton
-
+    onClickSubmitAddTypeIntervention() {
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isAdding) {
       console.warn('Ajout de type d\'intervention déjà en cours. Opération annulée.');
@@ -94,61 +131,71 @@ export class TypesInterventionComponent implements OnInit {
     }
 
     // 2. Valider le formulaire
-    if (this.addTypeIntervention.invalid) {
-      this.markFormGroupTouched(this.addTypeIntervention);
-      // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
-      alert("Désolé, le formulaire n'est pas bien renseigné");
-      return;
-    }
+    // Si la checkbox 'has_expiration_date' est cochée, 'date_expiration' doit être valide.
+    // Si elle n'est pas cochée, 'date_expiration' doit être null et le validateur retiré.
+    // Le `updateValueAndValidity()` dans le `valueChanges` s'en charge.
+    if (this.addTypeIntervention.invalid) {
+      this.markFormGroupTouched(this.addTypeIntervention);
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      return;
+    }
 
     // 3. Activer l'indicateur de chargement
     this.isAdding = true;
-    // if (spinner) spinner.classList.remove('d-none'); // Géré par isAdding
 
-    const formData = {
-      ...this.addTypeIntervention.value,
-      date_expiration: this.formatDate(this.addTypeIntervention.value.date_expiration), // Convertir la date
-    };
-    this.typeInterventionService.saveTypeIntervention(formData).subscribe({
-      next: (data: any) => {
-        this.loadTypeInterventions();
-        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        this.addTypeIntervention.reset();
-        this.addTypeIntervention.patchValue({ applicable_seul_vehicule: 1 });
+    const formData = { ...this.addTypeIntervention.value };
 
-        // Fermer le modal manuellement
-        const modal = document.getElementById('add_typeIntervention');
-        // @ts-ignore - pour éviter les erreurs TypeScript
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
+    // Formatage de la date d'expiration si elle existe et est définie
+    if (formData.has_expiration_date && formData.date_expiration) {
+      formData.date_expiration = this.formatDate(formData.date_expiration);
+    } else {
+      formData.date_expiration = null; // Assurez-vous que c'est null si non applicable
+    }
 
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
-        setTimeout(() => {
-          this.alertAjoutVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+    // Retirer la propriété 'has_expiration_date' du formData car le backend n'en a pas besoin
+    delete formData.has_expiration_date;
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
-          setTimeout(() => {
-            this.alertAjoutVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-      },
-      error: (error: any) => {
-        console.error('Erreur lors de l\'ajout de l\'intervention :', error);
-        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
+    this.typeInterventionService.saveTypeIntervention(formData).subscribe({
+      next: (data: any) => {
+        this.loadTypeInterventions();
+        this.addTypeIntervention.reset();
+        // Réinitialiser les valeurs par défaut et l'état de la checkbox
+        this.addTypeIntervention.patchValue({
+          applicable_seul_vehicule: 0, // Réinitialiser à 0 par défaut
+          has_expiration_date: false // Réinitialiser à false par défaut
+        });
+        // S'assurer que le validateur de date_expiration est retiré après reset
+        this.addTypeIntervention.get('date_expiration')?.clearValidators();
+        this.addTypeIntervention.get('date_expiration')?.updateValueAndValidity();
+
+
+        // Fermer le modal manuellement
+        const modal = document.getElementById('add_typeIntervention');
+        // @ts-ignore - pour éviter les erreurs TypeScript
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        // Attendre que le modal soit fermé avant d'afficher l'alerte
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000); // L'alerte disparaît après 2 secondes
+        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de l\'ajout de l\'intervention :', error);
+        alert('Une erreur s\'est produite lors de l\'ajout. Veuillez réessayer.');
+      },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
         this.isAdding = false;
       }
-    });
-  }
+    });
+  }
 
-  onClickSubmitEditTypeIntervention(){
-    console.log(this.editTypeIntervention.value);
-    // const spinner = document.querySelector('.spinnerModif'); // Ce spinner sera géré par [disabled] et le texte du bouton
-
+    onClickSubmitEditTypeIntervention() {
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isEditing) {
       console.warn('Modification de type d\'intervention déjà en cours. Opération annulée.');
@@ -156,56 +203,58 @@ export class TypesInterventionComponent implements OnInit {
     }
 
     // 2. Valider le formulaire
-    const formData = {
-      ...this.editTypeIntervention.value,
-      date_expiration: this.formatDate(this.editTypeIntervention.value.date_expiration), // Convertir la date
-    };
-    if (this.editTypeIntervention.invalid) {
-      this.markFormGroupTouched(this.editTypeIntervention);
-      // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-      alert("Désolé, le formulaire n'est pas bien renseigné");
-      return;
-    }
+    if (this.editTypeIntervention.invalid) {
+      this.markFormGroupTouched(this.editTypeIntervention);
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      return;
+    }
 
     // 3. Activer l'indicateur de chargement
     this.isEditing = true;
-    // if (spinner) spinner.classList.remove('d-none'); // Géré par isEditing
 
-    const id = this.editTypeIntervention.value.id;
-    this.typeInterventionService.editTypeIntervention(formData).subscribe({
-      next: (data: any) => {
-        this.loadTypeInterventions();
-        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        this.editTypeIntervention.reset();
+    const formData = { ...this.editTypeIntervention.value };
 
-        // Fermer le modal manuellement
-        const modal = document.getElementById('edit_typeIntervention');
-        // @ts-ignore - pour éviter les erreurs TypeScript
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
+    // Formatage de la date d'expiration si elle existe et est définie
+    if (formData.has_expiration_date && formData.date_expiration) {
+      formData.date_expiration = this.formatDate(formData.date_expiration);
+    } else {
+      formData.date_expiration = null; // Assurez-vous que c'est null si non applicable
+    }
 
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
-        setTimeout(() => {
-          this.alertModifVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
+    // Retirer la propriété 'has_expiration_date' du formData
+    delete formData.has_expiration_date;
 
-          // Utilisation de la transition pour faire apparaitre l'alerte
-          setTimeout(() => {
-            this.alertModifVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-      },
-      error: (error: any) => {
-        console.error('Erreur lors de la modification du Type Intervention :', error);
-        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
+    const id = this.editTypeIntervention.value.id;
+    this.typeInterventionService.editTypeIntervention(formData).subscribe({
+      next: (data: any) => {
+        this.loadTypeInterventions();
+        this.editTypeIntervention.reset();
+
+        // Fermer le modal manuellement
+        const modal = document.getElementById('edit_typeIntervention');
+        // @ts-ignore - pour éviter les erreurs TypeScript
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        // Attendre que le modal soit fermé avant d'afficher l'alerte
+        setTimeout(() => {
+          this.alertModifVisible = true;
+          console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
+          setTimeout(() => {
+            this.alertModifVisible = false;
+          }, 2000); // L'alerte disparaît après 2 secondes
+        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de la modification du Type Intervention :', error);
+        alert('Une erreur s\'est produite lors de la modification. Veuillez réessayer.');
+      },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
         this.isEditing = false;
       }
-    });
-  }
+    });
+  }
 
   onClickSubmitDeleteTypeIntervention(){
     console.log(this.deleteTypeIntervention.value);
@@ -304,15 +353,30 @@ export class TypesInterventionComponent implements OnInit {
       this.table.offset = 0;
     }
 
-    getEditForm(row: any){
-      this.editTypeIntervention.patchValue({
-      id:row.id,
-      libelle_type_intervention:row.libelle_type_intervention,
-      applicable_seul_vehicule:row.applicable_seul_vehicule ? 1 : 0,
-      observation:row.observation,
-      date_expiration: this.convertToNgbDate(row.date_expiration),
-      })
-    }
+    getEditForm(row: any) {
+      // Déterminer si le champ date_expiration a une valeur pour initialiser la checkbox
+      const hasExpiration = row.date_expiration !== null && row.date_expiration !== undefined && row.date_expiration !== '';
+
+      this.editTypeIntervention.patchValue({
+        id: row.id,
+        libelle_type_intervention: row.libelle_type_intervention,
+        applicable_seul_vehicule: row.applicable_seul_vehicule ? 1 : 0,
+        observation: row.observation,
+        has_expiration_date: hasExpiration, // Initialiser la nouvelle checkbox
+        date_expiration: this.convertToNgbDate(row.date_expiration) // Convertir la date si elle existe, sinon null
+      });
+
+      // Mettre à jour les validateurs après patchValue pour s'assurer de la bonne application
+      const dateExpirationControl = this.editTypeIntervention.get('date_expiration');
+      if (dateExpirationControl) {
+          if (hasExpiration) {
+              dateExpirationControl.setValidators(Validators.required);
+          } else {
+              dateExpirationControl.clearValidators();
+          }
+          dateExpirationControl.updateValueAndValidity();
+      }
+    }
 
     getDeleteForm(row: any){
       this.deleteTypeIntervention.patchValue({

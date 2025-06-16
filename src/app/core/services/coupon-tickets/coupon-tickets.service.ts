@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable} from 'rxjs';
+import { Observable, of} from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
 import { CouponTicket, StockTicket,CompagniePetroliere } from "../interface/models";
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -55,5 +55,22 @@ export class CouponTicketService  {
 
   deleteCouponTicket(data: CouponTicket): Observable<void> {
     return this.http.delete<void>(`${this.url}/coupon_tickets/${data.id}`);
+  }
+
+  imprimerEtatStockTickets(): Observable<Blob> {
+    const printUrl = `${environment.backend}/stock-tickets/imprimer`;
+    console.log('Requête PDF pour l\'état de stock des tickets vers:', printUrl);
+    return this.http.get(printUrl, { responseType: 'blob' }).pipe(
+      tap(() => console.log('PDF de l\'état de stock des tickets reçu avec succès.')),
+      catchError(this.handleError<Blob>('imprimerEtatStockTickets'))
+    );
+  }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed:`, error);
+      // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
+      return of(result as T);
+    };
   }
 }

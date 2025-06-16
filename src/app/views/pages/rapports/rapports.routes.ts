@@ -7,7 +7,7 @@ export default [
     },
     {
         path: 'immo',
-        loadComponent: () => import('./immo/immo.component').then(c => c.ImmoComponent),
+        loadComponent: () => import('./immo/rapport-immobilisations.component').then(c => c.RapportImmobilisationsComponent),
     },
     {
         path: 'parc',
