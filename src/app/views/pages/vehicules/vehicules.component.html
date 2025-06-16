@@ -30,10 +30,16 @@
           <h4 class="card-title">Liste des Véhicules</h4>
           <p class="text-secondary">Liste des Véhicules</p>
         </div>
-        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-          data-bs-target="#add_vehicule">
-          Ajouter
-        </button>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+            data-bs-target="#add_vehicule">
+            Ajouter
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadListeVehiculesPDF()">
+              <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+              Imprimer
+          </button>
+        </div>
       </div>
     </div>
   </div>

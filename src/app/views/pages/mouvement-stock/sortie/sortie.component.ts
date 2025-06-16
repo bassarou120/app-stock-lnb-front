@@ -236,6 +236,7 @@ export class SortieComponent implements OnInit {
       }
     });
   }
+  
   loadEmployes(): void {
     this.sortieService.getAllEmployes().subscribe({
       next: (data) => {

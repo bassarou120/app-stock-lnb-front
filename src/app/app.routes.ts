@@ -63,6 +63,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/parametres/parametres.routes')
       },
       {
+        path: 'rapports',
+        loadChildren: () => import('./views/pages/rapports/rapports.routes')
+      },
+      {
         path: 'parametres-pack',
         loadChildren: () => import('./views/pages/parametres-pack/parametres-pack.routes')
       },

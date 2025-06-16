@@ -391,4 +391,24 @@ export class VehiculesComponent implements OnInit {
       day: +parts[2],
     };
   }
+
+  downloadListeVehiculesPDF(): void {
+    this.vehiculeService.imprimerVehicule().subscribe(
+      (response: Blob) => {
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = 'liste_vehicules.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+      },
+      error => {
+        console.error('Erreur lors du téléchargement du PDF de la liste des vehicules:', error);
+        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+      }
+    );
+  }
+
 }
