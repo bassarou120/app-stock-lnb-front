@@ -7,14 +7,15 @@ import { FournisseursService } from '../../../../core/services/fournisseurs/four
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
-import { Categorie, Article, MouvementStock, Fournisseur, TypeMouvement } from '../../../../core/services/interface/models';
+import { Categorie, Article, MouvementStock, Fournisseur, TypeMouvement, Employe } from '../../../../core/services/interface/models';
 
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';  // Ajoutez cette importation
+import { FormsModule, FormControl } from '@angular/forms';  // Ajoutez cette importation
+import { EmployesService } from '../../../../core/services/employes/employes.service';
 
 
-
+ 
 declare var bootstrap: any;
 
 @Component({
@@ -59,17 +60,22 @@ loadingIndicatorFournisseur = true;
   errorMessage: string = '';
   articles: Article[] = []; // Liste des types articles
   fournisseurs: Fournisseur[] = []; // Liste des Fournisseurs
+  employes: Employe[] = []; // Liste des employes
   entreestock : MouvementStock[] = [];
   typeMouvements:TypeMouvement[] = [];
   date_debut: any;
-date_fin: any;
+  date_fin: any;
+  selectedTypeMouvement: TypeMouvement | null = null;
+  isEntreeStock: boolean = false;
+  isSortieStock: boolean = false;
+  defaultType:number;
 
   public formRecherche!: FormGroup;
 
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleService: ArticleService, private stockService: StockService, private fournisseurService: FournisseursService, private formBuilder: FormBuilder){}
+  constructor(private articleService: ArticleService, private stockService: StockService, private fournisseurService: FournisseursService, private employeService: EmployesService, private formBuilder: FormBuilder){}
 
 
   // Variable pour stocker le texte de recherche
@@ -79,16 +85,84 @@ date_fin: any;
     this.loadArticles();
     this.loadFournisseurs();
     this.loadTypeMouvement();
+    this.loadEmployes();
 
+    // this.formRecherche = this.formBuilder.group({
+    //   id_type_mouvement: [null, [Validators.required]],
+    //   id_Article: [null, []],
+    //   id_fournisseur: [null, []],
+    //   date_debut: [null, Validators.required],  // ou une valeur par défaut comme new Date()
+    //   date_fin: [null, Validators.required],
+    // });
+    this.initializeForm();
+
+  }
+
+  initializeForm(): void {
     this.formRecherche = this.formBuilder.group({
-      id_type_mouvement: [1, [Validators.required]],
+      id_type_mouvement: [this.defaultType, [Validators.required]],
       id_Article: [null, []],
-      id_fournisseur: [null, []],
-      date_debut: [null, Validators.required],  // ou une valeur par défaut comme new Date()
+      date_debut: [null, Validators.required],
       date_fin: [null, Validators.required],
     });
 
+    // Écouter les changements du type de mouvement
+    this.formRecherche.get('id_type_mouvement')?.valueChanges.subscribe(value => {
+      this.onTypeMouvementChange(value);
+      console.log(value);
+    });
   }
+
+  onTypeMouvementChange(typeMouvementId: number): void {
+    if (!typeMouvementId) {
+      this.selectedTypeMouvement = null;
+      this.isEntreeStock = false;
+      this.isSortieStock = false;
+      return;
+    }
+
+    // Trouver le type de mouvement sélectionné
+    this.selectedTypeMouvement = this.typeMouvements.find(type => type.id === typeMouvementId) || null;
+
+
+    if (this.selectedTypeMouvement) {
+
+      const typeLabel = this.selectedTypeMouvement.libelle_type_mouvement?.toLowerCase() || '';
+
+      if (typeLabel=="entrée de stock") {
+        this.isEntreeStock=true;
+        this.isSortieStock=false;
+      }else if (typeLabel== "sortie de stock") {
+        this.isEntreeStock=false;
+        this.isSortieStock=true;
+      }
+
+
+      console.log(this.isEntreeStock);
+      console.log(this.isSortieStock);
+      console.log(typeLabel);
+
+      // Reconstruire le formulaire en fonction du type
+      this.rebuildForm();
+    }
+  }
+
+  rebuildForm(): void {
+  const currentValues = this.formRecherche.value;
+
+  if (this.isEntreeStock) {
+    this.formRecherche.addControl('id_fournisseur', new FormControl(currentValues.id_fournisseur || null));
+    this.formRecherche.removeControl('id_employe');
+  } else if (this.isSortieStock) {
+    this.formRecherche.addControl('id_employe', new FormControl(currentValues.id_employe || null));
+    this.formRecherche.removeControl('id_fournisseur');
+  } else {
+    this.formRecherche.removeControl('id_fournisseur');
+    this.formRecherche.removeControl('id_employe');
+  }
+}
+
+
 
 
 
@@ -112,6 +186,18 @@ date_fin: any;
       },
       error => {
         console.error('Erreur lors du chargement des Fournisseurs', error);
+        this.loadingIndicator = false;
+      }
+    );
+  }
+  loadEmployes(): void {
+    this.employeService.getAllEmployes().subscribe(
+      (data: Employe[]) => {
+        this.employes = data;
+        this.loadingIndicator = false;
+      },
+      error => {
+        console.error('Erreur lors du chargement des employes', error);
         this.loadingIndicator = false;
       }
     );
@@ -215,10 +301,13 @@ applyFilters(): void {
 
 loadRapport_entrerstock(): void {
   console.log("Appelle....")
-  if (this.formRecherche.invalid) {
-    this.errorMessage = "Veuillez remplir les champs obligatoires.";
-    return;
-  }
+if (this.formRecherche.invalid) {
+  this.errorMessage = "Veuillez remplir les champs obligatoires.";
+  console.warn('Formulaire invalide:', this.formRecherche.value);
+  console.warn('Erreurs:', this.formRecherche.errors);
+  return;
+}
+  console.log( this.formRecherche.value)
 
   const params = this.formRecherche.value;
 
@@ -229,7 +318,7 @@ loadRapport_entrerstock(): void {
         date_fin: this.formatDate(this.formRecherche.value.date_fin), // Convertir la date
         date_debut: this.formatDate(this.formRecherche.value.date_debut), // Convertir la date
       };
-      console.log(formData);
+      console.log("date formaté :" + formData);
   this.stockService.getRapportEntreeStock(formData).subscribe({
     next: (resultats) => {
       this.rows = resultats.data.data;
@@ -248,6 +337,8 @@ loadRapport_entrerstock(): void {
     this.stockService.getAllTypeMouvement().subscribe(
       (data: TypeMouvement[]) => {
         this.typeMouvements = data;
+        this.defaultType = data[0].id;
+        console.log( "voici le premier " + this.defaultType);
         this.loadingIndicator = false;
       },
       (error) => {
@@ -257,6 +348,9 @@ loadRapport_entrerstock(): void {
 
     );
   }
+
+
+
 
   formatDate(date: NgbDateStruct): string {
     const year = date.year;

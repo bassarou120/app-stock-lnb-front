@@ -65,7 +65,7 @@
           </div>
 
           <!-- Sélectionner un fournisseur -->
-          <div class="col-md-4 mb-1">
+          <div class="col-md-4 mb-1" *ngIf="isEntreeStock">
             <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
@@ -86,9 +86,34 @@
               </div>
             </ng-template>
           </div>
+
+          <!-- Sélectionner un employé (pour sortie de stock) -->
+              <div class="col-md-4 mb-1" *ngIf="isSortieStock">
+                <label for="employe" class="form-label">Employé</label>
+
+                <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
+                  <ng-select [items]="employes" bindLabel="nom" bindValue="id" formControlName="id_employe"
+                    [clearable]="true" placeholder="Sélectionnez l'Employé">
+                  </ng-select>
+
+                  <div *ngIf="formRecherche.get('id_employe')?.invalid && formRecherche.get('id_employe')?.touched">
+                    <small class="text-danger"> *L'employé est obligatoire</small>
+                  </div>
+                </ng-container>
+
+                <!-- Message si aucun Employé n'existe -->
+                <ng-template #noEmploye>
+                  <div class="alert alert-danger"
+                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                    <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
+                  </div>
+                </ng-template>
+              </div>
+
+              
           <!--  date_debut -->
           <div class="col-md-4 mb-1">
-            <label for="date_mouvement" class="form-label">Date debut <span class="text-danger">*</span></label>
+            <label for="" class="form-label">Date debut <span class="text-danger">*</span></label>
             <div class="input-group mb-3">
 
               <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddAdd.toggle()">
@@ -102,7 +127,7 @@
 
           <!--  date_fin -->
           <div class="col-md-4 mb-1">
-            <label for="date_mouvement" class="form-label">Date fin <span class="text-danger">*</span></label>
+            <label for="" class="form-label">Date fin <span class="text-danger">*</span></label>
             <div class="input-group mb-3">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dfAdd.toggle()">
               <i data-feather="calendar"></i>
