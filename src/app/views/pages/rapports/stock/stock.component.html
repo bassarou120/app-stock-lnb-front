@@ -133,23 +133,7 @@
     <div class="card">
       <div class="card-body">
         <h6 class="card-title">Rapport Stock</h6>
-        <div class="row mb-3 d-flex justify-content-between">
-          <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
-              (keyup)="updateFilter($event)" />
-          </div>
-          <div class="col-xl-3 col-md-4 ml-2">
-            <ng-select
-              [items]="categories"
-              bindLabel="libelle_categorie_article"
-              bindValue="id"
-              placeholder="Toutes les catégories"
-              clearable="true"
-              (change)="filterByCategory($event)"
-              [(ngModel)]="selectedCategoryId">
-            </ng-select>
-          </div>
-        </div>
+
         <div class="table-responsive">
           <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
@@ -166,7 +150,7 @@
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div
                     [ngStyle]="{
-                      'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
+                      'background-color': (row.article.stock?.Qte_actuel || 0) <= row.article.stock_alerte ? '#ff3366' : '#198754'
                         }" class="text-white p-1 rounded d-inline-block"
                            style="min-width: 50px; text-align: center;">
                     {{ row.article.stock?.Qte_actuel || 0 }}
@@ -176,7 +160,7 @@
             <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
 
 
-            <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
+            <ngx-datatable-column name="Stock d'alerte" prop="article.stock_alerte"></ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>
