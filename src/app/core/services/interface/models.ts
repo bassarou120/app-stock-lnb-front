@@ -325,27 +325,34 @@ export interface Trajet{
 
 export interface Immobilisation {
   id: number;
-  bureau_id: number;
-  employe_id: number;
-  date_mouvement: string;
-  fournisseur_id: number;
-  designation: string;
-  isVehicule: boolean;
-  vehicule_id: number;
   code: string;
+  designation: string;
+  montant_ttc: number;
+  observation?: string;
+  date_acquisition: string; // format YYYY-MM-DD
+  date_mise_en_service?: string; // format YYYY-MM-DD
+
+  // Clés étrangères (ID) - souvent présentes pour les relations Many-to-One
   id_groupe_type_immo: number;
   id_sous_type_immo: number;
-  duree_amorti: number;
-  etat: string;
-  taux_ammortissement: number;
-  duree_ammortissement: number;
-  date_acquisition: string;
-  date_mise_en_service: string;
-  observation: string;
   id_status_immo: number;
-  montant_ttc: number;
-  created_at: string;
-  updated_at: string;
+  employe_id?: number;
+  bureau_id?: number;
+  fournisseur_id?: number;
+  vehicule_id?: number;
+
+  // Relations (objets imbriqués) - Ces propriétés doivent correspondre aux noms
+  // que Laravel utilise lors de l'eager loading (via `with()`)
+  employe?: Employe;
+  statusImmo?: StatusImmo;
+  groupeTypeImmo?: GroupeTypeImmo;
+  sousTypeImmo?: SousTypeImmo;
+  bureau?: Bureau;
+  fournisseur?: Fournisseur;
+  vehicule?: Vehicule;
+
+  // Ajoutez ici d'autres propriétés de l'immobilisation si nécessaire
+  // ...
 }
 
 export interface   Role {
