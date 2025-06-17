@@ -3,7 +3,7 @@ import { Routes } from '@angular/router';
 export default [
     {
         path: 'stock',
-        loadComponent: () => import('./stock/stock.component').then(c => c.StockComponent),
+        loadComponent: () => import('./stock/rapport-stock.component').then(c => c.RapportStockComponent),
     },
     {
         path: 'immo',

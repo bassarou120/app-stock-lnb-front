@@ -27,7 +27,7 @@ declare var bootstrap: any;
     FormsModule,
     MyNgSelectComponent,
     NgbDatepickerModule,
-    FeatherIconDirective
+    FeatherIconDirective,
   ],
   templateUrl: 'sortie.component.html'
 })
