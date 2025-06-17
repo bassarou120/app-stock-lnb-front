@@ -198,9 +198,12 @@ export interface Vehicule {
 export interface MouvementStock {
   id: number;
   id_Article: number;
-  id_fournisseur: number;
+  id_fournisseur?: number;
+  fournisseur?: Fournisseur; // Relation Fournisseur chargée
   description: string;
   id_type_mouvement: number;
+  type_mouvement?: TypeMouvement; // Relation TypeMouvement chargée
+  numero_borderau?: string;
   qte: number;
   qteDemande: number;
   date_mouvement: string;
