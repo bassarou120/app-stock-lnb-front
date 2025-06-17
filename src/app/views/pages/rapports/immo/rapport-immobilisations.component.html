@@ -67,7 +67,7 @@
             <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ENREGISTREMENT -->
 
 
-            <!-- NOUVEAU: FILTRES SPÉCIFIQUES AU RAPPORT DE TRANSFERT -->
+            <!-- FILTRES SPÉCIFIQUES AU RAPPORT DE TRANSFERT -->
             <div class="row" *ngIf="showTransferFilters">
               <hr class="my-4">
               <h5 class="mb-3">Filtres pour le rapport de Transfert</h5>
@@ -82,7 +82,7 @@
                   <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dm1"
                          ngbDatepicker #dm1="ngbDatepicker" formControlName="date_debut_mouvement"
                          [maxDate]="rapportForm.get('date_fin_mouvement')?.value || undefined"
-                         [class.is-invalid]="rapportForm.get('date_debut_mouvement')?.invalid && rapportForm.get('date_debut_mouvement')?.touched">
+                         [class.is-invalid]="(rapportForm.get('date_debut_mouvement')?.invalid && rapportForm.get('date_debut_mouvement')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
                 </div>
                 <div *ngIf="rapportForm.get('date_debut_mouvement')?.invalid && rapportForm.get('date_debut_mouvement')?.touched">
                   <small *ngIf="rapportForm.get('date_debut_mouvement')?.errors?.required" class="text-danger"> *La date de début est obligatoire.</small>
@@ -102,7 +102,7 @@
                 </div>
                 <div *ngIf="rapportForm.get('date_fin_mouvement')?.invalid && rapportForm.get('date_fin_mouvement')?.touched">
                   <small *ngIf="rapportForm.get('date_fin_mouvement')?.errors?.required" class="text-danger"> *La date de fin est obligatoire.</small>
-                  <small *ngIf="rapportForm.get('date_fin_mouvement')?.errors?.dateAfterStart" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                  <small *ngIf="rapportForm.get('date_fin_mouvement')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
                 </div>
               </div>
 
@@ -158,6 +158,77 @@
 
             </div>
             <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT DE TRANSFERT -->
+
+
+            <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION -->
+            <div class="row" *ngIf="showInterventionFilters">
+              <hr class="my-4">
+              <h5 class="mb-3">Filtres pour le rapport d'Intervention</h5>
+
+              <!-- Dates d'intervention (Obligatoires) -->
+              <div class="col-md-6 mb-3">
+                <label for="dateDebutIntervention" class="form-label">Date d'intervention (Début) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="di1.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="di1"
+                         ngbDatepicker #di1="ngbDatepicker" formControlName="date_debut_intervention"
+                         [maxDate]="rapportForm.get('date_fin_intervention')?.value || undefined"
+                         [class.is-invalid]="(rapportForm.get('date_debut_intervention')?.invalid && rapportForm.get('date_debut_intervention')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                </div>
+                <div *ngIf="rapportForm.get('date_debut_intervention')?.invalid && rapportForm.get('date_debut_intervention')?.touched">
+                  <small *ngIf="rapportForm.get('date_debut_intervention')?.errors?.required" class="text-danger"> *La date de début est obligatoire.</small>
+                </div>
+              </div>
+
+              <div class="col-md-6 mb-3">
+                <label for="dateFinIntervention" class="form-label">Date d'intervention (Fin) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="di2.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="di2"
+                         ngbDatepicker #di2="ngbDatepicker" formControlName="date_fin_intervention"
+                         [minDate]="rapportForm.get('date_debut_intervention')?.value || undefined"
+                         [class.is-invalid]="(rapportForm.get('date_fin_intervention')?.invalid && rapportForm.get('date_fin_intervention')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                </div>
+                <div *ngIf="rapportForm.get('date_fin_intervention')?.invalid && rapportForm.get('date_fin_intervention')?.touched">
+                  <small *ngIf="rapportForm.get('date_fin_intervention')?.errors?.required" class="text-danger"> *La date de fin est obligatoire.</small>
+                  <small *ngIf="rapportForm.get('date_fin_intervention')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                </div>
+              </div>
+              
+              <!-- Type d'Intervention (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="typeIntervention" class="form-label">Type d'Intervention (Optionnel)</label>
+                <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id"
+                           formControlName="type_intervention_id" [clearable]="true" placeholder="Sélectionner un type d'intervention">
+                </ng-select>
+                <div *ngIf="!typeInterventions || typeInterventions.length === 0" class="alert alert-danger mt-1" style="padding: 5px 10px; font-size: 12px;">
+                  Aucun type d'intervention trouvé.
+                </div>
+              </div>
+
+              <!-- Immobilisation (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="immo" class="form-label">Immobilisation (Optionnel)</label>
+                <ng-select [items]="immobilisations" bindLabel="designation" bindValue="id"
+                           formControlName="immo_id" [clearable]="true" placeholder="Sélectionner une immobilisation">
+                  <ng-template ng-label-tmp let-item="item">
+                    {{item.code}} - {{item.designation}}
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    {{item.code}} - {{item.designation}}
+                  </ng-template>
+                </ng-select>
+                <div *ngIf="!immobilisations || immobilisations.length === 0" class="alert alert-danger mt-1" style="padding: 5px 10px; font-size: 12px;">
+                  Aucune immobilisation trouvée.
+                </div>
+              </div>
+
+            </div>
+            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION -->
 
 
             <!-- Bouton Charger Rapport -->
@@ -228,11 +299,6 @@
                     {{ row.sous_type_immo?.libelle || 'N/A' }}
                   </ng-template>
                 </ngx-datatable-column>
-                <!-- <ngx-datatable-column name="Responsable">
-                    <ng-template let-row="row" ngx-datatable-cell-template>
-                        {{ row.employe?.fullnameEmploye }}
-                    </ng-template>
-                </ngx-datatable-column> -->
                 <ngx-datatable-column name="Personnel">
                   <ng-template let-row="row" ngx-datatable-cell-template>
                     {{ row.employe?.fullnameEmploye || 'Non défini' }}
@@ -270,7 +336,35 @@
                         {{ row.date_mouvement | date:'dd/MM/yyyy' }}
                     </ng-template>
                 </ngx-datatable-column>
-                <ngx-datatable-column name="Motif" prop="motif"></ngx-datatable-column>
+                <ngx-datatable-column name="Motif" prop="observation"></ngx-datatable-column>
+            </ng-container>
+
+            <ng-container *ngIf="selectedReportTypeId === 'intervention'">
+                <ngx-datatable-column name="N°">
+                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                        {{ rowIndex + 1 }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Code Immo" prop="immobilisation.code"></ngx-datatable-column>
+                <!-- <ngx-datatable-column name="Désignation Immo" prop="immobilisation.designation"></ngx-datatable-column> -->
+                <ngx-datatable-column name="Type d'Intervention">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.type_intervention?.libelle_type_intervention || 'N/A' }}
+                  </ng-template>
+                </ngx-datatable-column>
+                <!-- <ngx-datatable-column name="Type Intervention" prop="typeIntervention.libelle"></ngx-datatable-column> -->
+                <ngx-datatable-column name="Titre" prop="titre"></ngx-datatable-column>
+                <ngx-datatable-column name="Date Intervention">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.date_intervention | date:'dd/MM/yyyy' }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Coût">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.cout | number:'1.2-2' }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
             </ng-container>
 
           </ngx-datatable>
