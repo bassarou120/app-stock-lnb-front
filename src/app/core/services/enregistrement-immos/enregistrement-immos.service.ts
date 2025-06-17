@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
-import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule } from "../interface/models";
+import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule, TypeIntervention } from "../interface/models";
 import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
@@ -11,6 +11,7 @@ import { catchError, map, tap } from 'rxjs/operators';
 })
 export class ImmobilisationsService {
   private url: string = environment.backend;
+  private apiUrl = `${environment.backend}/type-interventions`;
 
   constructor(private http: HttpClient) { }
 
@@ -85,6 +86,13 @@ export class ImmobilisationsService {
       )
     );
   }
+
+  // getAllTypeInterventions(): Observable<TypeIntervention[]> {
+  //   return this.http.get<any>(this.apiUrl).pipe( // Assurez-vous que votre API retourne une PostResource ou PaginatedResponse
+  //     map(response => response.data.data), // Adaptez si la structure de réponse est différente
+  //     catchError(this.handleError<TypeIntervention[]>('getAllTypeInterventions', []))
+  //   );
+  // }
 
   imprimerImmos(): Observable<Blob> {
     const printUrl = `${environment.backend}/immobilisations/imprimer`; // L'URL de ton endpoint Laravel pour l'impression

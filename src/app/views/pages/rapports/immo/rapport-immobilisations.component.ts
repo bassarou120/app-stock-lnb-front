@@ -1,6 +1,6 @@
 // src/app/views/pages/rapport/immobilisations/rapport-immobilisations.component.ts
 import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
-import { FormGroup, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms'; // Ajout de ValidatorFn
+import { FormGroup, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { NgbDateStruct, NgbCalendar, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule, DatePipe } from '@angular/common';
@@ -20,11 +20,13 @@ import { SousTypeImmoService } from '../../../../core/services/sous-type-immo/so
 import { StatusImmoService } from '../../../../core/services/status-immo/status-immo.service';
 import { VehiculeService } from '../../../../core/services/vehicules/vehicules.service';
 import { ImmobilisationsService } from '../../../../core/services/enregistrement-immos/enregistrement-immos.service';
+import { TypeInterventionService } from '../../../../core/services/types-intervention/types-intervention.service'; // NOUVEAU: Service TypeIntervention
+// import { TypeInterventionService } from './../../../../core/services/types-intervention/types-intervention.service';
 
 // Interfaces
 import {
   Immobilisation, Bureau, Employe, Fournisseur,
-  GroupeTypeImmo, SousTypeImmo, StatusImmo, Vehicule, PaginatedResponse, Transfert
+  GroupeTypeImmo, SousTypeImmo, StatusImmo, Vehicule, PaginatedResponse, Transfert, Intervention, TypeIntervention // NOUVEAU: Intervention, TypeIntervention
 } from '../../../../core/services/interface/models';
 import { Subject, takeUntil } from 'rxjs';
 import { map, distinct } from 'rxjs/operators';
@@ -57,13 +59,12 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   @ViewChild('table') table!: DatatableComponent;
 
   rapportForm!: FormGroup;
-  // CORRECTION: Utilisation du type union pour les tableaux
-  rows: (Immobilisation | Transfert)[] = [];
-  temp: (Immobilisation | Transfert)[] = [];
+  rows: (Immobilisation | Transfert | Intervention)[] = []; // Type de données élargi
+  temp: (Immobilisation | Transfert | Intervention)[] = []; // Type de données élargi
   loadingIndicator = false;
   ColumnMode = ColumnMode;
 
-  // Listes pour les dropdowns de filtrage (toujours chargées si potentiellement utilisées)
+  // Listes pour les dropdowns de filtrage
   bureaux: Bureau[] = [];
   employes: Employe[] = [];
   fournisseurs: Fournisseur[] = [];
@@ -72,17 +73,22 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   statusImmos: StatusImmo[] = [];
   vehicules: Vehicule[] = [];
   immobilisationCodes: string[] = []; // Pour le rapport d'enregistrement
+  immobilisations: Immobilisation[] = []; // NOUVEAU: Pour le filtre des interventions
+  typeInterventions: TypeIntervention[] = []; // NOUVEAU: Pour le filtre des interventions
+
 
   // NOUVEAU: Types de rapports
   typeRapportsImmo: TypeRapportImmo[] = [
     { id: 'enregistrement', libelle: 'Rapport d\'Enregistrement des Immobilisations' },
-    { id: 'transfert', libelle: 'Rapport des Transferts d\'Immobilisations' }, // NOUVEAU TYPE
+    { id: 'transfert', libelle: 'Rapport des Transferts d\'Immobilisations' },
+    { id: 'intervention', libelle: 'Rapport des Interventions sur Immobilisations' }, // NOUVEAU TYPE
   ];
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
   // Indicateurs pour l'affichage conditionnel des filtres
   showRegistrationFilters: boolean = false;
-  showTransferFilters: boolean = false; // NOUVEAU
+  showTransferFilters: boolean = false;
+  showInterventionFilters: boolean = false; // NOUVEAU
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -99,13 +105,16 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     private sousTypeImmoService: SousTypeImmoService,
     private statusImmoService: StatusImmoService,
     private vehiculeService: VehiculeService,
-    private immobilisationsService: ImmobilisationsService, // Pour les codes immo
+    private immobilisationsService: ImmobilisationsService, // Pour les codes immo et les filtres d'intervention
+    private TypeInterventionService: TypeInterventionService, // NOUVEAU: Pour les filtres d'intervention
   ) { }
 
   ngOnInit(): void {
     this.initForm();
     this.loadFilterData();
     this.loadImmobilisationCodes(); // Toujours charger si le rapport d'enregistrement existe
+    this.loadImmobilisationsForFilter(); // NOUVEAU: Charger les immobilisations pour le filtre d'intervention
+    this.loadTypeInterventionsForFilter(); // NOUVEAU: Charger les types d'intervention pour le filtre
     // Écouter les changements sur le type de rapport pour adapter le formulaire
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
       this.onTypeRapportChange(typeRapportId);
@@ -117,21 +126,22 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // CORRECTION: La fonction de validation doit être une fabrique de ValidatorFn
-  dateRangeValidatorForTransfer(): ValidatorFn {
+  // Validateur de plage de dates (utilisé pour les transferts et les interventions)
+  dateRangeValidatorForReport(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
-      // Cast le AbstractControl en FormGroup car ce validateur est au niveau du groupe
       const formGroup = group as FormGroup;
-      const startDateControl = formGroup.get('date_debut_mouvement');
-      const endDateControl = formGroup.get('date_fin_mouvement');
+      // Les noms des contrôles dépendent du type de rapport
+      const startDateControlName = this.selectedReportTypeId === 'transfert' ? 'date_debut_mouvement' : 'date_debut_intervention';
+      const endDateControlName = this.selectedReportTypeId === 'transfert' ? 'date_fin_mouvement' : 'date_fin_intervention';
+
+      const startDateControl = formGroup.get(startDateControlName);
+      const endDateControl = formGroup.get(endDateControlName);
 
       const startDate = startDateControl?.value as NgbDateStruct;
       const endDate = endDateControl?.value as NgbDateStruct;
 
-      // Logique de validation des dates
       if (startDateControl?.hasValidator(Validators.required) && endDateControl?.hasValidator(Validators.required)) {
         if (!startDate && endDate) {
-          // L'erreur 'required' sera déjà gérée par le validateur de contrôle
           return { 'dateRangeMissingStartDate': true };
         }
         if (startDate && !endDate) {
@@ -139,7 +149,6 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         }
       }
       
-      // Si les deux dates sont renseignées, vérifier l'ordre
       if (startDate && endDate) {
         const sDate = new Date(startDate.year, startDate.month - 1, startDate.day);
         const eDate = new Date(endDate.year, endDate.month - 1, endDate.day);
@@ -149,7 +158,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         }
       }
 
-      return null; // Validation réussie
+      return null;
     };
   }
 
@@ -161,13 +170,19 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       code_immo: [{ value: null, disabled: true }],
       date_debut_acquisition: [{ value: null, disabled: true }],
 
-      // NOUVEAUX Champs pour le rapport de transfert (désactivés par défaut)
+      // Champs pour le rapport de transfert (désactivés par défaut)
       date_debut_mouvement: [{ value: null, disabled: true }],
       date_fin_mouvement: [{ value: null, disabled: true }],
       old_bureau_id: [{ value: null, disabled: true }],
       bureau_id: [{ value: null, disabled: true }],
       old_employe_id: [{ value: null, disabled: true }],
       employe_id: [{ value: null, disabled: true }],
+
+      // NOUVEAUX Champs pour le rapport d'intervention (désactivés par défaut)
+      date_debut_intervention: [{ value: null, disabled: true }], // Sera 'date_debut' pour le backend
+      date_fin_intervention: [{ value: null, disabled: true }],   // Sera 'date_fin' pour le backend
+      type_intervention_id: [{ value: null, disabled: true }],
+      immo_id: [{ value: null, disabled: true }],
     });
   }
 
@@ -179,45 +194,58 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       case 'enregistrement':
         this.showRegistrationFilters = true;
         this.showTransferFilters = false;
-        // Activation des champs pour l'enregistrement (date_debut_acquisition optionnelle)
+        this.showInterventionFilters = false;
         this.enableAndSetValidators(['code_immo', 'date_debut_acquisition'], this.rapportForm);
-        this.rapportForm.get('date_debut_acquisition')?.clearValidators(); // Rendre la date optionnelle
+        this.rapportForm.get('date_debut_acquisition')?.clearValidators();
         this.rapportForm.get('date_debut_acquisition')?.updateValueAndValidity();
-        // S'assurer qu'aucun validateur de groupe de transfert n'est appliqué
         this.rapportForm.clearValidators();
         break;
 
-      case 'transfert': // NOUVEAU CAS POUR LES TRANSFERTS
+      case 'transfert':
         this.showRegistrationFilters = false;
         this.showTransferFilters = true;
-        // Activation des champs pour les transferts (dates de mouvement OBLIGATOIRES)
+        this.showInterventionFilters = false;
         this.enableAndSetValidators([
           'date_debut_mouvement', 'date_fin_mouvement',
           'old_bureau_id', 'bureau_id',
           'old_employe_id', 'employe_id'
         ], this.rapportForm);
         
-        // Les dates de mouvement sont OBLIGATOIRES pour les transferts
         this.rapportForm.get('date_debut_mouvement')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_mouvement')?.setValidators(Validators.required);
-        
-        // CORRECTION: Appliquer le validateur de plage de date au FORMGROUP en appelant la fabrique
-        this.rapportForm.setValidators(this.dateRangeValidatorForTransfer()); 
+        this.rapportForm.setValidators(this.dateRangeValidatorForReport()); // Utilisez le validateur générique
         
         this.rapportForm.get('date_debut_mouvement')?.updateValueAndValidity();
         this.rapportForm.get('date_fin_mouvement')?.updateValueAndValidity();
         break;
 
+      case 'intervention': // NOUVEAU CAS POUR LES INTERVENTIONS
+        this.showRegistrationFilters = false;
+        this.showTransferFilters = false;
+        this.showInterventionFilters = true;
+        this.enableAndSetValidators([
+          'date_debut_intervention', 'date_fin_intervention',
+          'type_intervention_id', 'immo_id'
+        ], this.rapportForm);
+
+        this.rapportForm.get('date_debut_intervention')?.setValidators(Validators.required);
+        this.rapportForm.get('date_fin_intervention')?.setValidators(Validators.required);
+        this.rapportForm.setValidators(this.dateRangeValidatorForReport()); // Utilisez le validateur générique
+        
+        this.rapportForm.get('date_debut_intervention')?.updateValueAndValidity();
+        this.rapportForm.get('date_fin_intervention')?.updateValueAndValidity();
+        break;
+
       default:
         this.showRegistrationFilters = false;
         this.showTransferFilters = false;
+        this.showInterventionFilters = false;
         this.rapportForm.reset({ id_type_rapport: typeRapportId });
         this.markFormGroupTouched(this.rapportForm);
-        // Toujours effacer les validateurs de groupe si aucun rapport spécifique n'est choisi
         this.rapportForm.clearValidators();
         break;
     }
-    this.rapportForm.updateValueAndValidity(); // Mettre à jour la validation globale du formulaire
+    this.rapportForm.updateValueAndValidity();
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
@@ -243,12 +271,12 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     });
     this.showRegistrationFilters = false;
     this.showTransferFilters = false;
-    this.rapportForm.clearValidators(); // Important : Supprimer les validateurs de groupe précédents
+    this.showInterventionFilters = false; // Réinitialiser le flag d'intervention
+    this.rapportForm.clearValidators();
     this.rapportForm.updateValueAndValidity();
   }
 
   loadFilterData(): void {
-    // Tous ces services chargent les données nécessaires pour les ng-select
     this.bureauxService.getAllBureaux().pipe(takeUntil(this.destroy$)).subscribe((data: Bureau[]) => this.bureaux = data);
     this.employesService.getAllEmployes().pipe(takeUntil(this.destroy$)).subscribe((data: Employe[]) => this.employes = data);
     this.fournisseursService.getAllFournisseurs().pipe(takeUntil(this.destroy$)).subscribe((data: Fournisseur[]) => this.fournisseurs = data);
@@ -266,7 +294,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     ).subscribe(
       (codes: string[]) => {
         this.immobilisationCodes = codes.filter(code => code !== null && code !== undefined && code !== '');
-        console.log('Codes d\'immobilisation chargés:', this.immobilisationCodes);
+        console.log('Codes d\'immobilisation chargés (pour rapport d\'enregistrement):', this.immobilisationCodes);
       },
       (error) => {
         console.error('Erreur lors du chargement des codes d\'immobilisation:', error);
@@ -274,10 +302,35 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadImmobilisationsForFilter(): void { // NOUVEAU: Pour le filtre des interventions
+    this.immobilisationsService.getAllImmobilisations().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: Immobilisation[]) => {
+        this.immobilisations = data;
+        console.log('Immobilisations chargées (pour rapport d\'interventions):', this.immobilisations);
+      },
+      (error) => {
+        console.error('Erreur lors du chargement des immobilisations pour le filtre:', error);
+      }
+    );
+  }
+
+  loadTypeInterventionsForFilter(): void { // NOUVEAU: Pour le filtre des interventions
+    this.TypeInterventionService.getAllTypeInterventions().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: TypeIntervention[]) => {
+        this.typeInterventions = data;
+        console.log('Types d\'intervention chargés (pour rapport d\'interventions):', this.typeInterventions);
+      },
+      (error) => {
+        console.error('Erreur lors du chargement des types d\'intervention pour le filtre:', error);
+      }
+    );
+  }
+
+
   loadRapportImmos(): void {
     console.log('--- Tentative de chargement du rapport ---');
     console.log('Form isValid before API call:', this.rapportForm.valid);
-    console.log('Form errors (group level):', this.rapportForm.errors); // Erreurs du groupe (ex: dateRangeInvalidOrder)
+    console.log('Form errors (group level):', this.rapportForm.errors);
     Object.keys(this.rapportForm.controls).forEach(key => {
       if (this.rapportForm.get(key)?.errors) {
         console.log(`Errors on control ${key}:`, this.rapportForm.get(key)?.errors);
@@ -300,45 +353,49 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     // Nettoyage et formatage des filtres avant envoi en fonction du type de rapport
     if (this.selectedReportTypeId === 'enregistrement') {
       filters.date_debut_acquisition = filters.date_debut_acquisition ? this.formatDate(filters.date_debut_acquisition) : null;
-      // Supprimer le code_immo s'il est null/vide (il est optionnel)
       if (filters.code_immo === null || filters.code_immo === undefined || filters.code_immo === '') {
           delete filters.code_immo;
       }
-      // Supprimer date_debut_acquisition si elle est null
       if (filters.date_debut_acquisition === null) {
           delete filters.date_debut_acquisition;
       }
-      // Supprimer les champs de transfert qui pourraient être restés
-      delete filters.date_debut_mouvement;
-      delete filters.date_fin_mouvement;
-      delete filters.old_bureau_id;
-      delete filters.bureau_id;
-      delete filters.old_employe_id;
-      delete filters.employe_id;
+      // Supprimer les champs des autres rapports
+      delete filters.date_debut_mouvement; delete filters.date_fin_mouvement;
+      delete filters.old_bureau_id; delete filters.bureau_id;
+      delete filters.old_employe_id; delete filters.employe_id;
+      delete filters.date_debut_intervention; delete filters.date_fin_intervention;
+      delete filters.type_intervention_id; delete filters.immo_id;
 
     } else if (this.selectedReportTypeId === 'transfert') {
-      // Pour les transferts, les dates sont OBLIGATOIRES (validation frontend),
-      // donc on peut supposer qu'elles sont présentes si le formulaire est valide.
       filters.date_debut = filters.date_debut_mouvement ? this.formatDate(filters.date_debut_mouvement) : null;
       filters.date_fin = filters.date_fin_mouvement ? this.formatDate(filters.date_fin_mouvement) : null;
-      
-      // Supprimer les noms locaux des contrôles de date
-      delete filters.date_debut_mouvement;
-      delete filters.date_fin_mouvement;
+      delete filters.date_debut_mouvement; delete filters.date_fin_mouvement;
 
-      // Nettoyage des IDs d'employés/bureaux si null/vides (ils sont optionnels)
       if (filters.old_bureau_id === null || filters.old_bureau_id === undefined || filters.old_bureau_id === '') { delete filters.old_bureau_id; }
       if (filters.bureau_id === null || filters.bureau_id === undefined || filters.bureau_id === '') { delete filters.bureau_id; }
       if (filters.old_employe_id === null || filters.old_employe_id === undefined || filters.old_employe_id === '') { delete filters.old_employe_id; }
       if (filters.employe_id === null || filters.employe_id === undefined || filters.employe_id === '') { delete filters.employe_id; }
 
-      // Supprimer les champs d'enregistrement qui pourraient être restés
-      delete filters.code_immo;
-      delete filters.date_debut_acquisition;
-    }
+      // Supprimer les champs des autres rapports
+      delete filters.code_immo; delete filters.date_debut_acquisition;
+      delete filters.date_debut_intervention; delete filters.date_fin_intervention;
+      delete filters.type_intervention_id; delete filters.immo_id;
 
-    // Cette boucle nettoie les champs désactivés (qui ne sont pas pertinents pour le type de rapport sélectionné)
-    // Elle est généralement redondante si la logique ci-dessus est bien faite, mais peut servir de filet de sécurité.
+    } else if (this.selectedReportTypeId === 'intervention') { // NOUVEAU: Logique pour les interventions
+      filters.date_debut = filters.date_debut_intervention ? this.formatDate(filters.date_debut_intervention) : null;
+      filters.date_fin = filters.date_fin_intervention ? this.formatDate(filters.date_fin_intervention) : null;
+      delete filters.date_debut_intervention; delete filters.date_fin_intervention;
+
+      if (filters.type_intervention_id === null || filters.type_intervention_id === undefined || filters.type_intervention_id === '') { delete filters.type_intervention_id; }
+      if (filters.immo_id === null || filters.immo_id === undefined || filters.immo_id === '') { delete filters.immo_id; }
+
+      // Supprimer les champs des autres rapports
+      delete filters.code_immo; delete filters.date_debut_acquisition;
+      delete filters.date_debut_mouvement; delete filters.date_fin_mouvement;
+      delete filters.old_bureau_id; delete filters.bureau_id;
+      delete filters.old_employe_id; delete filters.employe_id;
+    }
+    
     Object.keys(this.rapportForm.controls).forEach(key => {
       if (this.rapportForm.get(key)?.disabled && (filters[key] === null || filters[key] === undefined || filters[key] === '')) {
         delete filters[key];
@@ -349,7 +406,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
 
     // Utilisation de la nouvelle méthode générique dans le service
     this.rapportService.getRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
-      (response: BackendPostResource<PaginatedResponse<(Immobilisation | Transfert)>>) => { // Type de réponse corrigé
+      (response: BackendPostResource<PaginatedResponse<(Immobilisation | Transfert | Intervention)>>) => { // Type de réponse élargi
         console.log('Réponse du backend (brute du service):', response);
         if (response.success && response.data && response.data.data) {
           this.rows = response.data.data;
@@ -411,29 +468,41 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       if (filters.date_debut_acquisition === null) {
           delete filters.date_debut_acquisition;
       }
-      // Supprimer les champs de transfert qui pourraient être restés
-      delete filters.date_debut_mouvement;
-      delete filters.date_fin_mouvement;
-      delete filters.old_bureau_id;
-      delete filters.bureau_id;
-      delete filters.old_employe_id;
-      delete filters.employe_id;
+      // Supprimer les champs des autres rapports
+      delete filters.date_debut_mouvement; delete filters.date_fin_mouvement;
+      delete filters.old_bureau_id; delete filters.bureau_id;
+      delete filters.old_employe_id; delete filters.employe_id;
+      delete filters.date_debut_intervention; delete filters.date_fin_intervention;
+      delete filters.type_intervention_id; delete filters.immo_id;
 
     } else if (this.selectedReportTypeId === 'transfert') {
       filters.date_debut = filters.date_debut_mouvement ? this.formatDate(filters.date_debut_mouvement) : null;
       filters.date_fin = filters.date_fin_mouvement ? this.formatDate(filters.date_fin_mouvement) : null;
-
-      delete filters.date_debut_mouvement;
-      delete filters.date_fin_mouvement;
+      delete filters.date_debut_mouvement; delete filters.date_fin_mouvement;
 
       if (filters.old_bureau_id === null || filters.old_bureau_id === undefined || filters.old_bureau_id === '') { delete filters.old_bureau_id; }
       if (filters.bureau_id === null || filters.bureau_id === undefined || filters.bureau_id === '') { delete filters.bureau_id; }
       if (filters.old_employe_id === null || filters.old_employe_id === undefined || filters.old_employe_id === '') { delete filters.old_employe_id; }
       if (filters.employe_id === null || filters.employe_id === undefined || filters.employe_id === '') { delete filters.employe_id; }
       
-      // Supprimer les champs d'enregistrement qui pourraient être restés
-      delete filters.code_immo;
-      delete filters.date_debut_acquisition;
+      // Supprimer les champs des autres rapports
+      delete filters.code_immo; delete filters.date_debut_acquisition;
+      delete filters.date_debut_intervention; delete filters.date_fin_intervention;
+      delete filters.type_intervention_id; delete filters.immo_id;
+
+    } else if (this.selectedReportTypeId === 'intervention') { // NOUVEAU: Logique pour les interventions
+      filters.date_debut = filters.date_debut_intervention ? this.formatDate(filters.date_debut_intervention) : null;
+      filters.date_fin = filters.date_fin_intervention ? this.formatDate(filters.date_fin_intervention) : null;
+      delete filters.date_debut_intervention; delete filters.date_fin_intervention;
+
+      if (filters.type_intervention_id === null || filters.type_intervention_id === undefined || filters.type_intervention_id === '') { delete filters.type_intervention_id; }
+      if (filters.immo_id === null || filters.immo_id === undefined || filters.immo_id === '') { delete filters.immo_id; }
+
+      // Supprimer les champs des autres rapports
+      delete filters.code_immo; delete filters.date_debut_acquisition;
+      delete filters.date_debut_mouvement; delete filters.date_fin_mouvement;
+      delete filters.old_bureau_id; delete filters.bureau_id;
+      delete filters.old_employe_id; delete filters.employe_id;
     }
     
     Object.keys(this.rapportForm.controls).forEach(key => {
@@ -485,6 +554,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
 
   // La recherche locale s'applique à la vue actuelle (rows), peu importe le type de rapport
   updateFilter(event: KeyboardEvent): void {
+
     const val = (event.target as HTMLInputElement).value.toLowerCase();
     console.log('Valeur de recherche locale:', val);
 
@@ -514,7 +584,11 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
                         (transfertItem.old_employe?.nom?.toLowerCase().includes(val) || false) ||
                         (transfertItem.employe?.nom?.toLowerCase().includes(val) || false) ||
                         (transfertItem.employe?.nom?.toLowerCase().includes(val) || false) ||
-                        (transfertItem.motif?.toLowerCase().includes(val) || false); // Ajout du motif si pertinent
+                        (transfertItem.motif?.toLowerCase().includes(val) || false);
+            } else if (this.selectedReportTypeId === 'intervention') { // NOUVEAU: Logique de recherche pour les interventions
+                const interventionItem = item as Intervention;
+                match = (interventionItem.titre?.toLowerCase().includes(val) || false) ||
+                        (interventionItem.observation?.toLowerCase().includes(val) || false) ;
             }
             return match;
         });

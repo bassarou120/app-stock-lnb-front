@@ -56,6 +56,7 @@ export class InterventionsService {
     );
   }
 
+
   imprimerInterventions(): Observable<Blob> {
     const printUrl = `${environment.backend}/interventions/imprimer`;
     console.log('Requête PDF pour les interventions vers:', printUrl);

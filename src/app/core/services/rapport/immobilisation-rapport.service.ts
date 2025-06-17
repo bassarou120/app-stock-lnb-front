@@ -5,8 +5,8 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 
-// Importe les interfaces nécessaires
-import { Immobilisation, PaginatedResponse, BackendPostResource, Transfert } from '../interface/models';
+// Importe les interfaces nécessaires (Assurez-vous que Intervention est importé ici)
+import { Immobilisation, PaginatedResponse, BackendPostResource, Transfert, Intervention } from '../interface/models';
 
 @Injectable({
   providedIn: 'root'
@@ -38,15 +38,24 @@ export class ImmobilisationRapportService {
   }
 
   /**
-   * Récupère les données du rapport (immobilisations ou transferts) en fonction des filtres.
+   * Récupère les données du rapport (immobilisations, transferts ou interventions) en fonction des filtres.
    * @param filters Un objet contenant les critères de filtrage, y compris 'id_type_rapport'.
+   * CORRECTION: Le type de retour inclut maintenant Intervention
    */
-  getRapportData(filters: { [key: string]: any }): Observable<BackendPostResource<PaginatedResponse<Immobilisation | Transfert>>> {
+  getRapportData(filters: { [key: string]: any }): Observable<BackendPostResource<PaginatedResponse<Immobilisation | Transfert | Intervention>>> {
     let endpoint = '';
     let params = new HttpParams();
 
-    // Déterminer l'endpoint et construire les paramètres en fonction du type de rapport
-    switch (filters['id_type_rapport']) {
+    const reportType = filters['id_type_rapport'];
+
+    console.log("Service: getRapportData called with filters:", filters);
+    console.log("Service: reportType for data:", reportType);
+
+    if (!reportType) {
+        return throwError(() => new Error('Type de rapport est manquant ou non défini pour l\'affichage des données.'));
+    }
+
+    switch (reportType) {
       case 'enregistrement':
         endpoint = `${this.apiUrl}/rapports/immobilisations`;
         if (filters['code_immo']) {
@@ -57,60 +66,7 @@ export class ImmobilisationRapportService {
         }
         break;
       case 'transfert':
-        endpoint = `${this.apiUrl}/rapports/transferts`; // NOUVEL ENDPOINT POUR LES TRANSFERTS
-        if (filters['date_debut']) { // Ces noms de paramètres doivent correspondre à votre backend Laravel
-          params = params.set('date_debut', filters['date_debut']);
-        }
-        if (filters['date_fin']) {
-          params = params.set('date_fin', filters['date_fin']);
-        }
-        if (filters['old_bureau_id']) {
-          params = params.set('old_bureau_id', filters['old_bureau_id']);
-        }
-        if (filters['bureau_id']) {
-          params = params.set('bureau_id', filters['bureau_id']);
-        }
-        if (filters['old_employe_id']) {
-          params = params.set('old_employe_id', filters['old_employe_id']);
-        }
-        if (filters['employe_id']) {
-          params = params.set('employe_id', filters['employe_id']);
-        }
-        break;
-      default:
-        return throwError(() => new Error('Type de rapport non valide.'));
-    }
-
-    // Ajouter l'id_type_rapport à tous les appels pour que le backend puisse différencier
-    params = params.set('id_type_rapport', filters['id_type_rapport']);
-
-    console.log(`Requête GET vers: ${endpoint} avec params:`, params.toString());
-    return this.http.get<BackendPostResource<PaginatedResponse<Immobilisation | Transfert>>>(endpoint, { params: params }).pipe(
-      catchError(this.handleError<BackendPostResource<PaginatedResponse<Immobilisation | Transfert>>>('getRapportData'))
-    );
-  }
-
-  /**
-   * Génère le PDF du rapport (immobilisations ou transferts) en fonction des filtres.
-   * @param filters Un objet contenant les critères de filtrage, y compris 'id_type_rapport'.
-   */
-  imprimerRapportData(filters: { [key: string]: any }): Observable<Blob> {
-    let endpoint = '';
-    let params = new HttpParams();
-
-    // Déterminer l'endpoint et construire les paramètres en fonction du type de rapport
-    switch (filters['id_type_rapport']) {
-      case 'enregistrement':
-        endpoint = `${this.apiUrl}/rapports/immobilisations/imprimer`;
-        if (filters['code_immo']) {
-          params = params.set('code_immo', filters['code_immo']);
-        }
-        if (filters['date_debut_acquisition']) {
-          params = params.set('date_debut_acquisition', filters['date_debut_acquisition']);
-        }
-        break;
-      case 'transfert':
-        endpoint = `${this.apiUrl}/rapports/transferts/imprimer`; // NOUVEL ENDPOINT PDF POUR LES TRANSFERTS
+        endpoint = `${this.apiUrl}/rapports/transferts`;
         if (filters['date_debut']) {
           params = params.set('date_debut', filters['date_debut']);
         }
@@ -130,12 +86,103 @@ export class ImmobilisationRapportService {
           params = params.set('employe_id', filters['employe_id']);
         }
         break;
+      case 'intervention':
+        endpoint = `${this.apiUrl}/rapports/interventions`;
+        if (filters['date_debut']) {
+          params = params.set('date_debut', filters['date_debut']);
+        }
+        if (filters['date_fin']) {
+          params = params.set('date_fin', filters['date_fin']);
+        }
+        if (filters['type_intervention_id']) {
+          params = params.set('type_intervention_id', filters['type_intervention_id']);
+        }
+        if (filters['immo_id']) {
+          params = params.set('immo_id', filters['immo_id']);
+        }
+        break;
       default:
-        return throwError(() => new Error('Type de rapport non valide pour l\'impression.'));
+        return throwError(() => new Error(`Type de rapport non valide pour l\'affichage des données: '${reportType}'.`));
     }
 
-    // Ajouter l'id_type_rapport à tous les appels pour que le backend puisse différencier
-    params = params.set('id_type_rapport', filters['id_type_rapport']);
+    params = params.set('id_type_rapport', reportType);
+
+    console.log(`Requête GET vers: ${endpoint} avec params:`, params.toString());
+    // CORRECTION: Le type de retour inclut maintenant Intervention
+    return this.http.get<BackendPostResource<PaginatedResponse<Immobilisation | Transfert | Intervention>>>(endpoint, { params: params }).pipe(
+      catchError(this.handleError<BackendPostResource<PaginatedResponse<Immobilisation | Transfert | Intervention>>>('getRapportData'))
+    );
+  }
+
+  /**
+   * Génère le PDF du rapport (immobilisations, transferts ou interventions) en fonction des filtres.
+   * @param filters Un objet contenant les critères de filtrage, y compris 'id_type_rapport'.
+   */
+  imprimerRapportData(filters: { [key: string]: any }): Observable<Blob> {
+    console.log("Service: imprimerRapportData called with filters:", filters);
+    let endpoint = '';
+    let params = new HttpParams();
+
+    const reportType = filters['id_type_rapport'];
+
+    console.log("Service: reportType for PDF:", reportType);
+
+    if (!reportType) {
+        return throwError(() => new Error('Type de rapport est manquant ou non défini pour l\'impression.'));
+    }
+
+    switch (reportType) {
+      case 'enregistrement':
+        endpoint = `${this.apiUrl}/rapports/immobilisations/imprimer`;
+        if (filters['code_immo']) {
+          params = params.set('code_immo', filters['code_immo']);
+        }
+        if (filters['date_debut_acquisition']) {
+          params = params.set('date_debut_acquisition', filters['date_debut_acquisition']);
+        }
+        break;
+      case 'transfert':
+        endpoint = `${this.apiUrl}/rapports/transferts/imprimer`;
+        if (filters['date_debut']) {
+          params = params.set('date_debut', filters['date_debut']);
+        }
+        if (filters['date_fin']) {
+          params = params.set('date_fin', filters['date_fin']);
+        }
+        if (filters['old_bureau_id']) {
+          params = params.set('old_bureau_id', filters['old_bureau_id']);
+        }
+        if (filters['bureau_id']) {
+          params = params.set('bureau_id', filters['bureau_id']);
+        }
+        if (filters['old_employe_id']) {
+          params = params.set('old_employe_id', filters['old_employe_id']);
+        }
+        if (filters['employe_id']) {
+          params = params.set('employe_id', filters['employe_id']);
+        }
+        break;
+      case 'intervention': // CORRECTION: Ajout de la logique pour le cas 'intervention'
+        endpoint = `${this.apiUrl}/rapports/interventions/imprimer`;
+        if (filters['date_debut']) {
+          params = params.set('date_debut', filters['date_debut']);
+        }
+        if (filters['date_fin']) {
+          params = params.set('date_fin', filters['date_fin']);
+        }
+        if (filters['type_intervention_id']) {
+          params = params.set('type_intervention_id', filters['type_intervention_id']);
+        }
+        if (filters['immo_id']) {
+          params = params.set('immo_id', filters['immo_id']);
+        }
+        break;
+      default:
+        // L'erreur ici sera plus spécifique
+        return throwError(() => new Error(`Type de rapport non valide pour l\'impression: '${reportType}'.`));
+    }
+
+    params = params.set('id_type_rapport', reportType);
 
     console.log(`Requête PDF vers: ${endpoint} avec params:`, params.toString());
     return this.http.get(endpoint, { params: params, responseType: 'blob' }).pipe(
