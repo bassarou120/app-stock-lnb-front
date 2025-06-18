@@ -18,13 +18,13 @@
             </button>
           </div>
         </div>
-  
+
         <div class="card-body">
           <div>
             <form [formGroup]="rapportForm" novalidate class="forms-sample">
-              <div class="row">
+              <div class="row justify-content-center">
                 <!-- Sélecteur du Type de Rapport de Ticket (OBLIGATOIRE) -->
-                <div class="col-md-12 mb-3">
+                <div class="col-md-6 mb-3">
                   <label for="id_type_rapport" class="form-label">Type de Rapport <span class="text-danger">*</span></label>
                   <ng-select [items]="typeRapportsTicket" bindLabel="libelle" bindValue="id"
                              formControlName="id_type_rapport" [clearable]="true" placeholder="Sélectionnez le type de rapport">
@@ -34,12 +34,12 @@
                   </div>
                 </div>
               </div>
-  
+
               <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'ENTRÉE DE TICKETS -->
               <div class="row" *ngIf="showEntreeTicketFilters">
                 <hr class="my-4">
                 <h5 class="mb-3">Filtres pour le rapport d'Entrée de Tickets</h5>
-  
+
                 <!-- Dates de Mouvement (Obligatoires) -->
                 <div class="col-md-6 mb-3">
                   <label for="date_debut_entree_t" class="form-label">Date de Mouvement (Début) <span class="text-danger">*</span></label>
@@ -72,7 +72,7 @@
                     <small *ngIf="rapportForm.get('date_fin_entree_t')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
                   </div>
                 </div>
-  
+
                 <!-- Coupon Ticket (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="coupon_ticket_id_entree" class="form-label">Coupon Ticket (Optionnel)</label>
@@ -80,7 +80,7 @@
                              formControlName="coupon_ticket_id_entree" [clearable]="true" placeholder="Sélectionnez un coupon">
                   </ng-select>
                 </div>
-  
+
                 <!-- Compagnie (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="compagnie_id_entree" class="form-label">Compagnie (Optionnel)</label>
@@ -90,13 +90,13 @@
                 </div>
               </div>
               <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ENTRÉE DE TICKETS -->
-  
-  
+
+
               <!-- FILTRES SPÉCIFIQUES AU RAPPORT DE SORTIE DE TICKETS -->
               <div class="row" *ngIf="showSortieTicketFilters">
                 <hr class="my-4">
                 <h5 class="mb-3">Filtres pour le rapport de Sortie de Tickets</h5>
-  
+
                 <!-- Dates de Mouvement (Obligatoires) -->
                 <div class="col-md-6 mb-3">
                   <label for="date_debut_sortie_t" class="form-label">Date de Mouvement (Début) <span class="text-danger">*</span></label>
@@ -129,7 +129,7 @@
                     <small *ngIf="rapportForm.get('date_fin_sortie_t')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
                   </div>
                 </div>
-  
+
                 <!-- Coupon Ticket (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="coupon_ticket_id_sortie" class="form-label">Coupon Ticket (Optionnel)</label>
@@ -137,7 +137,7 @@
                              formControlName="coupon_ticket_id_sortie" [clearable]="true" placeholder="Sélectionnez un coupon">
                   </ng-select>
                 </div>
-  
+
                 <!-- Compagnie (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="compagnie_id_sortie" class="form-label">Compagnie (Optionnel)</label>
@@ -145,16 +145,16 @@
                              formControlName="compagnie_id_sortie" [clearable]="true" placeholder="Sélectionnez une compagnie">
                   </ng-select>
                 </div>
-  
-              </div> 
+
+              </div>
               <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT DE SORTIE DE TICKETS -->
-  
-  
+
+
               <!-- FILTRES SPÉCIFIQUES AU RAPPORT DE RETOUR DE TICKETS -->
               <div class="row" *ngIf="showRetourTicketFilters">
                 <hr class="my-4">
                 <h5 class="mb-3">Filtres pour le rapport de Retour de Tickets</h5>
-  
+
                 <!-- Dates de Retour (Obligatoires) -->
                 <div class="col-md-6 mb-3">
                   <label for="date_debut_retour_t" class="form-label">Date de Retour (Début) <span class="text-danger">*</span></label>
@@ -187,7 +187,7 @@
                     <small *ngIf="rapportForm.get('date_fin_retour_t')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
                   </div>
                 </div>
-  
+
                 <!-- Coupon Ticket (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="coupon_id_retour" class="form-label">Coupon Ticket (Optionnel)</label>
@@ -195,7 +195,7 @@
                              formControlName="coupon_id_retour" [clearable]="true" placeholder="Sélectionnez un coupon">
                   </ng-select>
                 </div>
-  
+
                 <!-- Compagnie (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="compagnie_id_retour" class="form-label">Compagnie (Optionnel)</label>
@@ -205,13 +205,13 @@
                 </div>
               </div>
               <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT DE RETOUR DE TICKETS -->
-  
-  
+
+
               <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'ANNULATION DE TICKETS -->
               <div class="row" *ngIf="showAnnulationTicketFilters">
                 <hr class="my-4">
                 <h5 class="mb-3">Filtres pour le rapport d'Annulation de Tickets</h5>
-  
+
                 <!-- Dates d'Annulation (Obligatoires) -->
                 <div class="col-md-6 mb-3">
                   <label for="date_debut_annulation_t" class="form-label">Date d'Annulation (Début) <span class="text-danger">*</span></label>
@@ -244,7 +244,7 @@
                     <small *ngIf="rapportForm.get('date_fin_annulation_t')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
                   </div>
                 </div>
-  
+
                 <!-- Coupon Ticket (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="coupon_id_annulation" class="form-label">Coupon Ticket (Optionnel)</label>
@@ -252,7 +252,7 @@
                              formControlName="coupon_id_annulation" [clearable]="true" placeholder="Sélectionnez un coupon">
                   </ng-select>
                 </div>
-  
+
                 <!-- Compagnie (Optionnel) -->
                 <div class="col-md-6 mb-3">
                   <label for="compagnie_id_annulation" class="form-label">Compagnie (Optionnel)</label>
@@ -262,8 +262,8 @@
                 </div>
               </div>
               <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ANNULATION DE TICKETS -->
-  
-  
+
+
               <!-- Bouton Charger Rapport -->
               <div class="d-flex justify-content-center gap-3 mt-4">
                 <button type="button" class="btn btn-primary btn-icon-text" (click)="loadRapportTicket()" [disabled]="isGeneratingReport || rapportForm.invalid">
@@ -283,7 +283,7 @@
       </div>
     </div>
   </div>
-  
+
   <div class="row mt-4">
     <div class="col-md-12 stretch-card">
       <div class="card">
@@ -298,7 +298,7 @@
           <div class="table-responsive">
             <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
               [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
-  
+
               <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
               <ng-container *ngIf="selectedReportTypeId === 'entree ticket'">
                   <ngx-datatable-column name="N°">
@@ -317,7 +317,7 @@
                   <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
                   <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
               </ng-container>
-  
+
               <ng-container *ngIf="selectedReportTypeId === 'sortie ticket'">
                   <ngx-datatable-column name="N°">
                       <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
@@ -342,7 +342,7 @@
                   <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
                   <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
               </ng-container>
-  
+
               <ng-container *ngIf="selectedReportTypeId === 'retour ticket'">
                   <ngx-datatable-column name="N°">
                       <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
@@ -363,7 +363,7 @@
                   <ngx-datatable-column name="Compagnie" prop="compagnie.libelle"></ngx-datatable-column>
                   <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
               </ng-container>
-  
+
               <ng-container *ngIf="selectedReportTypeId === 'annulation ticket'">
                   <ngx-datatable-column name="N°">
                       <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
@@ -384,7 +384,7 @@
                     </ng-template>
                 </ngx-datatable-column>
               </ng-container>
-  
+
             </ngx-datatable>
           </div>
           <div *ngIf="rows.length === 0 && !loadingIndicator && !errorMessage" class="no-data-message mt-3">
@@ -394,4 +394,3 @@
       </div>
     </div>
   </div>
-  
