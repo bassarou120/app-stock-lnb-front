@@ -185,8 +185,12 @@ export interface Article {
 
 export interface Vehicule {
   id: number;
-  marque_id: number;
-  modele_id: number;
+  libelle?: string;
+  marque_id?: number;
+  marque?: Marque; // Relation chargée
+  modele_id?: number;
+  modele?: Modele; // Relation chargée
+  annee?: number;
   immatriculation: string;
   numero_chassis: string;
   kilometrage: number;
@@ -273,6 +277,7 @@ export interface Intervention {
 export interface InterventionVehicule {
   id: number;
   vehicule_id: number;
+  vehicule?: Vehicule;
   date_intervention: string;
   titre: string;
   montant: number;
@@ -281,6 +286,8 @@ export interface InterventionVehicule {
   updated_at: string;
   commune_depart_id: number;
   commune_arrivee_id: number;
+  type_intervention_id: number;
+  typeIntervention?: TypeIntervention;
 }
 
 export interface Utilisateur {

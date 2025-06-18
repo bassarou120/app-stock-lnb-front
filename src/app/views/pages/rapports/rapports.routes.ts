@@ -11,6 +11,6 @@ export default [
     },
     {
         path: 'parc',
-        loadComponent: () => import('./parc/parc.component').then(c => c.ParcComponent),
+        loadComponent: () => import('./parc/rapport-parc.component').then(c => c.RapportParcComponent),
     },
 ] as Routes;
