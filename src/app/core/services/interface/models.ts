@@ -12,8 +12,11 @@ export interface Commune {
 export interface RetourTicket {
   id: number;
   mouvementTicket_id: number;
+  mouvementTicket? : MouvementTicket;
   coupon_ticket_id: number;
+  coupon_ticket? : CouponTicket;
   compagnie_petrolier_id: number;
+  compagnie_petrolier? : CompagniePetroliere;
   qte: number;
   created_at: string;
   updated_at: string;
@@ -23,7 +26,9 @@ export interface AnnulationTicket {
   id: number;
   mouvementTicket_id: number;
   coupon_ticket_id: number;
+  coupon_ticket? : CouponTicket;
   compagnie_petrolier_id: number;
+  compagnie_petrolier? : CompagniePetroliere;
   qte: number;
   created_at: string;
   updated_at: string;
@@ -246,9 +251,13 @@ export interface MouvementStockGrouped {
 export interface MouvementTicket {
   id: number;
   vehicule_id: number;
+  vehicule? : Vehicule;
   compagnie_petrolier_id: number;
+  compagnie_petrolier? : CompagniePetroliere;
   coupon_ticket_id: number;
+  coupon_ticket? : CouponTicket;
   employe_id: number;
+  employe? : Employe;
   commune_depart: number;
   commune_arriver: number;
   description: string;

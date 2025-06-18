@@ -486,6 +486,11 @@ export const MENU: MenuItem[] = [
     link: '/rapports/parc'
   },
   {
+    label: 'Rapport ticket',
+    icon: 'file',
+    link: '/rapports/ticket'
+  },
+  {
     label: 'Paramètres',
     isTitle: true
   },
