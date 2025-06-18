@@ -1,0 +1,238 @@
+<!-- src/app/views/pages/rapports/parc/rapport-parc.component.html -->
+<div class="row">
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Rapports du Parc</h4>
+          <p class="text-secondary">Générez et consultez différents rapports sur les véhicules et leurs interventions.</p>
+        </div>
+        <div class="d-flex gap-2">
+          <!-- Bouton Imprimer PDF -->
+          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadRapportParcPDF()" [disabled]="isGeneratingReport || rapportForm.invalid">
+            <div class="spinner-border spinner-border-sm text-primary me-2" [class.d-none]="!isGeneratingReport" role="status">
+              <span class="visually-hidden">Préparation...</span>
+            </div>
+            <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+            {{ isGeneratingReport ? 'Préparation...' : 'Imprimer PDF' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div>
+          <form [formGroup]="rapportForm" novalidate class="forms-sample">
+            <div class="row">
+              <!-- Sélecteur du Type de Rapport de Parc (OBLIGATOIRE) -->
+              <div class="col-md-12 mb-3">
+                <label for="id_type_rapport" class="form-label">Type de Rapport <span class="text-danger">*</span></label>
+                <ng-select [items]="typeRapportsParc" bindLabel="libelle" bindValue="id"
+                           formControlName="id_type_rapport" [clearable]="true" placeholder="Sélectionnez le type de rapport">
+                </ng-select>
+                <div *ngIf="rapportForm.get('id_type_rapport')?.invalid && rapportForm.get('id_type_rapport')?.touched">
+                  <small class="text-danger"> *Le type de rapport est obligatoire.</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'ENREGISTREMENT DES VÉHICULES -->
+            <div class="row" *ngIf="showVehiculeFilters">
+              <hr class="my-4">
+              <h5 class="mb-3">Filtres pour le rapport d'Enregistrement des Véhicules</h5>
+
+              <!-- Date d'Acquisition (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="date_debut_vehicule" class="form-label">Date de mise en service (Début)</label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddv1.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddv1"
+                         ngbDatepicker #ddv1="ngbDatepicker" formControlName="date_debut_vehicule"
+                         [maxDate]="rapportForm.get('date_fin_vehicule')?.value || undefined">
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="date_fin_vehicule" class="form-label">Date de mise en service (Fin)</label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddv2.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddv2"
+                         ngbDatepicker #ddv2="ngbDatepicker" formControlName="date_fin_vehicule"
+                         [minDate]="rapportForm.get('date_debut_vehicule')?.value || undefined">
+                </div>
+              </div>
+
+              <!-- Marque (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="marque_id" class="form-label">Marque (Optionnel)</label>
+                <ng-select [items]="marquesList" bindLabel="libelle" bindValue="id"
+                           formControlName="marque_id" [clearable]="true" placeholder="Sélectionnez une marque">
+                </ng-select>
+              </div>
+
+              <!-- Modèle (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="modele_id" class="form-label">Modèle (Optionnel)</label>
+                <ng-select [items]="modelesList" bindLabel="libelle_modele" bindValue="id"
+                           formControlName="modele_id" [clearable]="true" placeholder="Sélectionnez un modèle">
+                </ng-select>
+              </div>
+            </div>
+            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ENREGISTREMENT DES VÉHICULES -->
+
+
+            <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION SUR VÉHICULE -->
+            <div class="row" *ngIf="showInterventionVFilters">
+              <hr class="my-4">
+              <h5 class="mb-3">Filtres pour le rapport d'Intervention sur Véhicules</h5>
+
+              <!-- Dates d'Intervention (Obligatoires) -->
+              <div class="col-md-6 mb-3">
+                <label for="date_debut_intervention_v" class="form-label">Date d'Intervention (Début) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddiv1.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddiv1"
+                         ngbDatepicker #ddiv1="ngbDatepicker" formControlName="date_debut_intervention_v"
+                         [maxDate]="rapportForm.get('date_fin_intervention_v')?.value || undefined"
+                         [class.is-invalid]="(rapportForm.get('date_debut_intervention_v')?.invalid && rapportForm.get('date_debut_intervention_v')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                </div>
+                <div *ngIf="rapportForm.get('date_debut_intervention_v')?.invalid && rapportForm.get('date_debut_intervention_v')?.touched">
+                  <small *ngIf="rapportForm.get('date_debut_intervention_v')?.errors?.required" class="text-danger"> *La date de début est obligatoire.</small>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="date_fin_intervention_v" class="form-label">Date d'Intervention (Fin) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddiv2.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddiv2"
+                         ngbDatepicker #ddiv2="ngbDatepicker" formControlName="date_fin_intervention_v"
+                         [minDate]="rapportForm.get('date_debut_intervention_v')?.value || undefined"
+                         [class.is-invalid]="(rapportForm.get('date_fin_intervention_v')?.invalid && rapportForm.get('date_fin_intervention_v')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                </div>
+                <div *ngIf="rapportForm.get('date_fin_intervention_v')?.invalid && rapportForm.get('date_fin_intervention_v')?.touched">
+                  <small *ngIf="rapportForm.get('date_fin_intervention_v')?.errors?.required" class="text-danger"> *La date de fin est obligatoire.</small>
+                  <small *ngIf="rapportForm.get('date_fin_intervention_v')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                </div>
+              </div>
+
+              <!-- Véhicule (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="vehicule_id" class="form-label">Véhicule (Optionnel)</label>
+                <ng-select [items]="vehiculesList" bindLabel="immatriculation" bindValue="id"
+                           formControlName="vehicule_id" [clearable]="true" placeholder="Sélectionnez un véhicule">
+                  <ng-template ng-label-tmp let-item="item">
+                    {{item.marque?.libelle}} ({{item.immatriculation}})
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    {{item.marque?.libelle}} ({{item.immatriculation}})
+                  </ng-template>
+                </ng-select>
+              </div>
+
+              <!-- Type d'Intervention (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="type_intervention_id" class="form-label">Type d'Intervention (Optionnel)</label>
+                <ng-select [items]="typeInterventionsList" bindLabel="libelle_type_intervention" bindValue="id"
+                           formControlName="type_intervention_id" [clearable]="true" placeholder="Sélectionnez un type d'intervention">
+                </ng-select>
+              </div>
+            </div>
+            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION SUR VÉHICULE -->
+
+
+            <!-- Bouton Charger Rapport -->
+            <div class="d-flex justify-content-center gap-3 mt-4">
+              <button type="button" class="btn btn-primary btn-icon-text" (click)="loadRapportParc()" [disabled]="isGeneratingReport || rapportForm.invalid">
+                <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isGeneratingReport" role="status">
+                  <span class="visually-hidden">Chargement...</span>
+                </div>
+                <i class="btn-icon-prepend" data-feather="refresh-ccw" appFeatherIcon></i>
+                {{ isGeneratingReport ? 'Chargement...' : 'Charger Rapport' }}
+              </button>
+            </div>
+            <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+              {{ errorMessage }}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-4">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Résultats du Rapport</h6>
+        <div class="row mb-3 d-flex justify-content-between">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+
+            <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
+            <ng-container *ngIf="selectedReportTypeId === 'vehicule'">
+                <ngx-datatable-column name="N°">
+                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                        {{ rowIndex + 1 }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Marque" prop="marque.libelle"></ngx-datatable-column>
+                <ngx-datatable-column name="Modèle" prop="modele.libelle_modele"></ngx-datatable-column>
+                <ngx-datatable-column name="Immatriculation" prop="immatriculation"></ngx-datatable-column>
+                <ngx-datatable-column name="N° Châssis" prop="numero_chassis"></ngx-datatable-column>
+                <ngx-datatable-column name="Date de mise en service">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.date_mise_en_service | date:'dd/MM/yyyy' }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="kilometrage (km)" prop="kilometrage"></ngx-datatable-column>
+            </ng-container>
+            
+            <ng-container *ngIf="selectedReportTypeId === 'intervention_vehicule'">
+                <ngx-datatable-column name="N°">
+                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                        {{ rowIndex + 1 }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Date Intervention">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.date_intervention | date:'dd/MM/yyyy' }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Modele">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.vehicule?.modele?.libelle_modele }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Immatriculation" prop="vehicule.immatriculation"></ngx-datatable-column>
+                <ngx-datatable-column name="Type Intervention" prop="type_intervention.libelle_type_intervention"></ngx-datatable-column>
+                <ngx-datatable-column name="Titre" prop="titre"></ngx-datatable-column>
+                <ngx-datatable-column name="Coût">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.montant | number:'1.2-2' }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+            </ng-container>
+
+          </ngx-datatable>
+        </div>
+        <div *ngIf="rows.length === 0 && !loadingIndicator && !errorMessage" class="no-data-message mt-3">
+          <p class="text-center text-muted">Veuillez sélectionner un type de rapport et charger les données.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

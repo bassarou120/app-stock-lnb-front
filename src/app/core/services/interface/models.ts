@@ -185,8 +185,12 @@ export interface Article {
 
 export interface Vehicule {
   id: number;
-  marque_id: number;
-  modele_id: number;
+  libelle?: string;
+  marque_id?: number;
+  marque?: Marque; // Relation chargée
+  modele_id?: number;
+  modele?: Modele; // Relation chargée
+  annee?: number;
   immatriculation: string;
   numero_chassis: string;
   kilometrage: number;
@@ -198,9 +202,12 @@ export interface Vehicule {
 export interface MouvementStock {
   id: number;
   id_Article: number;
-  id_fournisseur: number;
+  id_fournisseur?: number;
+  fournisseur?: Fournisseur; // Relation Fournisseur chargée
   description: string;
   id_type_mouvement: number;
+  type_mouvement?: TypeMouvement; // Relation TypeMouvement chargée
+  numero_borderau?: string;
   qte: number;
   qteDemande: number;
   date_mouvement: string;
@@ -270,6 +277,7 @@ export interface Intervention {
 export interface InterventionVehicule {
   id: number;
   vehicule_id: number;
+  vehicule?: Vehicule;
   date_intervention: string;
   titre: string;
   montant: number;
@@ -278,6 +286,8 @@ export interface InterventionVehicule {
   updated_at: string;
   commune_depart_id: number;
   commune_arrivee_id: number;
+  type_intervention_id: number;
+  typeIntervention?: TypeIntervention;
 }
 
 export interface Utilisateur {
@@ -300,16 +310,20 @@ export interface Utilisateur {
 
 
 export interface Transfert {
-  id: number;
+  id?: number;
   immo_id: number;
-  old_bureau_id: number;
-  old_employe_id: number;
+  immobilisation?: Immobilisation; // Relation Immobilisation
+  old_bureau_id?: number;
+  old_bureau?: Bureau; // Relation Ancien Bureau
   bureau_id: number;
+  bureau?: Bureau; // Relation Nouveau Bureau
+  old_employe_id?: number;
+  old_employe?: Employe; // Relation Ancien Employe
   employe_id: number;
+  employe?: Employe; // Relation Nouveau Employe
   date_mouvement: string;
-  observation: string;
-  created_at: string;
-  updated_at: string;
+  observation?: string;
+  motif?: string; // Ajouté si présent dans ta BDD pour les transferts
 }
 
 export interface Trajet{
@@ -325,27 +339,34 @@ export interface Trajet{
 
 export interface Immobilisation {
   id: number;
-  bureau_id: number;
-  employe_id: number;
-  date_mouvement: string;
-  fournisseur_id: number;
-  designation: string;
-  isVehicule: boolean;
-  vehicule_id: number;
   code: string;
+  designation: string;
+  montant_ttc: number;
+  observation?: string;
+  date_acquisition: string; // format YYYY-MM-DD
+  date_mise_en_service?: string; // format YYYY-MM-DD
+
+  // Clés étrangères (ID) - souvent présentes pour les relations Many-to-One
   id_groupe_type_immo: number;
   id_sous_type_immo: number;
-  duree_amorti: number;
-  etat: string;
-  taux_ammortissement: number;
-  duree_ammortissement: number;
-  date_acquisition: string;
-  date_mise_en_service: string;
-  observation: string;
   id_status_immo: number;
-  montant_ttc: number;
-  created_at: string;
-  updated_at: string;
+  employe_id?: number;
+  bureau_id?: number;
+  fournisseur_id?: number;
+  vehicule_id?: number;
+
+  // Relations (objets imbriqués) - Ces propriétés doivent correspondre aux noms
+  // que Laravel utilise lors de l'eager loading (via `with()`)
+  employe?: Employe;
+  statusImmo?: StatusImmo;
+  groupeTypeImmo?: GroupeTypeImmo;
+  sousTypeImmo?: SousTypeImmo;
+  bureau?: Bureau;
+  fournisseur?: Fournisseur;
+  vehicule?: Vehicule;
+
+  // Ajoutez ici d'autres propriétés de l'immobilisation si nécessaire
+  // ...
 }
 
 export interface   Role {
@@ -429,4 +450,10 @@ export interface Permission {
     id: number;
     libelle_fonctionnalite: string;
   };
+}
+
+export interface BackendPostResource<T> { // Exporté pour être utilisé dans le composant
+  success: boolean;
+  message: string;
+  data: T; // Le type de 'data' dépend du contenu
 }
