@@ -1,5 +1,5 @@
 // src/app/views/pages/rapports/ticket/rapport-ticket.component.ts
-import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { NgbDateStruct, NgbCalendar, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
@@ -93,6 +93,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     private compagnieService: CompagniePetroliereService,
     private employesService: EmployesService,
     private vehiculeService: VehiculeService,
+    private cd: ChangeDetectorRef, // Inject ChangeDetectorRef
     // private departService: DepartService,
     // private arriverService: ArriverService,
   ) { }
@@ -145,32 +146,31 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       id_type_rapport: [null, Validators.required],
 
       // Filtres pour Entrée Ticket
-      date_debut_entree_t: [null],
-      date_fin_entree_t: [null],
-      coupon_ticket_id_entree: [null],
-      compagnie_id_entree: [null],
+      date_debut_entree_t: [{value: null, disabled: true}],
+      date_fin_entree_t: [{value: null, disabled: true}],
+      coupon_ticket_id_entree: [{value: null, disabled: true}],
+      compagnie_id_entree: [{value: null, disabled: true}],
 
       // Filtres pour Sortie Ticket
-      date_debut_sortie_t: [null],
-      date_fin_sortie_t: [null],
-      coupon_ticket_id_sortie: [null],
-      compagnie_id_sortie: [null],
-      employe_id_sortie: [null],
-      vehicule_id_sortie: [null],
-      depart_id_sortie: [null],
-      arriver_id_sortie: [null],
+      date_debut_sortie_t: [{value: null, disabled: true}],
+      date_fin_sortie_t: [{value: null, disabled: true}],
+      coupon_ticket_id_sortie: [{value: null, disabled: true}],
+      compagnie_id_sortie: [{value: null, disabled: true}],
+      employe_id_sortie: [{value: null, disabled: true}],
+      vehicule_id_sortie: [{value: null, disabled: true}],
+      depart_id_sortie: [{value: null, disabled: true}],
+      arriver_id_sortie: [{value: null, disabled: true}],
 
       // Filtres pour Retour Ticket
-      date_debut_retour_t: [null],
-      date_fin_retour_t: [null],
-      coupon_id_retour: [null], // Note: Utilisez coupon_id ici si c'est le nom du champ dans le modèle RetourTicket
-      compagnie_id_retour: [null], // Note: Utilisez compagnie_id ici si c'est le nom du champ dans le modèle RetourTicket
-
+      date_debut_retour_t: [{value: null, disabled: true}],
+      date_fin_retour_t: [{value: null, disabled: true}],
+      coupon_id_retour: [{value: null, disabled: true}],
+      compagnie_id_retour: [{value: null, disabled: true}],
       // Filtres pour Annulation Ticket
-      date_debut_annulation_t: [null],
-      date_fin_annulation_t: [null],
-      coupon_id_annulation: [null], // Note: Utilisez coupon_id ici si c'est le nom du champ dans le modèle AnnulationTicket
-      compagnie_id_annulation: [null], // Note: Utilisez compagnie_id ici si c'est le nom du champ dans le modèle AnnulationTicket
+      date_debut_annulation_t: [{value: null, disabled: true}],
+      date_fin_annulation_t: [{value: null, disabled: true}],
+      coupon_id_annulation: [{value: null, disabled: true}],
+      compagnie_id_annulation: [{value: null, disabled: true}],
     });
   }
 
@@ -179,8 +179,8 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.resetFormControls(); // Réinitialise et désactive tous les champs
 
     // Réactive le sélecteur de type de rapport (il ne doit jamais être désactivé)
-    this.rapportForm.get('id_type_rapport')?.enable();
     this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required);
+    this.rapportForm.get('id_type_rapport')?.enable({ emitEvent: false });
     this.rapportForm.clearValidators(); // Efface les validateurs de niveau FormGroup pour éviter les conflits initiaux
 
     switch (typeRapportId) {
@@ -245,15 +245,19 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.showSortieTicketFilters = false;
         this.showRetourTicketFilters = false;
         this.showAnnulationTicketFilters = false;
-        this.rapportForm.reset({ id_type_rapport: typeRapportId });
+        // this.rapportForm.reset({ id_type_rapport: typeRapportId });
         // Remettre à null toutes les dates spécifiques pour éviter des valeurs résiduelles
         this.resetSpecificDateControls();
         break;
     }
-    this.rapportForm.updateValueAndValidity(); // Recalculer la validité après les changements
+    // Décaler l'appel à updateValueAndValidity pour éviter ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+        this.rapportForm.updateValueAndValidity();
+      }, 0);
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
+    this.cd.detectChanges(); // Force la détection des changements après la mise à jour du formulaire
   }
 
   private resetFormControls(): void {
@@ -275,8 +279,9 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     });
 
     this.rapportForm.clearValidators(); // Efface les validateurs de niveau FormGroup
-    this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required); // Ré-applique le validateur pour le type de rapport
-    this.rapportForm.updateValueAndValidity(); // Très important
+    // this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required); // Ré-applique le validateur pour le type de rapport
+    // this.rapportForm.updateValueAndValidity(); // Très important
+
     // Assurer que les indicateurs d'affichage sont tous false par défaut
     this.showEntreeTicketFilters = false;
     this.showSortieTicketFilters = false;
