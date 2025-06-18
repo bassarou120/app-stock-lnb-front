@@ -347,12 +347,16 @@ export class SortieComponent implements OnInit {
     this.sortieService.getCouponTicketsWithCompagnies().subscribe({
       next: (res) => {
         if (res.success) {
-          this.couponTicketsWithCompagnies = res.data.map((item: any) => {
+          this.couponTicketsWithCompagnies = res.data
+          .filter((item: any) => item.coupon_ticket && item.compagnie)
+          .map((item: any) => {
+            const coupon = item.coupon_ticket;
+            const compagnie = item.compagnie;
             return {
               id: item.coupon_ticket.id,
-              displayLabel: `${item.coupon_ticket.libelle} (${item.compagnie.libelle})`,
-              coupon_ticket_id: item.coupon_ticket.id,
-              compagnie_petrolier_id: item.compagnie.id
+              displayLabel: `${item.coupon_ticket.libelle ?? ''} (${item.compagnie.libelle ?? ''})`,
+              coupon_ticket_id: coupon?.id ?? null,
+              compagnie_petrolier_id: compagnie?.id ?? null
             };
           });
           // console.log("Bonjour", this.couponTicketsWithCompagnies); // Commenté
