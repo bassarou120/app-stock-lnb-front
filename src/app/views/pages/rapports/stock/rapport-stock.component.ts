@@ -38,7 +38,7 @@ interface TypeRapportStock {
   selector: 'app-rapport-stock',
   standalone: true,
   imports: [
-  
+
   CommonModule,
     NgSelectModule,
     ReactiveFormsModule,
@@ -46,11 +46,11 @@ interface TypeRapportStock {
     NgbAlertModule,
     NgbDropdownModule,
     NgbDatepickerModule,
-    FeatherIconDirective, 
+    FeatherIconDirective,
     NgxDatatableModule,
-    DatePipe, 
+    DatePipe,
   ],
-  templateUrl: './rapport-stock.component.html', 
+  templateUrl: './rapport-stock.component.html',
   styleUrls: []
 })
 export class RapportStockComponent implements OnInit, OnDestroy {
@@ -71,8 +71,8 @@ export class RapportStockComponent implements OnInit, OnDestroy {
 
   // Types de rapports de stock
   typeRapportsStock: TypeRapportStock[] = [
-    { id: 'entree', libelle: 'Rapport d\'Entrée de Stock' },
-    { id: 'sortie', libelle: 'Rapport de Sortie de Stock' },
+    { id: 'entree', libelle: 'Ordre d\'Entrée' },
+    { id: 'sortie', libelle: 'Ordre de Sortie' },
   ];
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
@@ -128,7 +128,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
           return { 'dateRangeMissingEndDate': true };
         }
       }
-      
+
       if (startDate && endDate) {
         const sDate = new Date(startDate.year, startDate.month - 1, startDate.day);
         const eDate = new Date(endDate.year, endDate.month - 1, endDate.day);
@@ -261,7 +261,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     // Formatage des dates communes
     filters.date_debut = filters.date_debut ? this.formatDate(filters.date_debut) : null;
     filters.date_fin = filters.date_fin ? this.formatDate(filters.date_fin) : null;
-    
+
     // Nettoyage et renommage des filtres avant envoi en fonction du type de rapport
     if (this.selectedReportTypeId === 'entree') {
         filters.id_Article = filters.id_Article_entree;
@@ -317,7 +317,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
           this.temp = [];
           this.errorMessage = response.message || "Aucune donnée trouvée ou erreur inattendue.";
         }
-        
+
         this.loadingIndicator = false;
         this.isGeneratingReport = false;
         if (this.rows.length === 0 && !this.errorMessage) {
@@ -389,7 +389,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
             filters.id_type_mouvement = typeSortie.id;
         }
     }
-    
+
     Object.keys(filters).forEach(key => {
         if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
             delete filters[key];

@@ -400,7 +400,7 @@ export const MENU: MenuItem[] = [
     link: '/intervention'
   },
   {
-    label: 'Gestion de Pack',
+    label: 'Gestion de Parc',
     isTitle: true
   },
   {

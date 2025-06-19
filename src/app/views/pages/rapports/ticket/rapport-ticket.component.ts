@@ -127,7 +127,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       if (startDate && !endDate) {
         return { 'dateRangeMissingEndDate': true };
       }
-      
+
       if (startDate && endDate) {
         const sDate = new Date(startDate.year, startDate.month - 1, startDate.day);
         const eDate = new Date(endDate.year, endDate.month - 1, endDate.day);
@@ -164,12 +164,12 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       // Filtres pour Retour Ticket
       date_debut_retour_t: [{value: null, disabled: true}],
       date_fin_retour_t: [{value: null, disabled: true}],
-      coupon_id_retour: [{value: null, disabled: true}], 
-      compagnie_id_retour: [{value: null, disabled: true}], 
+      coupon_id_retour: [{value: null, disabled: true}],
+      compagnie_id_retour: [{value: null, disabled: true}],
       // Filtres pour Annulation Ticket
       date_debut_annulation_t: [{value: null, disabled: true}],
       date_fin_annulation_t: [{value: null, disabled: true}],
-      coupon_id_annulation: [{value: null, disabled: true}], 
+      coupon_id_annulation: [{value: null, disabled: true}],
       compagnie_id_annulation: [{value: null, disabled: true}],
     });
   }
@@ -190,7 +190,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_fin_entree_t')?.enable();
         this.rapportForm.get('coupon_ticket_id_entree')?.enable();
         this.rapportForm.get('compagnie_id_entree')?.enable();
-        
+
         // Dates obligatoires pour l'entrée
         this.rapportForm.get('date_debut_entree_t')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_entree_t')?.setValidators(Validators.required);
@@ -281,7 +281,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.rapportForm.clearValidators(); // Efface les validateurs de niveau FormGroup
     // this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required); // Ré-applique le validateur pour le type de rapport
     // this.rapportForm.updateValueAndValidity(); // Très important
-    
     // Assurer que les indicateurs d'affichage sont tous false par défaut
     this.showEntreeTicketFilters = false;
     this.showSortieTicketFilters = false;
@@ -388,7 +387,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
           this.temp = [];
           this.errorMessage = response.message || "Aucune donnée trouvée ou erreur inattendue.";
         }
-        
+
         this.loadingIndicator = false;
         this.isGeneratingReport = false;
         if (this.rows.length === 0 && !this.errorMessage) {
@@ -464,7 +463,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
             filters.compagnie_id = this.rapportForm.get('compagnie_id_annulation')?.value;
             break;
     }
-    
+
     Object.keys(filters).forEach(key => {
         if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
             delete filters[key];
@@ -526,7 +525,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
                     break;
                 case 'sortie ticket':
                     const sortie = item as MouvementTicket;
-                    match = 
+                    match =
                             (sortie.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
                             (sortie.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false) ||
                             (sortie.employe?.nom?.toLowerCase().includes(val) || false) ||
@@ -537,14 +536,14 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
                     break;
                 case 'retour ticket':
                     const retour = item as RetourTicket;
-                    match = 
+                    match =
                             (retour.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
                             (retour.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false);
                             // (retour.mouvementTicket?.vehicule?.immatriculation?.toLowerCase().includes(val) || false)
                     break;
                 case 'annulation ticket':
                     const annulation = item as AnnulationTicket;
-                    match = 
+                    match =
                             (annulation.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
                             (annulation.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false);
                             // (annulation.mouvement?.employe?.nom?.toLowerCase().includes(val) || annulation.mouvement?.employe?.prenom?.toLowerCase().includes(val) || false) ||

@@ -81,7 +81,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   typeRapportsImmo: TypeRapportImmo[] = [
     { id: 'enregistrement', libelle: 'Rapport d\'Enregistrement des Immobilisations' },
     { id: 'transfert', libelle: 'Rapport des Transferts d\'Immobilisations' },
-    { id: 'intervention', libelle: 'Rapport des Interventions sur Immobilisations' }, // NOUVEAU TYPE
+    { id: 'intervention', libelle: 'Rapport des Interventions sur Immobilisations' },
   ];
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
@@ -148,7 +148,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
           return { 'dateRangeMissingEndDate': true };
         }
       }
-      
+
       if (startDate && endDate) {
         const sDate = new Date(startDate.year, startDate.month - 1, startDate.day);
         const eDate = new Date(endDate.year, endDate.month - 1, endDate.day);
@@ -210,11 +210,11 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
           'old_bureau_id', 'bureau_id',
           'old_employe_id', 'employe_id'
         ], this.rapportForm);
-        
+
         this.rapportForm.get('date_debut_mouvement')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_mouvement')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport()); // Utilisez le validateur générique
-        
+
         this.rapportForm.get('date_debut_mouvement')?.updateValueAndValidity();
         this.rapportForm.get('date_fin_mouvement')?.updateValueAndValidity();
         break;
@@ -231,7 +231,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_intervention')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_intervention')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport()); // Utilisez le validateur générique
-        
+
         this.rapportForm.get('date_debut_intervention')?.updateValueAndValidity();
         this.rapportForm.get('date_fin_intervention')?.updateValueAndValidity();
         break;
@@ -395,7 +395,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       delete filters.old_bureau_id; delete filters.bureau_id;
       delete filters.old_employe_id; delete filters.employe_id;
     }
-    
+
     Object.keys(this.rapportForm.controls).forEach(key => {
       if (this.rapportForm.get(key)?.disabled && (filters[key] === null || filters[key] === undefined || filters[key] === '')) {
         delete filters[key];
@@ -416,7 +416,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
           this.temp = [];
           this.errorMessage = response.message || "Aucune donnée trouvée ou erreur inattendue.";
         }
-        
+
         this.loadingIndicator = false;
         this.isGeneratingReport = false;
         if (this.rows.length === 0 && !this.errorMessage) {
@@ -484,7 +484,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       if (filters.bureau_id === null || filters.bureau_id === undefined || filters.bureau_id === '') { delete filters.bureau_id; }
       if (filters.old_employe_id === null || filters.old_employe_id === undefined || filters.old_employe_id === '') { delete filters.old_employe_id; }
       if (filters.employe_id === null || filters.employe_id === undefined || filters.employe_id === '') { delete filters.employe_id; }
-      
+
       // Supprimer les champs des autres rapports
       delete filters.code_immo; delete filters.date_debut_acquisition;
       delete filters.date_debut_intervention; delete filters.date_fin_intervention;
@@ -504,7 +504,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       delete filters.old_bureau_id; delete filters.bureau_id;
       delete filters.old_employe_id; delete filters.employe_id;
     }
-    
+
     Object.keys(this.rapportForm.controls).forEach(key => {
       if (this.rapportForm.get(key)?.disabled && (filters[key] === null || filters[key] === undefined || filters[key] === '')) {
         delete filters[key];

@@ -22,9 +22,9 @@
       <div class="card-body">
         <div>
           <form [formGroup]="rapportForm" novalidate class="forms-sample">
-            <div class="row">
+            <div class="row justify-content-center">
               <!-- Sélecteur du Type de Rapport de Stock (OBLIGATOIRE) -->
-              <div class="col-md-12 mb-3">
+              <div class="col-md-6 mb-3">
                 <label for="id_type_rapport" class="form-label">Type de Rapport <span class="text-danger">*</span></label>
                 <ng-select [items]="typeRapportsStock" bindLabel="libelle" bindValue="id"
                            formControlName="id_type_rapport" [clearable]="true" placeholder="Sélectionnez le type de rapport">
@@ -179,12 +179,12 @@
                         {{ rowIndex + 1 }}
                     </ng-template>
                 </ngx-datatable-column>
+                <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
                 <ngx-datatable-column name="Date Mouvement">
                     <ng-template let-row="row" ngx-datatable-cell-template>
                         {{ row.date_mouvement | date:'dd/MM/yyyy' }}
                     </ng-template>
                 </ngx-datatable-column>
-                <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
                 <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
                 <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
                 <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
