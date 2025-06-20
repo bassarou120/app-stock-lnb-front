@@ -41,7 +41,8 @@
             data-bs-target="#add_entree_multiple">
             Ajouter plusieurs
           </button>
-          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadMouvementsEntreePDF()">
+          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center"
+            (click)="downloadMouvementsEntreePDF()">
             <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
             Imprimer
           </button>
@@ -85,6 +86,11 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
+            <ngx-datatable-column name="Unité">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.unite_de_mesure?.libelle || 'Non défini' }}
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
             <ngx-datatable-column name="Fournisseur">
               <ng-template let-row="row" ngx-datatable-cell-template>
@@ -116,11 +122,11 @@
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#edit_entree" (click)="getEditForm(row)">
+                      data-bs-target="#edit_entree" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
+                      data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
                   </div>
@@ -208,7 +214,28 @@
           </div>
 
 
+          <!-- Sélectionner une unité -->
+          <div class="mb-3">
+            <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
 
+            <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
+              <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
+                formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
+              </ng-select>
+
+              <div *ngIf="addEntree.get('id_unite_de_mesure')?.invalid && addEntree.get('id_unite_de_mesure')?.touched">
+                <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun unite_de_mesure n'existe -->
+            <ng-template #noUniteDeMesures>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
 
           <!-- Qte -->
           <div class="mb-3">
@@ -236,23 +263,23 @@
           </div>
 
           <!-- Pièces jointes -->
-            <div class="mb-3">
-              <label for="piece_jointe_mouvement" class="form-label">Pièce jointe</label>
-              <input type="file" class="form-control" id="piece_jointe_mouvement" multiple
-                (change)="onFileSelectedOnefile($event)" formControlName="piece_jointe_mouvement">
-              <div class="mb-2">
-              </div>
-              <!-- <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small> -->
+          <div class="mb-3">
+            <label for="piece_jointe_mouvement" class="form-label">Pièce jointe</label>
+            <input type="file" class="form-control" id="piece_jointe_mouvement" multiple
+              (change)="onFileSelectedOnefile($event)" formControlName="piece_jointe_mouvement">
+            <div class="mb-2">
             </div>
+            <!-- <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small> -->
+          </div>
 
 
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
-            <button
-              type="submit"
-              class="btn btn-primary"
-              (click)="onClickSubmitAddEntree()" [disabled]="isAddingSingleEntree" >
-              <span *ngIf="isAddingSingleEntree" class="spinner-border spinner-border-sm text-light me-2 spinner-single-add" role="status" aria-hidden="true">
+            <button type="submit" class="btn btn-primary" (click)="onClickSubmitAddEntree()"
+              [disabled]="isAddingSingleEntree">
+              <span *ngIf="isAddingSingleEntree"
+                class="spinner-border spinner-border-sm text-light me-2 spinner-single-add" role="status"
+                aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
               </span>
               {{ isAddingSingleEntree ? 'Ajout en cours...' : 'Ajouter' }}
@@ -343,7 +370,29 @@
           </div>
 
 
+          <!-- Sélectionner une unité -->
+          <div class="mb-3">
+            <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
 
+            <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
+              <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
+                formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
+              </ng-select>
+
+              <div
+                *ngIf="editEntree.get('id_unite_de_mesure')?.invalid && editEntree.get('id_unite_de_mesure')?.touched">
+                <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <!-- Message si aucun unite_de_mesure n'existe -->
+            <ng-template #noUniteDeMesures>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
 
           <!-- Qte -->
           <div class="mb-3">
@@ -468,7 +517,8 @@
             <div class="col-md-6">
               <!-- Numéro de numero_borderau -->
               <div class="mb-3">
-                <label for="numero_borderau" class="form-label">Numéro de Bordereau <span class="text-danger">*</span></label>
+                <label for="numero_borderau" class="form-label">Numéro de Bordereau <span
+                    class="text-danger">*</span></label>
                 <input type="text" class="form-control" id="numero_borderau" placeholder="Entrez le numéro du bordereau"
                   autocomplete="off"
                   [class.invalid]="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched"
@@ -482,36 +532,39 @@
           </div>
 
           <div class="row mb-3">
-          <!-- Date commune du mouvement -->
-          <div class="col-md-6">
-          <div class="mb-3">
-            <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAddMultiple.toggle()">
-                <i data-feather="calendar"></i>
-              </button>
-              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAddMultiple"
-                [(ngModel)]="currentDate" ngbDatepicker #dAddMultiple="ngbDatepicker" formControlName="date_mouvement">
+            <!-- Date commune du mouvement -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="date_mouvement" class="form-label">Date du mouvement <span
+                    class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button"
+                    (click)="dAddMultiple.toggle()">
+                    <i data-feather="calendar"></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
+                    name="dpAddMultiple" [(ngModel)]="currentDate" ngbDatepicker #dAddMultiple="ngbDatepicker"
+                    formControlName="date_mouvement">
+                </div>
+                <div
+                  *ngIf="addEntreeMultipleForm.get('date_mouvement')?.invalid && addEntreeMultipleForm.get('date_mouvement')?.touched">
+                  <small class="text-danger"> *La date du mouvement est obligatoire</small>
+                </div>
+              </div>
             </div>
-            <div
-              *ngIf="addEntreeMultipleForm.get('date_mouvement')?.invalid && addEntreeMultipleForm.get('date_mouvement')?.touched">
-              <small class="text-danger"> *La date du mouvement est obligatoire</small>
-            </div>
-          </div>
-          </div>
 
-          <!-- Pièces jointes -->
-          <div class="col-md-6">
-          <div class="mb-3">
-            <label for="piece_jointe_mouvement" class="form-label">Pièces jointes</label>
-            <input type="file" class="form-control" id="piece_jointe_mouvement" multiple
-              (change)="onFileSelected($event)" formControlName="piece_jointe_mouvement">
-            <div class="mb-2">
+            <!-- Pièces jointes -->
+            <div class="col-md-6">
+              <div class="mb-3">
+                <label for="piece_jointe_mouvement" class="form-label">Pièces jointes</label>
+                <input type="file" class="form-control" id="piece_jointe_mouvement" multiple
+                  (change)="onFileSelected($event)" formControlName="piece_jointe_mouvement">
+                <div class="mb-2">
+                </div>
+                <!-- <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small> -->
+              </div>
             </div>
-            <!-- <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small> -->
           </div>
-          </div>
-        </div>
 
           <div class="mb-3">
           </div>
@@ -556,7 +609,7 @@
                   </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-3">
                   <!-- Quantité -->
                   <div class="mb-3">
                     <label class="form-label">Quantité <span class="text-danger">*</span></label>
@@ -564,6 +617,32 @@
                     <div *ngIf="articleForm.get('qte')?.invalid && articleForm.get('qte')?.touched">
                       <small class="text-danger">*La quantité est obligatoire</small>
                     </div>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <!-- unité -->
+                  <div class="mb-3">
+                    <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
+
+                    <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
+                      <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
+                        formControlName="id_unite_de_mesure" [clearable]="true"
+                        placeholder="Sélectionnez...">
+                      </ng-select>
+
+                      <div
+                        *ngIf="articleForm.get('id_unite_de_mesure')?.invalid && articleForm.get('id_unite_de_mesure')?.touched">
+                        <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+                      </div>
+                    </ng-container>
+
+                    <!-- Message si aucun unite_de_mesure n'existe -->
+                    <ng-template #noUniteDeMesures>
+                      <div class="alert alert-danger"
+                        style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                        <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
+                      </div>
+                    </ng-template>
                   </div>
                 </div>
               </div>
@@ -584,11 +663,11 @@
 
           <!-- Boutons d'action -->
           <div class="d-flex justify-content-center gap-2">
-            <button
-              type="submit"
-              class="btn btn-primary"
-              (click)="onClickSubmitAddEntreeMultiple()" [disabled]="!addEntreeMultipleForm.valid || isAddingMultipleEntrees" >
-              <span *ngIf="isAddingMultipleEntrees" class="spinner-border spinner-border-sm text-light me-2 spinner-multiple-add" role="status" aria-hidden="true">
+            <button type="submit" class="btn btn-primary" (click)="onClickSubmitAddEntreeMultiple()"
+              [disabled]="!addEntreeMultipleForm.valid || isAddingMultipleEntrees">
+              <span *ngIf="isAddingMultipleEntrees"
+                class="spinner-border spinner-border-sm text-light me-2 spinner-multiple-add" role="status"
+                aria-hidden="true">
                 <span class="visually-hidden">Loading...</span>
               </span>
               {{ isAddingMultipleEntrees ? 'Ajout en cours...' : 'Ajouter' }}

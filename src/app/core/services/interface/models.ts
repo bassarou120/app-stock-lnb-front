@@ -89,6 +89,12 @@ export interface Bureau {
   created_at: string;
   updated_at: string;
 }
+export interface UniteDeMesure {
+  id: number;
+  libelle: string;
+  created_at: string;
+  updated_at: string;
+}
 export interface Magazin {
   id: number;
   libelle_magazin: string;
@@ -307,11 +313,11 @@ export interface Utilisateur {
   phone: string;
   sexe: 'Masculin' | 'Féminin';
   active: boolean;
-  photo?: string; 
-  role_id: number; 
+  photo?: string;
+  role_id: number;
   role?: Role;
-  employe_id?: number; 
-  employe?: Employe; 
+  employe_id?: number;
+  employe?: Employe;
   last_activity?: Date;
   created_at?: Date;
   updated_at?: Date;
@@ -400,7 +406,7 @@ export interface User {
 export interface LoginResponse {
   token: string;
   user: User;
-  perm: any[]; 
+  perm: any[];
 }
 
 export interface DashboardData {
@@ -419,12 +425,12 @@ export interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
   current_page: number;
-  data: T[]; 
+  data: T[];
   first_page_url: string;
   from: number;
   last_page: number;
   last_page_url: string;
-  links: any[]; 
+  links: any[];
   next_page_url: string | null;
   path: string;
   per_page: number;

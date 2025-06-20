@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementStockService } from '../../../../core/services/mouvementstock/entree.service';
-import { MouvementStock, Article, Fournisseur } from '../../../../core/services/interface/models';
+import { MouvementStock, Article, Fournisseur, UniteDeMesure } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
@@ -42,6 +42,7 @@ export class EntreeComponent implements OnInit {
   ColumnMode = ColumnMode;
 
   articles: Article[] = []; // Liste des types articles
+  uniteDeMesures: UniteDeMesure[] = []; // Liste des UniteDeMesure
   fournisseurs: Fournisseur[] = []; // Liste des types Fournisseurs
   selectedTypeImmoId: number | null = null; // ID sélectionné
 
@@ -78,9 +79,11 @@ export class EntreeComponent implements OnInit {
     this.loadArticles();
     this.loadFournisseurs();
     this.loadEntrees();
+    this.loadUniteDeMesures();
     this.addEntree = this.formBuilder.group({
       id_Article: [null, [Validators.required]],
       id_fournisseur: [null, [Validators.required]],
+      id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
       qte: [1, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
@@ -89,6 +92,7 @@ export class EntreeComponent implements OnInit {
       id: [0, [Validators.required]],
       id_Article: [null, [Validators.required]],
       id_fournisseur: [null, [Validators.required]],
+      id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
       qte: [1, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
@@ -117,6 +121,7 @@ export class EntreeComponent implements OnInit {
   createArticleFormGroup(): FormGroup {
     return this.formBuilder.group({
       id_Article: [null, [Validators.required]],
+      id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
       qte: [1, [Validators.required]]
     });
@@ -164,6 +169,7 @@ export class EntreeComponent implements OnInit {
       // Ajouter les articles correctement à FormData
       this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
         formData.append(`articles[${index}][id_Article]`, article.id_Article);
+        formData.append(`articles[${index}][id_unite_de_mesure]`, article.id_unite_de_mesure);
         formData.append(`articles[${index}][description]`, article.description);
         formData.append(`articles[${index}][qte]`, article.qte);
       });
@@ -242,6 +248,7 @@ export class EntreeComponent implements OnInit {
 
       formData.append('id_Article', this.addEntree.value.id_Article);
       formData.append('id_fournisseur', this.addEntree.value.id_fournisseur);
+      formData.append('id_unite_de_mesure', this.addEntree.value.id_unite_de_mesure);
       formData.append('description', this.addEntree.value.description || '');
       formData.append('qte', this.addEntree.value.qte);
       formData.append('date_mouvement', this.formatDate(this.addEntree.value.date_mouvement));
@@ -391,6 +398,7 @@ export class EntreeComponent implements OnInit {
       }
     });
   }
+
   loadFournisseurs(): void {
     this.entreeService.getAllFournisseurs().subscribe({
       next: (data) => {
@@ -398,6 +406,17 @@ export class EntreeComponent implements OnInit {
       },
       error: (err) => {
         console.error("Erreur lors du chargement des fournisseurs :", err);
+      }
+    });
+  }
+
+  loadUniteDeMesures(): void {
+    this.entreeService.getAllUniteDeMesure().subscribe({
+      next: (data) => {
+        this.uniteDeMesures = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des uniteDeMesures :", err);
       }
     });
   }
@@ -432,6 +451,7 @@ export class EntreeComponent implements OnInit {
       id: row.id,
       id_Article: row.id_Article,
       id_fournisseur: row.id_fournisseur,
+      id_unite_de_mesure: row.id_unite_de_mesure,
       description: row.description,
       qte: row.qte,
       date_mouvement: this.convertToNgbDate(row.date_mouvement),

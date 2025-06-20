@@ -173,9 +173,14 @@
 
               <!-- Description -->
               <div class="col-3">
-                <input type="text" class="form-control form-control-lg" placeholder="Description"
+                <!-- <input type="text" class="form-control form-control-lg" placeholder="Description"
                   formControlName="description"
-                  [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
+                  [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched"> -->
+
+                  <textarea class="form-control" id="description" rows="2"
+              [class.is-invalid]="articleForm.get('description')?.invalid && articleForm.get('description')?.touched"
+              placeholder="Entrez la description ici..." formControlName="description"></textarea>
+
                 <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched"
                   class="invalid-feedback">
                   La description est obligatoire

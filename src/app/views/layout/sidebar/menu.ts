@@ -518,6 +518,10 @@ export const MENU: MenuItem[] = [
         label: 'Type d\'Affectation',
         link: '/parametres-stock/type-affectation',
       },
+      {
+        label: 'Unité de mesure',
+        link: '/parametres-stock/unite-de-mesure',
+      },
     ]
   },
   {
