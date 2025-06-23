@@ -86,6 +86,7 @@ export class EntreeComponent implements OnInit {
       id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
       qte: [1, [Validators.required]],
+      prixUnitaire: [100,[Validators.required]],
       date_mouvement: ["", [Validators.required]],
     });
     this.editEntree = this.formBuilder.group({
@@ -95,6 +96,7 @@ export class EntreeComponent implements OnInit {
       id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
       qte: [1, [Validators.required]],
+      prixUnitaire: [[Validators.required]],
       date_mouvement: ["", [Validators.required]],
     });
     this.deleteEntree = this.formBuilder.group({
@@ -123,7 +125,8 @@ export class EntreeComponent implements OnInit {
       id_Article: [null, [Validators.required]],
       id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
-      qte: [1, [Validators.required]]
+      qte: [1, [Validators.required]],
+      prixUnitaire: [[Validators.required]]
     });
   }
   // Ajoute un nouvel article au FormArray
@@ -172,6 +175,7 @@ export class EntreeComponent implements OnInit {
         formData.append(`articles[${index}][id_unite_de_mesure]`, article.id_unite_de_mesure);
         formData.append(`articles[${index}][description]`, article.description);
         formData.append(`articles[${index}][qte]`, article.qte);
+        formData.append(`articles[${index}][prixUnitaire]`, article.prixUnitaire);
       });
 
       // Ajouter les fichiers si présents
@@ -251,6 +255,7 @@ export class EntreeComponent implements OnInit {
       formData.append('id_unite_de_mesure', this.addEntree.value.id_unite_de_mesure);
       formData.append('description', this.addEntree.value.description || '');
       formData.append('qte', this.addEntree.value.qte);
+      formData.append('prixUnitaire', this.addEntree.value.prixUnitaire);
       formData.append('date_mouvement', this.formatDate(this.addEntree.value.date_mouvement));
 
       // Ajout du fichier si présent
@@ -454,6 +459,7 @@ export class EntreeComponent implements OnInit {
       id_unite_de_mesure: row.id_unite_de_mesure,
       description: row.description,
       qte: row.qte,
+      prixUnitaire: row.prixUnitaire,
       date_mouvement: this.convertToNgbDate(row.date_mouvement),
     })
   }

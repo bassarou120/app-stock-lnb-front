@@ -91,6 +91,7 @@
                 {{ row.unite_de_mesure?.libelle || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Prix Unitaire(en FCFA)" prop="prixUnitaire"></ngx-datatable-column>
             <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
             <ngx-datatable-column name="Fournisseur">
               <ng-template let-row="row" ngx-datatable-cell-template>
@@ -244,6 +245,19 @@
               [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" formControlName="qte">
             <div *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched">
               <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" class="text-danger"> *la qte
+                est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- prixUnitaire -->
+          <div class="mb-3">
+            <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="prixUnitaire" placeholder="1000" autocomplete="off"
+              [class.invalid]="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched"
+              formControlName="prixUnitaire">
+            <div *ngIf="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched">
+              <small *ngIf="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched"
+                class="text-danger"> *le prix unitaire
                 est obligatoire</small>
             </div>
           </div>
@@ -402,6 +416,19 @@
             <div *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched">
               <small *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" class="text-danger"> *la
                 qte est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- prixUnitaire -->
+          <div class="mb-3">
+            <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+            <input type="number" class="form-control" id="prixUnitaire" placeholder="100" autocomplete="off"
+              [class.invalid]="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched"
+              formControlName="prixUnitaire">
+            <div *ngIf="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched">
+              <small *ngIf="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched"
+                class="text-danger"> *le
+                prix Unitaire est obligatoire</small>
             </div>
           </div>
 
@@ -609,7 +636,7 @@
                   </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-6">
                   <!-- Quantité -->
                   <div class="mb-3">
                     <label class="form-label">Quantité <span class="text-danger">*</span></label>
@@ -619,30 +646,43 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-md-3">
+
+
+                <div class="row">
                   <!-- unité -->
-                  <div class="mb-3">
-                    <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
 
-                    <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
-                      <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
-                        formControlName="id_unite_de_mesure" [clearable]="true"
-                        placeholder="Sélectionnez...">
-                      </ng-select>
+                      <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
+                        <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
+                          formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez...">
+                        </ng-select>
 
-                      <div
-                        *ngIf="articleForm.get('id_unite_de_mesure')?.invalid && articleForm.get('id_unite_de_mesure')?.touched">
-                        <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+                        <div
+                          *ngIf="articleForm.get('id_unite_de_mesure')?.invalid && articleForm.get('id_unite_de_mesure')?.touched">
+                          <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+                        </div>
+                      </ng-container>
+
+                      <!-- Message si aucun unite_de_mesure n'existe -->
+                      <ng-template #noUniteDeMesures>
+                        <div class="alert alert-danger"
+                          style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                          <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
+                        </div>
+                      </ng-template>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <!-- prixUnitaire -->
+                    <div class="mb-3">
+                      <label class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" placeholder="100" formControlName="prixUnitaire" min="1">
+                      <div *ngIf="articleForm.get('prixUnitaire')?.invalid && articleForm.get('prixUnitaire')?.touched">
+                        <small class="text-danger">*Le prix Unitaire est obligatoire</small>
                       </div>
-                    </ng-container>
-
-                    <!-- Message si aucun unite_de_mesure n'existe -->
-                    <ng-template #noUniteDeMesures>
-                      <div class="alert alert-danger"
-                        style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                        <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
-                      </div>
-                    </ng-template>
+                    </div>
                   </div>
                 </div>
               </div>
