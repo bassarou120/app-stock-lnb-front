@@ -51,7 +51,7 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Nom" prop="name"></ngx-datatable-column>
             <ngx-datatable-column name="Prénom" prop="surname"></ngx-datatable-column>
-            <ngx-datatable-column name="Email" prop="email"></ngx-datatable-column>  
+            <ngx-datatable-column name="Email" prop="email"></ngx-datatable-column>
             <ngx-datatable-column name="Téléphone" prop="phone"></ngx-datatable-column>
             <!-- <ngx-datatable-column name="Sexe" prop="sexe"></ngx-datatable-column> -->
             <ngx-datatable-column name="Rôle">
@@ -68,7 +68,7 @@
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                        data-bs-target="#edit_user" (click)="getEditForm(row)">
-                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier le Rôle</span>
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                             data-bs-target="#delete_user" (click)="getDeleteForm(row)">
@@ -76,7 +76,7 @@
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center"
                       data-bs-toggle="modal"
-                      data-bs-target="#view_user_profile" (click)="onViewUserProfile(row)"> 
+                      data-bs-target="#view_user_profile" (click)="onViewUserProfile(row)">
                       <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span>Voir Profil</span>
                     </a>
                   </div>
@@ -257,7 +257,7 @@
         <input type="checkbox" class="form-check-input" id="edit_active" formControlName="active">
         <label class="form-check-label" for="edit_active">Actif</label>
       </div>
-      
+
     </div>
     <div class="d-flex justify-content-center gap-2">
 

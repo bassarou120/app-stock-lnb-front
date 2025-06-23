@@ -390,7 +390,7 @@ export const MENU: MenuItem[] = [
     link: '/enregistrement-immos'
   },
   {
-    label: 'Transfert',
+    label: 'Affectations/Transfert',
     icon: 'send',
     link: '/transfert'
   },
