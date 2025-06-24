@@ -23,8 +23,6 @@
           <p class="text-secondary">Liste des Interventions sur les Véhicules</p>
         </div>
         <div class="d-flex gap-2">
-          <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
-            (keyup)="updateFilter($event)" style="width: 200px;" />
           <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
             data-bs-target="#add_intervention_vehicule">
             <i data-feather="plus" appFeatherIcon class="icon-sm me-1"></i> Ajouter
@@ -44,6 +42,12 @@
     <div class="card">
       <div class="card-body">
         <h6 class="card-title">Liste des Interventions</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+            (keyup)="updateFilter($event)" style="width: 200px;" />
+          </div>
+        </div>
         <div class="table-responsive">
           <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
