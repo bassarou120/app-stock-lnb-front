@@ -82,6 +82,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     { id: 'enregistrement', libelle: 'Rapport d\'Enregistrement des Immobilisations' },
     { id: 'transfert', libelle: 'Rapport des Transferts d\'Immobilisations' },
     { id: 'intervention', libelle: 'Rapport des Interventions sur Immobilisations' },
+    { id: 'intervention', libelle: 'Fiche d\'inventaire' },
   ];
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
