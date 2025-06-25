@@ -340,7 +340,8 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Gestion de Stock',
-    isTitle: true
+    isTitle: true,
+     module: 'Gestion de Stock',
   },
   // {
   //   label: 'Articles',
@@ -355,6 +356,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Mouvement Stock',
     icon: 'maximize-2',
+    module: 'Gestion de Stock',
     subItems: [
       {
         label: 'Entrées de Stock',
@@ -378,44 +380,53 @@ export const MENU: MenuItem[] = [
   {
     label: 'Etat de Stock',
     icon: 'bar-chart-2',
-    link: '/etat-de-stock'
+    link: '/etat-de-stock',
+    module: 'Gestion de Stock',
   },
   {
     label: 'Gestion de Immobilisation',
-    isTitle: true
+    isTitle: true,
+    module: 'Gestion de immobilisation',
   },
   {
     label: 'Enrégistrement',
     icon: 'download',
-    link: '/enregistrement-immos'
+    link: '/enregistrement-immos',
+    module: 'Gestion de immobilisation',
   },
   {
     label: 'Affectations/Transfert',
     icon: 'send',
-    link: '/transfert'
+    link: '/transfert',
+    module: 'Gestion de immobilisation',
   },
   {
     label: 'Intervention',
     icon: 'activity',
-    link: '/intervention'
+    link: '/intervention',
+    module: 'Gestion de immobilisation',
   },
   {
     label: 'Gestion de Parc',
-    isTitle: true
+    isTitle: true,
+    module: 'Gestion de parc',
   },
   {
     label: 'Véhicules',
     icon: 'truck',
-    link: '/vehicules'
+    link: '/vehicules',
+    module: 'Gestion de parc',
   },
   {
     label: 'Intervention Véhicules',
     icon: 'pen-tool',
-    link: '/interventionvehicules'
+    link: '/interventionvehicules',
+    module: 'Gestion de parc',
   },
   {
     label: 'Tickets',
     icon: 'credit-card',
+    module: 'Gestion de parc',
     subItems: [
       {
         label: 'Attribution de Ticket',
@@ -444,16 +455,19 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Gestion des utilisateurs',
-    isTitle: true
+    isTitle: true,
+    module: 'Parametrage',
   },
   {
     label: 'Utilisateurs',
     icon: 'users',
-    link: '/utilisateurs'
+    link: '/utilisateurs',
+    module: 'Parametrage',
   },
   {
     label: 'Rôles et Permisions',
     icon: 'user-check',
+    module: 'Parametrage',
     // link: ''
     subItems: [
       {
@@ -468,35 +482,43 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Rapports',
-    isTitle: true
+    isTitle: true,
+    module: 'Gestion Rapport',
   },
   {
     label: 'Rapport Stock',
     icon: 'file',
-    link: '/rapports/stock'
+    link: '/rapports/stock',
+    module: 'Gestion Rapport',
+
   },
   {
     label: 'Rapport Immo',
     icon: 'file',
-    link: '/rapports/immo'
+    link: '/rapports/immo',
+    module: 'Gestion Rapport',
   },
   {
     label: 'Rapport parc',
     icon: 'file',
-    link: '/rapports/parc'
+    link: '/rapports/parc',
+    module: 'Gestion Rapport',
   },
   {
     label: 'Rapport ticket',
     icon: 'file',
-    link: '/rapports/ticket '
+    link: '/rapports/ticket',
+    module: 'Gestion Rapport',
   },
   {
     label: 'Paramètres',
-    isTitle: true
+    isTitle: true,
+     module: 'Parametrage',
   },
   {
     label: 'Paramètres Stock',
     icon: 'box',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Articles',
@@ -527,6 +549,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Paramètres Parc',
     icon: 'truck',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Marques',
@@ -559,6 +582,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Paramètres Immo',
     icon: 'server',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Type d\'Immo',
@@ -581,6 +605,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Paramètres Génér...',
     icon: 'settings',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Paramètre Entreprise',

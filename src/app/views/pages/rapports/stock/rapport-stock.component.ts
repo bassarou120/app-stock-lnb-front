@@ -551,7 +551,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
       (error: any) => {
         console.error('Erreur lors du téléchargement du PDF du rapport de stock:', error);
         this.errorMessage = `Impossible de télécharger le PDF: ${error.message || 'Veuillez vérifier votre connexion ou contacter l\'administrateur.'}`;
-        this.isGeneratingReport = false;
+        this.isGeneratingReport = false; 
       }
     );
   }

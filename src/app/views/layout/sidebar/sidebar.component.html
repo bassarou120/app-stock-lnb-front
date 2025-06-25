@@ -26,7 +26,7 @@
 
       <ul class="sidebar-nav metismenu" id="sidebar-menu" #sidebarMenu>
 
-        @for (item of menuItems; track item.label) {
+        @for (item of filteredMenu; track item.label) {
 
           <!-- nav item title -->
           @if (item.isTitle) {

@@ -247,6 +247,7 @@
               <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
               <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column>
               <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column>
+              <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column>
               <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
               <ngx-datatable-column name="Type Mouvement" prop="type_mouvement.libelle_type_mouvement">
               </ngx-datatable-column>
@@ -271,6 +272,7 @@
               <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
               <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column>
               <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column>
+              <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column>
               <ngx-datatable-column name="Personnel">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   {{ row.employe?.fullnameEmploye || 'Non défini' }}
@@ -295,6 +297,11 @@
               </ngx-datatable-column>
               <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
               <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+              <ngx-datatable-column name="CMP">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.stock_actuel?.cmp }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="Stock Actuel (Qte)">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   {{ row.stock_actuel?.quantite }}
@@ -313,7 +320,7 @@
               <ngx-datatable-column name="Dernière Entrée(Qte)">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <span *ngIf="row.derniere_entree?.date">
-                    {{ row.derniere_entree.date | date:'dd/MM/yyyy' }} (Qte: {{ row.derniere_entree.quantite }})
+                    {{ row.derniere_entree.date | date:'dd/MM/yyyy' }} <br> (Qte: {{ row.derniere_entree.quantite }})
                   </span>
                   <span *ngIf="!row.derniere_entree?.date">N/A</span>
                 </ng-template>

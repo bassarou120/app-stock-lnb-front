@@ -51,6 +51,11 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Code" prop="code_article"></ngx-datatable-column>
             <ngx-datatable-column name="Articles" prop="libelle"></ngx-datatable-column>
+            <ngx-datatable-column name="CMP">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.stock?.cout_moyen_pondere }}
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-column name="Catégorie">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ getCategoryName(row.id_cat) || 'N/A' }}

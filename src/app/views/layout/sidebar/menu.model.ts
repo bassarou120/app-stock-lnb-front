@@ -5,8 +5,9 @@ export interface MenuItem {
   icon?: string;
   link?: string;
   expanded?: boolean;
-  subItems?: any;
+  subItems?: MenuItem[];
   isTitle?: boolean;
   badge?: any;
   parentId?: number;
+  module?: string;
 }
