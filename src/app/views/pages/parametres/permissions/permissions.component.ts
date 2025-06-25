@@ -89,15 +89,11 @@ onPermissionToggle(permission: any): void {
     role_id: permission.role_id,
     module_id: permission.module_id,
     fonctionnalite_id: permission.fonctionnalite_id,
-    is_active: !permission.is_active, // Inverser l’état
+    is_active: !permission.is_active,
   };
 
-  // Appeler le service pour mettre à jour la permission
   this.permissionService.updatePermission(payload).subscribe({
     next: () => {
-      // Mettre à jour l'état local
-      // permission.is_active = payload.is_active;
-      // Affiche une notification de succès
       Swal.fire({
         toast: true,
         position: 'top-end',
@@ -107,19 +103,36 @@ onPermissionToggle(permission: any): void {
         timer: 3000,
         timerProgressBar: true
       });
-      this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
-      this.permissions = permissions;
-      this.groupPermissionsByRoleAndModule();
-    });
 
+      // Recharger les permissions à jour
+      this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
+        this.permissions = permissions;
+        this.groupPermissionsByRoleAndModule();
+
+        const updatedPermissions = permissions.filter(p => p.is_active);
+
+        // Extraire les modules uniques (en vérifiant bien que module/libelle_module existent)
+        const allowedModules = Array.from(
+          new Set(
+            updatedPermissions
+              .filter(p => p.module && p.module.libelle_module)
+              .map(p => p.module.libelle_module)
+          )
+        );
+
+        console.log('Permissions actives :', updatedPermissions);
+        console.log('Modules accessibles extraits :', allowedModules);
+
+        // Sauvegarder dans localStorage
+        localStorage.setItem('permissions', JSON.stringify(updatedPermissions));
+        localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
+      });
     },
     error: (err) => {
       console.error('Erreur lors de la mise à jour :', err);
-      // Si erreur, tu peux afficher un message ou rétablir l'état précédent
-    },
+    }
   });
 }
-
 
 
   initForms(): void {

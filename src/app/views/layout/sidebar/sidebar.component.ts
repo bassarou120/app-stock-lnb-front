@@ -83,52 +83,73 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     });
     this.iconSidebar(desktopMedium);
 
-    const storedPermissions = localStorage.getItem('permissions');
-    if (storedPermissions) {
-      this.permissions = JSON.parse(storedPermissions);
+  const storedPermissions = localStorage.getItem('permissions');
+  const storedAllowedModules = localStorage.getItem('allowedModules');
 
-      // Extraire les noms de modules accessibles
-      this.accessibleModules = [
-        ...new Set(this.permissions.map((p) => p.module?.libelle_module)),
-      ];
+  if (storedPermissions) {
+    this.permissions = JSON.parse(storedPermissions);
+  }
 
-      // Extraire les fonctionnalités accessibles (optionnel)
-      this.accessibleFonctionnalites = [
-        ...new Set(
-          this.permissions.map((p) => p.fonctionnalite?.libelle_fonctionnalite)
-        ),
-      ];
+  if (storedAllowedModules) {
+    this.accessibleModules = JSON.parse(storedAllowedModules);
+  }
+
+  // 🔁 Sécurité au cas où allowedModules n’est pas encore généré
+  if ((!storedAllowedModules || this.accessibleModules.length === 0) && this.permissions.length > 0) {
+    this.accessibleModules = Array.from(
+      new Set(
+        this.permissions
+          .filter(p => p.module && p.module.libelle_module && p.is_active)
+          .map(p => p.module.libelle_module)
+      )
+    );
+    localStorage.setItem('allowedModules', JSON.stringify(this.accessibleModules));
+  }
+
+  this.filteredMenu = this.filterMenuByPermissions();
+
+  console.log('Permissions :', this.permissions);
+  console.log('Modules accessibles :', this.accessibleModules);
+  console.log('Menu filtré :', this.filteredMenu);
+
+  }
+
+
+
+
+filterMenuByPermissions(): MenuItem[] {
+  const modulesAutorisés = this.accessibleModules.map(m => m.toLowerCase());
+
+  const menusFiltrés = MENU.filter(menu => {
+    if (menu.module) {
+      return modulesAutorisés.includes(menu.module.toLowerCase());
     }
+    if (!menu.module && !menu.isTitle) {
+      return true;
+    }
+    return false;
+  });
 
-    // Appliquer le filtrage du menu ici
-    this.filteredMenu = this.filterMenuByPermissions();
-    console.log('Permissions :', this.permissions);
-    console.log('Modules accessibles :', this.accessibleModules);
-    console.log('Menu filtré :', this.filteredMenu);
-    
-  }
+  const finalMenu: MenuItem[] = [];
 
-  filterMenuByPermissions(): MenuItem[] {
-    return MENU.filter((menu) => {
-      // Si c’est un titre ou n’a pas de module, on l’affiche toujours
-      if (menu.isTitle || !menu.module) return true;
+  for (let i = 0; i < MENU.length; i++) {
+    const item = MENU[i];
 
-      // Sinon, on vérifie que le module est dans la liste des modules autorisés
-      return this.accessibleModules.includes(menu.module);
-    }).map((menu) => {
-      // Pour les sous-items, on filtre aussi
-      if (menu.subItems && menu.module) {
-        return {
-          ...menu,
-          subItems: menu.subItems.filter((sub) => {
-            // Pas de contrôle spécifique ici, sauf si tu ajoutes une fonctionnalité pour chaque sous-item
-            return true;
-          }),
-        };
+    if (item.isTitle && item.module) {
+      const moduleTitle = item.module.toLowerCase();
+      const hasChildren = menusFiltrés.some(m => m.module?.toLowerCase() === moduleTitle && !m.isTitle);
+      if (hasChildren) {
+        finalMenu.push(item);
       }
-      return menu;
-    });
+    } else if (menusFiltrés.includes(item)) {
+      finalMenu.push(item);
+    }
   }
+
+  return finalMenu;
+}
+
+
 
   ngAfterViewInit() {
     // activate menu items

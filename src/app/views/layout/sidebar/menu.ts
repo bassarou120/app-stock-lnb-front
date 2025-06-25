@@ -512,7 +512,8 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Paramètres',
-    isTitle: true
+    isTitle: true,
+     module: 'Parametrage',
   },
   {
     label: 'Paramètres Stock',
