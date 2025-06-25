@@ -1,4 +1,5 @@
 import { DOCUMENT, NgClass } from '@angular/common';
+import { OnDestroy } from '@angular/core';
 import {
   AfterViewInit,
   Component,
@@ -36,7 +37,7 @@ import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.di
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
-export class SidebarComponent implements OnInit, AfterViewInit {
+export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy   {
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
 
   menuItems: MenuItem[] = [];
@@ -68,21 +69,40 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   accessibleModules: string[] = [];
   accessibleFonctionnalites: string[] = [];
   filteredMenu: MenuItem[] = [];
+   private permissionListener: any;
 
-  ngOnInit(): void {
-    this.menuItems = MENU;
+ngOnInit(): void {
+  this.menuItems = MENU;
 
-    /**
-     * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
-     */
-    const desktopMedium = window.matchMedia(
-      '(min-width:992px) and (max-width: 1199px)'
-    );
-    desktopMedium.addEventListener('change', () => {
-      this.iconSidebar;
-    });
-    this.iconSidebar(desktopMedium);
+  /**
+   * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
+   */
+  const desktopMedium = window.matchMedia(
+    '(min-width:992px) and (max-width: 1199px)'
+  );
+  desktopMedium.addEventListener('change', () => {
+    this.iconSidebar;
+  });
+  this.iconSidebar(desktopMedium);
 
+
+    console.log('🔄 Sidebar ngOnInit');
+
+    // Charger le menu au démarrage
+    this.loadFilteredMenu();
+
+    // Écouter les mises à jour de permissions
+    this.permissionListener = (event: any) => {
+      console.log('🔄 Sidebar: Permissions mises à jour');
+      this.loadFilteredMenu();
+    };
+
+    // 🔥 Écouter les deux événements
+    window.addEventListener('permissionsLoaded', this.permissionListener);
+    window.addEventListener('permissionsUpdated', this.permissionListener);
+
+
+  /* // 🔥 Charger les permissions depuis localStorage
   const storedPermissions = localStorage.getItem('permissions');
   const storedAllowedModules = localStorage.getItem('allowedModules');
 
@@ -94,7 +114,7 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.accessibleModules = JSON.parse(storedAllowedModules);
   }
 
-  // 🔁 Sécurité au cas où allowedModules n’est pas encore généré
+  // 🔁 Sécurité au cas où allowedModules n'est pas encore généré
   if ((!storedAllowedModules || this.accessibleModules.length === 0) && this.permissions.length > 0) {
     this.accessibleModules = Array.from(
       new Set(
@@ -112,8 +132,87 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   console.log('Modules accessibles :', this.accessibleModules);
   console.log('Menu filtré :', this.filteredMenu);
 
+  // 🔥 NOUVEAU : Écouter les mises à jour de permissions
+  window.addEventListener('permissionsUpdated', this.handlePermissionsUpdate);
+ */}
+
+// 🔥 NOUVEAU : Méthode pour gérer les mises à jour de permissions
+private handlePermissionsUpdate = (event: any) => {
+  console.log('🔄 Sidebar: Permissions mises à jour reçues');
+
+  // Mettre à jour les données
+  this.accessibleModules = event.detail.allowedModules;
+  this.permissions = event.detail.permissions;
+
+  // Refiltrer le menu
+  this.filteredMenu = this.filterMenuByPermissions();
+
+  // Réinitialiser le menu MetisMenu
+  setTimeout(() => {
+    if (this.sidebarMenu?.nativeElement) {
+      // Détruire l'ancien menu MetisMenu
+      const existingMenu = this.sidebarMenu.nativeElement.querySelector('.metismenu');
+      if (existingMenu) {
+        existingMenu.classList.remove('metismenu');
+      }
+
+      // Recréer le menu MetisMenu
+      new MetisMenu(this.sidebarMenu.nativeElement);
+      this._activateMenuDropdown();
+    }
+  }, 100);
+}
+
+// 🔥 NOUVEAU : Nettoyer les écouteurs d'événements
+  ngOnDestroy(): void {
+    if (this.permissionListener) {
+      window.removeEventListener('permissionsLoaded', this.permissionListener);
+      window.removeEventListener('permissionsUpdated', this.permissionListener);
+    }
   }
 
+//nouveau
+
+private loadFilteredMenu(): void {
+    try {
+      const allowedModulesStr = localStorage.getItem('allowedModules');
+
+      if (!allowedModulesStr) {
+        console.log('⚠️ Pas de modules autorisés - Menu complet');
+        this.filteredMenu = MENU;
+        return;
+      }
+
+      const allowedModules: string[] = JSON.parse(allowedModulesStr);
+      console.log('📋 Modules autorisés:', allowedModules);
+
+      if (allowedModules.length === 0) {
+        this.filteredMenu = MENU.filter(item =>
+          item.label === 'Menu principal' ||
+          item.label === 'Tableau de Bord'
+        );
+        return;
+      }
+
+      this.filteredMenu = MENU.filter(item => {
+        if (item.label === 'Menu principal' || item.label === 'Tableau de Bord') {
+          return true;
+        }
+
+        if (item.module) {
+          return allowedModules.includes(item.module);
+        }
+
+        return false;
+      });
+
+      console.log('🎯 Menu filtré:', this.filteredMenu.map(m => m.label));
+
+    } catch (error) {
+      console.error('❌ Erreur filtrage menu:', error);
+      this.filteredMenu = MENU;
+    }
+  }
 
 
 
