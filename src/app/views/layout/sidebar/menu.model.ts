@@ -10,4 +10,5 @@ export interface MenuItem {
   badge?: any;
   parentId?: number;
   module?: string;
+  fonctionnalites?: string[];
 }

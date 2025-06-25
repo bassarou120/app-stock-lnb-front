@@ -100,44 +100,10 @@ ngOnInit(): void {
     // 🔥 Écouter les deux événements
     window.addEventListener('permissionsLoaded', this.permissionListener);
     window.addEventListener('permissionsUpdated', this.permissionListener);
-
-
-  /* // 🔥 Charger les permissions depuis localStorage
-  const storedPermissions = localStorage.getItem('permissions');
-  const storedAllowedModules = localStorage.getItem('allowedModules');
-
-  if (storedPermissions) {
-    this.permissions = JSON.parse(storedPermissions);
   }
-
-  if (storedAllowedModules) {
-    this.accessibleModules = JSON.parse(storedAllowedModules);
-  }
-
-  // 🔁 Sécurité au cas où allowedModules n'est pas encore généré
-  if ((!storedAllowedModules || this.accessibleModules.length === 0) && this.permissions.length > 0) {
-    this.accessibleModules = Array.from(
-      new Set(
-        this.permissions
-          .filter(p => p.module && p.module.libelle_module && p.is_active)
-          .map(p => p.module.libelle_module)
-      )
-    );
-    localStorage.setItem('allowedModules', JSON.stringify(this.accessibleModules));
-  }
-
-  this.filteredMenu = this.filterMenuByPermissions();
-
-  console.log('Permissions :', this.permissions);
-  console.log('Modules accessibles :', this.accessibleModules);
-  console.log('Menu filtré :', this.filteredMenu);
-
-  // 🔥 NOUVEAU : Écouter les mises à jour de permissions
-  window.addEventListener('permissionsUpdated', this.handlePermissionsUpdate);
- */}
 
 // 🔥 NOUVEAU : Méthode pour gérer les mises à jour de permissions
-private handlePermissionsUpdate = (event: any) => {
+/* private handlePermissionsUpdate = (event: any) => {
   console.log('🔄 Sidebar: Permissions mises à jour reçues');
 
   // Mettre à jour les données
@@ -161,7 +127,7 @@ private handlePermissionsUpdate = (event: any) => {
       this._activateMenuDropdown();
     }
   }, 100);
-}
+} */
 
 // 🔥 NOUVEAU : Nettoyer les écouteurs d'événements
   ngOnDestroy(): void {
@@ -174,46 +140,181 @@ private handlePermissionsUpdate = (event: any) => {
 //nouveau
 
 private loadFilteredMenu(): void {
-    try {
-      const allowedModulesStr = localStorage.getItem('allowedModules');
+  try {
+    const allowedModulesStr = localStorage.getItem('allowedModules');
+    const permissionsStr = localStorage.getItem('permissions');
 
-      if (!allowedModulesStr) {
-        console.log('⚠️ Pas de modules autorisés - Menu complet');
-        this.filteredMenu = MENU;
-        return;
+    if (!allowedModulesStr || !permissionsStr) {
+      console.log('⚠️ Pas de données - Menu complet');
+      this.filteredMenu = MENU;
+      return;
+    }
+
+    const allowedModules: string[] = JSON.parse(allowedModulesStr);
+    const permissions: any[] = JSON.parse(permissionsStr);
+
+    // Extraire les fonctionnalités
+    const allowedFonctionnalites: string[] = [];
+    permissions.forEach(permission => {
+      if (permission.fonctionnalite && permission.fonctionnalite.libelle_fonctionnalite) {
+        const fonctionnaliteName = permission.fonctionnalite.libelle_fonctionnalite;
+        if (!allowedFonctionnalites.includes(fonctionnaliteName)) {
+          allowedFonctionnalites.push(fonctionnaliteName);
+        }
       }
+    });
 
-      const allowedModules: string[] = JSON.parse(allowedModulesStr);
-      console.log('📋 Modules autorisés:', allowedModules);
+    console.log('📋 Modules autorisés:', allowedModules);
+    console.log('📋 Fonctionnalités autorisées (extraites):', allowedFonctionnalites);
 
-      if (allowedModules.length === 0) {
-        this.filteredMenu = MENU.filter(item =>
-          item.label === 'Menu principal' ||
-          item.label === 'Tableau de Bord'
-        );
-        return;
-      }
+    localStorage.setItem('allowedFonctionnalites', JSON.stringify(allowedFonctionnalites));
 
-      this.filteredMenu = MENU.filter(item => {
-        if (item.label === 'Menu principal' || item.label === 'Tableau de Bord') {
-          return true;
+    if (allowedModules.length === 0) {
+      this.filteredMenu = MENU.filter(item =>
+        item.label === 'Menu principal' ||
+        item.label === 'Tableau de Bord'
+      );
+      return;
+    }
+
+    // 🔥 NOUVELLE APPROCHE : Créer un nouveau menu filtré sans modifier l'original
+    this.filteredMenu = this.createFilteredMenu(MENU, allowedModules, allowedFonctionnalites);
+
+    console.log('🎯 Menu filtré final:', this.filteredMenu.map(m => `${m.isTitle ? '[TITRE]' : ''} ${m.label}`));
+
+  } catch (error) {
+    console.error('❌ Erreur filtrage menu:', error);
+    this.filteredMenu = MENU;
+  }
+}
+
+// 🔥 NOUVELLE MÉTHODE : Créer un menu filtré sans modifier l'original
+private createFilteredMenu(originalMenu: MenuItem[], allowedModules: string[], allowedFonctionnalites: string[]): MenuItem[] {
+  const filteredMenu: MenuItem[] = [];
+  const accessibleItems: MenuItem[] = [];
+
+  // Étape 1 : Identifier les éléments accessibles (sans les titres)
+  originalMenu.forEach(item => {
+    // Toujours inclure le menu principal et tableau de bord
+    if (item.label === 'Menu principal' || item.label === 'Tableau de Bord') {
+      accessibleItems.push(item);
+      return;
+    }
+
+    // Ignorer les titres pour cette étape
+    if (item.isTitle) {
+      return;
+    }
+
+    let hasAccess = false;
+    let newItem: MenuItem = { ...item }; // Copie de l'item
+
+    // Pour les éléments avec fonctionnalités directes
+    if (item.fonctionnalites && item.fonctionnalites.length > 0) {
+      hasAccess = item.fonctionnalites.some(fonct =>
+        allowedFonctionnalites.includes(fonct)
+      );
+      console.log(`🔍 ${item.label} (${item.fonctionnalites.join(', ')}): ${hasAccess ? '✅' : '❌'}`);
+    }
+    // Pour les éléments avec sous-menus
+    else if (item.subItems && item.subItems.length > 0) {
+      console.log(`🔍 ANALYSE SOUS-MENU "${item.label}"`);
+
+      const accessibleSubItems: MenuItem[] = [];
+
+      item.subItems.forEach(subItem => {
+        let subHasAccess = true; // Par défaut accessible
+
+        if (subItem.fonctionnalites && subItem.fonctionnalites.length > 0) {
+          subHasAccess = subItem.fonctionnalites.some(fonct =>
+            allowedFonctionnalites.includes(fonct)
+          );
+          console.log(`   📄 ${subItem.label} (${subItem.fonctionnalites.join(', ')}): ${subHasAccess ? '✅' : '❌'}`);
+        } else {
+          console.log(`   📄 ${subItem.label}: ✅ (pas de restriction)`);
         }
 
-        if (item.module) {
-          return allowedModules.includes(item.module);
+        if (subHasAccess) {
+          accessibleSubItems.push({ ...subItem }); // Copie du sous-item
         }
-
-        return false;
       });
 
-      console.log('🎯 Menu filtré:', this.filteredMenu.map(m => m.label));
-
-    } catch (error) {
-      console.error('❌ Erreur filtrage menu:', error);
-      this.filteredMenu = MENU;
+      if (accessibleSubItems.length > 0) {
+        newItem = { ...item, subItems: accessibleSubItems }; // Nouveau item avec sous-items filtrés
+        hasAccess = true;
+        console.log(`   ✅ "${item.label}" accessible avec ${accessibleSubItems.length} sous-menu(s)`);
+      } else {
+        console.log(`   ❌ "${item.label}" inaccessible (aucun sous-menu)`);
+      }
     }
+    // Pour les autres éléments avec module seulement
+    else if (item.module && !item.fonctionnalites) {
+      hasAccess = allowedModules.includes(item.module);
+      console.log(`🔍 ${item.label} (module: ${item.module}): ${hasAccess ? '✅' : '❌'}`);
+    }
+
+    if (hasAccess) {
+      accessibleItems.push(newItem);
+    }
+  });
+
+  // Étape 2 : Construire le menu final avec les titres appropriés
+  originalMenu.forEach(item => {
+    if (item.isTitle) {
+      if (item.module) {
+        // Vérifier si ce module a des éléments accessibles
+        const hasAccessibleItemsInModule = accessibleItems.some(accessibleItem =>
+          accessibleItem.module === item.module
+        );
+
+        if (hasAccessibleItemsInModule) {
+          console.log(`📁 Titre "${item.label}" ajouté`);
+          filteredMenu.push({ ...item });
+        } else {
+          console.log(`🚫 Titre "${item.label}" masqué`);
+        }
+      } else {
+        // Titres sans module (comme "Menu principal")
+        filteredMenu.push({ ...item });
+      }
+    } else {
+      // Ajouter l'élément s'il est dans la liste des accessibles
+      const accessibleItem = accessibleItems.find(accItem =>
+        accItem.label === item.label && accItem.module === item.module
+      );
+
+      if (accessibleItem) {
+        filteredMenu.push(accessibleItem);
+      }
+    }
+  });
+
+  return filteredMenu;
+}
+
+// Garder la méthode handlePermissionsUpdate simple
+private handlePermissionsUpdate = (event: any) => {
+  console.log('🔄 Sidebar: Permissions mises à jour reçues');
+  this.loadFilteredMenu();
+}
+
+/**
+ * Vérifie si l'utilisateur a accès à au moins une fonctionnalité d'un élément de menu
+ */
+private hasAccessToMenuItem(item: MenuItem, allowedFonctionnalites: string[]): boolean {
+  if (!item.fonctionnalites || item.fonctionnalites.length === 0) {
+    return true; // Pas de restriction de fonctionnalité
   }
 
+  // Vérifier si AU MOINS UNE fonctionnalité est autorisée
+  const hasAccess = item.fonctionnalites.some(fonct =>
+    allowedFonctionnalites.includes(fonct)
+  );
+
+  console.log(`🔍 Accès à "${item.label}": ${hasAccess ? '✅' : '❌'} (Fonctionnalités: ${item.fonctionnalites.join(', ')})`);
+
+  return hasAccess;
+}
 
 
 filterMenuByPermissions(): MenuItem[] {
