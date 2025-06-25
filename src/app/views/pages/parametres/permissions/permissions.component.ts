@@ -100,7 +100,7 @@ onPermissionToggle(permission: any): void {
         icon: 'success',
         title: 'Permission modifiée avec succès',
         showConfirmButton: false,
-        timer: 3000,
+        timer: 1000,
         timerProgressBar: true
       });
 

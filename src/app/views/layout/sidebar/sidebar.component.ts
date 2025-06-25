@@ -70,18 +70,18 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   filteredMenu: MenuItem[] = [];
 
   ngOnInit(): void {
-    this.menuItems = MENU;
+  this.menuItems = MENU;
 
-    /**
-     * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
-     */
-    const desktopMedium = window.matchMedia(
-      '(min-width:992px) and (max-width: 1199px)'
-    );
-    desktopMedium.addEventListener('change', () => {
-      this.iconSidebar;
-    });
+  /**
+   * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
+   */
+  const desktopMedium = window.matchMedia(
+    '(min-width:992px) and (max-width: 1199px)'
+  );
+  desktopMedium.addEventListener('change', () => {
     this.iconSidebar(desktopMedium);
+  });
+  this.iconSidebar(desktopMedium);
 
   const storedPermissions = localStorage.getItem('permissions');
   const storedAllowedModules = localStorage.getItem('allowedModules');
@@ -90,12 +90,9 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.permissions = JSON.parse(storedPermissions);
   }
 
-  if (storedAllowedModules) {
-    this.accessibleModules = JSON.parse(storedAllowedModules);
-  }
-
-  // 🔁 Sécurité au cas où allowedModules n’est pas encore généré
-  if ((!storedAllowedModules || this.accessibleModules.length === 0) && this.permissions.length > 0) {
+  // On force la reconstruction d'accessibleModules depuis permissions actives,
+  // même si storedAllowedModules existe, pour garantir la cohérence
+  if (this.permissions.length > 0) {
     this.accessibleModules = Array.from(
       new Set(
         this.permissions
@@ -104,6 +101,11 @@ export class SidebarComponent implements OnInit, AfterViewInit {
       )
     );
     localStorage.setItem('allowedModules', JSON.stringify(this.accessibleModules));
+  } else if (storedAllowedModules) {
+    // Si pas de permissions en mémoire (rare), on récupère allowedModules du localStorage
+    this.accessibleModules = JSON.parse(storedAllowedModules);
+  } else {
+    this.accessibleModules = [];
   }
 
   this.filteredMenu = this.filterMenuByPermissions();
@@ -111,19 +113,61 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   console.log('Permissions :', this.permissions);
   console.log('Modules accessibles :', this.accessibleModules);
   console.log('Menu filtré :', this.filteredMenu);
-
-  }
-
+}
 
 
+
+
+
+// filterMenuByPermissions(): MenuItem[] {
+//   const modulesAutorisés = this.accessibleModules.map(m => m.toLowerCase());
+
+//   const menusFiltrés = MENU.filter(menu => {
+//     if (menu.module) {
+//       return modulesAutorisés.includes(menu.module.toLowerCase());
+//     }
+//     if (!menu.module && !menu.isTitle) {
+//       return true;
+//     }
+//     return false;
+//   });
+
+//   const finalMenu: MenuItem[] = [];
+
+//   for (let i = 0; i < MENU.length; i++) {
+//     const item = MENU[i];
+
+//     if (item.isTitle && item.module) {
+//       const moduleTitle = item.module.toLowerCase();
+//       const hasChildren = menusFiltrés.some(m => m.module?.toLowerCase() === moduleTitle && !m.isTitle);
+//       if (hasChildren) {
+//         finalMenu.push(item);
+//       }
+//     } else if (menusFiltrés.includes(item)) {
+//       finalMenu.push(item);
+//     }
+//   }
+
+//   return finalMenu;
+// }
 
 filterMenuByPermissions(): MenuItem[] {
+  // Construire accessibleModules depuis permissions (au cas où)
+  this.accessibleModules = Array.from(
+    new Set(
+      this.permissions
+        .filter(p => p.module && p.module.libelle_module && p.is_active) // active uniquement
+        .map(p => p.module.libelle_module)
+    )
+  );
+
   const modulesAutorisés = this.accessibleModules.map(m => m.toLowerCase());
 
   const menusFiltrés = MENU.filter(menu => {
     if (menu.module) {
       return modulesAutorisés.includes(menu.module.toLowerCase());
     }
+    // Garde les titres sans module et les éléments sans module (pas titres)
     if (!menu.module && !menu.isTitle) {
       return true;
     }
@@ -137,6 +181,7 @@ filterMenuByPermissions(): MenuItem[] {
 
     if (item.isTitle && item.module) {
       const moduleTitle = item.module.toLowerCase();
+      // On ajoute le titre uniquement s’il y a des enfants dans ce module (donc module actif)
       const hasChildren = menusFiltrés.some(m => m.module?.toLowerCase() === moduleTitle && !m.isTitle);
       if (hasChildren) {
         finalMenu.push(item);
@@ -148,6 +193,7 @@ filterMenuByPermissions(): MenuItem[] {
 
   return finalMenu;
 }
+
 
 
 
