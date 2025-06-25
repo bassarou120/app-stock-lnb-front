@@ -488,7 +488,7 @@ export const MENU: MenuItem[] = [
   {
     label: 'Rapport ticket',
     icon: 'file',
-    link: '/rapports/ticket'
+    link: '/rapports/ticket '
   },
   {
     label: 'Paramètres',
