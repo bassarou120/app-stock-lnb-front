@@ -54,12 +54,15 @@ export class PermissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForms();
-    this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
+
+  this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
       this.permissions = permissions;
       this.groupPermissionsByRoleAndModule();
-      console.log(this.permissions);
+      console.log('📋 Permissions chargées pour affichage:', permissions);
     });
   }
+
+
 
   groupPermissionsByRoleAndModule(): void {
     this.groupedPermissions = {};
@@ -85,54 +88,81 @@ export class PermissionComponent implements OnInit {
 }
 
 onPermissionToggle(permission: any): void {
-  const payload = {
-    role_id: permission.role_id,
-    module_id: permission.module_id,
-    fonctionnalite_id: permission.fonctionnalite_id,
-    is_active: !permission.is_active,
-  };
+    const payload = {
+      role_id: permission.role_id,
+      module_id: permission.module_id,
+      fonctionnalite_id: permission.fonctionnalite_id,
+      is_active: !permission.is_active,
+    };
 
-  this.permissionService.updatePermission(payload).subscribe({
-    next: () => {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Permission modifiée avec succès',
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true
+    this.permissionService.updatePermission(payload).subscribe({
+      next: () => {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Permission modifiée avec succès',
+          showConfirmButton: false,
+          timer: 3000,
+          timerProgressBar: true
+        });
+
+        // 🔥 ÉTAPE 1 : Recharger l'affichage
+        this.permissionService.getPermissions().subscribe((allPermissions: Permission[]) => {
+          this.permissions = allPermissions;
+          this.groupPermissionsByRoleAndModule();
+        });
+
+        // 🔥 ÉTAPE 2 : Mettre à jour localStorage si c'est l'utilisateur connecté
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (permission.role_id === currentUser.role_id) {
+          this.updateCurrentUserPermissions();
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors de la mise à jour :', err);
+      }
+    });
+  }
+
+   // 🔥 NOUVELLE MÉTHODE : Mettre à jour les permissions de l'utilisateur connecté
+  private updateCurrentUserPermissions(): void {
+    this.permissionService.getCurrentUserPermissions().subscribe((userPermissions: Permission[]) => {
+      const activePermissions = userPermissions.filter(p => p.is_active === true);
+
+      const allowedModules: string[] = [];
+      activePermissions.forEach(perm => {
+        if (perm.module && perm.module.libelle_module) {
+          const moduleName = perm.module.libelle_module;
+          if (!allowedModules.includes(moduleName)) {
+            allowedModules.push(moduleName);
+          }
+        }
       });
 
-      // Recharger les permissions à jour
-      this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
-        this.permissions = permissions;
-        this.groupPermissionsByRoleAndModule();
+      console.log('🔄 Mise à jour permissions utilisateur:', activePermissions);
+      console.log('🔄 Mise à jour modules autorisés:', allowedModules);
 
-        const updatedPermissions = permissions.filter(p => p.is_active);
+      localStorage.setItem('permissions', JSON.stringify(activePermissions));
+      localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
 
-        // Extraire les modules uniques (en vérifiant bien que module/libelle_module existent)
-        const allowedModules = Array.from(
-          new Set(
-            updatedPermissions
-              .filter(p => p.module && p.module.libelle_module)
-              .map(p => p.module.libelle_module)
-          )
-        );
+      // Notifier la sidebar
+      window.dispatchEvent(new CustomEvent('permissionsUpdated', {
+        detail: { permissions: activePermissions, allowedModules: allowedModules }
+      }));
+    });
+  }
 
-        console.log('Permissions actives :', updatedPermissions);
-        console.log('Modules accessibles extraits :', allowedModules);
-
-        // Sauvegarder dans localStorage
-        localStorage.setItem('permissions', JSON.stringify(updatedPermissions));
-        localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
-      });
-    },
-    error: (err) => {
-      console.error('Erreur lors de la mise à jour :', err);
-    }
-  });
+// Exemple d'implémentation (à adapter selon votre logique)
+private getCurrentUserRoleId(): number {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  return user.role_id; // Retournera 1 (Admin)
 }
+
+
+
+
+
 
 
   initForms(): void {

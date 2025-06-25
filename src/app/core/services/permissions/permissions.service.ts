@@ -20,6 +20,14 @@ export class PermissionService  {
     );
   }
 
+  getCurrentUserPermissions(): Observable<Permission[]> {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const roleId = user.role_id;
+
+  return this.http.get<Permission[]>(`${this.url}/permissions/role/${roleId}`);
+}
+
+
   updatePermission(payload: any): Observable<any> {
   return this.http.post(`${this.url}/permissions/toggle`, payload);
 }
