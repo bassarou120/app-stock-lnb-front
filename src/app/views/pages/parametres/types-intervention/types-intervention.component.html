@@ -57,30 +57,41 @@
         <div class="table-responsive">
           <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
-            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <!-- Colonne N° -->
             <ngx-datatable-column name="N°">
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                 {{ rowIndex + 1 }}
               </ng-template>
             </ngx-datatable-column>
+            <!-- Colonne Type d'intervention -->
             <ngx-datatable-column name="Type d'intervention" prop="libelle_type_intervention"></ngx-datatable-column>
+            <!-- Colonne Pour les véhicules seul -->
             <ngx-datatable-column name="Pour les véhicules seul" prop="applicable_seul_vehicule">
               <ng-template ngx-datatable-cell-template let-value="value">
                 {{ value ? 'Oui' : 'Non' }}
               </ng-template>
             </ngx-datatable-column>
+            <!-- Colonne Observations -->
             <ngx-datatable-column name="Observations" prop="observation"></ngx-datatable-column>
-            <ngx-datatable-column name="Date d'expiration" prop="date_expiration"></ngx-datatable-column>
+            
+            <!-- NOUVEAU: Colonne "A une date d'expiration" basée sur la propriété has_expiration_date du modèle -->
+            <ngx-datatable-column name="Date d'expiration" prop="has_expiration_date">
+              <ng-template ngx-datatable-cell-template let-value="value">
+                {{ value ? 'Oui' : 'Non' }}
+              </ng-template>
+            </ngx-datatable-column>
+            
+            <!-- ANCIENNE COLONNE 'Date d'expiration' - SUPPRIMÉE COMME DEMANDÉ -->
+            <!-- <ngx-datatable-column name="Date d'expiration" prop="date_expiration"></ngx-datatable-column> -->
+
+            <!-- Colonne Date de création -->
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column>
-            <!-- <ngx-datatable-column name="Date d'expiration" prop="date_expiration">
-              <ng-template let-value="value" ngx-datatable-cell-template>
-                {{ value | date:'dd/MM/yyyy' }}
-              </ng-template>
-            </ngx-datatable-column> -->
+            
+            <!-- Colonne Actions -->
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -159,14 +170,13 @@
             <label class="form-check-label" for="applicableVehiculeSeul">
               Applicable aux véhicules uniquement
             </label>
-            <!-- Amélioration du tooltip pour la clarté -->
             <i class="feather icon-alert-circle ms-2 text-info"
-               [ngbTooltip]="'Si cette case est cochée, ce type d\'intervention ne pourra être appliqué qu\'aux véhicules.'"
-               placement="right"
-               container="body"></i>
+              [ngbTooltip]="'Si cette case est cochée, ce type d\'intervention ne pourra être appliqué qu\'aux véhicules.'"
+              placement="right"
+              container="body"></i>
           </div>
 
-          <!-- NOUVEAU CHECKBOX POUR LA DATE D'EXPIRATION -->
+          <!-- CHECKBOX POUR LA DATE D'EXPIRATION -->
           <div class="form-check mb-3">
             <input type="checkbox" class="form-check-input" id="hasExpirationDate"
               formControlName="has_expiration_date">
@@ -174,29 +184,13 @@
               Ce type d'intervention a une date d'expiration
             </label>
             <i class="feather icon-alert-circle ms-2 text-info"
-               [ngbTooltip]="'Cochez cette case si ce type d\'intervention a une date de validité à ne pas dépasser.'"
-               placement="right"
-               container="body"></i>
+              [ngbTooltip]="'Cochez cette case si ce type d\'intervention a une date de validité à ne pas dépasser.'"
+              placement="right"
+              container="body"></i>
           </div>
 
-          <!-- date_expiration (CONDITIONNELLEMENT AFFICHÉ) -->
-          <div class="mb-3" *ngIf="addTypeIntervention.get('has_expiration_date')?.value">
-            <label for="date_expiration" class="form-label">Date d'expiration <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
-                <i data-feather="calendar"></i>
-              </button>
-              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-                ngbDatepicker #dAdd="ngbDatepicker" formControlName="date_expiration"
-                [class.is-invalid]="addTypeIntervention.get('date_expiration')?.invalid && addTypeIntervention.get('date_expiration')?.touched">
-            </div>
-
-            <div *ngIf="addTypeIntervention.get('date_expiration')?.invalid && addTypeIntervention.get('date_expiration')?.touched">
-              <small *ngIf="addTypeIntervention.get('date_expiration')?.errors?.required" class="text-danger"> *La date d'expiration est obligatoire.</small>
-            </div>
-          </div>
-
-
+          <!-- LE CHAMP date_expiration EST COMPLÈTEMENT RETIRÉ DU HTML -->
+          
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary" [disabled]="isAdding || addTypeIntervention.invalid">
@@ -261,19 +255,18 @@
 
           <!-- applicable aux véhicules seuls -->
           <div class="form-check mb-3">
-            <!-- Utilisation directe de formControlName, la méthode onCheckboxEditChange n'est plus strictement nécessaire si elle ne fait qu'un patchValue simple -->
             <input type="checkbox" class="form-check-input" id="editApplicableVehiculeSeul"
               formControlName="applicable_seul_vehicule">
             <label class="form-check-label" for="editApplicableVehiculeSeul">
               Applicable aux véhicules uniquement
             </label>
             <i class="feather icon-alert-circle ms-2 text-info"
-               [ngbTooltip]="'Si cette case est cochée, ce type d\'intervention ne pourra être appliqué qu\'aux véhicules.'"
-               placement="right"
-               container="body"></i>
+              [ngbTooltip]="'Si cette case est cochée, ce type d\'intervention ne pourra être appliqué qu\'aux véhicules.'"
+              placement="right"
+              container="body"></i>
           </div>
 
-          <!-- NOUVEAU CHECKBOX POUR LA DATE D'EXPIRATION (Formulaire de MODIFICATION) -->
+          <!-- CHECKBOX POUR LA DATE D'EXPIRATION (Formulaire de MODIFICATION) -->
           <div class="form-check mb-3">
             <input type="checkbox" class="form-check-input" id="editHasExpirationDate"
               formControlName="has_expiration_date">
@@ -281,27 +274,13 @@
               Ce type d'intervention a une date d'expiration
             </label>
             <i class="feather icon-alert-circle ms-2 text-info"
-               [ngbTooltip]="'Cochez cette case si ce type d\'intervention a une date de validité à ne pas dépasser.'"
-               placement="right"
-               container="body"></i>
+              [ngbTooltip]="'Cochez cette case si ce type d\'intervention a une date de validité à ne pas dépasser.'"
+              placement="right"
+              container="body"></i>
           </div>
 
-          <!-- date_expiration (CONDITIONNELLEMENT AFFICHÉ POUR LA MODIFICATION) -->
-          <div class="mb-3" *ngIf="editTypeIntervention.get('has_expiration_date')?.value">
-            <label for="editDateExpiration" class="form-label">Date d'expiration <span class="text-danger">*</span></label>
-            <div class="input-group">
-              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
-                <i data-feather="calendar"></i>
-              </button>
-              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
-                ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_expiration"
-                [class.is-invalid]="editTypeIntervention.get('date_expiration')?.invalid && editTypeIntervention.get('date_expiration')?.touched">
-            </div>
-            <div *ngIf="editTypeIntervention.get('date_expiration')?.invalid && editTypeIntervention.get('date_expiration')?.touched">
-              <small *ngIf="editTypeIntervention.get('date_expiration')?.errors?.required" class="text-danger"> *La date d'expiration est obligatoire.</small>
-            </div>
-          </div>
-
+          <!-- LE CHAMP date_expiration EST COMPLÈTEMENT RETIRÉ DU HTML -->
+          
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary" [disabled]="isEditing || editTypeIntervention.invalid">
@@ -332,7 +311,7 @@
 
       <!-- Contenu du modal -->
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="deleteTypeIntervention"  (ngSubmit)="onClickSubmitDeleteTypeIntervention()">
+        <form class="forms-sample" [formGroup]="deleteTypeIntervention" (ngSubmit)="onClickSubmitDeleteTypeIntervention()">
           <div class="mb-3">
             <p class="text-secondary">Voulez-vous vraiment supprimer ce type d'Intervention ?</p>
           </div>

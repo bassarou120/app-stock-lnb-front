@@ -163,7 +163,8 @@ export interface TypeIntervention {
   applicable_seul_vehicule: boolean;
   observation: string;
   date_expiration: string;
-  created_at: string;
+  created_at: string| null;
+  has_expiration_date?: boolean; 
   updated_at: string;
 }
 export interface TypeMouvement {
@@ -303,6 +304,7 @@ export interface InterventionVehicule {
   commune_arrivee_id: number;
   type_intervention_id: number;
   typeIntervention?: TypeIntervention;
+  date_expiration?: string;
 }
 
 export interface Utilisateur {

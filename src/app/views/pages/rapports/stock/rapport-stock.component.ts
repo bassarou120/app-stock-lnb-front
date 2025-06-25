@@ -7,13 +7,11 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-// CORRECTION: Ajustement du chemin pour FeatherIconDirective (si situé plus haut)
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 
 // Services
-// CORRECTION: Ajustement du chemin pour StockRapportService (si situé dans le même dossier parent que 'rapports')
 import { StockRapportService } from '../../../../core/services/rapport/stock/stock-rapport.service';
-import { BackendPostResource } from '../../../../core/services/interface/models';
+import { BackendPostResource } from '../../../../core/services/interface/models'; 
 import { ArticleService } from '../../../../core/services/articles/articles.service';
 import { FournisseursService } from '../../../../core/services/fournisseurs/fournisseurs.service';
 import { TypeMouvementService } from '../../../../core/services/types-mouvement/types-mouvement.service';
@@ -23,14 +21,61 @@ import { BureauxService } from './../../../../core/services/bureaux/bureaux.serv
 // Interfaces
 import {
   MouvementStock, Article, Fournisseur, TypeMouvement, Employe, PaginatedResponse, Bureau
-} from '../../../../core/services/interface/models'; // Vérifié: MouvementStock a bien les relations
+} from '../../../../core/services/interface/models'; 
 
-import { Subject, takeUntil } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, Subject, takeUntil } from 'rxjs';
+
+// NOUVELLE INTERFACE : Pour le rapport d'état de stock
+export interface RapportEtatStockArticle {
+  article: {
+    id: number;
+    libelle: string;
+    code_article: string;
+    description: string;
+    categorie: string;
+    stock_alerte: number;
+    unite_de_mesure?: string; 
+  };
+  stock_actuel: {
+    quantite: number;
+    prix_unitaire: number;
+    montant_total: number;
+    date_maj?: string | Date | null; 
+  };
+  derniere_entree?: {
+    date: string | Date | null; 
+    quantite: number;
+    prix_unitaire: number;
+    montant: number;
+    fournisseur: string;
+    description: string;
+    type_mouvement: string;
+    dans_periode: boolean;
+  };
+  derniere_sortie?: {
+    date: string | Date | null; 
+    quantite: number;
+    prix_unitaire: number;
+    montant: number;
+    employe: string; 
+    bureau: string;
+    description: string;
+    type_mouvement: string;
+    statut: string;
+    dans_periode: boolean;
+  };
+  synthese_periode: {
+    total_entrees: number;
+    total_sorties: number;
+    mouvement_net: number;
+    periode: string;
+  };
+  debug?: any; 
+}
 
 // Définir les types de rapport pour les stocks
 interface TypeRapportStock {
-  id: string; // Utiliser un string comme identifiant unique
+  id: string; 
   libelle: string;
 }
 
@@ -38,8 +83,7 @@ interface TypeRapportStock {
   selector: 'app-rapport-stock',
   standalone: true,
   imports: [
-
-  CommonModule,
+    CommonModule,
     NgSelectModule,
     ReactiveFormsModule,
     FormsModule,
@@ -57,28 +101,30 @@ export class RapportStockComponent implements OnInit, OnDestroy {
   @ViewChild('table') table!: DatatableComponent;
 
   rapportForm!: FormGroup;
-  rows: MouvementStock[] = []; // Peut contenir MouvementStock pour entrée ou sortie
-  temp: MouvementStock[] = [];
+  rows: any[] = []; 
+  temp: any[] = []; 
   loadingIndicator = false;
   ColumnMode = ColumnMode;
 
   // Listes pour les dropdowns de filtrage
   articles: Article[] = [];
   fournisseurs: Fournisseur[] = [];
-  typeMouvements: TypeMouvement[] = []; // Tous les types de mouvement (entrée, sortie, etc.)
-  employes: Employe[] = []; // Pour les sorties éventuellement
+  typeMouvements: TypeMouvement[] = []; 
+  employes: Employe[] = []; 
   bureaux: Bureau[] = [];
 
   // Types de rapports de stock
   typeRapportsStock: TypeRapportStock[] = [
     { id: 'entree', libelle: 'Ordre d\'Entrée' },
     { id: 'sortie', libelle: 'Ordre de Sortie' },
+    { id: 'etat_stock', libelle: 'État de Stock' }, 
   ];
-  selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
+  selectedReportTypeId: string | null = null; 
 
   // Indicateurs pour l'affichage conditionnel des filtres
   showEntryFilters: boolean = false;
   showExitFilters: boolean = false;
+  showStockStatusFilters: boolean = false; 
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -91,14 +137,14 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     private articlesService: ArticleService,
     private fournisseursService: FournisseursService,
     private typeMouvementService: TypeMouvementService,
-    private employesService: EmployesService, // Injection
+    private employesService: EmployesService, 
     private bureauxService: BureauxService
   ) { }
 
   ngOnInit(): void {
+    console.log('ngOnInit: Démarrage du chargement des données...');
     this.initForm();
     this.loadFilterData();
-    // Écouter les changements sur le type de rapport pour adapter le formulaire
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
       this.onTypeRapportChange(typeRapportId);
     });
@@ -109,11 +155,10 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Validateur de plage de dates (utilisé pour entrée et sortie)
+  // Validateur de plage de dates (utilisé pour entrée et sortie et état de stock)
   dateRangeValidatorForReport(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
       const formGroup = group as FormGroup;
-      // Les noms des contrôles de date sont génériques (date_debut, date_fin)
       const startDateControl = formGroup.get('date_debut');
       const endDateControl = formGroup.get('date_fin');
 
@@ -137,7 +182,6 @@ export class RapportStockComponent implements OnInit, OnDestroy {
           return { 'dateRangeInvalidOrder': true };
         }
       }
-
       return null;
     };
   }
@@ -146,36 +190,41 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     this.rapportForm = this.fb.group({
       id_type_rapport: [null, Validators.required],
 
-      // Champs communs aux rapports de stock (dates)
+      // Champs communs aux rapports (dates)
       date_debut: [{ value: null, disabled: true }],
       date_fin: [{ value: null, disabled: true }],
 
       // Champs spécifiques au rapport d'entrée
-      id_Article_entree: [{ value: null, disabled: true }], // id_Article pour entrée
-      id_fournisseur_entree: [{ value: null, disabled: true }], // id_fournisseur pour entrée
+      id_Article_entree: [{ value: null, disabled: true }], 
+      id_fournisseur_entree: [{ value: null, disabled: true }], 
 
       // Champs spécifiques au rapport de sortie
-      id_Article_sortie: [{ value: null, disabled: true }], // id_Article pour sortie
-      id_employe_sortie: [{ value: null, disabled: true }], // id_employe pour sortie
+      id_Article_sortie: [{ value: null, disabled: true }], 
+      id_employe_sortie: [{ value: null, disabled: true }], 
+
+      // NOUVEAUX Champs spécifiques au rapport d'état de stock
+      id_Article_etat: [{ value: null, disabled: true }],
+      qte_min_etat: [{ value: null, disabled: true }],
+      qte_max_etat: [{ value: null, disabled: true }],
     });
   }
 
   onTypeRapportChange(typeRapportId: string | null): void {
     this.selectedReportTypeId = typeRapportId;
-    this.resetFormControls(); // Réinitialiser tous les contrôles et validateurs
+    this.resetFormControls(); 
 
-    // Activer les champs de date pour tous les types de rapports de stock, ils sont obligatoires
+    // Activer les champs de date pour tous les types de rapports de stock
     this.rapportForm.get('date_debut')?.enable();
     this.rapportForm.get('date_fin')?.enable();
     this.rapportForm.get('date_debut')?.setValidators(Validators.required);
     this.rapportForm.get('date_fin')?.setValidators(Validators.required);
-    this.rapportForm.setValidators(this.dateRangeValidatorForReport()); // Appliquer le validateur de plage de date
+    this.rapportForm.setValidators(this.dateRangeValidatorForReport()); 
 
     switch (typeRapportId) {
       case 'entree':
         this.showEntryFilters = true;
         this.showExitFilters = false;
-        // Activer les champs spécifiques à l'entrée
+        this.showStockStatusFilters = false;
         this.rapportForm.get('id_Article_entree')?.enable();
         this.rapportForm.get('id_fournisseur_entree')?.enable();
         break;
@@ -183,34 +232,63 @@ export class RapportStockComponent implements OnInit, OnDestroy {
       case 'sortie':
         this.showEntryFilters = false;
         this.showExitFilters = true;
-        // Activer les champs spécifiques à la sortie
+        this.showStockStatusFilters = false;
         this.rapportForm.get('id_Article_sortie')?.enable();
         this.rapportForm.get('id_employe_sortie')?.enable();
+        break;
+
+      case 'etat_stock': 
+        this.showEntryFilters = false;
+        this.showExitFilters = false;
+        this.showStockStatusFilters = true;
+        this.rapportForm.get('id_Article_etat')?.enable();
+        this.rapportForm.get('qte_min_etat')?.enable();
+        this.rapportForm.get('qte_max_etat')?.enable();
+        this.rapportForm.get('qte_min_etat')?.setValidators(Validators.min(0));
+        this.rapportForm.get('qte_max_etat')?.setValidators(Validators.min(0));
+        this.rapportForm.setValidators(this.quantityRangeValidator()); 
         break;
 
       default:
         this.showEntryFilters = false;
         this.showExitFilters = false;
-        // Si aucun type n'est sélectionné, désactiver toutes les dates aussi
+        this.showStockStatusFilters = false;
         this.rapportForm.get('date_debut')?.disable();
         this.rapportForm.get('date_fin')?.disable();
         this.rapportForm.get('date_debut')?.clearValidators();
         this.rapportForm.get('date_fin')?.clearValidators();
-        this.rapportForm.clearValidators(); // Supprimer le validateur de groupe
+        this.rapportForm.clearValidators(); 
         this.rapportForm.reset({ id_type_rapport: typeRapportId });
         this.markFormGroupTouched(this.rapportForm);
         break;
     }
-    this.rapportForm.updateValueAndValidity(); // Mettre à jour la validation globale du formulaire
+    this.rapportForm.updateValueAndValidity(); 
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
   }
 
+  // NOUVEAU VALIDATEUR : Pour les plages de quantités (qte_min_etat <= qte_max_etat)
+  quantityRangeValidator(): ValidatorFn {
+    return (group: AbstractControl): { [key: string]: any } | null => {
+      const formGroup = group as FormGroup;
+      const qteMinControl = formGroup.get('qte_min_etat');
+      const qteMaxControl = formGroup.get('qte_max_etat');
+
+      const qteMin = qteMinControl?.value;
+      const qteMax = qteMaxControl?.value;
+
+      if (typeof qteMin === 'number' && typeof qteMax === 'number' && qteMin > qteMax) {
+        return { 'quantityRangeInvalidOrder': true };
+      }
+      return null;
+    };
+  }
+
   private resetFormControls(): void {
     Object.keys(this.rapportForm.controls).forEach(key => {
       const control = this.rapportForm.get(key);
-      if (control && key !== 'id_type_rapport') {
+      if (control && key !== 'id_type_rapport') { 
         control.disable();
         control.clearValidators();
         control.setValue(null);
@@ -218,21 +296,51 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     });
     this.showEntryFilters = false;
     this.showExitFilters = false;
-    this.rapportForm.clearValidators(); // Important : Supprimer les validateurs de groupe précédents
+    this.showStockStatusFilters = false; 
+    this.rapportForm.clearValidators(); 
     this.rapportForm.updateValueAndValidity();
+    this.rows = [];
+    this.temp = [];
   }
 
   loadFilterData(): void {
-    // Charger tous les articles
     this.articlesService.getAllArticles().pipe(takeUntil(this.destroy$)).subscribe((data: Article[]) => this.articles = data);
-    // Charger tous les fournisseurs
     this.fournisseursService.getAllFournisseurs().pipe(takeUntil(this.destroy$)).subscribe((data: Fournisseur[]) => this.fournisseurs = data);
-    // Charger tous les types de mouvement (pourrait être filtré par la suite si nécessaire)
     this.typeMouvementService.getAllTypeMouvement().pipe(takeUntil(this.destroy$)).subscribe((data: TypeMouvement[]) => this.typeMouvements = data);
-    // Charger tous les employés (pour les sorties)
     this.employesService.getAllEmployes().pipe(takeUntil(this.destroy$)).subscribe((data: Employe[]) => this.employes = data);
-    // Charger tous les employés (pour les sorties)
     this.bureauxService.getAllBureaux().pipe(takeUntil(this.destroy$)).subscribe((data: Bureau[]) => this.bureaux = data);
+  }
+
+  // NOUVELLE FONCTION UTILITAIRE POUR PARSER LES DATES
+  private parseBackendDateString(dateString: string | null | undefined): Date | null {
+    if (!dateString || typeof dateString !== 'string' || dateString === '') {
+      return null;
+    }
+
+    // Tenter de matcher le format "DD/MM/YYYY HH:mm" ou "DD/MM/YYYY HH:mm:ss"
+    const match = dateString.match(/(\d{2})\/(\d{2})\/(\d{4})(?: (\d{2}):(\d{2})(?::(\d{2}))?)?/);
+    if (match) {
+      const year = parseInt(match[3], 10);
+      const month = parseInt(match[2], 10) - 1; // Mois est 0-indexé
+      const day = parseInt(match[1], 10);
+      const hours = parseInt(match[4] || '0', 10);
+      const minutes = parseInt(match[5] || '0', 10);
+      const seconds = parseInt(match[6] || '0', 10);
+
+      const date = new Date(year, month, day, hours, minutes, seconds);
+      // Vérifier si la date est valide (Date.parse retourne NaN pour invalide)
+      if (!isNaN(date.getTime())) {
+        return date;
+      }
+    }
+    // Si la chaîne n'est pas au format attendu, tenter de la parser directement (par exemple si c'est déjà ISO)
+    const fallbackDate = new Date(dateString);
+    if (!isNaN(fallbackDate.getTime())) {
+      return fallbackDate;
+    }
+
+    console.warn(`Impossible de parser la date: "${dateString}". Retourne null.`);
+    return null;
   }
 
   loadRapportStock(): void {
@@ -240,13 +348,13 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     console.log('Form isValid before API call:', this.rapportForm.valid);
     console.log('Form errors (group level):', this.rapportForm.errors);
     Object.keys(this.rapportForm.controls).forEach(key => {
-      if (this.rapportForm.get(key)?.errors) {
+      if (this.rapportForm.get(key)?.errors && this.rapportForm.get(key)?.enabled) { 
         console.log(`Errors on control ${key}:`, this.rapportForm.get(key)?.errors);
       }
     });
 
     if (this.rapportForm.invalid) {
-      this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires.";
+      this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires correctement.";
       this.markFormGroupTouched(this.rapportForm);
       console.warn('Formulaire invalide, requête non envoyée.');
       return;
@@ -255,63 +363,85 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     this.isGeneratingReport = true;
     this.loadingIndicator = true;
     this.errorMessage = '';
+    this.rows = []; 
+    this.temp = []; 
 
     const filters: { [key: string]: any } = { ...this.rapportForm.value };
 
-    // Formatage des dates communes
     filters.date_debut = filters.date_debut ? this.formatDate(filters.date_debut) : null;
     filters.date_fin = filters.date_fin ? this.formatDate(filters.date_fin) : null;
 
-    // Nettoyage et renommage des filtres avant envoi en fonction du type de rapport
-    if (this.selectedReportTypeId === 'entree') {
-        filters.id_Article = filters.id_Article_entree;
-        filters.id_fournisseur = filters.id_fournisseur_entree;
-        // Supprimer les champs spécifiques à l'autre rapport
-        delete filters.id_Article_entree;
-        delete filters.id_fournisseur_entree;
-        delete filters.id_Article_sortie;
-        delete filters.id_employe_sortie;
-        // Ajouter le type de mouvement pour l'entrée
-        const typeEntree = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'entrée');
-        if (typeEntree) {
-            filters.id_type_mouvement = typeEntree.id;
-        } else {
-            console.warn("Type de mouvement 'entrée' non trouvé. Veuillez vérifier les données.");
-            // Potentiellement lancer une erreur ou gérer ce cas
-        }
+    const finalFilters: { [key: string]: any } = {};
 
-    } else if (this.selectedReportTypeId === 'sortie') {
-        filters.id_Article = filters.id_Article_sortie;
-        filters.id_employe = filters.id_employe_sortie; // Ou tout autre champ lié à l'employé
-        // Supprimer les champs spécifiques à l'autre rapport
-        delete filters.id_Article_entree;
-        delete filters.id_fournisseur_entree;
-        delete filters.id_Article_sortie;
-        delete filters.id_employe_sortie;
-        // Ajouter le type de mouvement pour la sortie
-        const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie');
-        if (typeSortie) {
-            filters.id_type_mouvement = typeSortie.id;
+    if (this.selectedReportTypeId === 'entree') {
+        finalFilters.id_type_rapport = 'entree'; 
+        finalFilters.id_Article = filters.id_Article_entree;
+        finalFilters.id_fournisseur = filters.id_fournisseur_entree;
+        const typeEntree = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'entrée de stock');
+        if (typeEntree) {
+            finalFilters.id_type_mouvement = typeEntree.id;
         } else {
-            console.warn("Type de mouvement 'sortie' non trouvé. Veuillez vérifier les données.");
+            console.warn("Type de mouvement 'entrée de stock' non trouvé. Veuillez vérifier les données.");
         }
+    } else if (this.selectedReportTypeId === 'sortie') {
+        finalFilters.id_type_rapport = 'sortie'; 
+        finalFilters.id_Article = filters.id_Article_sortie;
+        finalFilters.id_employe = filters.id_employe_sortie; 
+        const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie de stock');
+        if (typeSortie) {
+            finalFilters.id_type_mouvement = typeSortie.id;
+        } else {
+            console.warn("Type de mouvement 'sortie de stock' non trouvé. Veuillez vérifier les données.");
+        }
+    } else if (this.selectedReportTypeId === 'etat_stock') { 
+        finalFilters.id_article = filters.id_Article_etat; 
+        finalFilters.qte_min = filters.qte_min_etat;
+        finalFilters.qte_max = filters.qte_max_etat;
     }
 
-    // Supprimer les champs qui sont null ou undefined pour éviter d'envoyer des paramètres inutiles
-    Object.keys(filters).forEach(key => {
-        if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
-            delete filters[key];
+    // Ajouter les dates aux filtres finaux, elles sont communes
+    if (filters.date_debut) finalFilters.date_debut = filters.date_debut;
+    if (filters.date_fin) finalFilters.date_fin = filters.date_fin;
+
+    // Supprimer les champs null ou undefined des filtres finaux
+    Object.keys(finalFilters).forEach(key => {
+        if (finalFilters[key] === null || finalFilters[key] === undefined || finalFilters[key] === '') {
+            delete finalFilters[key];
         }
     });
 
-    console.log('Envoi des filtres au backend pour le rapport de stock:', filters);
+    console.log('Envoi des filtres AU BACKEND pour le rapport:', finalFilters);
 
-    this.stockRapportService.getRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
-      (response: BackendPostResource<PaginatedResponse<MouvementStock>>) => {
+    let apiCall: Observable<BackendPostResource<any>>; 
+    if (this.selectedReportTypeId === 'etat_stock') {
+      apiCall = this.stockRapportService.getRapportEtatStockData(finalFilters);
+    } else {
+      apiCall = this.stockRapportService.getRapportData(finalFilters);
+    }
+
+    apiCall.pipe(takeUntil(this.destroy$)).subscribe(
+      (response: BackendPostResource<any>) => {
         console.log('Réponse du backend (brute du service):', response);
-        if (response.success && response.data && response.data.data) {
-          this.rows = response.data.data;
-          this.temp = [...response.data.data];
+        if (response.success && response.data) {
+          if (this.selectedReportTypeId === 'etat_stock') {
+            this.rows = (response.data.articles || []).map((item: any) => ({
+                ...item,
+                // Utiliser la nouvelle fonction de parsing pour les dates
+                derniere_entree: item.derniere_entree ? { ...item.derniere_entree, date: this.parseBackendDateString(item.derniere_entree.date) } : null,
+                derniere_sortie: item.derniere_sortie ? { ...item.derniere_sortie, date: this.parseBackendDateString(item.derniere_sortie.date) } : null,
+                stock_actuel: item.stock_actuel ? { ...item.stock_actuel, date_maj: this.parseBackendDateString(item.stock_actuel.date_maj) } : null,
+            }));
+            this.temp = [...this.rows];
+            console.log('Données du rapport d\'état de stock chargées:', this.rows);
+          } else {
+            this.rows = (response.data.data || []).map((item: any) => ({
+                ...item,
+                // Utiliser la nouvelle fonction de parsing pour date_mouvement
+                date_mouvement: this.parseBackendDateString(item.date_mouvement) 
+            }));
+            this.temp = [...this.rows];
+            console.log('Données du rapport entrée/sortie chargées:', this.rows);
+          }
         } else {
           this.rows = [];
           this.temp = [];
@@ -325,11 +455,11 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         } else if (this.rows.length > 0) {
           this.errorMessage = '';
         }
-        console.log('Données du rapport de stock chargées et affichées:', this.rows);
+        console.log('État final des lignes affichées:', this.rows);
       },
       (error: any) => {
         console.error('Erreur lors du chargement du rapport de stock:', error);
-        this.errorMessage = `Erreur lors du chargement du rapport de stock: ${error.message || 'Veuillez réessayer.'}`;
+        this.errorMessage = `Erreur lors du chargement du rapport: ${error.message || 'Veuillez réessayer.'}`;
         this.loadingIndicator = false;
         this.isGeneratingReport = false;
         this.rows = [];
@@ -343,7 +473,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
     console.log('Form errors (PDF):', this.rapportForm.errors);
     Object.keys(this.rapportForm.controls).forEach(key => {
-      if (this.rapportForm.get(key)?.errors) {
+      if (this.rapportForm.get(key)?.errors && this.rapportForm.get(key)?.enabled) {
         console.log(`Errors on control ${key} (PDF):`, this.rapportForm.get(key)?.errors);
       }
     });
@@ -360,51 +490,58 @@ export class RapportStockComponent implements OnInit, OnDestroy {
 
     const filters: { [key: string]: any } = { ...this.rapportForm.value };
 
-    // Formatage des dates communes
     filters.date_debut = filters.date_debut ? this.formatDate(filters.date_debut) : null;
     filters.date_fin = filters.date_fin ? this.formatDate(filters.date_fin) : null;
 
-    // Nettoyage et renommage des filtres avant envoi en fonction du type de rapport
+    const finalFilters: { [key: string]: any } = {};
+
     if (this.selectedReportTypeId === 'entree') {
-        filters.id_Article = filters.id_Article_entree;
-        filters.id_fournisseur = filters.id_fournisseur_entree;
-        delete filters.id_Article_entree;
-        delete filters.id_fournisseur_entree;
-        delete filters.id_Article_sortie;
-        delete filters.id_employe_sortie;
-        const typeEntree = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'entrée');
-        if (typeEntree) {
-            filters.id_type_mouvement = typeEntree.id;
-        }
+        finalFilters.id_type_rapport = 'entree';
+        finalFilters.id_Article = filters.id_Article_entree;
+        finalFilters.id_fournisseur = filters.id_fournisseur_entree;
+        const typeEntree = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'entrée de stock');
+        if (typeEntree) finalFilters.id_type_mouvement = typeEntree.id;
 
     } else if (this.selectedReportTypeId === 'sortie') {
-        filters.id_Article = filters.id_Article_sortie;
-        filters.id_employe = filters.id_employe_sortie;
-        delete filters.id_Article_entree;
-        delete filters.id_fournisseur_entree;
-        delete filters.id_Article_sortie;
-        delete filters.id_employe_sortie;
-        const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie');
-        if (typeSortie) {
-            filters.id_type_mouvement = typeSortie.id;
-        }
+        finalFilters.id_type_rapport = 'sortie';
+        finalFilters.id_Article = filters.id_Article_sortie;
+        finalFilters.id_employe = filters.id_employe_sortie;
+        const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie de stock');
+        if (typeSortie) finalFilters.id_type_mouvement = typeSortie.id;
+
+    } else if (this.selectedReportTypeId === 'etat_stock') { 
+        finalFilters.id_article = filters.id_Article_etat; 
+        finalFilters.qte_min = filters.qte_min_etat;
+        finalFilters.qte_max = filters.qte_max_etat;
     }
 
-    Object.keys(filters).forEach(key => {
-        if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
-            delete filters[key];
+    // Ajouter les dates aux filtres finaux, elles sont communes
+    if (filters.date_debut) finalFilters.date_debut = filters.date_debut;
+    if (filters.date_fin) finalFilters.date_fin = filters.date_fin;
+
+    // Supprimer les champs null ou undefined des filtres finaux
+    Object.keys(finalFilters).forEach(key => {
+        if (finalFilters[key] === null || finalFilters[key] === undefined || finalFilters[key] === '') {
+            delete finalFilters[key];
         }
     });
 
-    console.log('Envoi des filtres pour PDF au backend pour le rapport de stock:', filters);
+    console.log('Envoi des filtres AU BACKEND pour le PDF:', finalFilters);
 
-    this.stockRapportService.imprimerRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
+    let pdfCall: Observable<Blob>;
+    if (this.selectedReportTypeId === 'etat_stock') {
+      pdfCall = this.stockRapportService.imprimerRapportEtatStock(finalFilters);
+    } else {
+      pdfCall = this.stockRapportService.imprimerRapportData(finalFilters);
+    }
+
+    pdfCall.pipe(takeUntil(this.destroy$)).subscribe(
       (response: Blob) => {
         console.log('Réponse PDF reçue du backend.');
         const fileURL = window.URL.createObjectURL(response);
         const a = document.createElement('a');
         a.href = fileURL;
-        a.download = `rapport_stock_${this.selectedReportTypeId}.pdf`; // Nom de fichier dynamique
+        a.download = `rapport_${this.selectedReportTypeId}_${new Date().toISOString().slice(0,10)}.pdf`; 
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -440,21 +577,51 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
     console.log('Valeur de recherche locale:', val);
 
-    if (this.temp.length > 0) {
-        this.rows = this.temp.filter((item: MouvementStock) => {
-            let match = false;
-            // Accès sécurisé aux propriétés, vérifiant si ce sont des objets avant d'accéder aux sous-propriétés
-            match = (item.description?.toLowerCase().includes(val) || false) ||
-                    (item.numero_borderau?.toLowerCase().includes(val) || false) ||
-                    (item.article?.libelle?.toLowerCase().includes(val) || false) ||
-                    (item.article?.code_article?.toLowerCase().includes(val) || false) ||
-                    ((typeof item.fournisseur === 'object' && item.fournisseur !== null) ? item.fournisseur.nom?.toLowerCase().includes(val) : false) ||
-                    ((typeof item.type_mouvement === 'object' && item.type_mouvement !== null) ? item.type_mouvement.libelle_type_mouvement?.toLowerCase().includes(val) : false)
-                    ;
-            return match;
-        });
-    } else {
+    if (this.temp.length === 0) { 
         this.rows = [];
+        return;
+    }
+
+    if (this.selectedReportTypeId === 'etat_stock') {
+      this.rows = (this.temp as RapportEtatStockArticle[]).filter((item: RapportEtatStockArticle) => {
+        let match = false;
+        // Utilisez la nouvelle fonction de parsing ici aussi pour la recherche sur les dates
+        const derniereEntreeDate = this.parseBackendDateString(item.derniere_entree?.date as string);
+        const derniereSortieDate = this.parseBackendDateString(item.derniere_sortie?.date as string);
+        const stockActuelDateMaj = this.parseBackendDateString(item.stock_actuel?.date_maj as string);
+
+
+        const derniereEntreeDateStr = derniereEntreeDate ? derniereEntreeDate.toLocaleDateString('fr-FR') : '';
+        const derniereSortieDateStr = derniereSortieDate ? derniereSortieDate.toLocaleDateString('fr-FR') : '';
+        const stockActuelDateMajStr = stockActuelDateMaj ? stockActuelDateMaj.toLocaleDateString('fr-FR') : '';
+
+        match = (item.article?.libelle?.toLowerCase().includes(val) || false) ||
+                (item.article?.code_article?.toLowerCase().includes(val) || false) ||
+                (item.article?.categorie?.toLowerCase().includes(val) || false) ||
+                (derniereEntreeDateStr?.toLowerCase().includes(val) || false) ||
+                (derniereSortieDateStr?.toLowerCase().includes(val) || false) ||
+                (stockActuelDateMajStr?.toLowerCase().includes(val) || false); 
+        
+        return match;
+      });
+    } else { 
+      this.rows = (this.temp as MouvementStock[]).filter((item: MouvementStock) => {
+        let match = false;
+        // Utilisez la nouvelle fonction de parsing pour la recherche sur date_mouvement
+        const dateMouvementObj = this.parseBackendDateString(item.date_mouvement as string);
+        const dateMouvementStr = dateMouvementObj ? dateMouvementObj.toLocaleDateString('fr-FR') : (item.date_mouvement || '');
+
+        match = (item.description?.toLowerCase().includes(val) || false) ||
+                (item.numero_borderau?.toLowerCase().includes(val) || false) ||
+                (item.article?.libelle?.toLowerCase().includes(val) || false) ||
+                (item.article?.code_article?.toLowerCase().includes(val) || false) ||
+                ((item.fournisseur && item.fournisseur.nom) ? item.fournisseur.nom.toLowerCase().includes(val) : false) ||
+                ((item.type_mouvement && item.type_mouvement.libelle_type_mouvement) ? item.type_mouvement.libelle_type_mouvement.toLowerCase().includes(val) : false) ||
+                // ((item.employe && (item.employe as Employe).nom && (item.employe as Employe).prenom) ? `${(item.employe as Employe).nom} ${(item.employe as Employe).prenom}`.toLowerCase().includes(val) : false) ||
+                ((item.bureau && item.bureau.libelle_bureau) ? item.bureau.libelle_bureau.toLowerCase().includes(val) : false) ||
+                (dateMouvementStr?.toLowerCase().includes(val) || false); 
+        return match;
+      });
     }
 
     if (this.table) {
