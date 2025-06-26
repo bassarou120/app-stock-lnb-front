@@ -309,12 +309,12 @@
               </ngx-datatable-column>
               <ngx-datatable-column name="Prix Unitaire">
                 <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.stock_actuel?.prix_unitaire | currency:'XOF':'symbol':'1.2-2':'fr' }}
+                  {{ row.stock_actuel?.prix_unitaire | currency:'XOF' }}
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-column name="Total">
                 <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.stock_actuel?.montant_total | currency:'XOF':'symbol':'1.2-2':'fr' }}
+                  {{ row.stock_actuel?.montant_total | currency:'XOF' }}
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-column name="Dernière Entrée(Qte)">
@@ -328,7 +328,7 @@
               <ngx-datatable-column name="Dernière Sortie(Qte)">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <span *ngIf="row.derniere_sortie?.date">
-                    {{ row.derniere_sortie.date | date:'dd/MM/yyyy' }} (Qte: {{ row.derniere_sortie.quantite }})
+                    {{ row.derniere_sortie.date | date:'dd/MM/yyyy' }} <br>(Qte: {{ row.derniere_sortie.quantite }})
                   </span>
                   <span *ngIf="!row.derniere_sortie?.date">N/A</span>
                 </ng-template>
