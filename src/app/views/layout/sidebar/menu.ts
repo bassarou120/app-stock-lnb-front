@@ -34,7 +34,7 @@ export const MENU: MenuItem[] = [
       {
         label: 'Entrées de Stock',
         link: '/mouvement-stock/entrees',
-        fonctionnalites: ['Ajout du Stock', 'Modification du Stock']
+        fonctionnalites: ['Ajout du Stock', 'Modification du Stock', 'Voir les entrées']
       },
       {
         label: 'Les demandes',
