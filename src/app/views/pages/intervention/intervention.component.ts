@@ -31,6 +31,18 @@ declare var bootstrap: any;
   templateUrl: 'intervention.component.html'
 })
 export class InterventionComponent implements OnInit {
+
+    // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddIntervention: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canExportIntervention: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canModifyIntervention: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canDeleteIntervention: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: Intervention[] = [];
@@ -59,6 +71,11 @@ export class InterventionComponent implements OnInit {
   constructor(private interventionService: InterventionsService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
+
     this.loadImmobilisations();
     this.loadtypeInterventions();
     this.loadInterventions();
@@ -84,8 +101,69 @@ export class InterventionComponent implements OnInit {
       id: [0, [Validators.required]],
     });
   }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddIntervention = allowedFonctionnalites.includes("Ajout d'intervention");
+      this.canModifyIntervention = allowedFonctionnalites.includes('Modification intervention');
+      this.canDeleteIntervention = allowedFonctionnalites.includes('Suppression intervention');
+      this.canExportIntervention = allowedFonctionnalites.includes('Exporter immobilisation');
+
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canAddIntervention ||
+                          this.canModifyIntervention ||
+                          this.canDeleteIntervention ||
+                          this.canExportIntervention ||
+                          this.canExportIntervention ||
+                          allowedFonctionnalites.includes('Modification intervention') ||
+                          allowedFonctionnalites.includes('Intervention Immobilisation') ||
+                          allowedFonctionnalites.includes('Suppression intervention') ||
+                          allowedFonctionnalites.includes('Exporter intervention');
+
+
+      console.log('🔐 Permissions calculées:', {
+        canAddIntervention: this.canAddIntervention,
+        canModifyIntervention: this.canModifyIntervention,
+        canDeleteIntervention: this.canDeleteIntervention,
+        canExportIntervention: this.canExportIntervention,
+
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé aux interventions');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+
+
   onClickSubmitAddIntervention() {
-    // console.log('onClickSubmitAddIntervention appelé. isAddingIntervention:', this.isAddingIntervention); // Commenté
+
+    if (!this.canAddIntervention) {
+      alert('Vous n\'avez pas l\'autorisation d\'ajouter une intervention.');
+      return;
+    }
 
     // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
     if (this.isAddingIntervention) {
@@ -150,7 +228,12 @@ export class InterventionComponent implements OnInit {
   }
 
   onClickSubmitEditIntervention() {
-    // console.log(this.editIntervention.value); // Commenté
+
+    if (!this.canModifyIntervention) {
+      alert('Vous n\'avez pas l\'autorisation de modifier une intervention.');
+      return;
+    }
+
     const spinner = document.querySelector('.spinnerModif');
 
     // NOTE: Il serait bon d'avoir une propriété isEditingIntervention: boolean = false;
@@ -201,6 +284,13 @@ export class InterventionComponent implements OnInit {
   }
 
   onClickSubmitDeleteIntervention() {
+
+    if (!this.canDeleteIntervention) {
+      alert('Vous n\'avez pas l\'autorisation de modifier une intervention.');
+      return;
+    }
+
+
     // console.log(this.deleteIntervention.value); // Commenté
     const spinner = document.querySelector('.spinnerDelete');
 
@@ -355,6 +445,12 @@ export class InterventionComponent implements OnInit {
   }
 
   downloadInterventionsPDF(): void {
+
+    if (!this.canExportIntervention) {
+      alert('Vous n\'avez pas l\'autorisation d\'exportr la liste des interventions.');
+      return;
+    }
+
     this.interventionService.imprimerInterventions().subscribe(
       (response: Blob) => {
         const fileURL = window.URL.createObjectURL(response);
