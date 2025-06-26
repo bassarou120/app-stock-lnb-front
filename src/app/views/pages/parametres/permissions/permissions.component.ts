@@ -54,12 +54,15 @@ export class PermissionComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForms();
-    this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
+
+  this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
       this.permissions = permissions;
       this.groupPermissionsByRoleAndModule();
-      console.log(this.permissions);
+      console.log('📋 Permissions chargées pour affichage:', permissions);
     });
   }
+
+
 
   groupPermissionsByRoleAndModule(): void {
     this.groupedPermissions = {};
@@ -85,54 +88,97 @@ export class PermissionComponent implements OnInit {
 }
 
 onPermissionToggle(permission: any): void {
-  const payload = {
-    role_id: permission.role_id,
-    module_id: permission.module_id,
-    fonctionnalite_id: permission.fonctionnalite_id,
-    is_active: !permission.is_active,
-  };
+    const payload = {
+      role_id: permission.role_id,
+      module_id: permission.module_id,
+      fonctionnalite_id: permission.fonctionnalite_id,
+      is_active: !permission.is_active,
+    };
 
-  this.permissionService.updatePermission(payload).subscribe({
-    next: () => {
-      Swal.fire({
-        toast: true,
-        position: 'top-end',
-        icon: 'success',
-        title: 'Permission modifiée avec succès',
-        showConfirmButton: false,
-        timer: 1000,
-        timerProgressBar: true
-      });
+    this.permissionService.updatePermission(payload).subscribe({
+      next: () => {
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'Permission modifiée avec succès',
+          showConfirmButton: false,
+          timer: 1000,
+          timerProgressBar: true
+        });
 
-      // Recharger les permissions à jour
-      this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
-        this.permissions = permissions;
-        this.groupPermissionsByRoleAndModule();
+        // 🔥 ÉTAPE 1 : Recharger l'affichage
+        this.permissionService.getPermissions().subscribe((allPermissions: Permission[]) => {
+          this.permissions = allPermissions;
+          this.groupPermissionsByRoleAndModule();
+        });
 
-        const updatedPermissions = permissions.filter(p => p.is_active);
+        // 🔥 ÉTAPE 2 : Mettre à jour localStorage si c'est l'utilisateur connecté
+        const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+        if (permission.role_id === currentUser.role_id) {
+          this.updateCurrentUserPermissions();
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors de la mise à jour :', err);
+      }
+    });
+  }
 
-        // Extraire les modules uniques (en vérifiant bien que module/libelle_module existent)
-        const allowedModules = Array.from(
-          new Set(
-            updatedPermissions
-              .filter(p => p.module && p.module.libelle_module)
-              .map(p => p.module.libelle_module)
-          )
-        );
+   // 🔥 NOUVELLE MÉTHODE : Mettre à jour les permissions de l'utilisateur connecté
+private updateCurrentUserPermissions(): void {
+  this.permissionService.getCurrentUserPermissions().subscribe((userPermissions: any[]) => {
+    const activePermissions = userPermissions.filter(p => p.is_active === true);
 
-        console.log('Permissions actives :', updatedPermissions);
-        console.log('Modules accessibles extraits :', allowedModules);
+    const allowedModules: string[] = [];
+    const allowedFonctionnalites: string[] = []; // 🔥 AJOUT
 
-        // Sauvegarder dans localStorage
-        localStorage.setItem('permissions', JSON.stringify(updatedPermissions));
-        localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
-      });
-    },
-    error: (err) => {
-      console.error('Erreur lors de la mise à jour :', err);
-    }
+    activePermissions.forEach(perm => {
+      // Modules
+      if (perm.module && perm.module.libelle_module) {
+        const moduleName = perm.module.libelle_module;
+        if (!allowedModules.includes(moduleName)) {
+          allowedModules.push(moduleName);
+        }
+      }
+
+      // 🔥 CORRECTION : Fonctionnalités
+      if (perm.fonctionnalite && perm.fonctionnalite.libelle_fonctionnalite) {
+        const fonctionnaliteName = perm.fonctionnalite.libelle_fonctionnalite;
+        if (!allowedFonctionnalites.includes(fonctionnaliteName)) {
+          allowedFonctionnalites.push(fonctionnaliteName);
+        }
+      }
+    });
+
+    console.log('🔄 PERMISSIONS - Fonctionnalités mises à jour:', allowedFonctionnalites); // 🔥 LOG DE DEBUG
+
+    localStorage.setItem('permissions', JSON.stringify(activePermissions));
+    localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
+    localStorage.setItem('allowedFonctionnalites', JSON.stringify(allowedFonctionnalites)); // 🔥 AJOUT
+
+    // Notifier la sidebar
+    window.dispatchEvent(new CustomEvent('permissionsUpdated', {
+      detail: {
+        permissions: activePermissions,
+        allowedModules: allowedModules,
+        allowedFonctionnalites: allowedFonctionnalites // 🔥 AJOUT
+      }
+    }));
   });
 }
+
+
+// Exemple d'implémentation (à adapter selon votre logique)
+private getCurrentUserRoleId(): number {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  return user.role_id; // Retournera 1 (Admin)
+}
+
+
+
+
+
 
 
   initForms(): void {

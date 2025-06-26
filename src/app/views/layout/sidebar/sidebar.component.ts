@@ -1,4 +1,5 @@
 import { DOCUMENT, NgClass } from '@angular/common';
+import { OnDestroy } from '@angular/core';
 import {
   AfterViewInit,
   Component,
@@ -36,7 +37,7 @@ import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.di
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss',
 })
-export class SidebarComponent implements OnInit, AfterViewInit {
+export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy   {
   @ViewChild('sidebarToggler') sidebarToggler: ElementRef;
 
   menuItems: MenuItem[] = [];
@@ -68,20 +69,21 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   accessibleModules: string[] = [];
   accessibleFonctionnalites: string[] = [];
   filteredMenu: MenuItem[] = [];
+   private permissionListener: any;
 
   ngOnInit(): void {
-  this.menuItems = MENU;
+    this.menuItems = MENU;
 
-  /**
-   * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
-   */
-  const desktopMedium = window.matchMedia(
-    '(min-width:992px) and (max-width: 1199px)'
-  );
-  desktopMedium.addEventListener('change', () => {
+    /**
+     * Sidebar-folded on desktop (min-width:992px and max-width: 1199px)
+     */
+    const desktopMedium = window.matchMedia(
+      '(min-width:992px) and (max-width: 1199px)'
+    );
+    desktopMedium.addEventListener('change', () => {
+      this.iconSidebar;
+    });
     this.iconSidebar(desktopMedium);
-  });
-  this.iconSidebar(desktopMedium);
 
   const storedPermissions = localStorage.getItem('permissions');
   const storedAllowedModules = localStorage.getItem('allowedModules');
@@ -90,9 +92,12 @@ export class SidebarComponent implements OnInit, AfterViewInit {
     this.permissions = JSON.parse(storedPermissions);
   }
 
-  // On force la reconstruction d'accessibleModules depuis permissions actives,
-  // même si storedAllowedModules existe, pour garantir la cohérence
-  if (this.permissions.length > 0) {
+  if (storedAllowedModules) {
+    this.accessibleModules = JSON.parse(storedAllowedModules);
+  }
+
+  // 🔁 Sécurité au cas où allowedModules n’est pas encore généré
+  if ((!storedAllowedModules || this.accessibleModules.length === 0) && this.permissions.length > 0) {
     this.accessibleModules = Array.from(
       new Set(
         this.permissions
@@ -101,11 +106,6 @@ export class SidebarComponent implements OnInit, AfterViewInit {
       )
     );
     localStorage.setItem('allowedModules', JSON.stringify(this.accessibleModules));
-  } else if (storedAllowedModules) {
-    // Si pas de permissions en mémoire (rare), on récupère allowedModules du localStorage
-    this.accessibleModules = JSON.parse(storedAllowedModules);
-  } else {
-    this.accessibleModules = [];
   }
 
   this.filteredMenu = this.filterMenuByPermissions();
@@ -113,43 +113,11 @@ export class SidebarComponent implements OnInit, AfterViewInit {
   console.log('Permissions :', this.permissions);
   console.log('Modules accessibles :', this.accessibleModules);
   console.log('Menu filtré :', this.filteredMenu);
-}
+
+  }
 
 
 
-
-
-// filterMenuByPermissions(): MenuItem[] {
-//   const modulesAutorisés = this.accessibleModules.map(m => m.toLowerCase());
-
-//   const menusFiltrés = MENU.filter(menu => {
-//     if (menu.module) {
-//       return modulesAutorisés.includes(menu.module.toLowerCase());
-//     }
-//     if (!menu.module && !menu.isTitle) {
-//       return true;
-//     }
-//     return false;
-//   });
-
-//   const finalMenu: MenuItem[] = [];
-
-//   for (let i = 0; i < MENU.length; i++) {
-//     const item = MENU[i];
-
-//     if (item.isTitle && item.module) {
-//       const moduleTitle = item.module.toLowerCase();
-//       const hasChildren = menusFiltrés.some(m => m.module?.toLowerCase() === moduleTitle && !m.isTitle);
-//       if (hasChildren) {
-//         finalMenu.push(item);
-//       }
-//     } else if (menusFiltrés.includes(item)) {
-//       finalMenu.push(item);
-//     }
-//   }
-
-//   return finalMenu;
-// }
 
 filterMenuByPermissions(): MenuItem[] {
   // Construire accessibleModules depuis permissions (au cas où)

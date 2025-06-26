@@ -1,7 +1,6 @@
 import { MenuItem } from './menu.model';
 
 export const MENU: MenuItem[] = [
-  
   {
     label: 'Menu principal',
     isTitle: true
@@ -34,19 +33,17 @@ export const MENU: MenuItem[] = [
       {
         label: 'Entrées de Stock',
         link: '/mouvement-stock/entrees',
-      }
-      ,
-      // {
-      //   label: 'Demande de sortie',
-      //   link: '/mouvement-stock/demande',
-      // },
+        fonctionnalites: ['Ajout du Stock', 'Modification du Stock', 'Voir les entrées']
+      },
       {
         label: 'Les demandes',
         link: '/mouvement-stock/les-demandes',
+        fonctionnalites: ['Voir Les demandes', 'Validation de demande']
       },
       {
         label: 'Sorties de Stock',
         link: '/mouvement-stock/sorties',
+        fonctionnalites: ['Sorties de Stock'],
       }
     ]
   },
@@ -55,29 +52,34 @@ export const MENU: MenuItem[] = [
     icon: 'bar-chart-2',
     link: '/etat-de-stock',
     module: 'Gestion de Stock',
+    fonctionnalites: ['Voir Etat de Stock', 'Export Stock']
   },
   {
     label: 'Gestion de Immobilisation',
     isTitle: true,
     module: 'Gestion de immobilisation',
+
   },
   {
     label: 'Enrégistrement',
     icon: 'download',
     link: '/enregistrement-immos',
     module: 'Gestion de immobilisation',
+    fonctionnalites: ['Ajout immobilisation']
   },
   {
     label: 'Affectations/Transfert',
     icon: 'send',
     link: '/transfert',
     module: 'Gestion de immobilisation',
+    fonctionnalites: ['Affectation Immobilisation']
   },
   {
     label: 'Intervention',
     icon: 'activity',
     link: '/intervention',
     module: 'Gestion de immobilisation',
+    fonctionnalites: ['Intervention Immobilisation']
   },
   {
     label: 'Gestion de Parc',
@@ -89,12 +91,14 @@ export const MENU: MenuItem[] = [
     icon: 'truck',
     link: '/vehicules',
     module: 'Gestion de parc',
+    fonctionnalites: ['Ajout parc']
   },
   {
     label: 'Intervention Véhicules',
     icon: 'pen-tool',
     link: '/interventionvehicules',
     module: 'Gestion de parc',
+    fonctionnalites: ['Intervention Parc', 'Ajout d`/intervention']
   },
   {
     label: 'Tickets',
@@ -104,25 +108,30 @@ export const MENU: MenuItem[] = [
       {
         label: 'Attribution de Ticket',
         link: 'tickets/attribution',
+        fonctionnalites: ['Attribution ticket']
       },
       {
         label: 'Entrée de Ticket',
         link: 'tickets/entree',
+        fonctionnalites: ['Ajout de Ticket']
       },
       {
         label: 'Stock Ticket',
         link: 'tickets/',
+        fonctionnalites: ['Verifier Stock Ticket']
       },
 
 
       {
         label: 'Retour Tickets',
         link: 'tickets/retour-ticket',
+        fonctionnalites: ['Voir Retour Ticket']
       },
 
       {
         label: 'Annulation de Tickets',
         link: 'tickets/annulation-ticket',
+        fonctionnalites: ['Annulation Ticket']
       },
     ]
   },
@@ -136,6 +145,7 @@ export const MENU: MenuItem[] = [
     icon: 'users',
     link: '/utilisateurs',
     module: 'Parametrage',
+    fonctionnalites: ['Ajout Parametrage', 'Modification Parametrage', 'Suppression Parametrage']
   },
   {
     label: 'Rôles et Permisions',
@@ -146,10 +156,12 @@ export const MENU: MenuItem[] = [
       {
         label: 'Rôles',
         link: '/parametres/roles',
+        fonctionnalites: ['Ajout Parametrage']
       },
       {
         label: 'Permissions',
         link: '/parametres/permissions',
+        fonctionnalites: ['Modification Parametrage']
       },
     ]
   },
@@ -163,6 +175,7 @@ export const MENU: MenuItem[] = [
     icon: 'file',
     link: '/rapports/stock',
     module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Stock']
 
   },
   {
@@ -170,18 +183,21 @@ export const MENU: MenuItem[] = [
     icon: 'file',
     link: '/rapports/immo',
     module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Immo', 'Export Rapport Immo']
   },
   {
     label: 'Rapport parc',
     icon: 'file',
     link: '/rapports/parc',
     module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Parc', 'Export Parc']
   },
   {
     label: 'Rapport ticket',
     icon: 'file',
     link: '/rapports/ticket',
     module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Ticket', 'Export Ticket']
   },
   {
     label: 'Paramètres',

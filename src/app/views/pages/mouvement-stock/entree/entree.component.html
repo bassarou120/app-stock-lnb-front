@@ -1,721 +1,726 @@
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink=".">Mouvement Stock</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Entrées</li>
-  </ol>
-</nav>
-
-<!-- Alerte pour ajout avec succès -->
-<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Mouvement Ajouté avec succès
-</ngb-alert>
-<!-- Alerte pour ajout avec succès -->
-
-<!-- Alerte pour mofifier avec succès -->
-<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Mouvement Modifié avec succès
-</ngb-alert>
-<!-- Alerte pour mofifier avec succès -->
-
-<!-- Alerte pour supprimer avec succès -->
-<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Mouvement Supprimé avec succès
-</ngb-alert>
-<!-- Alerte pour supprimer avec succès -->
-
-<div class="row">
-  <div class="col-md-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body d-flex justify-content-between">
-        <div>
-          <h4 class="card-title">Liste des Mouvements d'Entrées</h4>
-          <p class="text-secondary">Liste des Mouvements d'Entrées
-          <p>
-        </div>
-        <div class="d-flex gap-2">
-          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-            data-bs-target="#add_entree">
-            Ajouter un
-          </button>
-          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-            data-bs-target="#add_entree_multiple">
-            Ajouter plusieurs
-          </button>
-          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center"
-            (click)="downloadMouvementsEntreePDF()">
-            <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
-            Imprimer
-          </button>
+<!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
+<div *ngIf="!hasPageAccess" class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body text-center">
+          <div class="mb-4">
+            <i class="feather icon-lock" style="font-size: 4rem; color: #dc3545;"></i>
+          </div>
+          <h4 class="card-title text-danger">Accès Refusé</h4>
+          <p class="text-muted">
+            Vous n'avez pas les permissions nécessaires pour accéder à cette page.
+            <br>
+            Contactez votre administrateur pour obtenir les droits d'accès au module de gestion de stock.
+          </p>
+          <a routerLink="/dashboard" class="btn btn-primary">
+            <i class="feather icon-home me-2"></i>
+            Retour au tableau de bord
+          </a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+<!-- 🔥 CONTENU PRINCIPAL (AFFICHÉ SEULEMENT SI ACCÈS AUTORISÉ) -->
+<div *ngIf="hasPageAccess">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Mouvement Stock</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Entrées</li>
+    </ol>
+  </nav>
 
+  <!-- Alertes -->
+  <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Mouvement Ajouté avec succès
+  </ngb-alert>
 
-<div class="row">
-  <div class="col-md-12 stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h6 class="card-title">Liste des Mouvements d'Entrées</h6>
-        <div class="row">
-          <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
-              (keyup)="updateFilter($event)" />
+  <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Mouvement Modifié avec succès
+  </ngb-alert>
+
+  <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+    Mouvement Supprimé avec succès
+  </ngb-alert>
+
+  <div class="row">
+    <div class="col-md-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body d-flex justify-content-between">
+          <div>
+            <h4 class="card-title">Liste des Mouvements d'Entrées</h4>
+            <p class="text-secondary">Liste des Mouvements d'Entrées</p>
           </div>
-        </div>
-        <div class="table-responsive">
-          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
-            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
-            <ngx-datatable-column name="N°">
-              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                {{ rowIndex + 1 }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Code Article">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.article?.code_article || 'N/A' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Article">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.article?.libelle || 'N/A' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
-            <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
-            <ngx-datatable-column name="Unité">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.unite_de_mesure?.libelle || 'Non défini' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Prix Unitaire(en FCFA)" prop="prixUnitaire"></ngx-datatable-column>
-            <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column>
-            <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
-            <ngx-datatable-column name="Fournisseur">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.fournisseur?.nom || 'Non défini' }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Documents">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                <ng-container *ngIf="row.pieces_jointes?.length > 0; else aucunDoc">
-                  <ul>
-                    <li *ngFor="let piece of row.pieces_jointes">
-                      <a [href]="url + '/' + piece.url" target="_blank">Voir le document</a>
-                    </li>
-                  </ul>
-                </ng-container>
-                <ng-template #aucunDoc>Non défini</ng-template>
-              </ng-template>
-            </ngx-datatable-column>
-            <!-- <ngx-datatable-column name="Date de création" prop="created_at">
-              <ng-template let-value="value" ngx-datatable-cell-template>
-                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
-              </ng-template>
-            </ngx-datatable-column> -->
-            <ngx-datatable-column name="Actions">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
-                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
-                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
-                  </a>
-                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#edit_entree" (click)="getEditForm(row)">
-                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
-                    </a>
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
-                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
-                    </a>
-                  </div>
-                </div>
-              </ng-template>
-            </ngx-datatable-column>
-          </ngx-datatable>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-<!-- Add mouvement entrée -->
-<div id="add_entree" class="modal fade" tabindex="-1" aria-labelledby="addEntreeLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <!-- En-tête du modal -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="addEntreeLabel">Ajouter un Mouvement d'entrée</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <!-- Contenu du modal -->
-      <div class="modal-body">
-        <form class="forms-sample" [formGroup]="addEntree" (ngSubmit)="onClickSubmitAddEntree()" novalidate>
-
-          <!-- Sélectionner un article -->
-          <div class="mb-3">
-            <label for="entree" class="form-label">Article <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="articles && articles.length > 0; else noArticle">
-              <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
-                [clearable]="true" placeholder="Sélectionnez l'Article">
-              </ng-select>
-
-              <div *ngIf="addEntree.get('id_Article')?.invalid && addEntree.get('id_Article')?.touched">
-                <small class="text-danger"> *L'Article est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun article n'existe -->
-            <ng-template #noArticle>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- Sélectionner un fournisseur -->
-          <div class="mb-3">
-            <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
-              <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
-                [clearable]="true" placeholder="Sélectionnez le Fournisseur">
-              </ng-select>
-
-              <div *ngIf="addEntree.get('id_fournisseur')?.invalid && addEntree.get('id_fournisseur')?.touched">
-                <small class="text-danger"> *Le fournisseur est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun Fournisseur n'existe -->
-            <ng-template #noFournisseur>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- description -->
-          <div class="mb-3">
-            <label for="description" class="form-label">Description du mouvement</label>
-            <textarea class="form-control" id="description" rows="5"
-              [class.invalid]="addEntree.get('description')?.invalid && addEntree.get('description')?.touched"
-              placeholder="Entrez la description ici..." formControlName="description"></textarea>
-            <div *ngIf="addEntree.get('description')?.invalid && addEntree.get('description')?.touched">
-              <small *ngIf="addEntree.get('description')?.invalid && addEntree.get('description')?.touched"
-                class="text-danger"> *la description est obligatoire</small>
-            </div>
-          </div>
-
-
-          <!-- Sélectionner une unité -->
-          <div class="mb-3">
-            <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
-              <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
-                formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
-              </ng-select>
-
-              <div *ngIf="addEntree.get('id_unite_de_mesure')?.invalid && addEntree.get('id_unite_de_mesure')?.touched">
-                <small class="text-danger"> *L'unite de mesure est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun unite_de_mesure n'existe -->
-            <ng-template #noUniteDeMesures>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- Qte -->
-          <div class="mb-3">
-            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" formControlName="qte">
-            <div *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched">
-              <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" class="text-danger"> *la qte
-                est obligatoire</small>
-            </div>
-          </div>
-
-          <!-- prixUnitaire -->
-          <div class="mb-3">
-            <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="prixUnitaire" placeholder="1000" autocomplete="off"
-              [class.invalid]="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched"
-              formControlName="prixUnitaire">
-            <div *ngIf="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched">
-              <small *ngIf="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched"
-                class="text-danger"> *le prix unitaire
-                est obligatoire</small>
-            </div>
-          </div>
-
-          <!--  date_mouvement -->
-          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
-          <div class="input-group mb-3">
-            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
-              <i data-feather="calendar"></i>
+          <div class="d-flex gap-2">
+            <!-- 🔥 LES DEUX BOUTONS LIÉS À LA MÊME FONCTIONNALITÉ "Ajout du Stock" -->
+            <button *ngIf="canAddStock"
+                    type="button"
+                    class="btn btn-primary align-self-center"
+                    data-bs-toggle="modal"
+                    data-bs-target="#add_entree"
+                    title="Ajouter un mouvement d'entrée">
+              <i class="feather icon-plus me-1"></i>
+              Ajouter un
             </button>
-            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date_mouvement">
-          </div>
 
-          <div *ngIf="addEntree.get('date_mouvement')?.invalid && addEntree.get('date_mouvement')?.touched">
-            <small class="text-danger"> *la date du mouvement est obligatoire</small>
-          </div>
+            <button *ngIf="canAddStockMultiple"
+                    type="button"
+                    class="btn btn-primary align-self-center"
+                    data-bs-toggle="modal"
+                    data-bs-target="#add_entree_multiple"
+                    title="Ajouter plusieurs mouvements d'entrée">
+              <i class="feather icon-plus-circle me-1"></i>
+              Ajouter plusieurs
+            </button>
 
-          <!-- Pièces jointes -->
-          <div class="mb-3">
-            <label for="piece_jointe_mouvement" class="form-label">Pièce jointe</label>
-            <input type="file" class="form-control" id="piece_jointe_mouvement" multiple
-              (change)="onFileSelectedOnefile($event)" formControlName="piece_jointe_mouvement">
-            <div class="mb-2">
-            </div>
-            <!-- <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small> -->
-          </div>
+            <button *ngIf="canExportStock"
+                    type="button"
+                    class="btn btn-outline-primary btn-icon-text align-self-center"
+                    (click)="downloadMouvementsEntreePDF()"
+                    title="Exporter la liste des entrées">
+              <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+              Imprimer
+            </button>
 
-
-          <!-- Boutons centrés -->
-          <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary" (click)="onClickSubmitAddEntree()"
-              [disabled]="isAddingSingleEntree">
-              <span *ngIf="isAddingSingleEntree"
-                class="spinner-border spinner-border-sm text-light me-2 spinner-single-add" role="status"
-                aria-hidden="true">
-                <span class="visually-hidden">Loading...</span>
+            <!-- 🔥 MESSAGE INFORMATIF SELON LES PERMISSIONS -->
+            <div *ngIf="!canAddStock && !canExportStock" class="align-self-center">
+              <span class="badge bg-info">
+                <i class="feather icon-eye me-1"></i>
+                Mode consultation seule
               </span>
-              {{ isAddingSingleEntree ? 'Ajout en cours...' : 'Ajouter' }}
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+
+            <div *ngIf="canAddStock && !canExportStock" class="align-self-center">
+              <span class="badge bg-warning text-dark">
+                <i class="feather icon-edit me-1"></i>
+                Ajout autorisé
+              </span>
+            </div>
+<!--
+            <div *ngIf="!canAddStock && canExportStock" class="align-self-center">
+              <span class="badge bg-secondary">
+                <i class="feather icon-download me-1"></i>
+                Export autorisé
+              </span>
+            </div> -->
           </div>
-        </form>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- /Add mouvement entree Modal -->
-
-
-
-<!-- Edit entree Immo Modal -->
-<div id="edit_entree" class="modal fade" tabindex="-1" aria-labelledby="editEntreeLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <!-- En-tête du modal -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="editEntreeLabel">Modifier un Mouvement d'entrée</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <!-- Contenu du modal -->
-      <div class="modal-body">
-        <form class="forms-sample" [formGroup]="editEntree" (ngSubmit)="onClickSubmitEditEntree()" novalidate>
-          <!-- Sélectionner un article -->
-          <div class="mb-3">
-            <label for="entree" class="form-label">
-              Article <span class="text-danger">*</span>
-            </label>
-
-            <ng-container *ngIf="articles && articles.length > 0; else noArticleEdit">
-              <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
-                [clearable]="true" placeholder="Sélectionnez l'Article">
-              </ng-select>
-
-              <div *ngIf="editEntree.get('id_Article')?.invalid && editEntree.get('id_Article')?.touched">
-                <small class="text-danger"> *L'Article est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun article n'existe -->
-            <ng-template #noArticleEdit>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- Sélectionner un fournisseur -->
-          <div class="mb-3">
-            <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
-              <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
-                [clearable]="true" placeholder="Sélectionnez le Fournisseur">
-              </ng-select>
-
-              <div *ngIf="editEntree.get('id_fournisseur')?.invalid && editEntree.get('id_fournisseur')?.touched">
-                <small class="text-danger"> *Le fournisseur est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun Fournisseur n'existe -->
-            <ng-template #noFournisseur>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- description -->
-          <div class="mb-3">
-            <label for="description" class="form-label">Description du mouvement</label>
-            <textarea class="form-control" id="description" rows="5"
-              [class.invalid]="editEntree.get('description')?.invalid && editEntree.get('description')?.touched"
-              placeholder="Entrez la description ici..." formControlName="description"></textarea>
-            <div *ngIf="editEntree.get('description')?.invalid && editEntree.get('description')?.touched">
-              <small *ngIf="editEntree.get('description')?.invalid && editEntree.get('description')?.touched"
-                class="text-danger"> *la description est obligatoire</small>
+  <div class="row">
+    <div class="col-md-12 stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Liste des Mouvements d'Entrées</h6>
+          <div class="row">
+            <div class="col-xl-3 col-md-4">
+              <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+                (keyup)="updateFilter($event)" />
             </div>
           </div>
+          <div class="table-responsive">
+            <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+              [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
 
+              <ngx-datatable-column name="N°">
+                <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                  {{ rowIndex + 1 }}
+                </ng-template>
+              </ngx-datatable-column>
 
-          <!-- Sélectionner une unité -->
-          <div class="mb-3">
-            <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
+              <ngx-datatable-column name="Code Article">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.article?.code_article || 'N/A' }}
+                </ng-template>
+              </ngx-datatable-column>
 
-            <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
-              <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
-                formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
-              </ng-select>
+              <ngx-datatable-column name="Article">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.article?.libelle || 'N/A' }}
+                </ng-template>
+              </ngx-datatable-column>
 
-              <div
-                *ngIf="editEntree.get('id_unite_de_mesure')?.invalid && editEntree.get('id_unite_de_mesure')?.touched">
-                <small class="text-danger"> *L'unite de mesure est obligatoire</small>
-              </div>
-            </ng-container>
+              <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+              <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
 
-            <!-- Message si aucun unite_de_mesure n'existe -->
-            <ng-template #noUniteDeMesures>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
+              <ngx-datatable-column name="Unité">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.unite_de_mesure?.libelle || 'Non défini' }}
+                </ng-template>
+              </ngx-datatable-column>
 
-          <!-- Qte -->
-          <div class="mb-3">
-            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" formControlName="qte">
-            <div *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched">
-              <small *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" class="text-danger"> *la
-                qte est obligatoire</small>
-            </div>
-          </div>
+              <ngx-datatable-column name="Prix Unitaire(en FCFA)" prop="prixUnitaire"></ngx-datatable-column>
+              <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column>
+              <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
 
-          <!-- prixUnitaire -->
-          <div class="mb-3">
-            <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="prixUnitaire" placeholder="100" autocomplete="off"
-              [class.invalid]="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched"
-              formControlName="prixUnitaire">
-            <div *ngIf="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched">
-              <small *ngIf="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched"
-                class="text-danger"> *le
-                prix Unitaire est obligatoire</small>
-            </div>
-          </div>
+              <ngx-datatable-column name="Fournisseur">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.fournisseur?.nom || 'Non défini' }}
+                </ng-template>
+              </ngx-datatable-column>
 
-          <!--  date_mouvement -->
-          <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
-          <div class="input-group mb-5">
-            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
-              <i data-feather="calendar"></i>
-            </button>
-            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
-              [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_mouvement">
-          </div>
+              <ngx-datatable-column name="Documents">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <ng-container *ngIf="row.pieces_jointes?.length > 0; else aucunDoc">
+                    <ul>
+                      <li *ngFor="let piece of row.pieces_jointes">
+                        <a [href]="url + '/' + piece.url" target="_blank">Voir le document</a>
+                      </li>
+                    </ul>
+                  </ng-container>
+                  <ng-template #aucunDoc>Non défini</ng-template>
+                </ng-template>
+              </ngx-datatable-column>
+              <!-- <ngx-datatable-column name="Date de création" prop="created_at">
+                <ng-template let-value="value" ngx-datatable-cell-template>
+                  {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+                </ng-template>
+              </ngx-datatable-column> -->
+              <!-- 🔥 COLONNE ACTIONS CONDITIONNELLE -->
+              <ngx-datatable-column *ngIf="canModifyStock || canDeleteStock" name="Actions">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                    <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                      <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                    </a>
+                    <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                      <!-- 🔥 BOUTON MODIFIER CONDITIONNEL -->
+                      <a *ngIf="canModifyStock"
+                         ngbDropdownItem
+                         class="d-flex align-items-center"
+                         data-bs-toggle="modal"
+                         data-bs-target="#edit_entree"
+                         (click)="getEditForm(row)">
+                        <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i>
+                        <span>Modifier</span>
+                      </a>
 
-          <div *ngIf="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched">
-            <small class="text-danger"> *la date du mouvement est obligatoire</small>
-          </div>
+                      <!-- 🔥 BOUTON SUPPRIMER CONDITIONNEL -->
+                      <a *ngIf="canDeleteStock"
+                         ngbDropdownItem
+                         class="d-flex align-items-center"
+                         data-bs-toggle="modal"
+                         data-bs-target="#delete_entree"
+                         (click)="getDeleteForm(row)">
+                        <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i>
+                        <span>Supprimer</span>
+                      </a>
 
-
-          <!-- Boutons centrés -->
-          <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary">
-              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div> Modifier
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- /Edit mouvement Modal -->
-
-
-
-<!-- delete mouvement Modal -->
-<div id="delete_entree" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <!-- En-tête du modal -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="deleteEntreeLabel">Suppression du Mouvement</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <!-- Contenu du modal -->
-      <div class="modal-body">
-        <form class="forms-sample" [formGroup]="deleteEntree" (ngSubmit)="onClickSubmitDeleteEntree()">
-          <div class="mb-3">
-            <p class="text-secondary">Voulez-vous vraiment supprimer ce Mouvement ?</p>
-          </div>
-          <input type="hidden" formControlName="id">
-          <!-- Boutons centrés -->
-          <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-danger">
-              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div> Supprimer
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-<!-- /delete mouvement Modal -->
-
-
-
-<!-- Add mouvement entrée multiple -->
-<div id="add_entree_multiple" class="modal fade" tabindex="-1" aria-labelledby="addEntreeMultipleLabel"
-  aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered modal-lg">
-    <div class="modal-content">
-      <!-- En-tête du modal -->
-      <div class="modal-header">
-        <h5 class="modal-title" id="addEntreeMultipleLabel">Ajouter plusieurs Mouvements d'entrée</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <!-- Contenu du modal -->
-      <div class="modal-body">
-        <form class="forms-sample" [formGroup]="addEntreeMultipleForm" (ngSubmit)="onClickSubmitAddEntreeMultiple()"
-          novalidate>
-
-          <!-- Informations communes -->
-          <div class="row mb-3">
-            <div class="col-md-6">
-              <!-- Sélectionner un fournisseur -->
-              <div class="mb-3">
-                <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
-                <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
-                  <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
-                    [clearable]="true" placeholder="Sélectionnez le Fournisseur">
-                  </ng-select>
-                  <div
-                    *ngIf="addEntreeMultipleForm.get('id_fournisseur')?.invalid && addEntreeMultipleForm.get('id_fournisseur')?.touched">
-                    <small class="text-danger"> *Le fournisseur est obligatoire</small>
-                  </div>
-                </ng-container>
-                <ng-template #noFournisseur>
-                  <div class="alert alert-danger"
-                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
+                      <!-- 🔥 MESSAGE SI AUCUNE ACTION DISPONIBLE -->
+                      <div *ngIf="!canModifyStock && !canDeleteStock" class="dropdown-item-text">
+                        <small class="text-muted">Aucune action disponible</small>
+                      </div>
+                    </div>
                   </div>
                 </ng-template>
-              </div>
-            </div>
-
-            <div class="col-md-6">
-              <!-- Numéro de numero_borderau -->
-              <div class="mb-3">
-                <label for="numero_borderau" class="form-label">Numéro de Bordereau <span
-                    class="text-danger">*</span></label>
-                <input type="text" class="form-control" id="numero_borderau" placeholder="Entrez le numéro du bordereau"
-                  autocomplete="off"
-                  [class.invalid]="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched"
-                  formControlName="numero_borderau">
-                <div
-                  *ngIf="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched">
-                  <small class="text-danger"> *Le numéro de bordereau est obligatoire</small>
-                </div>
-              </div>
-            </div>
+              </ngx-datatable-column>
+            </ngx-datatable>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <div class="row mb-3">
-            <!-- Date commune du mouvement -->
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="date_mouvement" class="form-label">Date du mouvement <span
-                    class="text-danger">*</span></label>
-                <div class="input-group">
-                  <button class="btn btn-outline-primary btn-icon calendar" type="button"
-                    (click)="dAddMultiple.toggle()">
-                    <i data-feather="calendar"></i>
-                  </button>
-                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
-                    name="dpAddMultiple" [(ngModel)]="currentDate" ngbDatepicker #dAddMultiple="ngbDatepicker"
-                    formControlName="date_mouvement">
+  <!-- 🔥 MODALS CONDITIONNELS -->
+
+  <!-- Add mouvement entrée (affiché seulement si canAddStock) -->
+  <div *ngIf="canAddStock" id="add_entree" class="modal fade" tabindex="-1" aria-labelledby="addEntreeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEntreeLabel">Ajouter un Mouvement d'entrée</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form class="forms-sample" [formGroup]="addEntree" (ngSubmit)="onClickSubmitAddEntree()" novalidate>
+            <!-- Sélectionner un article -->
+            <div class="mb-3">
+              <label for="entree" class="form-label">Article <span class="text-danger">*</span></label>
+              <ng-container *ngIf="articles && articles.length > 0; else noArticle">
+                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
+                  [clearable]="true" placeholder="Sélectionnez l'Article">
+                </ng-select>
+                <div *ngIf="addEntree.get('id_Article')?.invalid && addEntree.get('id_Article')?.touched">
+                  <small class="text-danger"> *L'Article est obligatoire</small>
                 </div>
-                <div
-                  *ngIf="addEntreeMultipleForm.get('date_mouvement')?.invalid && addEntreeMultipleForm.get('date_mouvement')?.touched">
-                  <small class="text-danger"> *La date du mouvement est obligatoire</small>
+              </ng-container>
+              <ng-template #noArticle>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
                 </div>
+              </ng-template>
+            </div>
+
+            <!-- Sélectionner un fournisseur -->
+            <div class="mb-3">
+              <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
+              <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
+                <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
+                  [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+                </ng-select>
+                <div *ngIf="addEntree.get('id_fournisseur')?.invalid && addEntree.get('id_fournisseur')?.touched">
+                  <small class="text-danger"> *Le fournisseur est obligatoire</small>
+                </div>
+              </ng-container>
+              <ng-template #noFournisseur>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description du mouvement</label>
+              <textarea class="form-control" id="description" rows="5"
+                [class.invalid]="addEntree.get('description')?.invalid && addEntree.get('description')?.touched"
+                placeholder="Entrez la description ici..." formControlName="description"></textarea>
+              <div *ngIf="addEntree.get('description')?.invalid && addEntree.get('description')?.touched">
+                <small *ngIf="addEntree.get('description')?.invalid && addEntree.get('description')?.touched"
+                  class="text-danger"> *la description est obligatoire</small>
               </div>
+            </div>
+
+            <!-- Sélectionner une unité -->
+            <div class="mb-3">
+              <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
+              <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
+                <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
+                  formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
+                </ng-select>
+                <div *ngIf="addEntree.get('id_unite_de_mesure')?.invalid && addEntree.get('id_unite_de_mesure')?.touched">
+                  <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+                </div>
+              </ng-container>
+              <ng-template #noUniteDeMesures>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Qte -->
+            <div class="mb-3">
+              <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+                [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" formControlName="qte">
+              <div *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched">
+                <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" class="text-danger"> *la qte
+                  est obligatoire</small>
+              </div>
+            </div>
+
+            <!-- prixUnitaire -->
+            <div class="mb-3">
+              <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="prixUnitaire" placeholder="1000" autocomplete="off"
+                [class.invalid]="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched"
+                formControlName="prixUnitaire">
+              <div *ngIf="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched">
+                <small *ngIf="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched"
+                  class="text-danger"> *le prix unitaire est obligatoire</small>
+              </div>
+            </div>
+
+            <!-- date_mouvement -->
+            <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+            <div class="input-group mb-3">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
+                [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date_mouvement">
+            </div>
+            <div *ngIf="addEntree.get('date_mouvement')?.invalid && addEntree.get('date_mouvement')?.touched">
+              <small class="text-danger"> *la date du mouvement est obligatoire</small>
             </div>
 
             <!-- Pièces jointes -->
-            <div class="col-md-6">
-              <div class="mb-3">
-                <label for="piece_jointe_mouvement" class="form-label">Pièces jointes</label>
-                <input type="file" class="form-control" id="piece_jointe_mouvement" multiple
-                  (change)="onFileSelected($event)" formControlName="piece_jointe_mouvement">
-                <div class="mb-2">
+            <div class="mb-3">
+              <label for="piece_jointe_mouvement_single" class="form-label">Pièce jointe</label>
+              <input type="file" class="form-control" id="piece_jointe_mouvement_single" multiple
+                (change)="onFileSelectedOnefile($event)">
+              <div class="mb-2"></div>
+              <small class="text-muted">Formats acceptés: PDF, JPG, PNG, DOC, DOCX</small>
+            </div>
+
+            <!-- Boutons centrés -->
+            <div class="d-flex justify-content-center gap-2">
+              <button type="submit" class="btn btn-primary" (click)="onClickSubmitAddEntree()"
+                [disabled]="isAddingSingleEntree">
+                <span *ngIf="isAddingSingleEntree"
+                  class="spinner-border spinner-border-sm text-light me-2 spinner-single-add" role="status"
+                  aria-hidden="true">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
+                {{ isAddingSingleEntree ? 'Ajout en cours...' : 'Ajouter' }}
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit entree Modal (affiché seulement si canModifyStock) -->
+  <div *ngIf="canModifyStock" id="edit_entree" class="modal fade" tabindex="-1" aria-labelledby="editEntreeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEntreeLabel">Modifier un Mouvement d'entrée</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form class="forms-sample" [formGroup]="editEntree" (ngSubmit)="onClickSubmitEditEntree()" novalidate>
+            <!-- Sélectionner un article -->
+            <div class="mb-3">
+              <label for="entree" class="form-label">Article <span class="text-danger">*</span></label>
+              <ng-container *ngIf="articles && articles.length > 0; else noArticleEdit">
+                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
+                  [clearable]="true" placeholder="Sélectionnez l'Article">
+                </ng-select>
+                <div *ngIf="editEntree.get('id_Article')?.invalid && editEntree.get('id_Article')?.touched">
+                  <small class="text-danger"> *L'Article est obligatoire</small>
                 </div>
-                <!-- <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small> -->
+              </ng-container>
+              <ng-template #noArticleEdit>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucun Article. Veuillez en créer.
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- Sélectionner un fournisseur -->
+            <div class="mb-3">
+              <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
+              <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseurEdit">
+                <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
+                  [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+                </ng-select>
+                <div *ngIf="editEntree.get('id_fournisseur')?.invalid && editEntree.get('id_fournisseur')?.touched">
+                  <small class="text-danger"> *Le fournisseur est obligatoire</small>
+                </div>
+              </ng-container>
+              <ng-template #noFournisseurEdit>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
+                </div>
+              </ng-template>
+            </div>
+
+            <!-- description -->
+            <div class="mb-3">
+              <label for="description" class="form-label">Description du mouvement</label>
+              <textarea class="form-control" id="description" rows="5"
+                [class.invalid]="editEntree.get('description')?.invalid && editEntree.get('description')?.touched"
+                placeholder="Entrez la description ici..." formControlName="description"></textarea>
+              <div *ngIf="editEntree.get('description')?.invalid && editEntree.get('description')?.touched">
+                <small *ngIf="editEntree.get('description')?.invalid && editEntree.get('description')?.touched"
+                  class="text-danger"> *la description est obligatoire</small>
               </div>
             </div>
-          </div>
 
-          <div class="mb-3">
-          </div>
-          <hr>
-          <!-- Liste des articles -->
-          <div class="row mb-3">
-            <div class="col-12 d-flex justify-content-between align-items-center">
-              <h6 class="mb-0">Articles à ajouter <span class="text-danger">*</span></h6>
-
-              <!-- Bouton pour ajouter un article -->
-              <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArticle()">
-                <i data-feather="plus-circle"></i> Ajouter un autre article
-              </button>
+            <!-- Sélectionner une unité -->
+            <div class="mb-3">
+              <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
+              <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesuresEdit">
+                <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
+                  formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
+                </ng-select>
+                <div *ngIf="editEntree.get('id_unite_de_mesure')?.invalid && editEntree.get('id_unite_de_mesure')?.touched">
+                  <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+                </div>
+              </ng-container>
+              <ng-template #noUniteDeMesuresEdit>
+                <div class="alert alert-danger"
+                  style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                  <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
+                </div>
+              </ng-template>
             </div>
-          </div>
 
+            <!-- Qte -->
+            <div class="mb-3">
+              <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
+                [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" formControlName="qte">
+              <div *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched">
+                <small *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" class="text-danger"> *la
+                  qte est obligatoire</small>
+              </div>
+            </div>
 
+            <!-- prixUnitaire -->
+            <div class="mb-3">
+              <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="prixUnitaire" placeholder="100" autocomplete="off"
+                [class.invalid]="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched"
+                formControlName="prixUnitaire">
+              <div *ngIf="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched">
+                <small *ngIf="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched"
+                  class="text-danger"> *le prix Unitaire est obligatoire</small>
+              </div>
+            </div>
 
-          <div formArrayName="articles">
-            <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i"
-              class="card mb-3 p-3">
+            <!-- date_mouvement -->
+            <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpEdit"
+                [(ngModel)]="currentDate" ngbDatepicker #dEdit="ngbDatepicker" formControlName="date_mouvement">
+            </div>
+            <div *ngIf="editEntree.get('date_mouvement')?.invalid && editEntree.get('date_mouvement')?.touched">
+              <small class="text-danger"> *la date du mouvement est obligatoire</small>
+            </div>
 
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <strong>Article {{i + 1}}</strong>
-                <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeArticle(i)"
-                  *ngIf="articlesArray.length > 1">
-                  <i class="feather icon-trash-2"></i>
+            <!-- Boutons centrés -->
+            <div class="d-flex justify-content-center gap-2">
+              <button type="submit" class="btn btn-primary">
+                <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div> Modifier
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete mouvement Modal (affiché seulement si canDeleteStock) -->
+  <div *ngIf="canDeleteStock" id="delete_entree" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="deleteEntreeLabel">Suppression du Mouvement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form class="forms-sample" [formGroup]="deleteEntree" (ngSubmit)="onClickSubmitDeleteEntree()">
+            <div class="mb-3">
+              <p class="text-secondary">Voulez-vous vraiment supprimer ce Mouvement ?</p>
+            </div>
+            <input type="hidden" formControlName="id">
+            <!-- Boutons centrés -->
+            <div class="d-flex justify-content-center gap-2">
+              <button type="submit" class="btn btn-danger">
+                <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div> Supprimer
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add mouvement entrée multiple (affiché seulement si canAddStock) -->
+  <div *ngIf="canAddStock" id="add_entree_multiple" class="modal fade" tabindex="-1" aria-labelledby="addEntreeMultipleLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addEntreeMultipleLabel">Ajouter plusieurs Mouvements d'entrée</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form class="forms-sample" [formGroup]="addEntreeMultipleForm" (ngSubmit)="onClickSubmitAddEntreeMultiple()" novalidate>
+            <!-- Informations communes -->
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <!-- Sélectionner un fournisseur -->
+                <div class="mb-3">
+                  <label for="fournisseur" class="form-label">Fournisseur <span class="text-danger">*</span></label>
+                  <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseurMultiple">
+                    <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
+                      [clearable]="true" placeholder="Sélectionnez le Fournisseur">
+                    </ng-select>
+                    <div *ngIf="addEntreeMultipleForm.get('id_fournisseur')?.invalid && addEntreeMultipleForm.get('id_fournisseur')?.touched">
+                      <small class="text-danger"> *Le fournisseur est obligatoire</small>
+                    </div>
+                  </ng-container>
+                  <ng-template #noFournisseurMultiple>
+                    <div class="alert alert-danger"
+                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                      <i class="feather icon-alert-circle"></i> Aucun Fournisseur. Veuillez en créer.
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <!-- Numéro de bordereau -->
+                <div class="mb-3">
+                  <label for="numero_borderau" class="form-label">Numéro de Bordereau <span class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="numero_borderau" placeholder="Entrez le numéro du bordereau"
+                    autocomplete="off"
+                    [class.invalid]="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched"
+                    formControlName="numero_borderau">
+                  <div *ngIf="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched">
+                    <small class="text-danger"> *Le numéro de bordereau est obligatoire</small>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <!-- Date commune du mouvement -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+                  <div class="input-group">
+                    <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAddMultiple.toggle()">
+                      <i data-feather="calendar"></i>
+                    </button>
+                    <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
+                      name="dpAddMultiple" [(ngModel)]="currentDate" ngbDatepicker #dAddMultiple="ngbDatepicker"
+                      formControlName="date_mouvement">
+                  </div>
+                  <div *ngIf="addEntreeMultipleForm.get('date_mouvement')?.invalid && addEntreeMultipleForm.get('date_mouvement')?.touched">
+                    <small class="text-danger"> *La date du mouvement est obligatoire</small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pièces jointes -->
+              <div class="col-md-6">
+                <div class="mb-3">
+                  <label for="piece_jointe_mouvement_multiple" class="form-label">Pièces jointes</label>
+                  <input type="file" class="form-control" id="piece_jointe_mouvement_multiple" multiple
+                    (change)="onFileSelected($event)">
+                  <div class="mb-2"></div>
+                  <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-3"></div>
+            <hr>
+
+            <!-- Liste des articles -->
+            <div class="row mb-3">
+              <div class="col-12 d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">Articles à ajouter <span class="text-danger">*</span></h6>
+                <!-- Bouton pour ajouter un article -->
+                <button type="button" class="btn btn-sm btn-outline-primary" (click)="addArticle()">
+                  <i data-feather="plus-circle"></i> Ajouter un autre article
                 </button>
               </div>
+            </div>
 
-              <div class="row">
-                <div class="col-md-6">
-                  <!-- Sélection d'article -->
-                  <div class="mb-3">
-                    <label class="form-label">Article <span class="text-danger">*</span></label>
-                    <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
-                      [clearable]="true" placeholder="Sélectionnez l'Article">
-                    </ng-select>
-                    <div *ngIf="articleForm.get('id_Article')?.invalid && articleForm.get('id_Article')?.touched">
-                      <small class="text-danger">*L'Article est obligatoire</small>
-                    </div>
-                  </div>
+            <div formArrayName="articles">
+              <div *ngFor="let articleForm of articlesArray.controls; let i = index" [formGroupName]="i"
+                class="card mb-3 p-3">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <strong>Article {{i + 1}}</strong>
+                  <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeArticle(i)"
+                    *ngIf="articlesArray.length > 1">
+                    <i class="feather icon-trash-2"></i>
+                  </button>
                 </div>
-
-                <div class="col-md-6">
-                  <!-- Quantité -->
-                  <div class="mb-3">
-                    <label class="form-label">Quantité <span class="text-danger">*</span></label>
-                    <input type="number" class="form-control" placeholder="1" formControlName="qte" min="1">
-                    <div *ngIf="articleForm.get('qte')?.invalid && articleForm.get('qte')?.touched">
-                      <small class="text-danger">*La quantité est obligatoire</small>
-                    </div>
-                  </div>
-                </div>
-
 
                 <div class="row">
-                  <!-- unité -->
                   <div class="col-md-6">
+                    <!-- Sélection d'article -->
                     <div class="mb-3">
-                      <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
-
-                      <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesures">
-                        <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
-                          formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez...">
-                        </ng-select>
-
-                        <div
-                          *ngIf="articleForm.get('id_unite_de_mesure')?.invalid && articleForm.get('id_unite_de_mesure')?.touched">
-                          <small class="text-danger"> *L'unite de mesure est obligatoire</small>
-                        </div>
-                      </ng-container>
-
-                      <!-- Message si aucun unite_de_mesure n'existe -->
-                      <ng-template #noUniteDeMesures>
-                        <div class="alert alert-danger"
-                          style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                          <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
-                        </div>
-                      </ng-template>
+                      <label class="form-label">Article <span class="text-danger">*</span></label>
+                      <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article"
+                        [clearable]="true" placeholder="Sélectionnez l'Article">
+                      </ng-select>
+                      <div *ngIf="articleForm.get('id_Article')?.invalid && articleForm.get('id_Article')?.touched">
+                        <small class="text-danger">*L'Article est obligatoire</small>
+                      </div>
                     </div>
                   </div>
+
                   <div class="col-md-6">
-                    <!-- prixUnitaire -->
+                    <!-- Quantité -->
                     <div class="mb-3">
-                      <label class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" placeholder="100" formControlName="prixUnitaire" min="1">
-                      <div *ngIf="articleForm.get('prixUnitaire')?.invalid && articleForm.get('prixUnitaire')?.touched">
-                        <small class="text-danger">*Le prix Unitaire est obligatoire</small>
+                      <label class="form-label">Quantité <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" placeholder="1" formControlName="qte" min="1">
+                      <div *ngIf="articleForm.get('qte')?.invalid && articleForm.get('qte')?.touched">
+                        <small class="text-danger">*La quantité est obligatoire</small>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <!-- unité -->
+                    <div class="col-md-6">
+                      <div class="mb-3">
+                        <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
+                        <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesuresMultiple">
+                          <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
+                            formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez...">
+                          </ng-select>
+                          <div *ngIf="articleForm.get('id_unite_de_mesure')?.invalid && articleForm.get('id_unite_de_mesure')?.touched">
+                            <small class="text-danger"> *L'unite de mesure est obligatoire</small>
+                          </div>
+                        </ng-container>
+                        <ng-template #noUniteDeMesuresMultiple>
+                          <div class="alert alert-danger"
+                            style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                            <i class="feather icon-alert-circle"></i> Aucune unité de mesure. Veuillez en créer.
+                          </div>
+                        </ng-template>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <!-- prixUnitaire -->
+                      <div class="mb-3">
+                        <label class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control" placeholder="100" formControlName="prixUnitaire" min="1">
+                        <div *ngIf="articleForm.get('prixUnitaire')?.invalid && articleForm.get('prixUnitaire')?.touched">
+                          <small class="text-danger">*Le prix Unitaire est obligatoire</small>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <!-- Description -->
-              <div class="mb-0">
-                <label class="form-label">Description</label>
-                <textarea class="form-control" rows="2" formControlName="description"
-                  placeholder="Entrez la description ici..."></textarea>
-                <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
-                  <small class="text-danger">*La description est obligatoire</small>
+                <!-- Description -->
+                <div class="mb-0">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" rows="2" formControlName="description"
+                    placeholder="Entrez la description ici..."></textarea>
+                  <div *ngIf="articleForm.get('description')?.invalid && articleForm.get('description')?.touched">
+                    <small class="text-danger">*La description est obligatoire</small>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-
-
-          <!-- Boutons d'action -->
-          <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary" (click)="onClickSubmitAddEntreeMultiple()"
-              [disabled]="!addEntreeMultipleForm.valid || isAddingMultipleEntrees">
-              <span *ngIf="isAddingMultipleEntrees"
-                class="spinner-border spinner-border-sm text-light me-2 spinner-multiple-add" role="status"
-                aria-hidden="true">
-                <span class="visually-hidden">Loading...</span>
-              </span>
-              {{ isAddingMultipleEntrees ? 'Ajout en cours...' : 'Ajouter' }}
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          </div>
-        </form>
+            <!-- Boutons d'action -->
+            <div class="d-flex justify-content-center gap-2">
+              <button type="submit" class="btn btn-primary" (click)="onClickSubmitAddEntreeMultiple()"
+                [disabled]="!addEntreeMultipleForm.valid || isAddingMultipleEntrees">
+                <span *ngIf="isAddingMultipleEntrees"
+                  class="spinner-border spinner-border-sm text-light me-2 spinner-multiple-add" role="status"
+                  aria-hidden="true">
+                  <span class="visually-hidden">Loading...</span>
+                </span>
+                {{ isAddingMultipleEntrees ? 'Ajout en cours...' : 'Ajouter' }}
+              </button>
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
