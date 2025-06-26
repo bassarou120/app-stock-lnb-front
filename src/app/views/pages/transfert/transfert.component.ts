@@ -32,6 +32,16 @@ declare var bootstrap: any;
 export class TransfertComponent implements OnInit {
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
+    // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddTransfert: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canExportTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canModifyTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canDeleteTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+
   rows: Transfert[] = [];
   temp: Transfert[] = [];
   loadingIndicator = true;
@@ -58,6 +68,10 @@ export class TransfertComponent implements OnInit {
   constructor(private transfertService: TransfertsService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
     this.loadImmobilisations();
     this.loadEmployes();
     this.loadBureaux();
@@ -87,7 +101,62 @@ export class TransfertComponent implements OnInit {
     });
   }
 
+      // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddTransfert = allowedFonctionnalites.includes('Ajout immobilisation');
+      this.canExportTransfert = allowedFonctionnalites.includes('Exporter immobilisation');
+
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canAddTransfert ||
+                          this.canExportTransfert ||
+                          this.canModifyTransfert ||
+                          this.canDeleteTransfert ||
+                          allowedFonctionnalites.includes('Ajout immobilisation') ||
+                          allowedFonctionnalites.includes('Affectation Immobilisation') ||
+                          allowedFonctionnalites.includes('Modification immobilisation') ||
+                          allowedFonctionnalites.includes('Suppression immobilisation') ;
+
+      console.log('🔐 Permissions calculées:', {
+        canAddTransfert: this.canAddTransfert,
+        canExportTransfert: this.canExportTransfert,
+        canModifyTransfert: this.canModifyTransfert,
+        canDeleteTransfert: this.canDeleteTransfert,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la gestion des immobilisations');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
   onClickSubmitAddTransfert() {
+
+    if (!this.canAddTransfert) {
+      alert('Vous n\'avez pas l\'autorisation d\'effectuer un transfert.');
+      return;
+    }
+
     console.log('onClickSubmitAddTransfert appelé. isAddingTransfert:', this.isAddingTransfert);
 
     // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
@@ -153,6 +222,13 @@ export class TransfertComponent implements OnInit {
   }
 
   onClickSubmitEditTransfert() {
+
+    if (!this.canModifyTransfert) {
+      alert('Vous n\'avez pas l\'autorisation de mettre à jour une affectation.');
+      return;
+    }
+
+
     console.log(this.editTransfert.value);
     const spinner = document.querySelector('.spinnerModif');
 
@@ -205,6 +281,11 @@ export class TransfertComponent implements OnInit {
   }
 
   onClickSubmitDeleteTransfert() {
+
+    if (!this.canDeleteTransfert) {
+      alert('Vous n\'avez pas l\'autorisation de supprimer cette affectation.');
+      return;
+    }
     console.log(this.deleteTransfert.value);
     const spinner = document.querySelector('.spinnerDelete');
 
@@ -401,6 +482,13 @@ export class TransfertComponent implements OnInit {
   }
 
   downloadTransfertsPDF(): void {
+
+    if (!this.canExportTransfert) {
+      alert('Vous n\'avez pas l\'autorisation d\'exportr la liste des transferts.');
+      return;
+    }
+
+
     this.transfertService.imprimerTransferts().subscribe(
       (response: Blob) => {
         const fileURL = window.URL.createObjectURL(response);

@@ -16,16 +16,7 @@ export const MENU: MenuItem[] = [
     isTitle: true,
      module: 'Gestion de Stock',
   },
-  // {
-  //   label: 'Articles',
-  //   icon: 'monitor',
-  //   link: '/articles'
-  // },
-  // {
-  //   label: 'Catégories',
-  //   icon: 'box',
-  //   link: '/categories'
-  // },
+
   {
     label: 'Mouvement Stock',
     icon: 'maximize-2',
@@ -34,7 +25,7 @@ export const MENU: MenuItem[] = [
       {
         label: 'Entrées de Stock',
         link: '/mouvement-stock/entrees',
-        fonctionnalites: ['Ajout du Stock', 'Modification du Stock', 'Voir les entrées']
+        fonctionnalites: ['Ajout du Stock', 'Modification du Stock']
       },
       {
         label: 'Les demandes',

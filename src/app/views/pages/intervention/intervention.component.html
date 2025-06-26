@@ -22,7 +22,8 @@
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
-<div class="row">
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
@@ -40,7 +41,7 @@
           Imprimer
         </button>
         </div>
-        
+
 
       </div>
     </div>
@@ -49,7 +50,8 @@
 
 
 
-<div class="row">
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -93,18 +95,18 @@
                 {{ value | date:'dd/MM/yyyy' }}
               </ng-template>
             </ngx-datatable-column> -->
-            <ngx-datatable-column name="Actions">
+            <ngx-datatable-column *ngIf="canModifyIntervention || canDeleteIntervention" name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <a *ngIf="canModifyIntervention" ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                        data-bs-target="#edit_intervention" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
                     </a>
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <a *ngIf="canDeleteIntervention" ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                        data-bs-target="#delete_intervention" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
@@ -150,7 +152,7 @@
 
           <!-- cout -->
           <div class="mb-3">
-            <label for="cout" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>  
+            <label for="cout" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="cout" placeholder="20000" autocomplete="off"
               [class.invalid]="addIntervention.get('cout')?.invalid && addIntervention.get('cout')?.touched"
               formControlName="cout">
