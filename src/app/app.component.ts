@@ -33,34 +33,53 @@ export class AppComponent {
   }
 
 private loadUserPermissions(): void {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.role_id) return;
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!user.role_id) return;
 
-    this.http.get<any[]>(`${environment.backend}/permissions/role/${user.role_id}`).subscribe({
-      next: (permissions: any[]) => {
-        const activePermissions = permissions.filter(p => p.is_active === true);
+  this.http.get<any[]>(`${environment.backend}/permissions/role/${user.role_id}`).subscribe({
+    next: (permissions: any[]) => {
+      const activePermissions = permissions.filter(p => p.is_active === true);
 
-        const allowedModules: string[] = [];
-        activePermissions.forEach(permission => {
-          if (permission.module && permission.module.libelle_module) {
-            const moduleName = permission.module.libelle_module;
-            if (!allowedModules.includes(moduleName)) {
-              allowedModules.push(moduleName);
-            }
+      const allowedModules: string[] = [];
+      const allowedFonctionnalites: string[] = []; // 🔥 AJOUT
+
+      activePermissions.forEach(permission => {
+        // Modules
+        if (permission.module && permission.module.libelle_module) {
+          const moduleName = permission.module.libelle_module;
+          if (!allowedModules.includes(moduleName)) {
+            allowedModules.push(moduleName);
           }
-        });
+        }
 
-        localStorage.setItem('permissions', JSON.stringify(activePermissions));
-        localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
+        // 🔥 NOUVEAU : Fonctionnalités
+        if (permission.fonctionnalite && permission.fonctionnalite.libelle_fonctionnalite) {
+          const fonctionnaliteName = permission.fonctionnalite.libelle_fonctionnalite;
+          if (!allowedFonctionnalites.includes(fonctionnaliteName)) {
+            allowedFonctionnalites.push(fonctionnaliteName);
+          }
+        }
+      });
 
-        window.dispatchEvent(new CustomEvent('permissionsLoaded', {
-          detail: { permissions: activePermissions, allowedModules: allowedModules }
-        }));
-      },
-      error: (error) => {
-        console.error('❌ Erreur rechargement permissions:', error);
-      }
-    });
-  }
+      console.log('🔄 APP - Fonctionnalités extraites:', allowedFonctionnalites); // 🔥 LOG DE DEBUG
+
+      localStorage.setItem('permissions', JSON.stringify(activePermissions));
+      localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
+      localStorage.setItem('allowedFonctionnalites', JSON.stringify(allowedFonctionnalites)); // 🔥 AJOUT
+
+      window.dispatchEvent(new CustomEvent('permissionsLoaded', {
+        detail: {
+          permissions: activePermissions,
+          allowedModules: allowedModules,
+          allowedFonctionnalites: allowedFonctionnalites // 🔥 AJOUT
+        }
+      }));
+    },
+    error: (error) => {
+      console.error('❌ Erreur rechargement permissions:', error);
+    }
+  });
+}
+
 }
 

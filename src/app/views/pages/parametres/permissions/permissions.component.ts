@@ -103,7 +103,7 @@ onPermissionToggle(permission: any): void {
           icon: 'success',
           title: 'Permission modifiée avec succès',
           showConfirmButton: false,
-          timer: 3000,
+          timer: 1000,
           timerProgressBar: true
         });
 
@@ -126,32 +126,48 @@ onPermissionToggle(permission: any): void {
   }
 
    // 🔥 NOUVELLE MÉTHODE : Mettre à jour les permissions de l'utilisateur connecté
-  private updateCurrentUserPermissions(): void {
-    this.permissionService.getCurrentUserPermissions().subscribe((userPermissions: Permission[]) => {
-      const activePermissions = userPermissions.filter(p => p.is_active === true);
+private updateCurrentUserPermissions(): void {
+  this.permissionService.getCurrentUserPermissions().subscribe((userPermissions: any[]) => {
+    const activePermissions = userPermissions.filter(p => p.is_active === true);
 
-      const allowedModules: string[] = [];
-      activePermissions.forEach(perm => {
-        if (perm.module && perm.module.libelle_module) {
-          const moduleName = perm.module.libelle_module;
-          if (!allowedModules.includes(moduleName)) {
-            allowedModules.push(moduleName);
-          }
+    const allowedModules: string[] = [];
+    const allowedFonctionnalites: string[] = []; // 🔥 AJOUT
+
+    activePermissions.forEach(perm => {
+      // Modules
+      if (perm.module && perm.module.libelle_module) {
+        const moduleName = perm.module.libelle_module;
+        if (!allowedModules.includes(moduleName)) {
+          allowedModules.push(moduleName);
         }
-      });
+      }
 
-      console.log('🔄 Mise à jour permissions utilisateur:', activePermissions);
-      console.log('🔄 Mise à jour modules autorisés:', allowedModules);
-
-      localStorage.setItem('permissions', JSON.stringify(activePermissions));
-      localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
-
-      // Notifier la sidebar
-      window.dispatchEvent(new CustomEvent('permissionsUpdated', {
-        detail: { permissions: activePermissions, allowedModules: allowedModules }
-      }));
+      // 🔥 CORRECTION : Fonctionnalités
+      if (perm.fonctionnalite && perm.fonctionnalite.libelle_fonctionnalite) {
+        const fonctionnaliteName = perm.fonctionnalite.libelle_fonctionnalite;
+        if (!allowedFonctionnalites.includes(fonctionnaliteName)) {
+          allowedFonctionnalites.push(fonctionnaliteName);
+        }
+      }
     });
-  }
+
+    console.log('🔄 PERMISSIONS - Fonctionnalités mises à jour:', allowedFonctionnalites); // 🔥 LOG DE DEBUG
+
+    localStorage.setItem('permissions', JSON.stringify(activePermissions));
+    localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
+    localStorage.setItem('allowedFonctionnalites', JSON.stringify(allowedFonctionnalites)); // 🔥 AJOUT
+
+    // Notifier la sidebar
+    window.dispatchEvent(new CustomEvent('permissionsUpdated', {
+      detail: {
+        permissions: activePermissions,
+        allowedModules: allowedModules,
+        allowedFonctionnalites: allowedFonctionnalites // 🔥 AJOUT
+      }
+    }));
+  });
+}
+
 
 // Exemple d'implémentation (à adapter selon votre logique)
 private getCurrentUserRoleId(): number {
