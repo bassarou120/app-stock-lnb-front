@@ -19,7 +19,7 @@ export class ErrorComponent implements OnInit {
 
   ngOnInit(): void {
     this.type = this.route.snapshot.paramMap.get('type');
-    
+
     switch(this.type) {
       case '404':
         this.title = 'Page introuvable';
@@ -34,7 +34,6 @@ export class ErrorComponent implements OnInit {
         this.title = 'Quelque chose s\'est mal passé';
         this.desc = 'Il semble qu\'une erreur se soit produite.<br>' + 'Nous y travaillons.';
     }
-    
   }
 
 }
