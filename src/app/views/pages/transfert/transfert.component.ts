@@ -39,7 +39,6 @@ export class TransfertComponent implements OnInit {
   canModifyTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   canDeleteTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
 
-
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: Transfert[] = [];
@@ -101,7 +100,7 @@ export class TransfertComponent implements OnInit {
     });
   }
 
-      // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
   private initializePermissions(): void {
     try {
       const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
@@ -123,11 +122,7 @@ export class TransfertComponent implements OnInit {
       this.hasPageAccess = this.canAddTransfert ||
                           this.canExportTransfert ||
                           this.canModifyTransfert ||
-                          this.canDeleteTransfert ||
-                          allowedFonctionnalites.includes('Ajout immobilisation') ||
-                          allowedFonctionnalites.includes('Affectation Immobilisation') ||
-                          allowedFonctionnalites.includes('Modification immobilisation') ||
-                          allowedFonctionnalites.includes('Suppression immobilisation') ;
+                          this.canDeleteTransfert ;
 
       console.log('🔐 Permissions calculées:', {
         canAddTransfert: this.canAddTransfert,

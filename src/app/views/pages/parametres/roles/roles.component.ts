@@ -26,6 +26,13 @@ declare var bootstrap: any; // Pour interagir avec les modales Bootstrap via JS
 })
 export class RoleComponent implements OnInit {
 
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddRole: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canAddParametrage: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+
   rows: Role[] = [];
   temp: Role[] = [];
   loadingIndicator = true;
@@ -54,9 +61,49 @@ export class RoleComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
     this.initForms();
     this.loadRoles();
   }
+
+// 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddRole = allowedFonctionnalites.includes('Ajout role');
+      this.canAddParametrage = allowedFonctionnalites.includes('Ajout Parametrage');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canAddRole || this.canAddParametrage;
+
+      console.log('🔐 Permissions calculées:', {
+        canAddRole: this.canAddRole,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la gestion des immobilisations');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
 
   initForms(): void {
     this.addRoleForm = this.formBuilder.group({
@@ -104,6 +151,12 @@ export class RoleComponent implements OnInit {
 
   // --- Ajout de rôle ---
   onClickSubmitAddRole(): void {
+
+    if (!this.canAddRole) {
+      alert('Vous n\'avez pas l\'autorisation d\'ajouter de role.');
+      return;
+    }
+
     console.log("Données du formulaire d'ajout rôle (avant envoi) :", this.addRoleForm.value);
 
     // 1. Vérifier si une soumission est déjà en cours
@@ -159,6 +212,7 @@ export class RoleComponent implements OnInit {
 
   // --- Modification de rôle ---
   onClickSubmitEditRole(): void {
+
     console.log("Données du formulaire de modification rôle (avant envoi) :", this.editRoleForm.value);
 
     // 1. Vérifier si une soumission est déjà en cours
