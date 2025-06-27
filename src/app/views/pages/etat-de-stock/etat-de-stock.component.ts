@@ -5,6 +5,7 @@ import { Categorie, Article } from '../../../core/services/interface/models';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';  // Ajoutez cette importation
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -39,15 +40,18 @@ export class EtatStockComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleService: ArticleService){}
+  constructor(private articleService: ArticleService, private router: Router){}
 
   // Variable pour stocker le texte de recherche
   searchText: string = '';
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-    this.loadCategories();
-    this.loadArticles();
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadCategories();
+        this.loadArticles();
+    }
   }
 
 
@@ -69,10 +73,8 @@ export class EtatStockComponent implements OnInit {
       this.canExportEtatStock = allowedFonctionnalites.includes('Export Stock')
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canViewEtatStock ||
-                          this.canExportEtatStock ||
-                          allowedFonctionnalites.includes('Voir Etat de Stock') ||
-                          allowedFonctionnalites.includes('Export Stock')
+      this.hasPageAccess = this.canViewEtatStock ;
+                          
 
       console.log('🔐 Permissions calculées:', {
         canViewEtatStock: this.canViewEtatStock,
@@ -83,8 +85,8 @@ export class EtatStockComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des etats de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

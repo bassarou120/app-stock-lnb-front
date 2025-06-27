@@ -10,6 +10,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { TrajetsService } from '../../../../core/services/trajets/trajets.service';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -64,15 +65,20 @@ export class TrajetComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private trajetService: TrajetsService, private formBuilder: FormBuilder,) { }
+  constructor(private trajetService: TrajetsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    this.loadCommunes();
-    this.loadMouvementTickets();
-    this.loadTrajets();
+
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+          this.loadCommunes();
+          this.loadMouvementTickets();
+          this.loadTrajets();
+    }
+
 
     this.addTrajet = this.formBuilder.group({
       commune_depart: [null, [Validators.required]],
@@ -121,8 +127,8 @@ export class TrajetComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages de parc');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

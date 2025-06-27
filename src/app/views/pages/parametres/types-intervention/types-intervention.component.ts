@@ -7,6 +7,8 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angula
 import { CommonModule } from '@angular/common'; // DatePipe n'est plus strictement nécessaire si vous ne formatez pas de dates spécifiques, mais je le garde au cas où d'autres usages subsistent dans le template.
 import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'; // NgbDatepickerModule et NgbDateStruct sont retirés
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
+
 
 declare var bootstrap: any; // Pour les modales Bootstrap
 
@@ -57,6 +59,7 @@ export class TypesInterventionComponent implements OnInit {
   constructor(
     private typeInterventionService: TypeInterventionService,
     private formBuilder: FormBuilder,
+    private router: Router
     // private datePipe: DatePipe // Commenté si non utilisé ailleurs pour le nettoyage des imports
   ) {}
 
@@ -64,8 +67,12 @@ export class TypesInterventionComponent implements OnInit {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    this.loadTypeInterventions();
-    this.initForms();
+
+        // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadTypeInterventions();
+        this.initForms();
+    }
   }
 
   // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
@@ -95,8 +102,8 @@ export class TypesInterventionComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages generaux');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

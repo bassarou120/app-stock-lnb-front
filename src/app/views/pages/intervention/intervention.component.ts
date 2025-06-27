@@ -9,7 +9,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
-
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -68,17 +68,19 @@ export class InterventionComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private interventionService: InterventionsService, private formBuilder: FormBuilder,) { }
+  constructor(private interventionService: InterventionsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-
-    this.loadImmobilisations();
-    this.loadtypeInterventions();
-    this.loadInterventions();
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadImmobilisations();
+        this.loadtypeInterventions();
+        this.loadInterventions();
+    }
 
     this.addIntervention = this.formBuilder.group({
       immo_id: [null, [Validators.required]],
@@ -126,6 +128,12 @@ export class InterventionComponent implements OnInit {
       this.hasPageAccess = 
                         this.canVoirIntervention;
 
+                              // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages generaux');
+        this.router.navigate(['/error/403']);
+        return;
+      }
 
       console.log('🔐 Permissions intervention:', {
         canAddIntervention: this.canAddIntervention,

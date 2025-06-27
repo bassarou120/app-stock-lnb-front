@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-bureaux',
@@ -51,14 +52,17 @@ export class BureauxComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private bureauxService: BureauxService, private formBuilder: FormBuilder,) {}
+  constructor(private bureauxService: BureauxService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    this.loadBureaux();
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadBureaux();
+    }
     this.addBureau = this.formBuilder.group({
       libelle_bureau: ["", [Validators.required]],
       valeur: ["" ,[]],
@@ -99,9 +103,9 @@ export class BureauxComponent implements OnInit {
 
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
-        console.warn('❌ Accès refusé parametrages de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        console.warn('❌ Accès refusé parametrages de bureau');
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

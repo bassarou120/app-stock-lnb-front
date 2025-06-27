@@ -9,6 +9,7 @@ import { NgbAlertModule, NgbDropdownModule, NgbNavModule  } from '@ng-bootstrap/
 import { HttpClientModule } from '@angular/common/http';
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import Swal from 'sweetalert2';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -56,6 +57,7 @@ export class PermissionComponent implements OnInit {
   constructor(
     private permissionService: PermissionService,
     private formBuilder: FormBuilder,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
@@ -97,8 +99,8 @@ export class PermissionComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé aux page de permissions');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

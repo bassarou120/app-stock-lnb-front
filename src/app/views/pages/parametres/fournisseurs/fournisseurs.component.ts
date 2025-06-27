@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angu
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -52,13 +53,18 @@ export class FournisseursComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private fournisseurService: FournisseursService, private formBuilder: FormBuilder,) {}
+  constructor(private fournisseurService: FournisseursService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    this.loadFournisseurs();
+    
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadFournisseurs();
+    }
+
     this.addFournisseur = this.formBuilder.group({
       nom: ["", [Validators.required]],
       telephone: ["", [Validators.required]],
@@ -102,8 +108,8 @@ export class FournisseursComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages generaux');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

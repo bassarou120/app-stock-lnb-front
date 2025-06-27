@@ -12,6 +12,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 // Correction de l'import pour NgSelectComponent, il faut importer le module complet
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -77,20 +78,20 @@ export class InterventionVehiculeComponent implements OnInit {
 
   constructor(
     private interventionVehiculeService: InterventionsVehiculeService,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
 
     this.initializePermissions();
     if (this.hasPageAccess) {
-    console.log('ngOnInit: Démarrage du chargement des données...');
-    this.loadVehicules();
-    this.loadCommunes();
-    this.loadInterventionVehicules();
-    this.loadtypeInterventions(); // Charger les types d'intervention, essentiel pour `has_expiration_date`
-
-    this.initForms(); // Appeler une méthode pour initialiser les formulaires
+      console.log('ngOnInit: Démarrage du chargement des données...');
+      this.loadVehicules();
+      this.loadCommunes();
+      this.loadInterventionVehicules();
+      this.loadtypeInterventions(); // Charger les types d'intervention, essentiel pour `has_expiration_date`
+      this.initForms(); // Appeler une méthode pour initialiser les formulaires
     }
   }
 
@@ -126,8 +127,8 @@ export class InterventionVehiculeComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

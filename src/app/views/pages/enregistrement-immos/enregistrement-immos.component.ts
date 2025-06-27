@@ -10,6 +10,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
 
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -71,19 +72,21 @@ export class ImmobilisationComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder,) { }
+  constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-
-    this.loadImmobilisations();
-    this.loadFournisseurs();
-    this.loadStatusImmo();
-    this.loadSousTypeImmo();
-    this.loadGroupeTypeImmo();
-    this.loadVehicules();
+        // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadImmobilisations();
+        this.loadFournisseurs();
+        this.loadStatusImmo();
+        this.loadSousTypeImmo();
+        this.loadGroupeTypeImmo();
+        this.loadVehicules();
+    }
     this.addImmobilisation = this.formBuilder.group({
       bureau_id: [null, []],
       employe_id: [null, []],
@@ -171,8 +174,8 @@ export class ImmobilisationComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la gestion des immobilisations');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {
