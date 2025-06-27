@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-employes',
@@ -51,13 +52,18 @@ export class EmployesComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private employeService: EmployesService, private formBuilder: FormBuilder,) {}
+  constructor(private employeService: EmployesService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    this.loadEmployes();
+    
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadEmployes();
+    }
+
     this.addEmploye = this.formBuilder.group({
       nom: ["", [Validators.required]],
       prenom: ["", [Validators.required]],
@@ -103,8 +109,8 @@ export class EmployesComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages generaux');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

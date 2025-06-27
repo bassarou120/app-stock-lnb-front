@@ -10,6 +10,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-articles',
@@ -60,15 +61,18 @@ export class ArticlesComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleService: ArticleService,private formBuilder: FormBuilder,) {}
+  constructor(private articleService: ArticleService,private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
     this.loadCategories();
     this.loadArticles();
     this.initForm();
+    }
 
     this.editArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -110,8 +114,8 @@ export class ArticlesComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

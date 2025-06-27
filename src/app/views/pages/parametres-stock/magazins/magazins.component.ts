@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-magazins',
@@ -51,13 +52,17 @@ export class MagazinsComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private magazinsService: MagazinsService, private formBuilder: FormBuilder,) {}
+  constructor(private magazinsService: MagazinsService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+    
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+      this.loadMagazins();
+    }
 
-    this.loadMagazins();
     this.addMagazin = this.formBuilder.group({
       libelle_magazin: ["", [Validators.required]],
       localisation: ["", [Validators.required]],
@@ -99,8 +104,8 @@ export class MagazinsComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

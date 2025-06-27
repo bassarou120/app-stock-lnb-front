@@ -9,6 +9,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+import { Router } from '@angular/router';
 
 // Importez FeatherIconDirective si vous l'utilisez, sinon retirez-la.
 // Pour l'instant, je la retire car elle n'était pas présente dans l'import list du @Component
@@ -70,17 +71,17 @@ export class VehiculesComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder,) { }
+  constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
     if (this.hasPageAccess) {
-    this.loadMarques();
-    this.loadModeles();
-    this.loadVehicules();
-    this.initForm(); // Initialise le formulaire d'ajout avec le FormArray
+      this.loadMarques();
+      this.loadModeles();
+      this.loadVehicules();
+      this.initForm(); // Initialise le formulaire d'ajout avec le FormArray
     }
 
     this.editVehicule = this.formBuilder.group({
@@ -129,8 +130,8 @@ export class VehiculesComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

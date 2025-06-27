@@ -8,6 +8,8 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
+
 
 @Component({
   selector: 'app-types-mouvement',
@@ -52,13 +54,16 @@ export class TypeMouvementComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private typeMouvementService: TypeMouvementService, private formBuilder: FormBuilder,) {}
+  constructor(private typeMouvementService: TypeMouvementService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    this.loadTypeMouvements();
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+      this.loadTypeMouvements();
+    }
     this.addTypeMouvement = this.formBuilder.group({
       libelle_type_mouvement: ["", [Validators.required]],
    });
@@ -98,8 +103,8 @@ export class TypeMouvementComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages generaux');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

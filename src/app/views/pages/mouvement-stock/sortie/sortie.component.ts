@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { map } from 'rxjs/operators';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -65,19 +66,22 @@ export class SortieComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private sortieService: MouvementStockService, private formBuilder: FormBuilder,) { }
+  constructor(private sortieService: MouvementStockService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+      this.loadEmployes();
+      this.loadArticles();
+      this.loadBureaux();
+      this.loadSorties();
+      this.loadSortiesAccordees(); // Charger uniquement les sorties accordées au début
+    }
 
 
-    this.loadEmployes();
-    this.loadArticles();
-    this.loadBureaux();
-    this.loadSorties();
-    this.loadSortiesAccordees(); // Charger uniquement les sorties accordées au début
     this.addSortie = this.formBuilder.group({
       id_Article: [null, [Validators.required]],
       id_employe: [null, []],
@@ -126,8 +130,8 @@ export class SortieComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des sorties de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

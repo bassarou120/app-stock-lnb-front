@@ -66,7 +66,8 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
   constructor(
     private mouvementService: MouvementStockService,
     private formBuilder: FormBuilder,
-    private modalService: NgbModal
+    private modalService: NgbModal,
+    private router: Router
   ) { }
 
   ngOnInit() {
@@ -143,9 +144,9 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
 
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
-        console.warn('❌ Accès refusé à la page des entrées de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        console.warn('❌ Accès refusé à la page des demandes de stock');
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angula
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any; // Pour interagir avec les modales Bootstrap via JS
 
@@ -58,13 +59,18 @@ export class RoleComponent implements OnInit {
   constructor(
     private roleService: RoleService,
     private formBuilder: FormBuilder,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
     this.initForms();
     this.loadRoles();
+    }
   }
 
 // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
@@ -94,9 +100,9 @@ export class RoleComponent implements OnInit {
 
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
-        console.warn('❌ Accès refusé à la gestion des immobilisations');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        console.warn('❌ Accès refusé à la gestion des roles');
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {
