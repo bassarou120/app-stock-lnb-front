@@ -34,13 +34,13 @@ export class InterventionComponent implements OnInit {
 
     // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
-  canAddIntervention: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
-  canExportIntervention: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
-  canModifyIntervention: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
-  canDeleteIntervention: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canAddIntervention: boolean = false;    // DÉFAUT À TRUE pour éviter les blocages
+  canExportIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canModifyIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canDeleteIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canVoirIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
 
-
-  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = false;  //  DÉFAUT À TRUE pour éviter les blocages
 
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
@@ -109,50 +109,38 @@ export class InterventionComponent implements OnInit {
 
       if (!allowedFonctionnalitesStr) {
         console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
-        return; // Garder les permissions par défaut (true)
+        return;
       }
 
       const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
-      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
 
-      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
-      this.canAddIntervention = allowedFonctionnalites.includes("Ajout d'intervention");
-      this.canModifyIntervention = allowedFonctionnalites.includes('Modification intervention');
+      // 🔥 PERMISSIONS CORRECTES
+      this.canAddIntervention = allowedFonctionnalites.includes('Ajout intervention');
+      this.canVoirIntervention = allowedFonctionnalites.includes('Intervention Immobilisation');
+       this.canModifyIntervention = allowedFonctionnalites.includes('Modification intervention');
       this.canDeleteIntervention = allowedFonctionnalites.includes('Suppression intervention');
       this.canExportIntervention = allowedFonctionnalites.includes('Exporter immobilisation');
 
 
-      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      // 🔥 ACCÈS À LA PAGE SIMPLIFIÉ
       this.hasPageAccess = this.canAddIntervention ||
-                          this.canModifyIntervention ||
-                          this.canDeleteIntervention ||
-                          this.canExportIntervention ||
-                          this.canExportIntervention ||
-                          allowedFonctionnalites.includes('Modification intervention') ||
-                          allowedFonctionnalites.includes('Intervention Immobilisation') ||
-                          allowedFonctionnalites.includes('Suppression intervention') ||
-                          allowedFonctionnalites.includes('Exporter intervention');
+                        this.canVoirIntervention
+                         this.canModifyIntervention ||
+                         this.canDeleteIntervention ||
+                         this.canExportIntervention;
 
 
-      console.log('🔐 Permissions calculées:', {
+      console.log('🔐 Permissions intervention:', {
         canAddIntervention: this.canAddIntervention,
         canModifyIntervention: this.canModifyIntervention,
         canDeleteIntervention: this.canDeleteIntervention,
         canExportIntervention: this.canExportIntervention,
-
+        canVoirIntervention: this.canVoirIntervention,
         hasPageAccess: this.hasPageAccess
       });
 
-      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
-      if (!this.hasPageAccess) {
-        console.warn('❌ Accès refusé aux interventions');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
-      }
-
     } catch (error) {
-      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
-      // En cas d'erreur, garder les permissions par défaut (true)
+      console.error('❌ Erreur permissions intervention:', error);
     }
   }
 

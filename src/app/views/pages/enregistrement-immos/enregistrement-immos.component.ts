@@ -36,6 +36,7 @@ export class ImmobilisationComponent implements OnInit {
     // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canAddImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canViewImmoEntries: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
   canAffectImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
   canInvertImmo: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   canExportImmo: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
@@ -151,19 +152,10 @@ export class ImmobilisationComponent implements OnInit {
       this.canExportImmo = allowedFonctionnalites.includes('Exporter immobilisation');
       this.canModifyImmo = allowedFonctionnalites.includes('Modification immobilisation');
       this.canDeleteImmo = allowedFonctionnalites.includes('Suppression immobilisation');
+      this.canViewImmoEntries= allowedFonctionnalites.includes('Voir les immobilisations');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddImmo ||
-                          this.canAffectImmo ||
-                          this.canInvertImmo ||
-                          this.canExportImmo ||
-                          this.canModifyImmo ||
-                          this.canDeleteImmo ||
-                          allowedFonctionnalites.includes('Affectation Immobilisation') ||
-                          allowedFonctionnalites.includes('Intervention Immobilisation') ||
-                          allowedFonctionnalites.includes('Exporter immobilisation') ||
-                          allowedFonctionnalites.includes('Modification immobilisation') ||
-                          allowedFonctionnalites.includes('Suppression immobilisation');
+      this.hasPageAccess = this.canViewImmoEntries;
 
       console.log('🔐 Permissions calculées:', {
         canAddImmo: this.canAddImmo,

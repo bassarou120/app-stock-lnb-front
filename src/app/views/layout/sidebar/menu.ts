@@ -25,7 +25,7 @@ export const MENU: MenuItem[] = [
       {
         label: 'Entrées de Stock',
         link: '/mouvement-stock/entrees',
-        fonctionnalites: ['Ajout du Stock', 'Modification du Stock']
+        fonctionnalites: ['Voir les entrées']
       },
       {
         label: 'Les demandes',
@@ -57,7 +57,7 @@ export const MENU: MenuItem[] = [
     icon: 'download',
     link: '/enregistrement-immos',
     module: 'Gestion de immobilisation',
-    fonctionnalites: ['Ajout immobilisation']
+    fonctionnalites: ['Voir les immobilisations']
   },
   {
     label: 'Affectations/Transfert',
@@ -71,7 +71,7 @@ export const MENU: MenuItem[] = [
     icon: 'activity',
     link: '/intervention',
     module: 'Gestion de immobilisation',
-    fonctionnalites: ['Intervention Immobilisation']
+    fonctionnalites: ['Intervention Immobilisation', 'Ajout intervention']
   },
   {
     label: 'Gestion de Parc',
@@ -90,7 +90,7 @@ export const MENU: MenuItem[] = [
     icon: 'pen-tool',
     link: '/interventionvehicules',
     module: 'Gestion de parc',
-    fonctionnalites: ['Intervention Parc', 'Ajout d`/intervention']
+    fonctionnalites: ['Intervention Parc']
   },
   {
     label: 'Tickets',
@@ -137,7 +137,7 @@ export const MENU: MenuItem[] = [
     icon: 'users',
     link: '/utilisateurs',
     module: 'Parametrage',
-    fonctionnalites: ['Ajout Parametrage', 'Modification Parametrage', 'Suppression Parametrage']
+    fonctionnalites: ['Ajout Parametrage', 'Modification Parametrage', 'Suppression Parametrage', 'Voir utilisateur'/* ,'Ajout utilisateur', 'Modification utilisateur', 'Suppression utilisateur', 'Exporter utilisateur' */]
   },
   {
     label: 'Rôles et Permisions',
@@ -148,7 +148,7 @@ export const MENU: MenuItem[] = [
       {
         label: 'Rôles',
         link: '/parametres/roles',
-        fonctionnalites: ['Ajout Parametrage']
+        fonctionnalites: ['Ajout Parametrage', 'Ajout role']
       },
       {
         label: 'Permissions',
@@ -204,26 +204,32 @@ export const MENU: MenuItem[] = [
       {
         label: 'Articles',
         link: '/parametres-stock/articles',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Catégories',
         link: '/parametres-stock/categories',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Liste des Bureaux/Localisations',
         link: '/parametres-stock/bureaux',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Liste des Magazins',
         link: '/parametres-stock/magazins',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Type d\'Affectation',
         link: '/parametres-stock/type-affectation',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Unité de mesure',
         link: '/parametres-stock/unite-de-mesure',
+        fonctionnalites: ['Voir Parametres Stock']
       },
     ]
   },
@@ -235,29 +241,30 @@ export const MENU: MenuItem[] = [
       {
         label: 'Marques',
         link: '/parametres-pack/marques',
+        fonctionnalites: ['Voir Parametres Parc']
       },
       {
         label: 'Communes',
         link: '/parametres-pack/communes',
+        fonctionnalites: ['Voir Parametres Parc']
       },
       {
         label: 'Coupon Ticket',
         link: '/parametres-pack/coupon-ticket',
+        fonctionnalites: ['Voir Parametres Parc']
       },
       {
         label: 'Compagnie Pétrolière',
         link: '/parametres-pack/compagnie-petroliere',
+        fonctionnalites: ['Voir Parametres Parc']
       },
 
       {
         label: 'Trajet',
         icon: 'git-pull-request',
-        link: '/parametres-pack/trajets'
+        link: '/parametres-pack/trajets',
+        fonctionnalites: ['Voir Parametres Parc']
       },
-      // {
-      //   label: 'Liste des Véhicules',
-      //   link: '/parametres-pack/vehicules',
-      // },
     ]
   },
   {
@@ -268,18 +275,22 @@ export const MENU: MenuItem[] = [
       {
         label: 'Type d\'Immo',
         link: '/parametres-immo/type-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
       {
         label: 'Sous Type Immo',
         link: '/parametres-immo/sous-type-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
       {
         label: 'Groupe Type Immo',
         link: '/parametres-immo/groupe-type-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
       {
         label: 'Status Immo',
         link: '/parametres-immo/status-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
     ]
   },
@@ -291,27 +302,33 @@ export const MENU: MenuItem[] = [
       {
         label: 'Paramètre Entreprise',
         link: '/parametres/entreprise',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Type Mouvement',
         link: '/parametres/type-mouvement',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Liste du Personnel',
         link: '/parametres/employes',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Liste des Fournisseurs',
         link: '/parametres/fournisseurs',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Type d\'intervention',
         link: '/parametres/types-intervention',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
-      {
+/*       {
         label: 'Listes des rôles',
-        link: '/parametres/roles'
-      },
+        link: '/parametres/roles',
+        fonctionnalites: ['Voir Parametres Généraux']
+      }, */
     ]
   }
 ];

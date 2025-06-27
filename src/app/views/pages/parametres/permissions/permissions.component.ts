@@ -31,6 +31,12 @@ declare var bootstrap: any;
 })
 export class PermissionComponent implements OnInit {
 
+      // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canVoirPermission: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+
   permissions: Permission[] = [];
   groupedPermissions: Record<string, Record<string, Permission[]>> = {};
 
@@ -53,6 +59,8 @@ export class PermissionComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
     this.initForms();
 
   this.permissionService.getPermissions().subscribe((permissions: Permission[]) => {
@@ -62,7 +70,42 @@ export class PermissionComponent implements OnInit {
     });
   }
 
+// 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
 
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canVoirPermission = allowedFonctionnalites.includes('Modification Parametrage');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirPermission;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirPermission: this.canVoirPermission,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé aux page de permissions');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
 
   groupPermissionsByRoleAndModule(): void {
     this.groupedPermissions = {};
@@ -88,6 +131,12 @@ export class PermissionComponent implements OnInit {
 }
 
 onPermissionToggle(permission: any): void {
+
+    if (!this.canVoirPermission) {
+      alert('Vous n\'avez pas l\'autorisation d\'accorder de permission.');
+      return;
+    }
+
     const payload = {
       role_id: permission.role_id,
       module_id: permission.module_id,
@@ -126,7 +175,7 @@ onPermissionToggle(permission: any): void {
   }
 
    // 🔥 NOUVELLE MÉTHODE : Mettre à jour les permissions de l'utilisateur connecté
-private updateCurrentUserPermissions(): void {
+ private updateCurrentUserPermissions(): void {
   this.permissionService.getCurrentUserPermissions().subscribe((userPermissions: any[]) => {
     const activePermissions = userPermissions.filter(p => p.is_active === true);
 
@@ -166,7 +215,7 @@ private updateCurrentUserPermissions(): void {
       }
     }));
   });
-}
+} 
 
 
 // Exemple d'implémentation (à adapter selon votre logique)

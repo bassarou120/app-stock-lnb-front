@@ -29,6 +29,11 @@ declare var bootstrap: any;
   templateUrl: 'sous-type-immo.component.html'
 })
 export class SousTypeImmoComponent implements OnInit, OnDestroy {
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canVoirParamImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: SousTypeImmo[] = [];
   temp: SousTypeImmo[] = [];
@@ -65,6 +70,9 @@ export class SousTypeImmoComponent implements OnInit, OnDestroy {
   constructor(private sousTypeImmoService: SousTypeImmoService, private formBuilder: FormBuilder, ) { }
 
   ngOnInit(): void {
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
     this.loadTypeImmos();
     this.loadSousTypeImmos();
     this.addSousTypeImmo = this.formBuilder.group({
@@ -120,6 +128,44 @@ export class SousTypeImmoComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+// 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canVoirParamImmo = allowedFonctionnalites.includes('Voir Parametres Immo');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirParamImmo;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirParamImmo: this.canVoirParamImmo,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages d\'immo');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
 
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();

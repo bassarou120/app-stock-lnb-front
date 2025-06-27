@@ -28,6 +28,14 @@ declare var bootstrap: any;
   templateUrl: 'retour-ticket.component.html'
 })
 export class RetourTicketComponent implements OnInit {
+    // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres 
+  canModifyRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres 
+  canDeleteRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
+  canVoirRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages 
 
   rows: RetourTicket[] = [];
   temp: RetourTicket[] = [];
@@ -59,6 +67,9 @@ export class RetourTicketComponent implements OnInit {
   constructor(private retourTicketService: RetourTicketService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
     this.loadAllSortieTicketWhereNotInRetour();
     this.loadRetourTickets();
     this.loadCompagniePetrolieres();
@@ -82,6 +93,48 @@ export class RetourTicketComponent implements OnInit {
     });
   }
 
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddRetourTicket = allowedFonctionnalites.includes('Ajout Retour Ticket');
+      this.canModifyRetourTicket = allowedFonctionnalites.includes('Modification Retour Ticket');
+      this.canDeleteRetourTicket = allowedFonctionnalites.includes('Supprimer Retour Ticket');
+      this.canVoirRetourTicket = allowedFonctionnalites.includes('Voir Retour Ticket');
+
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirRetourTicket;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirRetourTicket: this.canVoirRetourTicket,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé retour des tickets');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+
   // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CHAMPS COMME TOUCHÉS ---
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
@@ -94,6 +147,12 @@ export class RetourTicketComponent implements OnInit {
   // ---------------------------------------------------------------------
 
   onClickSubmitAddRetourTicket() {
+
+    if (!this.canAddRetourTicket) {
+      alert('Vous n\'avez pas l\'autorisation d\'effectuer un retour de ticket.');
+      return;
+    }
+
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isAdding) {
       console.warn('Ajout de retour de ticket déjà en cours. Opération annulée.');
@@ -145,6 +204,11 @@ export class RetourTicketComponent implements OnInit {
   }
 
   onClickSubmitEditRetourTicket() {
+
+    if (!this.canModifyRetourTicket) {
+      alert('Vous n\'avez pas l\'autorisation de mettre à jour un retour de ticket.');
+      return;
+    }
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isEditing) {
       console.warn('Modification de retour de ticket déjà en cours. Opération annulée.');
@@ -197,6 +261,11 @@ export class RetourTicketComponent implements OnInit {
   }
 
   onClickSubmitDeleteRetourTicket() {
+
+    if (!this.canDeleteRetourTicket) {
+      alert('Vous n\'avez pas l\'autorisation de supprimer un retour de ticket.');
+      return;
+    }
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isDeleting) {
       console.warn('Suppression de retour de ticket déjà en cours. Opération annulée.');

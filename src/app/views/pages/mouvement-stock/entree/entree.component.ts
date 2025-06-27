@@ -116,18 +116,11 @@ export class EntreeComponent implements OnInit {
       this.canAddStockMultiple = allowedFonctionnalites.includes('Ajout du Stock');
       this.canModifyStock = allowedFonctionnalites.includes('Modification du Stock');
       this.canDeleteStock = allowedFonctionnalites.includes('Suppression du Stock');
-      this.canExportStock = allowedFonctionnalites.includes('Export Stock') ||
-                           allowedFonctionnalites.includes('Export Rapport Stock');
+      this.canExportStock = allowedFonctionnalites.includes('Export Stock');
+      this.canViewEntries = allowedFonctionnalites.includes('Voir les entrées') ;
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddStock ||
-                          this.canAddStockMultiple ||
-                          this.canModifyStock ||
-                          this.canDeleteStock ||
-                          this.canExportStock ||
-                          allowedFonctionnalites.includes('Voir Etat de Stock') ||
-                          allowedFonctionnalites.includes('Voir Les demandes') ||
-                          allowedFonctionnalites.includes('Sorties de Stock');
+      this.hasPageAccess = this.canViewEntries;
 
       console.log('🔐 Permissions calculées:', {
         canAddStock: this.canAddStock,

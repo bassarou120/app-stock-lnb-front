@@ -27,6 +27,12 @@ declare var bootstrap: any;
 })
 export class GroupeTypeImmoComponent implements OnInit {
 
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canVoirParamImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+
   rows: GroupeTypeImmo[] = [];
   temp: GroupeTypeImmo[] = [];
   loadingIndicator = true;
@@ -55,6 +61,10 @@ export class GroupeTypeImmoComponent implements OnInit {
   constructor(private groupeTypeImmoService: GroupeTypeImmoService,private formBuilder: FormBuilder,) {}
 
   ngOnInit(): void {
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
     this.loadGroupeTypeImmos();
     this.addGroupeTypeImmo = this.formBuilder.group({
       libelle: ["", [Validators.required]],
@@ -69,6 +79,44 @@ export class GroupeTypeImmoComponent implements OnInit {
       id: [0, [Validators.required]],
    });
   }
+
+// 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canVoirParamImmo = allowedFonctionnalites.includes('Voir Parametres Immo');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirParamImmo;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirParamImmo: this.canVoirParamImmo,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages d\'immo');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
 
   // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
   private markFormGroupTouched(formGroup: FormGroup) {

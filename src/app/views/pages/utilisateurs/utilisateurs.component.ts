@@ -32,6 +32,17 @@ declare var bootstrap: any;
   styleUrls: ['./utilisateurs.component.scss']
 })
 export class UtilisateurComponent implements OnInit {
+
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddUser: boolean = false;    // DÉFAUT À TRUE pour éviter les blocages
+  canExportUser: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canModifyUser: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canDeleteUser: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canVoirUser: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = false;  //  DÉFAUT À TRUE pour éviter les blocages
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: User[] = [];
@@ -79,11 +90,57 @@ export class UtilisateurComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
     this.loadUsers();
     this.loadRoles();
     this.loadEmployes(); // Charger la liste des employés
     this.initForms();
   }
+
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return;
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+
+      // 🔥 PERMISSIONS CORRECTES
+      this.canAddUser = allowedFonctionnalites.includes('Ajout utilisateur');
+      this.canVoirUser = allowedFonctionnalites.includes('Voir utilisateur');
+       this.canModifyUser = allowedFonctionnalites.includes('Modification utilisateur');
+      this.canDeleteUser = allowedFonctionnalites.includes('Suppression utilisateur');
+      this.canExportUser = allowedFonctionnalites.includes('Exporter utilisateur');
+
+      // 🔥 ACCÈS À LA PAGE SIMPLIFIÉ
+      this.hasPageAccess = this.canAddUser ||
+                        this.canVoirUser ||
+                         this.canModifyUser ||
+                         this.canDeleteUser ||
+                         this.canExportUser;
+
+
+      console.log('🔐 Permissions intervention:', {
+        canAddUser: this.canAddUser,
+        canVoirUser: this.canVoirUser,
+        canModifyUser: this.canModifyUser,
+        canDeleteUser: this.canDeleteUser,
+        canExportUser: this.canExportUser,
+        hasPageAccess: this.hasPageAccess
+      });
+
+    } catch (error) {
+      console.error('❌ Erreur permissions intervention:', error);
+    }
+  }
+
 
   // Ajoutez cette nouvelle méthode à votre classe de composant
   logValue(value: any, label: string = 'Debug'): void {
@@ -180,6 +237,13 @@ export class UtilisateurComponent implements OnInit {
 
   // --- Opérations CRUD Utilisateur ---
   onClickSubmitAddUser(): void {
+
+    if (!this.canAddUser) {
+      alert('Vous n\'avez pas l\'autorisation d\'ajouter un utilisateur.');
+      return;
+    }
+
+
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isAdding) {
       console.warn('Ajout utilisateur déjà en cours. Opération annulée.');
@@ -258,6 +322,12 @@ export class UtilisateurComponent implements OnInit {
   }
 
   onClickSubmitEditUser(): void {
+
+    if (!this.canModifyUser) {
+      alert('Vous n\'avez pas l\'autorisation de modifier un utilisateur.');
+      return;
+    }
+
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isEditing) {
       console.warn('Modification utilisateur déjà en cours. Opération annulée.');
@@ -316,6 +386,12 @@ export class UtilisateurComponent implements OnInit {
 
 
   onClickSubmitDeleteUser(): void {
+
+    if (!this.canDeleteUser) {
+      alert('Vous n\'avez pas l\'autorisation de supprimer un utilisateur.');
+      return;
+    }
+
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isDeleting) {
       console.warn('Suppression utilisateur déjà en cours. Opération annulée.');

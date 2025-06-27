@@ -13,7 +13,7 @@
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
   Utilisateur Supprimé avec succès
 </ngb-alert>
-<div class="row">
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
@@ -21,7 +21,7 @@
           <h4 class="card-title">Liste des Utilisateurs</h4>
           <p class="text-secondary">Liste des Utilisateurs</p>
         </div>
-        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+        <button *ngIf="canAddUser" type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
           data-bs-target="#add_user">
           Ajouter
         </button>
@@ -30,7 +30,7 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -59,18 +59,18 @@
                 {{ row.role?.libelle_role || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Actions">
+            <ngx-datatable-column name="Actions" *ngIf="canModifyUser || canDeleteUser">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <a ngbDropdownItem *ngIf="canModifyUser" class="d-flex align-items-center" data-bs-toggle="modal"
                        data-bs-target="#edit_user" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier le Rôle</span>
                     </a>
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <a ngbDropdownItem *ngIf="canDeleteUser" class="d-flex align-items-center" data-bs-toggle="modal"
                             data-bs-target="#delete_user" (click)="getDeleteForm(row)">
                             <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>

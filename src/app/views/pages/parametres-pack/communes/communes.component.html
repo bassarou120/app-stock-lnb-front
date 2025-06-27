@@ -1,29 +1,31 @@
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink=".">Paramètres</a></li>
-    <li class="breadcrumb-item active" aria-current="page">communes</li>
-  </ol>
-</nav>
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
 
-<!-- Alerte pour ajout avec succès -->
-<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Commune Ajoutée avec succès
-</ngb-alert>
-<!-- Alerte pour ajout avec succès -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Paramètres</a></li>
+      <li class="breadcrumb-item active" aria-current="page">communes</li>
+    </ol>
+  </nav>
 
-<!-- Alerte pour mofifier avec succès -->
-<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Commune Modifiée avec succès
-</ngb-alert>
-<!-- Alerte pour mofifier avec succès -->
+  <!-- Alerte pour ajout avec succès -->
+  <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Commune Ajoutée avec succès
+  </ngb-alert>
+  <!-- Alerte pour ajout avec succès -->
 
-<!-- Alerte pour supprimer avec succès -->
-<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Commune Supprimée avec succès
-</ngb-alert>
-<!-- Alerte pour supprimer avec succès -->
+  <!-- Alerte pour mofifier avec succès -->
+  <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Commune Modifiée avec succès
+  </ngb-alert>
+  <!-- Alerte pour mofifier avec succès -->
 
-<div class="row">
+  <!-- Alerte pour supprimer avec succès -->
+  <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+    Commune Supprimée avec succès
+  </ngb-alert>
+  <!-- Alerte pour supprimer avec succès -->
+
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
@@ -42,8 +44,8 @@
 </div>
 
 
-
-<div class="row">
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
