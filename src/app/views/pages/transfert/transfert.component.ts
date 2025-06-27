@@ -38,6 +38,8 @@ export class TransfertComponent implements OnInit {
   canExportTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   canModifyTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   canDeleteTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canViewTransfert: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
 
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
@@ -116,14 +118,11 @@ export class TransfertComponent implements OnInit {
       // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
       this.canAddTransfert = allowedFonctionnalites.includes('Ajout immobilisation');
       this.canExportTransfert = allowedFonctionnalites.includes('Exporter immobilisation');
-
+      this.canViewTransfert = allowedFonctionnalites.includes('Voir les Transferts');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddTransfert ||
-                          this.canExportTransfert ||
-                          this.canModifyTransfert ||
-                          this.canDeleteTransfert ;
-
+      this.hasPageAccess =  this.canViewTransfert;
+      
       console.log('🔐 Permissions calculées:', {
         canAddTransfert: this.canAddTransfert,
         canExportTransfert: this.canExportTransfert,

@@ -1,39 +1,48 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-error',
   standalone: true,
-  imports: [
-    RouterLink
-  ],
-  templateUrl: './error.component.html'
+  imports: [CommonModule, RouterLink],
+  templateUrl: './error.component.html',
+  //styleUrl: './error.component.scss'
 })
 export class ErrorComponent implements OnInit {
-
-  type: string | null;
-  title: string;
-  desc: string;
+  type: string = '404';
+  title: string = 'Page non trouvée';
+  desc: string = 'La page que vous recherchez n\'existe pas.';
 
   constructor(private route: ActivatedRoute) {}
 
   ngOnInit(): void {
-    this.type = this.route.snapshot.paramMap.get('type');
-
-    switch(this.type) {
-      case '404':
-        this.title = 'Page introuvable';
-        this.desc = 'Oups !! La page que vous recherchez n\'existe pas.';
-        break;
-      case '500':
-        this.title = 'Erreur interne du serveur';
-        this.desc = 'Oups !! Une erreur s\'est produite. Veuillez réessayer plus tard.';
-        break;
-      default:
-        this.type = 'Oups..';
-        this.title = 'Quelque chose s\'est mal passé';
-        this.desc = 'Il semble qu\'une erreur se soit produite.<br>' + 'Nous y travaillons.';
-    }
+    // Récupérer le type d'erreur depuis l'URL
+    this.route.params.subscribe(params => {
+      const errorType = params['type'];
+      this.setErrorContent(errorType);
+    });
   }
 
+  private setErrorContent(errorType: string): void {
+    switch (errorType) {
+      case '403':
+        this.type = '403';
+        this.title = 'Accès interdit';
+        this.desc = 'Vous n\'avez pas l\'autorisation d\'accéder à cette page.<br>Contactez votre administrateur si vous pensez que c\'est une erreur.';
+        break;
+      case '500':
+        this.type = '500';
+        this.title = 'Erreur serveur';
+        this.desc = 'Une erreur interne s\'est produite.<br>Veuillez réessayer plus tard.';
+        break;
+      case '404':
+      default:
+        this.type = '404';
+        this.title = 'Page non trouvée';
+        this.desc = 'La page que vous recherchez n\'existe pas.';
+        break;
+    }
+  }
 }

@@ -116,18 +116,15 @@ export class InterventionComponent implements OnInit {
 
       // 🔥 PERMISSIONS CORRECTES
       this.canAddIntervention = allowedFonctionnalites.includes('Ajout intervention');
-      this.canVoirIntervention = allowedFonctionnalites.includes('Intervention Immobilisation');
+      this.canVoirIntervention = allowedFonctionnalites.includes('Voir les Interventions Immo');
        this.canModifyIntervention = allowedFonctionnalites.includes('Modification intervention');
       this.canDeleteIntervention = allowedFonctionnalites.includes('Suppression intervention');
       this.canExportIntervention = allowedFonctionnalites.includes('Exporter immobilisation');
 
 
       // 🔥 ACCÈS À LA PAGE SIMPLIFIÉ
-      this.hasPageAccess = this.canAddIntervention ||
-                        this.canVoirIntervention
-                         this.canModifyIntervention ||
-                         this.canDeleteIntervention ||
-                         this.canExportIntervention;
+      this.hasPageAccess = 
+                        this.canVoirIntervention;
 
 
       console.log('🔐 Permissions intervention:', {
