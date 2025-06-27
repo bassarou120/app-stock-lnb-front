@@ -59,15 +59,18 @@ export class GroupeTypeImmoComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private groupeTypeImmoService: GroupeTypeImmoService,private formBuilder: FormBuilder,private router: Router) {}
+  constructor(private groupeTypeImmoService: GroupeTypeImmoService,private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+
+    // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
-    this.loadGroupeTypeImmos();
+        this.loadGroupeTypeImmos();
     }
+
     this.addGroupeTypeImmo = this.formBuilder.group({
       libelle: ["", [Validators.required]],
       compte: ["" ,[Validators.required]],
@@ -110,8 +113,7 @@ export class GroupeTypeImmoComponent implements OnInit {
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages d\'immo');
         this.router.navigate(['/error/403']);
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        return;
       }
 
     } catch (error) {

@@ -11,6 +11,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule, NgbMod
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -86,17 +87,21 @@ export class UtilisateurComponent implements OnInit {
   constructor(
     private utilisateurService: UtilisateurService,
     private formBuilder: FormBuilder,
-    public modalService: NgbModal
+    public modalService: NgbModal,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    this.loadUsers();
-    this.loadRoles();
-    this.loadEmployes(); // Charger la liste des employés
-    this.initForms();
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+      this.loadUsers();
+      this.loadRoles();
+      this.loadEmployes(); // Charger la liste des employés
+      this.initForms();
+    }
   }
 
 
@@ -120,12 +125,15 @@ export class UtilisateurComponent implements OnInit {
       this.canExportUser = allowedFonctionnalites.includes('Exporter utilisateur');
 
       // 🔥 ACCÈS À LA PAGE SIMPLIFIÉ
-      this.hasPageAccess = this.canAddUser ||
-                        this.canVoirUser ||
-                         this.canModifyUser ||
-                         this.canDeleteUser ||
-                         this.canExportUser;
+      this.hasPageAccess = 
+                        this.canVoirUser;
 
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des utilisateur');
+        this.router.navigate(['/error/403']);
+        return;
+      }
 
       console.log('🔐 Permissions intervention:', {
         canAddUser: this.canAddUser,

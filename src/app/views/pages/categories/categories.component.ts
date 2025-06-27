@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-categories',
@@ -51,12 +52,17 @@ export class CategorieComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private categorieService: CategorieService, private formBuilder: FormBuilder,) {}
+  constructor(private categorieService: CategorieService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-    this.loadCategories();
+    
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+      this.loadCategories();
+    }
+
     this.addCategorie = this.formBuilder.group({
       libelle_categorie_article: ["", [Validators.required]],
       // valeur: ["" ,[]],
@@ -100,8 +106,8 @@ export class CategorieComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

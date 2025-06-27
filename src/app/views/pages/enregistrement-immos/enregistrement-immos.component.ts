@@ -72,19 +72,20 @@ export class ImmobilisationComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder,private router: Router) { }
+  constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+        // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
-    this.loadImmobilisations();
-    this.loadFournisseurs();
-    this.loadStatusImmo();
-    this.loadSousTypeImmo();
-    this.loadGroupeTypeImmo();
-    this.loadVehicules();
+        this.loadImmobilisations();
+        this.loadFournisseurs();
+        this.loadStatusImmo();
+        this.loadSousTypeImmo();
+        this.loadGroupeTypeImmo();
+        this.loadVehicules();
     }
     this.addImmobilisation = this.formBuilder.group({
       bureau_id: [null, []],
@@ -174,8 +175,7 @@ export class ImmobilisationComponent implements OnInit {
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la gestion des immobilisations');
         this.router.navigate(['/error/403']);
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        return;
       }
 
     } catch (error) {

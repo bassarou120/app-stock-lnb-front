@@ -67,18 +67,21 @@ export class TransfertComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private transfertService: TransfertsService, private formBuilder: FormBuilder,private router: Router) { }
+  constructor(private transfertService: TransfertsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+
+        // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
-    this.loadImmobilisations();
-    this.loadEmployes();
-    this.loadBureaux();
-    this.loadTransferts();
+        this.loadImmobilisations();
+        this.loadEmployes();
+        this.loadBureaux();
+        this.loadTransferts();
     }
+
 
     this.addTransfert = this.formBuilder.group({
       immo_id: [null, [Validators.required]],
@@ -137,8 +140,7 @@ export class TransfertComponent implements OnInit {
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la gestion des immobilisations');
         this.router.navigate(['/error/403']);
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        return;
       }
 
     } catch (error) {

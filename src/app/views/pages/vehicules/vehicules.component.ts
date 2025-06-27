@@ -71,17 +71,17 @@ export class VehiculesComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder,private router: Router) { }
+  constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
     if (this.hasPageAccess) {
-    this.loadMarques();
-    this.loadModeles();
-    this.loadVehicules();
-    this.initForm(); // Initialise le formulaire d'ajout avec le FormArray
+      this.loadMarques();
+      this.loadModeles();
+      this.loadVehicules();
+      this.initForm(); // Initialise le formulaire d'ajout avec le FormArray
     }
 
     this.editVehicule = this.formBuilder.group({
@@ -131,8 +131,7 @@ export class VehiculesComponent implements OnInit {
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
         this.router.navigate(['/error/403']);
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        return;
       }
 
     } catch (error) {

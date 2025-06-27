@@ -175,21 +175,21 @@ export const MENU: MenuItem[] = [
     icon: 'file',
     link: '/rapports/immo',
     module: 'Gestion Rapport',
-    fonctionnalites: ['Rapport Immo', 'Export Rapport Immo']
+    fonctionnalites: ['Rapport Immo']
   },
   {
     label: 'Rapport parc',
     icon: 'file',
     link: '/rapports/parc',
     module: 'Gestion Rapport',
-    fonctionnalites: ['Rapport Parc', 'Export Parc']
+    fonctionnalites: ['Rapport Parc']
   },
   {
     label: 'Rapport ticket',
     icon: 'file',
     link: '/rapports/ticket',
     module: 'Gestion Rapport',
-    fonctionnalites: ['Rapport Ticket', 'Export Ticket']
+    fonctionnalites: ['Rapport Ticket']
   },
   {
     label: 'Paramètres',

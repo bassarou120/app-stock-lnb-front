@@ -73,10 +73,15 @@ export class SousTypeImmoComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-  if (this.hasPageAccess) {
-    this.loadTypeImmos();
-    this.loadSousTypeImmos();
-  }
+
+
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadTypeImmos();
+        this.loadSousTypeImmos();
+    }
+
+
     this.addSousTypeImmo = this.formBuilder.group({
       libelle: ["", [Validators.required]],
       id_type_immo: [null, [Validators.required]],

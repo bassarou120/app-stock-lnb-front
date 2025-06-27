@@ -51,14 +51,18 @@ export class StatusImmosComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private statusImmoService: StatusImmoService, private formBuilder: FormBuilder,private router: Router) {}
+  constructor(private statusImmoService: StatusImmoService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-  if (this.hasPageAccess) {
-    this.loadStatusImmos();
-  }
+
+   
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadStatusImmos();
+    }
+
     this.addStatusImmo = this.formBuilder.group({
       libelle_status_immo: ["", [Validators.required]],
     });
@@ -99,8 +103,7 @@ export class StatusImmosComponent implements OnInit {
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages de parc');
         this.router.navigate(['/error/403']);
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        return;
       }
 
     } catch (error) {
