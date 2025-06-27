@@ -16,7 +16,7 @@ export default [
   },
   {
     path: 'demande',
-    loadComponent: () => import('./demande/demande.component').then(c => c.SortieComponent),
+    loadComponent: () => import('./demande-old/demande-old.component').then(c => c.SortieComponent),
   },
   {
     path: 'les-demandes',

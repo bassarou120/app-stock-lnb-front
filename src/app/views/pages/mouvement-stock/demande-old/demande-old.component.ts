@@ -33,9 +33,16 @@ declare var bootstrap: any;
     NgbDatepickerModule,
     FeatherIconDirective
   ],
-  templateUrl: 'demande.component.html'
+  templateUrl: 'demande-old.component.html'
 })
 export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDestroy
+
+    // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canViewDemande: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canTreatDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: MouvementStock[] = [];
@@ -68,13 +75,6 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(private sortieService: MouvementStockService, private formBuilder: FormBuilder, private router: Router) { }
-
-    // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
-  allowedFonctionnalites: string[] = [];
-  canViewDemande: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
-  canTreatDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
-
-  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
   ngOnInit(): void {
 
