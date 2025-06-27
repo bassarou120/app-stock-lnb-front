@@ -9,6 +9,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -68,17 +69,18 @@ export class InterventionComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private interventionService: InterventionsService, private formBuilder: FormBuilder,) { }
+  constructor(private interventionService: InterventionsService, private formBuilder: FormBuilder,private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-
+    if (this.hasPageAccess) {
     this.loadImmobilisations();
     this.loadtypeInterventions();
     this.loadInterventions();
+    }
 
     this.addIntervention = this.formBuilder.group({
       immo_id: [null, [Validators.required]],
@@ -123,7 +125,7 @@ export class InterventionComponent implements OnInit {
 
 
       // 🔥 ACCÈS À LA PAGE SIMPLIFIÉ
-      this.hasPageAccess = 
+      this.hasPageAccess =
                         this.canVoirIntervention;
 
 
@@ -135,6 +137,14 @@ export class InterventionComponent implements OnInit {
         canVoirIntervention: this.canVoirIntervention,
         hasPageAccess: this.hasPageAccess
       });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la gestion des immobilisations');
+        this.router.navigate(['/error/403']);
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
 
     } catch (error) {
       console.error('❌ Erreur permissions intervention:', error);

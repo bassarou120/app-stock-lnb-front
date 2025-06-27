@@ -10,6 +10,7 @@ import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -74,7 +75,7 @@ export class EntreeComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private entreeService: MouvementTicketService, private formBuilder: FormBuilder,) { }
+  constructor(private entreeService: MouvementTicketService, private formBuilder: FormBuilder,private router: Router) { }
 
   ngOnInit(): void {
 
@@ -153,6 +154,7 @@ export class EntreeComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }

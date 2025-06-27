@@ -11,7 +11,7 @@ import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon
 
 // Services
 import { StockRapportService } from '../../../../core/services/rapport/stock/stock-rapport.service';
-import { BackendPostResource } from '../../../../core/services/interface/models'; 
+import { BackendPostResource } from '../../../../core/services/interface/models';
 import { ArticleService } from '../../../../core/services/articles/articles.service';
 import { FournisseursService } from '../../../../core/services/fournisseurs/fournisseurs.service';
 import { TypeMouvementService } from '../../../../core/services/types-mouvement/types-mouvement.service';
@@ -21,7 +21,7 @@ import { BureauxService } from './../../../../core/services/bureaux/bureaux.serv
 // Interfaces
 import {
   MouvementStock, Article, Fournisseur, TypeMouvement, Employe, PaginatedResponse, Bureau
-} from '../../../../core/services/interface/models'; 
+} from '../../../../core/services/interface/models';
 
 import { Observable, Subject, takeUntil } from 'rxjs';
 
@@ -34,16 +34,16 @@ export interface RapportEtatStockArticle {
     description: string;
     categorie: string;
     stock_alerte: number;
-    unite_de_mesure?: string; 
+    unite_de_mesure?: string;
   };
   stock_actuel: {
     quantite: number;
     prix_unitaire: number;
     montant_total: number;
-    date_maj?: string | Date | null; 
+    date_maj?: string | Date | null;
   };
   derniere_entree?: {
-    date: string | Date | null; 
+    date: string | Date | null;
     quantite: number;
     prix_unitaire: number;
     montant: number;
@@ -53,11 +53,11 @@ export interface RapportEtatStockArticle {
     dans_periode: boolean;
   };
   derniere_sortie?: {
-    date: string | Date | null; 
+    date: string | Date | null;
     quantite: number;
     prix_unitaire: number;
     montant: number;
-    employe: string; 
+    employe: string;
     bureau: string;
     description: string;
     type_mouvement: string;
@@ -70,12 +70,12 @@ export interface RapportEtatStockArticle {
     mouvement_net: number;
     periode: string;
   };
-  debug?: any; 
+  debug?: any;
 }
 
 // Définir les types de rapport pour les stocks
 interface TypeRapportStock {
-  id: string; 
+  id: string;
   libelle: string;
 }
 
@@ -101,30 +101,30 @@ export class RapportStockComponent implements OnInit, OnDestroy {
   @ViewChild('table') table!: DatatableComponent;
 
   rapportForm!: FormGroup;
-  rows: any[] = []; 
-  temp: any[] = []; 
+  rows: any[] = [];
+  temp: any[] = [];
   loadingIndicator = false;
   ColumnMode = ColumnMode;
 
   // Listes pour les dropdowns de filtrage
   articles: Article[] = [];
   fournisseurs: Fournisseur[] = [];
-  typeMouvements: TypeMouvement[] = []; 
-  employes: Employe[] = []; 
+  typeMouvements: TypeMouvement[] = [];
+  employes: Employe[] = [];
   bureaux: Bureau[] = [];
 
   // Types de rapports de stock
   typeRapportsStock: TypeRapportStock[] = [
     { id: 'entree', libelle: 'Ordre d\'Entrée' },
     { id: 'sortie', libelle: 'Ordre de Sortie' },
-    { id: 'etat_stock', libelle: 'État de Stock' }, 
+    { id: 'etat_stock', libelle: 'État de Stock' },
   ];
-  selectedReportTypeId: string | null = null; 
+  selectedReportTypeId: string | null = null;
 
   // Indicateurs pour l'affichage conditionnel des filtres
   showEntryFilters: boolean = false;
   showExitFilters: boolean = false;
-  showStockStatusFilters: boolean = false; 
+  showStockStatusFilters: boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -137,7 +137,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     private articlesService: ArticleService,
     private fournisseursService: FournisseursService,
     private typeMouvementService: TypeMouvementService,
-    private employesService: EmployesService, 
+    private employesService: EmployesService,
     private bureauxService: BureauxService
   ) { }
 
@@ -195,12 +195,12 @@ export class RapportStockComponent implements OnInit, OnDestroy {
       date_fin: [{ value: null, disabled: true }],
 
       // Champs spécifiques au rapport d'entrée
-      id_Article_entree: [{ value: null, disabled: true }], 
-      id_fournisseur_entree: [{ value: null, disabled: true }], 
+      id_Article_entree: [{ value: null, disabled: true }],
+      id_fournisseur_entree: [{ value: null, disabled: true }],
 
       // Champs spécifiques au rapport de sortie
-      id_Article_sortie: [{ value: null, disabled: true }], 
-      id_employe_sortie: [{ value: null, disabled: true }], 
+      id_Article_sortie: [{ value: null, disabled: true }],
+      id_employe_sortie: [{ value: null, disabled: true }],
 
       // NOUVEAUX Champs spécifiques au rapport d'état de stock
       id_Article_etat: [{ value: null, disabled: true }],
@@ -211,14 +211,14 @@ export class RapportStockComponent implements OnInit, OnDestroy {
 
   onTypeRapportChange(typeRapportId: string | null): void {
     this.selectedReportTypeId = typeRapportId;
-    this.resetFormControls(); 
+    this.resetFormControls();
 
     // Activer les champs de date pour tous les types de rapports de stock
     this.rapportForm.get('date_debut')?.enable();
     this.rapportForm.get('date_fin')?.enable();
     this.rapportForm.get('date_debut')?.setValidators(Validators.required);
     this.rapportForm.get('date_fin')?.setValidators(Validators.required);
-    this.rapportForm.setValidators(this.dateRangeValidatorForReport()); 
+    this.rapportForm.setValidators(this.dateRangeValidatorForReport());
 
     switch (typeRapportId) {
       case 'entree':
@@ -237,7 +237,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.rapportForm.get('id_employe_sortie')?.enable();
         break;
 
-      case 'etat_stock': 
+      case 'etat_stock':
         this.showEntryFilters = false;
         this.showExitFilters = false;
         this.showStockStatusFilters = true;
@@ -246,7 +246,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.rapportForm.get('qte_max_etat')?.enable();
         this.rapportForm.get('qte_min_etat')?.setValidators(Validators.min(0));
         this.rapportForm.get('qte_max_etat')?.setValidators(Validators.min(0));
-        this.rapportForm.setValidators(this.quantityRangeValidator()); 
+        this.rapportForm.setValidators(this.quantityRangeValidator());
         break;
 
       default:
@@ -257,12 +257,12 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_fin')?.disable();
         this.rapportForm.get('date_debut')?.clearValidators();
         this.rapportForm.get('date_fin')?.clearValidators();
-        this.rapportForm.clearValidators(); 
+        this.rapportForm.clearValidators();
         this.rapportForm.reset({ id_type_rapport: typeRapportId });
         this.markFormGroupTouched(this.rapportForm);
         break;
     }
-    this.rapportForm.updateValueAndValidity(); 
+    this.rapportForm.updateValueAndValidity();
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
@@ -288,7 +288,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
   private resetFormControls(): void {
     Object.keys(this.rapportForm.controls).forEach(key => {
       const control = this.rapportForm.get(key);
-      if (control && key !== 'id_type_rapport') { 
+      if (control && key !== 'id_type_rapport') {
         control.disable();
         control.clearValidators();
         control.setValue(null);
@@ -296,8 +296,8 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     });
     this.showEntryFilters = false;
     this.showExitFilters = false;
-    this.showStockStatusFilters = false; 
-    this.rapportForm.clearValidators(); 
+    this.showStockStatusFilters = false;
+    this.rapportForm.clearValidators();
     this.rapportForm.updateValueAndValidity();
     this.rows = [];
     this.temp = [];
@@ -348,7 +348,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     console.log('Form isValid before API call:', this.rapportForm.valid);
     console.log('Form errors (group level):', this.rapportForm.errors);
     Object.keys(this.rapportForm.controls).forEach(key => {
-      if (this.rapportForm.get(key)?.errors && this.rapportForm.get(key)?.enabled) { 
+      if (this.rapportForm.get(key)?.errors && this.rapportForm.get(key)?.enabled) {
         console.log(`Errors on control ${key}:`, this.rapportForm.get(key)?.errors);
       }
     });
@@ -363,8 +363,8 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     this.isGeneratingReport = true;
     this.loadingIndicator = true;
     this.errorMessage = '';
-    this.rows = []; 
-    this.temp = []; 
+    this.rows = [];
+    this.temp = [];
 
     const filters: { [key: string]: any } = { ...this.rapportForm.value };
 
@@ -374,7 +374,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     const finalFilters: { [key: string]: any } = {};
 
     if (this.selectedReportTypeId === 'entree') {
-        finalFilters.id_type_rapport = 'entree'; 
+        finalFilters.id_type_rapport = 'entree';
         finalFilters.id_Article = filters.id_Article_entree;
         finalFilters.id_fournisseur = filters.id_fournisseur_entree;
         const typeEntree = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'entrée de stock');
@@ -384,17 +384,17 @@ export class RapportStockComponent implements OnInit, OnDestroy {
             console.warn("Type de mouvement 'entrée de stock' non trouvé. Veuillez vérifier les données.");
         }
     } else if (this.selectedReportTypeId === 'sortie') {
-        finalFilters.id_type_rapport = 'sortie'; 
+        finalFilters.id_type_rapport = 'sortie';
         finalFilters.id_Article = filters.id_Article_sortie;
-        finalFilters.id_employe = filters.id_employe_sortie; 
+        finalFilters.id_employe = filters.id_employe_sortie;
         const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie de stock');
         if (typeSortie) {
             finalFilters.id_type_mouvement = typeSortie.id;
         } else {
             console.warn("Type de mouvement 'sortie de stock' non trouvé. Veuillez vérifier les données.");
         }
-    } else if (this.selectedReportTypeId === 'etat_stock') { 
-        finalFilters.id_article = filters.id_Article_etat; 
+    } else if (this.selectedReportTypeId === 'etat_stock') {
+        finalFilters.id_article = filters.id_Article_etat;
         finalFilters.qte_min = filters.qte_min_etat;
         finalFilters.qte_max = filters.qte_max_etat;
     }
@@ -412,7 +412,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
 
     console.log('Envoi des filtres AU BACKEND pour le rapport:', finalFilters);
 
-    let apiCall: Observable<BackendPostResource<any>>; 
+    let apiCall: Observable<BackendPostResource<any>>;
     if (this.selectedReportTypeId === 'etat_stock') {
       apiCall = this.stockRapportService.getRapportEtatStockData(finalFilters);
     } else {
@@ -437,7 +437,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
             this.rows = (response.data.data || []).map((item: any) => ({
                 ...item,
                 // Utiliser la nouvelle fonction de parsing pour date_mouvement
-                date_mouvement: this.parseBackendDateString(item.date_mouvement) 
+                date_mouvement: this.parseBackendDateString(item.date_mouvement)
             }));
             this.temp = [...this.rows];
             console.log('Données du rapport entrée/sortie chargées:', this.rows);
@@ -509,8 +509,8 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie de stock');
         if (typeSortie) finalFilters.id_type_mouvement = typeSortie.id;
 
-    } else if (this.selectedReportTypeId === 'etat_stock') { 
-        finalFilters.id_article = filters.id_Article_etat; 
+    } else if (this.selectedReportTypeId === 'etat_stock') {
+        finalFilters.id_article = filters.id_Article_etat;
         finalFilters.qte_min = filters.qte_min_etat;
         finalFilters.qte_max = filters.qte_max_etat;
     }
@@ -541,7 +541,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         const fileURL = window.URL.createObjectURL(response);
         const a = document.createElement('a');
         a.href = fileURL;
-        a.download = `rapport_${this.selectedReportTypeId}_${new Date().toISOString().slice(0,10)}.pdf`; 
+        a.download = `rapport_${this.selectedReportTypeId}_${new Date().toISOString().slice(0,10)}.pdf`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -551,7 +551,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
       (error: any) => {
         console.error('Erreur lors du téléchargement du PDF du rapport de stock:', error);
         this.errorMessage = `Impossible de télécharger le PDF: ${error.message || 'Veuillez vérifier votre connexion ou contacter l\'administrateur.'}`;
-        this.isGeneratingReport = false; 
+        this.isGeneratingReport = false;
       }
     );
   }
@@ -577,7 +577,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
     console.log('Valeur de recherche locale:', val);
 
-    if (this.temp.length === 0) { 
+    if (this.temp.length === 0) {
         this.rows = [];
         return;
     }
@@ -600,11 +600,11 @@ export class RapportStockComponent implements OnInit, OnDestroy {
                 (item.article?.categorie?.toLowerCase().includes(val) || false) ||
                 (derniereEntreeDateStr?.toLowerCase().includes(val) || false) ||
                 (derniereSortieDateStr?.toLowerCase().includes(val) || false) ||
-                (stockActuelDateMajStr?.toLowerCase().includes(val) || false); 
-        
+                (stockActuelDateMajStr?.toLowerCase().includes(val) || false);
+
         return match;
       });
-    } else { 
+    } else {
       this.rows = (this.temp as MouvementStock[]).filter((item: MouvementStock) => {
         let match = false;
         // Utilisez la nouvelle fonction de parsing pour la recherche sur date_mouvement
@@ -619,7 +619,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
                 ((item.type_mouvement && item.type_mouvement.libelle_type_mouvement) ? item.type_mouvement.libelle_type_mouvement.toLowerCase().includes(val) : false) ||
                 // ((item.employe && (item.employe as Employe).nom && (item.employe as Employe).prenom) ? `${(item.employe as Employe).nom} ${(item.employe as Employe).prenom}`.toLowerCase().includes(val) : false) ||
                 ((item.bureau && item.bureau.libelle_bureau) ? item.bureau.libelle_bureau.toLowerCase().includes(val) : false) ||
-                (dateMouvementStr?.toLowerCase().includes(val) || false); 
+                (dateMouvementStr?.toLowerCase().includes(val) || false);
         return match;
       });
     }

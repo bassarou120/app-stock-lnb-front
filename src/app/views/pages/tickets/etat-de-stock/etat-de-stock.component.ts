@@ -6,6 +6,7 @@ import { CompagniePetroliere, CouponTicket, StockTicket } from '../../../../core
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';  // Ajoutez cette importation
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -44,7 +45,7 @@ export class EtatStockComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private couponTicketService: CouponTicketService) { }
+  constructor(private couponTicketService: CouponTicketService,private router: Router) { }
 
   // Variable pour stocker le texte de recherche
   searchText: string = '';
@@ -78,6 +79,7 @@ export class EtatStockComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }

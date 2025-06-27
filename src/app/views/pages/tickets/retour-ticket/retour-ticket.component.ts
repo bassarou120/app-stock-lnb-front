@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+import { Router } from '@angular/router';
 declare var bootstrap: any;
 
 @Component({
@@ -30,12 +31,12 @@ declare var bootstrap: any;
 export class RetourTicketComponent implements OnInit {
     // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
-  canAddRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres 
-  canModifyRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres 
+  canAddRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
+  canModifyRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
   canDeleteRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
   canVoirRetourTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
 
-  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages 
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: RetourTicket[] = [];
   temp: RetourTicket[] = [];
@@ -64,16 +65,17 @@ export class RetourTicketComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private retourTicketService: RetourTicketService, private formBuilder: FormBuilder,) { }
+  constructor(private retourTicketService: RetourTicketService, private formBuilder: FormBuilder,private router: Router) { }
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-
+    if (this.hasPageAccess) {
     this.loadAllSortieTicketWhereNotInRetour();
     this.loadRetourTickets();
     this.loadCompagniePetrolieres();
     this.loadCouponTickets();
+    }
 
     this.addRetourTicket = this.formBuilder.group({
       mouvementTicket_id: [null, [Validators.required]],
@@ -124,6 +126,7 @@ export class RetourTicketComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé retour des tickets');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }

@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 declare var bootstrap: any;
 
 @Component({
@@ -58,14 +59,15 @@ export class GroupeTypeImmoComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private groupeTypeImmoService: GroupeTypeImmoService,private formBuilder: FormBuilder,) {}
+  constructor(private groupeTypeImmoService: GroupeTypeImmoService,private formBuilder: FormBuilder,private router: Router) {}
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-
+    if (this.hasPageAccess) {
     this.loadGroupeTypeImmos();
+    }
     this.addGroupeTypeImmo = this.formBuilder.group({
       libelle: ["", [Validators.required]],
       compte: ["" ,[Validators.required]],
@@ -107,6 +109,7 @@ export class GroupeTypeImmoComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages d\'immo');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }

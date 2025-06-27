@@ -9,6 +9,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+import { Router } from '@angular/router';
 
 // Importez FeatherIconDirective si vous l'utilisez, sinon retirez-la.
 // Pour l'instant, je la retire car elle n'était pas présente dans l'import list du @Component
@@ -70,7 +71,7 @@ export class VehiculesComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder,) { }
+  constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder,private router: Router) { }
 
   ngOnInit(): void {
 
@@ -129,6 +130,7 @@ export class VehiculesComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }

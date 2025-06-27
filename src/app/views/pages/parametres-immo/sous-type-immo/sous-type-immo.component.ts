@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Subject, takeUntil } from 'rxjs';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sous-type-immo',
@@ -67,14 +68,15 @@ export class SousTypeImmoComponent implements OnInit, OnDestroy {
   @ViewChild('editSoustypeImmoCompte', { static: false }) editCompteInput!: ElementRef; // Référence à l'input d'édition
 
 
-  constructor(private sousTypeImmoService: SousTypeImmoService, private formBuilder: FormBuilder, ) { }
+  constructor(private sousTypeImmoService: SousTypeImmoService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-
+  if (this.hasPageAccess) {
     this.loadTypeImmos();
     this.loadSousTypeImmos();
+  }
     this.addSousTypeImmo = this.formBuilder.group({
       libelle: ["", [Validators.required]],
       id_type_immo: [null, [Validators.required]],
@@ -156,6 +158,7 @@ export class SousTypeImmoComponent implements OnInit, OnDestroy {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages d\'immo');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }

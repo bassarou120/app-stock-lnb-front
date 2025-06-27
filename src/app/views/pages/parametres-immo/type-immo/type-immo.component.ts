@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angu
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 declare var bootstrap: any;
 
 @Component({
@@ -51,13 +52,14 @@ export class TypeImmoComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private typeImmoService: TypeImmoService, private formBuilder: FormBuilder,) {}
+  constructor(private typeImmoService: TypeImmoService, private formBuilder: FormBuilder,private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-
+  if (this.hasPageAccess) {
     this.loadTypeImmos();
+  }
     this.addTypeImmo = this.formBuilder.group({
       libelle_typeImmo: ["", [Validators.required]],
       compte: ["" ,[Validators.required]],
@@ -99,6 +101,7 @@ export class TypeImmoComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages d\'immo');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }

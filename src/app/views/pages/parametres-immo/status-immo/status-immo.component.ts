@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angu
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 declare var bootstrap: any;
 
 @Component({
@@ -27,7 +28,7 @@ export class StatusImmosComponent implements OnInit {
   allowedFonctionnalites: string[] = [];
   canVoirParamImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
 
-  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages 
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: StatusImmo[] = [];
   temp: StatusImmo[] = [];
@@ -50,13 +51,14 @@ export class StatusImmosComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private statusImmoService: StatusImmoService, private formBuilder: FormBuilder,) {}
+  constructor(private statusImmoService: StatusImmoService, private formBuilder: FormBuilder,private router: Router) {}
 
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-
+  if (this.hasPageAccess) {
     this.loadStatusImmos();
+  }
     this.addStatusImmo = this.formBuilder.group({
       libelle_status_immo: ["", [Validators.required]],
     });
@@ -96,6 +98,7 @@ export class StatusImmosComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé parametrages de parc');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }
@@ -176,7 +179,7 @@ export class StatusImmosComponent implements OnInit {
   onClickSubmitEditStatusImmo(){
     console.log(this.editStatusImmo.value);
 
-    // const spinner = document.querySelector('.spinner-edit'); 
+    // const spinner = document.querySelector('.spinner-edit');
 
     // Vérifier si une soumission est déjà en cours
     if (this.isEditingStatus) {
@@ -188,7 +191,7 @@ export class StatusImmosComponent implements OnInit {
       this.isEditingStatus = true; // Désactiver le bouton Modifier
       // if (spinner) spinner.classList.remove('d-none');
 
-      const id = this.editStatusImmo.value.id; 
+      const id = this.editStatusImmo.value.id;
       this.statusImmoService.editStatusImmos(this.editStatusImmo.value).subscribe(
         {
             next: (data: any) => {

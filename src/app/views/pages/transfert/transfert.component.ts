@@ -9,6 +9,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -66,17 +67,18 @@ export class TransfertComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private transfertService: TransfertsService, private formBuilder: FormBuilder,) { }
+  constructor(private transfertService: TransfertsService, private formBuilder: FormBuilder,private router: Router) { }
 
   ngOnInit(): void {
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-
+    if (this.hasPageAccess) {
     this.loadImmobilisations();
     this.loadEmployes();
     this.loadBureaux();
     this.loadTransferts();
+    }
 
     this.addTransfert = this.formBuilder.group({
       immo_id: [null, [Validators.required]],
@@ -122,7 +124,7 @@ export class TransfertComponent implements OnInit {
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
       this.hasPageAccess =  this.canViewTransfert;
-      
+
       console.log('🔐 Permissions calculées:', {
         canAddTransfert: this.canAddTransfert,
         canExportTransfert: this.canExportTransfert,
@@ -134,6 +136,7 @@ export class TransfertComponent implements OnInit {
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la gestion des immobilisations');
+        this.router.navigate(['/error/403']);
         // Optionnel: redirection automatique
         // this.router.navigate(['/dashboard']);
       }
