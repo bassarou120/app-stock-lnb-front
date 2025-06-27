@@ -1,15 +1,16 @@
-<div *ngIf="loading">Chargement...</div>
+<!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
+<div class="row" *ngIf="!hasPageAccess">
 
-<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Demande Traité avec succès
-</ngb-alert>
-<ngb-alert *ngIf="alertModifAllVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Demande Traités avec succès
-</ngb-alert>
-<!-- Alerte pour mofifier avec succès -->
+  <div *ngIf="loading">Chargement...</div>
 
+  <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Demande Traité avec succès
+  </ngb-alert>
+  <ngb-alert *ngIf="alertModifAllVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Demande Traités avec succès
+  </ngb-alert>
+  <!-- Alerte pour mofifier avec succès -->
 
-<div class="row">
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
@@ -29,7 +30,8 @@
 </div>
 
 
-<div class="row">
+<!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
+<div class="row" *ngIf="!hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -87,7 +89,7 @@
         <td colspan="8" style="padding: 0;">
           <table class="table table-sm table-striped mb-0">
             <thead>
-              <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tout_traiter"
+              <button *ngIf="canTreatDemande" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tout_traiter"
                 (click)="openToutTraiterModal(group.code_mouvement)" [disabled]="!isGroupTraitable(group)">
                 tout traiter
               </button>
@@ -114,7 +116,7 @@
                 <!-- <td>{{ detail.date_mouvement  }}</td> -->
                 <td>{{ detail.statut }}</td>
                 <td>
-                  <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit_statut_sortie"
+                  <button *ngIf="canTreatDemande"class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit_statut_sortie"
                     (click)="getStatutForm(detail)" [disabled]="detail.statut === 'Accordé'">
                     Traiter
                   </button>

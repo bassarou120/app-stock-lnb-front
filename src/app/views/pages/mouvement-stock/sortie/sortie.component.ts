@@ -33,6 +33,12 @@ declare var bootstrap: any;
 })
 export class SortieComponent implements OnInit {
 
+    // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canViewSortie: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: MouvementStock[] = [];
   temp: MouvementStock[] = [];
@@ -62,6 +68,11 @@ export class SortieComponent implements OnInit {
   constructor(private sortieService: MouvementStockService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
+
     this.loadEmployes();
     this.loadArticles();
     this.loadBureaux();
@@ -88,6 +99,43 @@ export class SortieComponent implements OnInit {
       id: [0, [Validators.required]],
     });
   }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canViewSortie = allowedFonctionnalites.includes('Sorties de Stock');
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canViewSortie ;
+
+      console.log('🔐 Permissions calculées:', {
+        canViewSortie: this.canViewSortie,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des sorties de stock');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
 
   onClickSubmitAddSortie() {
     console.log(this.addSortie.value);

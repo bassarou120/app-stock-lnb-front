@@ -36,6 +36,7 @@ export class EntreeComponent implements OnInit {
  // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canAddEntre: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canViewEntreTicket: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
   canModifyEntre: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
   canDeleteEntre: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
   hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
@@ -137,11 +138,10 @@ export class EntreeComponent implements OnInit {
       this.canAddEntre = allowedFonctionnalites.includes('Ajout de Ticket');
       this.canModifyEntre = allowedFonctionnalites.includes('Modification de Ticket');
       this.canDeleteEntre = allowedFonctionnalites.includes('Supression de Ticket');
+      this.canViewEntreTicket = allowedFonctionnalites.includes('Voir entrée de ticket');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddEntre ||
-                          this.canModifyEntre ||
-                          this.canDeleteEntre ;
+      this.hasPageAccess = this.canViewEntreTicket ;
 
 
       console.log('🔐 Permissions calculées:', {

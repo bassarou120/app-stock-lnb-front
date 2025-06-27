@@ -30,7 +30,7 @@ export const MENU: MenuItem[] = [
       {
         label: 'Les demandes',
         link: '/mouvement-stock/les-demandes',
-        fonctionnalites: ['Voir Les demandes', 'Validation de demande']
+        fonctionnalites: ['Voir Les demandes', 'Traiter de demande']
       },
       {
         label: 'Sorties de Stock',
@@ -64,14 +64,14 @@ export const MENU: MenuItem[] = [
     icon: 'send',
     link: '/transfert',
     module: 'Gestion de immobilisation',
-    fonctionnalites: ['Affectation Immobilisation']
+    fonctionnalites: ['Voir les Transferts']
   },
   {
     label: 'Intervention',
     icon: 'activity',
     link: '/intervention',
     module: 'Gestion de immobilisation',
-    fonctionnalites: ['Intervention Immobilisation', 'Ajout intervention']
+    fonctionnalites: ['Voir les Interventions Immo']
   },
   {
     label: 'Gestion de Parc',
@@ -83,14 +83,14 @@ export const MENU: MenuItem[] = [
     icon: 'truck',
     link: '/vehicules',
     module: 'Gestion de parc',
-    fonctionnalites: ['Ajout vehicule']
+    fonctionnalites: ['Voir parc vehicule']
   },
   {
     label: 'Intervention Véhicules',
     icon: 'pen-tool',
     link: '/interventionvehicules',
     module: 'Gestion de parc',
-    fonctionnalites: ['Ajout Intervention vehicule']
+    fonctionnalites: ['Voir intervention vehicule']
   },
   {
     label: 'Tickets',
@@ -105,7 +105,7 @@ export const MENU: MenuItem[] = [
       {
         label: 'Entrée de Ticket',
         link: 'tickets/entree',
-        fonctionnalites: ['Ajout de Ticket']
+        fonctionnalites: ['Voir entrée de ticket']
       },
       {
         label: 'Stock Ticket',

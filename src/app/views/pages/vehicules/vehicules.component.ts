@@ -41,6 +41,7 @@ export class VehiculesComponent implements OnInit {
     // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canAddVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canViewVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
   canModifyVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
   canDeleteVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
   hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
@@ -113,11 +114,10 @@ export class VehiculesComponent implements OnInit {
       this.canAddVehicule = allowedFonctionnalites.includes('Ajout vehicule');
       this.canModifyVehicule = allowedFonctionnalites.includes('Modification vehicule');
       this.canDeleteVehicule = allowedFonctionnalites.includes('Suppression vehicule');
+      this.canViewVehicule = allowedFonctionnalites.includes('Voir parc vehicule');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddVehicule ||
-                          this.canModifyVehicule ||
-                          this.canDeleteVehicule ;
+      this.hasPageAccess = this.canViewVehicule ;
 
 
       console.log('🔐 Permissions calculées:', {

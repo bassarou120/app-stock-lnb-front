@@ -40,6 +40,7 @@ export class InterventionVehiculeComponent implements OnInit {
   canAddInterventionVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
   canModifyInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
   canDeleteInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canViewInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
   hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
@@ -110,11 +111,10 @@ export class InterventionVehiculeComponent implements OnInit {
       this.canAddInterventionVehicule = allowedFonctionnalites.includes('Ajout Intervention vehicule');
       this.canModifyInterventionVehicule = allowedFonctionnalites.includes('Modification Intervention vehicule');
       this.canDeleteInterventionVehicule = allowedFonctionnalites.includes('Suppression Intervention vehicule');
+      this.canViewInterventionVehicule= allowedFonctionnalites.includes('Voir intervention vehicule');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddInterventionVehicule ||
-                          this.canModifyInterventionVehicule ||
-                          this.canDeleteInterventionVehicule ;
+      this.hasPageAccess = this.canViewInterventionVehicule ;
 
 
       console.log('🔐 Permissions calculées:', {
