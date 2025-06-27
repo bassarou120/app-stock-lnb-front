@@ -37,6 +37,14 @@ declare var bootstrap: any;
 })
 
 export class VehiculesComponent implements OnInit {
+
+    // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canModifyVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canDeleteVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: Vehicule[] = [];
@@ -64,10 +72,15 @@ export class VehiculesComponent implements OnInit {
   constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+    if (this.hasPageAccess) {
     this.loadMarques();
     this.loadModeles();
     this.loadVehicules();
     this.initForm(); // Initialise le formulaire d'ajout avec le FormArray
+    }
 
     this.editVehicule = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -81,6 +94,49 @@ export class VehiculesComponent implements OnInit {
     this.deleteVehicule = this.formBuilder.group({
       id: [0, [Validators.required]],
     });
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddVehicule = allowedFonctionnalites.includes('Ajout vehicule');
+      this.canModifyVehicule = allowedFonctionnalites.includes('Modification vehicule');
+      this.canDeleteVehicule = allowedFonctionnalites.includes('Suppression vehicule');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canAddVehicule ||
+                          this.canModifyVehicule ||
+                          this.canDeleteVehicule ;
+
+
+      console.log('🔐 Permissions calculées:', {
+        canAddVehicule: this.canAddVehicule,
+        canModifyVehicule: this.canModifyVehicule,
+        canDeleteVehicule: this.canDeleteVehicule
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des entrées de stock');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
   }
 
   initForm(): void {

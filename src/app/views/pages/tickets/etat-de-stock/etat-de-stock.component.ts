@@ -22,6 +22,13 @@ declare var bootstrap: any;
   styleUrls: ['etat-de-stock.component.scss']
 })
 export class EtatStockComponent implements OnInit {
+
+  // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canViewStock: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
+
   rows: StockTicket[] = [];
   temp: StockTicket[] = [];
   loadingIndicator = true;
@@ -42,8 +49,43 @@ export class EtatStockComponent implements OnInit {
   // Variable pour stocker le texte de recherche
   searchText: string = '';
   ngOnInit(): void {
+    this.initializePermissions();
+    if (this.hasPageAccess) {
     this.loadStockTicket();
     this.loadDropdownData()
+  }
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canViewStock = allowedFonctionnalites.includes('Verifier Stock Ticket');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canViewStock;
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des entrées de stock');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
   }
 
 

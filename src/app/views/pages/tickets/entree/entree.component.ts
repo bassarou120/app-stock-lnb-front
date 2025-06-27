@@ -33,6 +33,14 @@ declare var bootstrap: any;
 })
 export class EntreeComponent implements OnInit {
 
+ // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddEntre: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canModifyEntre: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canDeleteEntre: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: MouvementTicket[] = [];
   temp: MouvementTicket[] = [];
@@ -68,11 +76,15 @@ export class EntreeComponent implements OnInit {
   constructor(private entreeService: MouvementTicketService, private formBuilder: FormBuilder,) { }
 
   ngOnInit(): void {
+
+    this.initializePermissions();
+    if (this.hasPageAccess) {
     this.loadCompagniesPetrolieres();
     this.loadCouponTickets();
     this.loadEmployes();
     this.loadVehicules();
     this.loadEntrees();
+    }
     this.addEntree = this.formBuilder.group({
       compagnie_petrolier_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
@@ -107,6 +119,49 @@ export class EntreeComponent implements OnInit {
     });
   }
   // ---------------------------------------------------------------------
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddEntre = allowedFonctionnalites.includes('Ajout de Ticket');
+      this.canModifyEntre = allowedFonctionnalites.includes('Modification de Ticket');
+      this.canDeleteEntre = allowedFonctionnalites.includes('Supression de Ticket');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canAddEntre ||
+                          this.canModifyEntre ||
+                          this.canDeleteEntre ;
+
+
+      console.log('🔐 Permissions calculées:', {
+        canAddEntre: this.canAddEntre,
+        canModifyEntre: this.canModifyEntre,
+        canDeleteEntre: this.canDeleteEntre
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des entrées de stock');
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
 
   onClickSubmitAddEntree() {
     // 1. Vérifier si une soumission est déjà en cours

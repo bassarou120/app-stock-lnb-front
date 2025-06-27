@@ -83,14 +83,14 @@ export const MENU: MenuItem[] = [
     icon: 'truck',
     link: '/vehicules',
     module: 'Gestion de parc',
-    fonctionnalites: ['Ajout parc']
+    fonctionnalites: ['Ajout vehicule']
   },
   {
     label: 'Intervention Véhicules',
     icon: 'pen-tool',
     link: '/interventionvehicules',
     module: 'Gestion de parc',
-    fonctionnalites: ['Intervention Parc', 'Ajout d`/intervention']
+    fonctionnalites: ['Ajout Intervention vehicule']
   },
   {
     label: 'Tickets',

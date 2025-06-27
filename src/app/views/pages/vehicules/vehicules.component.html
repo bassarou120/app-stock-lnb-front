@@ -1,3 +1,29 @@
+<!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
+<div *ngIf="!hasPageAccess" class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-body text-center">
+          <div class="mb-4">
+            <i class="feather icon-lock" style="font-size: 4rem; color: #dc3545;"></i>
+          </div>
+          <h4 class="card-title text-danger">Accès Refusé</h4>
+          <p class="text-muted">
+            Vous n'avez pas les permissions nécessaires pour accéder à cette page.
+            <br>
+            Contactez votre administrateur pour obtenir les droits d'accès au module de gestion de parc.
+          </p>
+          <a routerLink="/dashboard" class="btn btn-primary">
+            <i class="feather icon-home me-2"></i>
+            Retour au tableau de bord
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="hasPageAccess">
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a routerLink=".">Véhicules</a></li>
@@ -31,7 +57,7 @@
           <p class="text-secondary">Liste des Véhicules</p>
         </div>
         <div class="d-flex gap-2">
-          <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          <button *ngIf="canAddVehicule" type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
             data-bs-target="#add_vehicule">
             Ajouter
           </button>
@@ -85,7 +111,7 @@
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Actions">
+            <ngx-datatable-column *ngIf="canDeleteVehicule" name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -263,4 +289,5 @@
       </div>
     </div>
   </div>
+</div>
 </div>
