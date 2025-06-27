@@ -30,7 +30,7 @@ export const MENU: MenuItem[] = [
       {
         label: 'Les demandes',
         link: '/mouvement-stock/les-demandes',
-        fonctionnalites: ['Voir Les demandes', 'Traiter de demande']
+        fonctionnalites: ['Voir Les demandes']
       },
       {
         label: 'Sorties de Stock',
@@ -44,7 +44,7 @@ export const MENU: MenuItem[] = [
     icon: 'bar-chart-2',
     link: '/etat-de-stock',
     module: 'Gestion de Stock',
-    fonctionnalites: ['Voir Etat de Stock', 'Export Stock']
+    fonctionnalites: ['Voir Etat de Stock']
   },
   {
     label: 'Gestion de Immobilisation',
@@ -137,7 +137,7 @@ export const MENU: MenuItem[] = [
     icon: 'users',
     link: '/utilisateurs',
     module: 'Parametrage',
-    fonctionnalites: ['Ajout Parametrage', 'Modification Parametrage', 'Suppression Parametrage', 'Voir utilisateur'/* ,'Ajout utilisateur', 'Modification utilisateur', 'Suppression utilisateur', 'Exporter utilisateur' */]
+    fonctionnalites: ['Voir utilisateur']
   },
   {
     label: 'Rôles et Permisions',
@@ -148,12 +148,12 @@ export const MENU: MenuItem[] = [
       {
         label: 'Rôles',
         link: '/parametres/roles',
-        fonctionnalites: ['Ajout Parametrage', 'Ajout role']
+        fonctionnalites: ['Voir role']
       },
       {
         label: 'Permissions',
         link: '/parametres/permissions',
-        fonctionnalites: ['Modification Parametrage']
+        fonctionnalites: ['Voir permissions']
       },
     ]
   },

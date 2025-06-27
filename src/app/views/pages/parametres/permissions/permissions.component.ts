@@ -86,7 +86,7 @@ export class PermissionComponent implements OnInit {
       console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
 
       // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
-      this.canVoirPermission = allowedFonctionnalites.includes('Modification Parametrage');
+      this.canVoirPermission = allowedFonctionnalites.includes('Voir permissions');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
       this.hasPageAccess = this.canVoirPermission;

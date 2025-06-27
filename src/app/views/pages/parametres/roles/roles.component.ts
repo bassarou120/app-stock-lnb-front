@@ -31,6 +31,7 @@ export class RoleComponent implements OnInit {
   allowedFonctionnalites: string[] = [];
   canAddRole: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
   canAddParametrage: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canViewRole: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
 
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
@@ -89,9 +90,10 @@ export class RoleComponent implements OnInit {
       // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
       this.canAddRole = allowedFonctionnalites.includes('Ajout role');
       this.canAddParametrage = allowedFonctionnalites.includes('Ajout Parametrage');
+      this.canViewRole = allowedFonctionnalites.includes('Voir role');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddRole || this.canAddParametrage;
+      this.hasPageAccess = this.canViewRole;
 
       console.log('🔐 Permissions calculées:', {
         canAddRole: this.canAddRole,
