@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { LoginResponse } from "../interface/models";
+import { Observable, tap } from 'rxjs';
+import { LoginResponse, Permission } from "../interface/models";
 import { environment } from '../../../../environments/environment';
 
 
@@ -14,9 +14,105 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  login(credentials: { email: string; password: string }): Observable<{ success: boolean; data: LoginResponse }> {
-    return this.http.post<{ success: boolean; data: LoginResponse }>(`${this.url}/login`, credentials);
+  login(credentials: any): Observable<any> {
+    return this.http.post(`${this.url}/login`, credentials).pipe(
+      tap((response: any) => {
+        // Sauvegarder l'utilisateur et le token
+        localStorage.setItem('user', JSON.stringify(response.user));
+        localStorage.setItem('token', response.token);
+        localStorage.setItem('isLoggedin', 'true'); // 🔥 AJOUTEZ CETTE LIGNE
+
+        console.log('✅ Connexion réussie, utilisateur sauvegardé');
+
+        // 🔥 CORRECTION : Charger les permissions de manière asynchrone
+        setTimeout(() => {
+          this.loadUserPermissions();
+        }, 100);
+      })
+    );
   }
+
+  // 🔥 NOUVELLE MÉTHODE : Charger les permissions utilisateur
+private loadUserPermissions(): void {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!user.role_id) {
+    console.log('⚠️ Pas de role_id trouvé pour l\'utilisateur');
+    return;
+  }
+
+  console.log('🔄 Chargement des permissions pour role_id:', user.role_id);
+
+  this.http.get<any[]>(`${this.url}/permissions/role/${user.role_id}`).subscribe({
+    next: (permissions: any[]) => {
+      console.log('📋 Permissions reçues (RAW):', permissions);
+
+      const activePermissions = permissions.filter(p => p.is_active === true);
+      console.log('📋 Permissions actives filtrées:', activePermissions);
+
+      const allowedModules: string[] = [];
+      const allowedFonctionnalites: string[] = [];
+
+      activePermissions.forEach((permission, index) => {
+        console.log(`🔍 Permission ${index}:`, permission);
+
+        // Modules
+        if (permission.module && permission.module.libelle_module) {
+          const moduleName = permission.module.libelle_module;
+          console.log(`   📁 Module trouvé: "${moduleName}"`);
+          if (!allowedModules.includes(moduleName)) {
+            allowedModules.push(moduleName);
+          }
+        } else {
+          console.log('   ❌ Pas de module trouvé dans:', permission);
+        }
+
+        // 🔥 DEBUG : Fonctionnalités
+        console.log('   🔍 Vérification fonctionnalité:', permission.fonctionnalite);
+        if (permission.fonctionnalite) {
+          console.log('   🔍 Libellé fonctionnalité:', permission.fonctionnalite.libelle_fonctionnalite);
+          if (permission.fonctionnalite.libelle_fonctionnalite) {
+            const fonctionnaliteName = permission.fonctionnalite.libelle_fonctionnalite;
+            console.log(`   ⚡ Fonctionnalité trouvée: "${fonctionnaliteName}"`);
+            if (!allowedFonctionnalites.includes(fonctionnaliteName)) {
+              allowedFonctionnalites.push(fonctionnaliteName);
+              console.log(`   ✅ Fonctionnalité ajoutée: "${fonctionnaliteName}"`);
+            }
+          } else {
+            console.log('   ❌ libelle_fonctionnalite est vide');
+          }
+        } else {
+          console.log('   ❌ Pas de fonctionnalite trouvée dans:', permission);
+        }
+      });
+
+      console.log('🚀 FINAL - Modules autorisés:', allowedModules);
+      console.log('🚀 FINAL - Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      localStorage.setItem('permissions', JSON.stringify(activePermissions));
+      localStorage.setItem('allowedModules', JSON.stringify(allowedModules));
+      localStorage.setItem('allowedFonctionnalites', JSON.stringify(allowedFonctionnalites));
+
+      // 🔥 DEBUG : Vérifier ce qui est sauvegardé
+      console.log('💾 Sauvegardé dans localStorage:');
+      console.log('   allowedModules:', localStorage.getItem('allowedModules'));
+      console.log('   allowedFonctionnalites:', localStorage.getItem('allowedFonctionnalites'));
+
+      window.dispatchEvent(new CustomEvent('permissionsLoaded', {
+        detail: {
+          permissions: activePermissions,
+          allowedModules: allowedModules,
+          allowedFonctionnalites: allowedFonctionnalites
+        }
+      }));
+    },
+    error: (error) => {
+      console.error('❌ Erreur chargement permissions:', error);
+    }
+  });
+}
+
+
+
 
   sendOTP(email: string): Observable<any> {
     return this.http.post(`${this.url}/forgot-password`, { email });
@@ -37,9 +133,12 @@ export class AuthService {
 
 
 
-  logout(): void {
+   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('isLoggedin');
+    localStorage.removeItem('permissions');
+    localStorage.removeItem('allowedModules');
   }
 
   isLoggedIn(): boolean {

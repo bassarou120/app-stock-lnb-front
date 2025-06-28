@@ -26,4 +26,8 @@ export default [
     path: 'type-affectation',
     loadComponent: () => import('./type-affectation/type-affectation.component').then(c => c.TypeAffectationComponent),
   },
+  {
+    path: 'unite-de-mesure',
+    loadComponent: () => import('./unite-de-mesure/unite-de-mesure.component').then(c => c.UniteDeMesureComponent),
+  },
 ] as Routes;

@@ -1,334 +1,7 @@
 import { MenuItem } from './menu.model';
 
 export const MENU: MenuItem[] = [
-  // {
-  //   label: 'Main',
-  //   isTitle: true
-  // },
-  // {
-  //   label: 'Dashboard',
-  //   icon: 'home',
-  //   link: '/dashboard'
-  // },
-  // {
-  //   label: 'Web Apps',
-  //   isTitle: true
-  // },
-  // {
-  //   label: 'Email',
-  //   icon: 'mail',
-  //   subItems: [
-  //     {
-  //       label: 'Inbox',
-  //       link: '/apps/email/inbox',
-  //     },
-  //     {
-  //       label: 'Read',
-  //       link: '/apps/email/read'
-  //     },
-  //     {
-  //       label: 'Compose',
-  //       link: '/apps/email/compose'
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: 'Chat',
-  //   icon: 'message-square',
-  //   link: '/apps/chat',
-  // },
-  // {
-  //   label: 'Calendar',
-  //   icon: 'calendar',
-  //   link: '/apps/calendar',
-  //   badge: {
-  //     variant: 'primary',
-  //     text: 'Event',
-  //   }
-  // },
-  // {
-  //   label: 'Components',
-  //   isTitle: true
-  // },
-  // {
-  //   label: 'UI Kit',
-  //   icon: 'feather',
-  //   subItems: [
-  //     {
-  //       label: 'Accordion',
-  //       link: '/ui-components/accordion',
-  //     },
-  //     {
-  //       label: 'Alerts',
-  //       link: '/ui-components/alerts',
-  //     },
-  //     {
-  //       label: 'Badges',
-  //       link: '/ui-components/badges',
-  //     },
-  //     {
-  //       label: 'Breadcrumbs',
-  //       link: '/ui-components/breadcrumbs',
-  //     },
-  //     {
-  //       label: 'Buttons',
-  //       link: '/ui-components/buttons',
-  //     },
-  //     {
-  //       label: 'Button group',
-  //       link: '/ui-components/button-group',
-  //     },
-  //     {
-  //       label: 'Cards',
-  //       link: '/ui-components/cards',
-  //     },
-  //     {
-  //       label: 'Carousel',
-  //       link: '/ui-components/carousel',
-  //     },
-  //     {
-  //       label: 'Collapse',
-  //       link: '/ui-components/collapse',
-  //     },
-  //     {
-  //       label: 'Datepicker',
-  //       link: '/ui-components/datepicker',
-  //     },
-  //     {
-  //       label: 'Dropdowns',
-  //       link: '/ui-components/dropdowns',
-  //     },
-  //     {
-  //       label: 'List group',
-  //       link: '/ui-components/list-group',
-  //     },
-  //     {
-  //       label: 'Media object',
-  //       link: '/ui-components/media-object',
-  //     },
-  //     {
-  //       label: 'Modal',
-  //       link: '/ui-components/modal',
-  //     },
-  //     {
-  //       label: 'Navs',
-  //       link: '/ui-components/navs',
-  //     },
-  //     {
-  //       label: 'Offcanvas',
-  //       link: '/ui-components/offcanvas',
-  //     },
-  //     {
-  //       label: 'Pagination',
-  //       link: '/ui-components/pagination',
-  //     },
-  //     {
-  //       label: 'Popovers',
-  //       link: '/ui-components/popovers',
-  //     },
-  //     {
-  //       label: 'Progress',
-  //       link: '/ui-components/progress',
-  //     },
-  //     {
-  //       label: 'Rating',
-  //       link: '/ui-components/rating',
-  //     },
-  //     {
-  //       label: 'Scrollbar',
-  //       link: '/ui-components/scrollbar',
-  //     },
-  //     {
-  //       label: 'Spinners',
-  //       link: '/ui-components/spinners',
-  //     },
-  //     {
-  //       label: 'Table',
-  //       link: '/ui-components/table',
-  //     },
-  //     {
-  //       label: 'Timepicker',
-  //       link: '/ui-components/timepicker',
-  //     },
-  //     {
-  //       label: 'Tooltips',
-  //       link: '/ui-components/tooltips',
-  //     },
-  //     {
-  //       label: 'Typeadhed',
-  //       link: '/ui-components/typeahead',
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: 'Advanced UI',
-  //   icon: 'anchor',
-  //   subItems: [
-  //     {
-  //       label: 'Cropper',
-  //       link: '/advanced-ui/cropper',
-  //     },
-  //     {
-  //       label: 'Owl carousel',
-  //       link: '/advanced-ui/owl-carousel',
-  //     },
-  //     {
-  //       label: 'SortableJs',
-  //       link: '/advanced-ui/sortablejs',
-  //     },
-  //     {
-  //       label: 'Sweet alert',
-  //       link: '/advanced-ui/sweet-alert',
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: 'Forms',
-  //   icon: 'file-text',
-  //   subItems: [
-  //     {
-  //       label: 'Basic elements',
-  //       link: '/forms/basic-elements'
-  //     },
-  //     {
-  //       label: 'Advanced elements',
-  //       subItems: [
-  //         {
-  //           label: 'Ngx-custom-validators',
-  //           link: '/forms/advanced/ngx-custom-validators'
-  //         },
-  //         {
-  //           label: 'Ngx-mask',
-  //           link: '/forms/advanced/ngx-mask'
-  //         },
-  //         {
-  //           label: 'Ng-select',
-  //           link: '/forms/advanced/ng-select'
-  //         },
-  //         {
-  //           label: 'Ngx-chips',
-  //           link: '/forms/advanced/ngx-chips'
-  //         },
-  //         {
-  //           label: 'Ngx-color-picker',
-  //           link: '/forms/advanced/ngx-color-picker'
-  //         },
-  //         {
-  //           label: 'Ngx-dropzone',
-  //           link: '/forms/advanced/ngx-dropzone-wrapper'
-  //         },
-  //       ]
-  //     },
-  //     {
-  //       label: 'Editors',
-  //       link: '/forms/editors'
-  //     },
-  //     {
-  //       label: 'Wizard',
-  //       link: '/forms/wizard'
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: 'Charts',
-  //   icon: 'pie-chart',
-  //   subItems: [
-  //     {
-  //       label: 'ApexCharts',
-  //       link: '/charts/apexcharts',
-  //     },
-  //     {
-  //       label: 'ChartJs',
-  //       link: '/charts/chartjs',
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: 'Tables',
-  //   icon: 'layout',
-  //   subItems: [
-  //     {
-  //       label: 'Basic tables',
-  //       link: '/tables/basic-tables',
-  //     },
-  //     {
-  //       label: 'Ngx-datatable',
-  //       link: '/tables/ngx-datatable'
-  //     }
-  //   ]
-  // },
-  // {
-  //   label: 'Icons',
-  //   icon: 'smile',
-  //   subItems: [
-  //     {
-  //       label: 'Feather icons',
-  //       link: '/icons/feather-icons',
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: 'Pages',
-  //   isTitle: true
-  // },
-  // {
-  //   label: 'Special pages',
-  //   icon: 'book',
-  //   subItems: [
-  //     {
-  //       label: 'Blank page',
-  //       link: '/general/blank-page',
-  //     },
-  //     {
-  //       label: 'Faq',
-  //       link: '/general/faq',
-  //     },
-  //     {
-  //       label: 'Invoice',
-  //       link: '/general/invoice',
-  //     },
-  //     {
-  //       label: 'Profile',
-  //       link: '/general/profile',
-  //     },
-  //     {
-  //       label: 'Pricing',
-  //       link: '/general/pricing',
-  //     },
-  //     {
-  //       label: 'Timeline',
-  //       link: '/general/timeline',
-  //     }
-  //   ]
-  // },
-  // {
-  //   label: 'Authentication',
-  //   icon: 'unlock',
-  //   subItems: [
-  //     {
-  //       label: 'Login',
-  //       link: '/auth/login',
-  //     },
-  //     {
-  //       label: 'Register',
-  //       link: '/auth/register',
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: 'Error',
-  //   icon: 'cloud-off',
-  //   subItems: [
-  //     {
-  //       label: '404',
-  //       link: '/error/404',
-  //     },
-  //     {
-  //       label: '500',
-  //       link: '/error/500',
-  //     },
-  //   ]
-  // },
+
   {
     label: 'Menu principal',
     isTitle: true
@@ -340,263 +13,322 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Gestion de Stock',
-    isTitle: true
+    isTitle: true,
+     module: 'Gestion de Stock',
   },
-  // {
-  //   label: 'Articles',
-  //   icon: 'monitor',
-  //   link: '/articles'
-  // },
-  // {
-  //   label: 'Catégories',
-  //   icon: 'box',
-  //   link: '/categories'
-  // },
+
   {
     label: 'Mouvement Stock',
     icon: 'maximize-2',
+    module: 'Gestion de Stock',
     subItems: [
       {
         label: 'Entrées de Stock',
         link: '/mouvement-stock/entrees',
-      }
-      ,
-      // {
-      //   label: 'Demande de sortie',
-      //   link: '/mouvement-stock/demande',
-      // },
+        fonctionnalites: ['Voir les entrées']
+      },
       {
         label: 'Les demandes',
         link: '/mouvement-stock/les-demandes',
+        fonctionnalites: ['Voir Les demandes']
       },
       {
         label: 'Sorties de Stock',
         link: '/mouvement-stock/sorties',
+        fonctionnalites: ['Sorties de Stock'],
       }
     ]
   },
   {
     label: 'Etat de Stock',
     icon: 'bar-chart-2',
-    link: '/etat-de-stock'
+    link: '/etat-de-stock',
+    module: 'Gestion de Stock',
+    fonctionnalites: ['Voir Etat de Stock']
   },
   {
     label: 'Gestion de Immobilisation',
-    isTitle: true
+    isTitle: true,
+    module: 'Gestion de immobilisation',
+
   },
   {
     label: 'Enrégistrement',
     icon: 'download',
-    link: '/enregistrement-immos'
+    link: '/enregistrement-immos',
+    module: 'Gestion de immobilisation',
+    fonctionnalites: ['Voir les immobilisations']
   },
   {
-    label: 'Transfert',
+    label: 'Affectations/Transfert',
     icon: 'send',
-    link: '/transfert'
+    link: '/transfert',
+    module: 'Gestion de immobilisation',
+    fonctionnalites: ['Voir les Transferts']
   },
   {
     label: 'Intervention',
     icon: 'activity',
-    link: '/intervention'
+    link: '/intervention',
+    module: 'Gestion de immobilisation',
+    fonctionnalites: ['Voir les Interventions Immo']
   },
   {
     label: 'Gestion de Parc',
-    isTitle: true
+    isTitle: true,
+    module: 'Gestion de parc',
   },
   {
     label: 'Véhicules',
     icon: 'truck',
-    link: '/vehicules'
+    link: '/vehicules',
+    module: 'Gestion de parc',
+    fonctionnalites: ['Voir parc vehicule']
   },
   {
     label: 'Intervention Véhicules',
     icon: 'pen-tool',
-    link: '/interventionvehicules'
+    link: '/interventionvehicules',
+    module: 'Gestion de parc',
+    fonctionnalites: ['Voir intervention vehicule']
   },
   {
     label: 'Tickets',
     icon: 'credit-card',
+    module: 'Gestion de parc',
     subItems: [
       {
         label: 'Attribution de Ticket',
         link: 'tickets/attribution',
+        fonctionnalites: ['Attribution ticket']
       },
       {
         label: 'Entrée de Ticket',
         link: 'tickets/entree',
+        fonctionnalites: ['Voir entrée de ticket']
       },
       {
         label: 'Stock Ticket',
         link: 'tickets/',
+        fonctionnalites: ['Verifier Stock Ticket']
       },
 
 
       {
         label: 'Retour Tickets',
         link: 'tickets/retour-ticket',
+        fonctionnalites: ['Voir Retour Ticket']
       },
 
       {
         label: 'Annulation de Tickets',
         link: 'tickets/annulation-ticket',
+        fonctionnalites: ['Annulation Ticket']
       },
     ]
   },
   {
     label: 'Gestion des utilisateurs',
-    isTitle: true
+    isTitle: true,
+    module: 'Parametrage',
   },
   {
     label: 'Utilisateurs',
     icon: 'users',
-    link: '/utilisateurs'
+    link: '/utilisateurs',
+    module: 'Parametrage',
+    fonctionnalites: ['Voir utilisateur']
   },
   {
     label: 'Rôles et Permisions',
     icon: 'user-check',
+    module: 'Parametrage',
     // link: ''
     subItems: [
       {
         label: 'Rôles',
         link: '/parametres/roles',
+        fonctionnalites: ['Voir role']
       },
       {
         label: 'Permissions',
         link: '/parametres/permissions',
+        fonctionnalites: ['Voir permissions']
       },
     ]
   },
   {
     label: 'Rapports',
-    isTitle: true
+    isTitle: true,
+    module: 'Gestion Rapport',
   },
   {
     label: 'Rapport Stock',
     icon: 'file',
-    link: '/rapports/stock'
+    link: '/rapports/stock',
+    module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Stock']
+
   },
   {
     label: 'Rapport Immo',
     icon: 'file',
-    link: '/rapports/immo'
+    link: '/rapports/immo',
+    module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Immo']
   },
   {
     label: 'Rapport parc',
     icon: 'file',
-    link: '/rapports/parc'
+    link: '/rapports/parc',
+    module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Parc']
+  },
+  {
+    label: 'Rapport ticket',
+    icon: 'file',
+    link: '/rapports/ticket',
+    module: 'Gestion Rapport',
+    fonctionnalites: ['Rapport Ticket']
   },
   {
     label: 'Paramètres',
-    isTitle: true
+    isTitle: true,
+     module: 'Parametrage',
   },
   {
     label: 'Paramètres Stock',
     icon: 'box',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Articles',
         link: '/parametres-stock/articles',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Catégories',
         link: '/parametres-stock/categories',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Liste des Bureaux/Localisations',
         link: '/parametres-stock/bureaux',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Liste des Magazins',
         link: '/parametres-stock/magazins',
+        fonctionnalites: ['Voir Parametres Stock']
       },
       {
         label: 'Type d\'Affectation',
         link: '/parametres-stock/type-affectation',
+        fonctionnalites: ['Voir Parametres Stock']
+      },
+      {
+        label: 'Unité de mesure',
+        link: '/parametres-stock/unite-de-mesure',
+        fonctionnalites: ['Voir Parametres Stock']
       },
     ]
   },
   {
     label: 'Paramètres Parc',
     icon: 'truck',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Marques',
         link: '/parametres-pack/marques',
+        fonctionnalites: ['Voir Parametres Parc']
       },
       {
         label: 'Communes',
         link: '/parametres-pack/communes',
+        fonctionnalites: ['Voir Parametres Parc']
       },
       {
         label: 'Coupon Ticket',
         link: '/parametres-pack/coupon-ticket',
+        fonctionnalites: ['Voir Parametres Parc']
       },
       {
         label: 'Compagnie Pétrolière',
         link: '/parametres-pack/compagnie-petroliere',
+        fonctionnalites: ['Voir Parametres Parc']
       },
 
       {
         label: 'Trajet',
         icon: 'git-pull-request',
-        link: '/parametres-pack/trajets'
+        link: '/parametres-pack/trajets',
+        fonctionnalites: ['Voir Parametres Parc']
       },
-      // {
-      //   label: 'Liste des Véhicules',
-      //   link: '/parametres-pack/vehicules',
-      // },
     ]
   },
   {
     label: 'Paramètres Immo',
     icon: 'server',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Type d\'Immo',
         link: '/parametres-immo/type-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
       {
         label: 'Sous Type Immo',
         link: '/parametres-immo/sous-type-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
       {
         label: 'Groupe Type Immo',
         link: '/parametres-immo/groupe-type-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
       {
         label: 'Status Immo',
         link: '/parametres-immo/status-immo',
+        fonctionnalites: ['Voir Parametres Immo']
       },
     ]
   },
   {
     label: 'Paramètres Génér...',
     icon: 'settings',
+    module: 'Parametrage',
     subItems: [
       {
         label: 'Paramètre Entreprise',
         link: '/parametres/entreprise',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Type Mouvement',
         link: '/parametres/type-mouvement',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Liste du Personnel',
         link: '/parametres/employes',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Liste des Fournisseurs',
         link: '/parametres/fournisseurs',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
       {
         label: 'Type d\'intervention',
         link: '/parametres/types-intervention',
+        fonctionnalites: ['Voir Parametres Généraux']
       },
-      {
+/*       {
         label: 'Listes des rôles',
-        link: '/parametres/roles'
-      },
+        link: '/parametres/roles',
+        fonctionnalites: ['Voir Parametres Généraux']
+      }, */
     ]
   }
 ];

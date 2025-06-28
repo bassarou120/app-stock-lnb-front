@@ -9,8 +9,10 @@
         </div>
         <div class="d-flex gap-2">
           <!-- Bouton Imprimer PDF -->
-          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadRapportStockPDF()" [disabled]="isGeneratingReport || rapportForm.invalid">
-            <div class="spinner-border spinner-border-sm text-primary me-2" [class.d-none]="!isGeneratingReport" role="status">
+          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center"
+            (click)="downloadRapportStockPDF()" [disabled]="isGeneratingReport || rapportForm.invalid">
+            <div class="spinner-border spinner-border-sm text-primary me-2" [class.d-none]="!isGeneratingReport"
+              role="status">
               <span class="visually-hidden">Préparation...</span>
             </div>
             <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
@@ -25,9 +27,10 @@
             <div class="row justify-content-center">
               <!-- Sélecteur du Type de Rapport de Stock (OBLIGATOIRE) -->
               <div class="col-md-6 mb-3">
-                <label for="id_type_rapport" class="form-label">Type de Rapport <span class="text-danger">*</span></label>
+                <label for="id_type_rapport" class="form-label">Type de Rapport <span
+                    class="text-danger">*</span></label>
                 <ng-select [items]="typeRapportsStock" bindLabel="libelle" bindValue="id"
-                           formControlName="id_type_rapport" [clearable]="true" placeholder="Sélectionnez le type de rapport">
+                  formControlName="id_type_rapport" [clearable]="true" placeholder="Sélectionnez le type de rapport">
                 </ng-select>
                 <div *ngIf="rapportForm.get('id_type_rapport')?.invalid && rapportForm.get('id_type_rapport')?.touched">
                   <small class="text-danger"> *Le type de rapport est obligatoire.</small>
@@ -36,39 +39,45 @@
             </div>
 
             <!-- Filtres Communs aux rapports de stock (dates obligatoires) -->
+            <!-- Désormais affichés si un type de rapport est sélectionné -->
             <div class="row" *ngIf="selectedReportTypeId">
-                <div class="col-md-6 mb-3">
-                  <label for="date_debut" class="form-label">Date de Mouvement (Début) <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dd1.toggle()">
-                      <i data-feather="calendar" appFeatherIcon></i>
-                    </button>
-                    <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dd1"
-                           ngbDatepicker #dd1="ngbDatepicker" formControlName="date_debut"
-                           [maxDate]="rapportForm.get('date_fin')?.value || undefined"
-                           [class.is-invalid]="(rapportForm.get('date_debut')?.invalid && rapportForm.get('date_debut')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
-                  </div>
-                  <div *ngIf="rapportForm.get('date_debut')?.invalid && rapportForm.get('date_debut')?.touched">
-                    <small *ngIf="rapportForm.get('date_debut')?.errors?.required" class="text-danger"> *La date de début est obligatoire.</small>
-                  </div>
+              <div class="col-md-6 mb-3">
+                <label for="date_debut" class="form-label">Date de Mouvement (Début) <span
+                    class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dd1.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dd1"
+                    ngbDatepicker #dd1="ngbDatepicker" formControlName="date_debut"
+                    [maxDate]="rapportForm.get('date_fin')?.value || undefined"
+                    [class.is-invalid]="(rapportForm.get('date_debut')?.invalid && rapportForm.get('date_debut')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
                 </div>
+                <div *ngIf="rapportForm.get('date_debut')?.invalid && rapportForm.get('date_debut')?.touched">
+                  <small *ngIf="rapportForm.get('date_debut')?.errors?.required" class="text-danger"> *La date de
+                    début est obligatoire.</small>
+                </div>
+              </div>
 
-                <div class="col-md-6 mb-3">
-                  <label for="date_fin" class="form-label">Date de Mouvement (Fin) <span class="text-danger">*</span></label>
-                  <div class="input-group">
-                    <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dd2.toggle()">
-                      <i data-feather="calendar" appFeatherIcon></i>
-                    </button>
-                    <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dd2"
-                           ngbDatepicker #dd2="ngbDatepicker" formControlName="date_fin"
-                           [minDate]="rapportForm.get('date_debut')?.value || undefined"
-                           [class.is-invalid]="(rapportForm.get('date_fin')?.invalid && rapportForm.get('date_fin')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
-                  </div>
-                  <div *ngIf="rapportForm.get('date_fin')?.invalid && rapportForm.get('date_fin')?.touched">
-                    <small *ngIf="rapportForm.get('date_fin')?.errors?.required" class="text-danger"> *La date de fin est obligatoire.</small>
-                    <small *ngIf="rapportForm.get('date_fin')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
-                  </div>
+              <div class="col-md-6 mb-3">
+                <label for="date_fin" class="form-label">Date de Mouvement (Fin) <span
+                    class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dd2.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dd2"
+                    ngbDatepicker #dd2="ngbDatepicker" formControlName="date_fin"
+                    [minDate]="rapportForm.get('date_debut')?.value || undefined"
+                    [class.is-invalid]="(rapportForm.get('date_fin')?.invalid && rapportForm.get('date_fin')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
                 </div>
+                <div *ngIf="rapportForm.get('date_fin')?.invalid && rapportForm.get('date_fin')?.touched">
+                  <small *ngIf="rapportForm.get('date_fin')?.errors?.required" class="text-danger"> *La date de fin
+                    est obligatoire.</small>
+                  <small *ngIf="rapportForm.get('date_fin')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']"
+                    class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                </div>
+              </div>
             </div>
 
             <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'ENTRÉE -->
@@ -79,8 +88,8 @@
               <!-- Article (Optionnel) -->
               <div class="col-md-6 mb-3">
                 <label for="id_Article_entree" class="form-label">Article (Optionnel)</label>
-                <ng-select [items]="articles" bindLabel="libelle" bindValue="id"
-                           formControlName="id_Article_entree" [clearable]="true" placeholder="Sélectionnez un article">
+                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_entree"
+                  [clearable]="true" placeholder="Sélectionnez un article">
                   <ng-template ng-label-tmp let-item="item">
                     {{item.code_article}} - {{item.libelle}}
                   </ng-template>
@@ -94,7 +103,7 @@
               <div class="col-md-6 mb-3">
                 <label for="id_fournisseur_entree" class="form-label">Fournisseur (Optionnel)</label>
                 <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id"
-                           formControlName="id_fournisseur_entree" [clearable]="true" placeholder="Sélectionnez un fournisseur">
+                  formControlName="id_fournisseur_entree" [clearable]="true" placeholder="Sélectionnez un fournisseur">
                 </ng-select>
               </div>
             </div>
@@ -109,8 +118,8 @@
               <!-- Article (Optionnel) -->
               <div class="col-md-6 mb-3">
                 <label for="id_Article_sortie" class="form-label">Article (Optionnel)</label>
-                <ng-select [items]="articles" bindLabel="libelle" bindValue="id"
-                           formControlName="id_Article_sortie" [clearable]="true" placeholder="Sélectionnez un article">
+                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_sortie"
+                  [clearable]="true" placeholder="Sélectionnez un article">
                   <ng-template ng-label-tmp let-item="item">
                     {{item.code_article}} - {{item.libelle}}
                   </ng-template>
@@ -123,8 +132,8 @@
               <!-- Employé (Optionnel) - Si les sorties sont liées à un employé -->
               <div class="col-md-6 mb-3">
                 <label for="id_employe_sortie" class="form-label">Employé (Optionnel)</label>
-                <ng-select [items]="employes" bindLabel="nom" bindValue="id"
-                           formControlName="id_employe_sortie" [clearable]="true" placeholder="Sélectionnez un employé">
+                <ng-select [items]="employes" bindLabel="nom" bindValue="id" formControlName="id_employe_sortie"
+                  [clearable]="true" placeholder="Sélectionnez un employé">
                   <ng-template ng-label-tmp let-item="item">
                     {{item.nom}} {{item.prenom}}
                   </ng-template>
@@ -136,11 +145,60 @@
             </div>
             <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT DE SORTIE -->
 
+            <!-- NOUVEAU: FILTRES SPÉCIFIQUES AU RAPPORT D'ÉTAT DE STOCK -->
+            <div class="row" *ngIf="showStockStatusFilters">
+              <hr class="my-4">
+              <h5 class="mb-3">Filtres pour le rapport d'État de Stock</h5>
+
+              <!-- Article (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="id_Article_etat" class="form-label">Article (Optionnel)</label>
+                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_etat"
+                  [clearable]="true" placeholder="Sélectionnez un article">
+                  <ng-template ng-label-tmp let-item="item">
+                    {{item.code_article}} - {{item.libelle}}
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    {{item.code_article}} - {{item.libelle}}
+                  </ng-template>
+                </ng-select>
+              </div>
+
+              <!-- Quantité Minimum (Optionnel) -->
+              <div class="col-md-3 mb-3">
+                <label for="qte_min_etat" class="form-label">Quantité Min (Optionnel)</label>
+                <input type="number" id="qte_min_etat" class="form-control" formControlName="qte_min_etat"
+                  placeholder="Quantité min." min="0"
+                  [class.is-invalid]="rapportForm.get('qte_min_etat')?.invalid && rapportForm.get('qte_min_etat')?.touched">
+                <div *ngIf="rapportForm.get('qte_min_etat')?.invalid && rapportForm.get('qte_min_etat')?.touched">
+                  <small *ngIf="rapportForm.get('qte_min_etat')?.errors?.min" class="text-danger"> *La quantité
+                    minimale doit être positive.</small>
+                </div>
+              </div>
+
+              <!-- Quantité Maximum (Optionnel) -->
+              <div class="col-md-3 mb-3">
+                <label for="qte_max_etat" class="form-label">Quantité Max (Optionnel)</label>
+                <input type="number" id="qte_max_etat" class="form-control" formControlName="qte_max_etat"
+                  placeholder="Quantité max." min="0"
+                  [class.is-invalid]="(rapportForm.get('qte_max_etat')?.invalid && rapportForm.get('qte_max_etat')?.touched) || rapportForm.errors?.['quantityRangeInvalidOrder']">
+                <div *ngIf="rapportForm.get('qte_max_etat')?.invalid && rapportForm.get('qte_max_etat')?.touched">
+                  <small *ngIf="rapportForm.get('qte_max_etat')?.errors?.min" class="text-danger"> *La quantité
+                    maximale doit être positive.</small>
+                  <small *ngIf="rapportForm.errors?.['quantityRangeInvalidOrder']" class="text-danger"> *La quantité
+                    maximale ne peut pas être inférieure à la quantité minimale.</small>
+                </div>
+              </div>
+            </div>
+            <!-- Fin NOUVEAU: FILTRES SPÉCIFIQUES AU RAPPORT D'ÉTAT DE STOCK -->
+
 
             <!-- Bouton Charger Rapport -->
             <div class="d-flex justify-content-center gap-3 mt-4">
-              <button type="button" class="btn btn-primary btn-icon-text" (click)="loadRapportStock()" [disabled]="isGeneratingReport || rapportForm.invalid">
-                <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isGeneratingReport" role="status">
+              <button type="button" class="btn btn-primary btn-icon-text" (click)="loadRapportStock()"
+                [disabled]="isGeneratingReport || rapportForm.invalid">
+                <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isGeneratingReport"
+                  role="status">
                   <span class="visually-hidden">Chargement...</span>
                 </div>
                 <i class="btn-icon-prepend" data-feather="refresh-ccw" appFeatherIcon></i>
@@ -174,53 +232,122 @@
 
             <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
             <ng-container *ngIf="selectedReportTypeId === 'entree'">
-                <ngx-datatable-column name="N°">
-                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                        {{ rowIndex + 1 }}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Date Mouvement">
-                    <ng-template let-row="row" ngx-datatable-cell-template>
-                        {{ row.date_mouvement | date:'dd/MM/yyyy' }}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
-                <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
-                <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
-                <ngx-datatable-column name="Type Mouvement" prop="type_mouvement.libelle_type_mouvement"></ngx-datatable-column>
-                <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
-                <!-- <ngx-datatable-column name="N° Bordereau" prop="numero_borderau"></ngx-datatable-column> -->
+              <ngx-datatable-column name="N°">
+                <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                  {{ rowIndex + 1 }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
+              <ngx-datatable-column name="Date Mouvement">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.date_mouvement | date:'dd/MM/yyyy' }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+              <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
+              <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column>
+              <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column>
+              <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column>
+              <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
+              <ngx-datatable-column name="Type Mouvement" prop="type_mouvement.libelle_type_mouvement">
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+              <!-- <ngx-datatable-column name="N° Bordereau" prop="numero_borderau"></ngx-datatable-column> -->
             </ng-container>
 
             <ng-container *ngIf="selectedReportTypeId === 'sortie'">
-                <ngx-datatable-column name="N°">
-                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                        {{ rowIndex + 1 }}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Date Mouvement">
-                    <ng-template let-row="row" ngx-datatable-cell-template>
-                        {{ row.date_mouvement | date:'dd/MM/yyyy' }}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Code Mouvement" prop="code_mouvement"></ngx-datatable-column>
-                <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
-                <!-- <ngx-datatable-column name="Code Article" prop="article.code"></ngx-datatable-column> -->
-                <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
-                <ngx-datatable-column name="Personnel">
-                  <ng-template let-row="row" ngx-datatable-cell-template>
-                    {{ row.employe?.fullnameEmploye || 'Non défini' }}
-                  </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Bureau">
-                  <ng-template let-row="row" ngx-datatable-cell-template>
-                    {{ row.bureau?.libelle_bureau || 'Non défini' }}
-                  </ng-template>
-                </ngx-datatable-column>
-                <!-- <ngx-datatable-column name="Type Mouvement" prop="type_mouvement.libelle_type_mouvement"></ngx-datatable-column> -->
-                <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
-                <!-- <ngx-datatable-column name="N° Bordereau" prop="numero_borderau"></ngx-datatable-column> -->
+              <ngx-datatable-column name="N°">
+                <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                  {{ rowIndex + 1 }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Date Mouvement">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.date_mouvement | date:'dd/MM/yyyy' }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Code Mouvement" prop="code_mouvement"></ngx-datatable-column>
+              <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
+              <!-- <ngx-datatable-column name="Code Article" prop="article.code"></ngx-datatable-column> -->
+              <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
+              <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column>
+              <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column>
+              <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column>
+              <ngx-datatable-column name="Personnel">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.employe?.fullnameEmploye || 'Non défini' }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Bureau">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.bureau?.libelle_bureau || 'Non défini' }}
+                </ng-template>
+              </ngx-datatable-column>
+              <!-- <ngx-datatable-column name="Type Mouvement" prop="type_mouvement.libelle_type_mouvement"></ngx-datatable-column> -->
+              <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+              <!-- <ngx-datatable-column name="N° Bordereau" prop="numero_borderau"></ngx-datatable-column> -->
+            </ng-container>
+
+            <!-- NOUVEAU: COLONNES POUR LE RAPPORT D'ÉTAT DE STOCK -->
+            <ng-container *ngIf="selectedReportTypeId === 'etat_stock'">
+              <ngx-datatable-column name="N°">
+                <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                  {{ rowIndex + 1 }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
+              <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+              <ngx-datatable-column name="CMP">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.stock_actuel?.cmp }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Stock Actuel (Qte)">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.stock_actuel?.quantite }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Prix Unitaire">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.stock_actuel?.prix_unitaire | currency:'XOF':'symbol':'1.2-2':'fr' }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Total">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.stock_actuel?.montant_total | currency:'XOF':'symbol':'1.2-2':'fr' }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Dernière Entrée(Qte)">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <span *ngIf="row.derniere_entree?.date">
+                    {{ row.derniere_entree.date | date:'dd/MM/yyyy' }} <br> (Qte: {{ row.derniere_entree.quantite }})
+                  </span>
+                  <span *ngIf="!row.derniere_entree?.date">N/A</span>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Dernière Sortie(Qte)">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <span *ngIf="row.derniere_sortie?.date">
+                    {{ row.derniere_sortie.date | date:'dd/MM/yyyy' }} (Qte: {{ row.derniere_sortie.quantite }})
+                  </span>
+                  <span *ngIf="!row.derniere_sortie?.date">N/A</span>
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Total Entrées">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.synthese_periode?.total_entrees || 0 }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Total Sorties">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.synthese_periode?.total_sorties || 0 }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Mouvement Net">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.synthese_periode?.mouvement_net || 0 }}
+                </ng-template>
+              </ngx-datatable-column>
             </ng-container>
 
           </ngx-datatable>

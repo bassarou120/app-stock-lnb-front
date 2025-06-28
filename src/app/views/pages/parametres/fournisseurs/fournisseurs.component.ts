@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angu
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -24,6 +25,11 @@ declare var bootstrap: any;
   templateUrl: 'fournisseurs.component.html'
 })
 export class FournisseursComponent implements OnInit {
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canVoirParamGeneraux: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres 
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages 
 
   rows: Fournisseur[] = [];
   temp: Fournisseur[] = [];
@@ -47,10 +53,18 @@ export class FournisseursComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private fournisseurService: FournisseursService, private formBuilder: FormBuilder,) {}
+  constructor(private fournisseurService: FournisseursService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
-    this.loadFournisseurs();
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
+    
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadFournisseurs();
+    }
+
     this.addFournisseur = this.formBuilder.group({
       nom: ["", [Validators.required]],
       telephone: ["", [Validators.required]],
@@ -66,6 +80,45 @@ export class FournisseursComponent implements OnInit {
       id: [0, [Validators.required]],
    });
   }
+
+// 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canVoirParamGeneraux = allowedFonctionnalites.includes('Voir Parametres Généraux');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirParamGeneraux;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirParamGeneraux: this.canVoirParamGeneraux,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages generaux');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+
 
   // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
   private markFormGroupTouched(formGroup: FormGroup) {

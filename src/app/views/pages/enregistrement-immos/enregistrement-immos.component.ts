@@ -9,6 +9,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -32,6 +33,17 @@ declare var bootstrap: any;
 })
 export class ImmobilisationComponent implements OnInit {
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
+
+    // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canViewImmoEntries: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canAffectImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canInvertImmo: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canExportImmo: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canModifyImmo: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  canDeleteImmo: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: Immobilisation[] = [];
   temp: Immobilisation[] = [];
@@ -60,15 +72,21 @@ export class ImmobilisationComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder,) { }
+  constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
-    this.loadImmobilisations();
-    this.loadFournisseurs();
-    this.loadStatusImmo();
-    this.loadSousTypeImmo();
-    this.loadGroupeTypeImmo();
-    this.loadVehicules();
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+        // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadImmobilisations();
+        this.loadFournisseurs();
+        this.loadStatusImmo();
+        this.loadSousTypeImmo();
+        this.loadGroupeTypeImmo();
+        this.loadVehicules();
+    }
     this.addImmobilisation = this.formBuilder.group({
       bureau_id: [null, []],
       employe_id: [null, []],
@@ -117,7 +135,75 @@ export class ImmobilisationComponent implements OnInit {
     });
   }
 
+    // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddImmo = allowedFonctionnalites.includes('Ajout immobilisation');
+      this.canAffectImmo = allowedFonctionnalites.includes('Affectation Immobilisation');
+      this.canInvertImmo = allowedFonctionnalites.includes('Intervention Immobilisation');
+      this.canExportImmo = allowedFonctionnalites.includes('Exporter immobilisation');
+      this.canModifyImmo = allowedFonctionnalites.includes('Modification immobilisation');
+      this.canDeleteImmo = allowedFonctionnalites.includes('Suppression immobilisation');
+      this.canViewImmoEntries= allowedFonctionnalites.includes('Voir les immobilisations');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canViewImmoEntries;
+
+      console.log('🔐 Permissions calculées:', {
+        canAddImmo: this.canAddImmo,
+        canAffectImmo: this.canAffectImmo,
+        canInvertImmo: this.canInvertImmo,
+        canExportImmo: this.canExportImmo,
+        canModifyImmo: this.canModifyImmo,
+        canDeleteImmo: this.canDeleteImmo,
+
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la gestion des immobilisations');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+      // 🔥 NOUVELLE MÉTHODE : Définir les permissions par défaut
+  private setDefaultPermissions(): void {
+    this.canAddImmo = true;
+    this.canAffectImmo = true;
+    this.canInvertImmo = true;
+    this.canExportImmo = true;
+    this.canModifyImmo = true;
+    this.canDeleteImmo = true;
+
+    this.hasPageAccess = true;
+    console.log('✅ Permissions par défaut appliquées');
+  }
+
   onClickSubmitAddImmobilisation() {
+
+    if (!this.canAddImmo) {
+      alert('Vous n\'avez pas l\'autorisation d\'ajouter une immobilisation.');
+      return;
+    }
+
     console.log('onClickSubmitAddImmobilisation appelé. isAddingImmobilisation:', this.isAddingImmobilisation);
 
     // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
@@ -184,6 +270,12 @@ export class ImmobilisationComponent implements OnInit {
   }
 
   onClickSubmitEditImmobilisation() {
+
+    if (!this.canModifyImmo) {
+      alert('Vous n\'avez pas l\'autorisation de modifier cette immobilisation.');
+      return;
+    }
+
     console.log(this.editImmobilisation.value);
     const spinner = document.querySelector('.spinnerModif'); // Assurez-vous que c'est le bon sélecteur
 
@@ -235,6 +327,12 @@ export class ImmobilisationComponent implements OnInit {
   }
 
   onClickSubmitDeleteImmobilisation() {
+
+    if (!this.canDeleteImmo) {
+      alert('Vous n\'avez pas l\'autorisation de Supprimer cette immobilisation.');
+      return;
+    }
+
     console.log(this.deleteImmobilisation.value);
     const spinner = document.querySelector('.spinnerDelete');
 
@@ -434,6 +532,12 @@ export class ImmobilisationComponent implements OnInit {
   }
 
   downloadImmosPDF(): void {
+
+    if (!this.canExportImmo) {
+      alert('Vous n\'avez pas l\'autorisation d\'exportr la liste des transferts.');
+      return;
+    }
+
     this.immobilisationService.imprimerImmos().subscribe(
       (response: Blob) => {
         const fileURL = window.URL.createObjectURL(response);

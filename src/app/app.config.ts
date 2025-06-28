@@ -7,6 +7,16 @@ import { provideAnimationsAsync } from '@angular/platform-browser/animations/asy
 import { SweetAlert2Module } from '@sweetalert2/ngx-sweetalert2';
 import { provideHighlightOptions } from 'ngx-highlightjs';
 
+// NOUVEAU: Importez les fonctions nécessaires pour la locale
+import { registerLocaleData } from '@angular/common';
+import localeFr from '@angular/common/locales/fr'; // Importe les données de la locale française
+import { LOCALE_ID } from '@angular/core'; // Pour définir la locale par défaut
+
+
+// NOUVEAU: Enregistrez les données de la locale
+registerLocaleData(localeFr);
+
+
 const highlightOptions = {
   coreLibraryLoader: () => import('highlight.js/lib/core'),
   languages: {
@@ -22,7 +32,9 @@ export const appConfig: ApplicationConfig = {
     provideRouter(routes, withInMemoryScrolling({ scrollPositionRestoration: 'top' })), 
     provideHttpClient(),
     provideAnimationsAsync(),
-    importProvidersFrom([SweetAlert2Module.forRoot()]), // ngx-sweetalert2: https://github.com/sweetalert2/ngx-sweetalert2
-    provideHighlightOptions(highlightOptions), // ngx-highlightjs: https://github.com/murhafsousli/ngx-highlightjs
+    importProvidersFrom([SweetAlert2Module.forRoot()]), 
+    provideHighlightOptions(highlightOptions), 
+    // NOUVEAU: Fournir la locale par défaut pour les pipes
+    { provide: LOCALE_ID, useValue: 'fr' } 
   ],
 };

@@ -1,4 +1,7 @@
-<nav aria-label="breadcrumb">
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
+
+  <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a routerLink=".">Rôles et permissions</a></li>
     <li class="breadcrumb-item active" aria-current="page">Rôles</li>
@@ -14,8 +17,6 @@
 <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
   Rôle supprimé avec succès !
 </ngb-alert>
-
-<div class="row">
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
@@ -23,7 +24,7 @@
           <h4 class="card-title">Gestion des Rôles</h4>
           <p class="text-secondary">Liste et gestion des rôles des utilisateurs</p>
         </div>
-        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+        <button *ngIf="canAddRole" type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
           data-bs-target="#add_role">
           <i class="fas fa-plus"></i> Ajouter un Rôle
         </button>
@@ -32,7 +33,7 @@
   </div>
 </div>
 
-<div class="row">
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -61,7 +62,7 @@
               </ng-template>
             </ngx-datatable-column>
 
-            <ngx-datatable-column name="Actions">
+            <ngx-datatable-column name="Actions"  *ngIf="canAddRole">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <button class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}"

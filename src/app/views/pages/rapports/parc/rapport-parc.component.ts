@@ -64,7 +64,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
 
   // Types de rapports de parc
   typeRapportsParc: TypeRapportParc[] = [
-    { id: 'vehicule', libelle: 'Rapport d\'Enregistrement des Véhicules' },
+    { id: 'vehicule', libelle: 'Liste des Véhicules' },
     { id: 'intervention_vehicule', libelle: 'Rapport des Interventions sur Véhicules' }
   ];
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
@@ -116,7 +116,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
       if (startDate && !endDate) {
         return { 'dateRangeMissingEndDate': true };
       }
-      
+
       if (startDate && endDate) {
         const sDate = new Date(startDate.year, startDate.month - 1, startDate.day);
         const eDate = new Date(endDate.year, endDate.month - 1, endDate.day);
@@ -161,7 +161,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
       case 'vehicule':
         this.showVehiculeFilters = true;
         this.showInterventionVFilters = false;
-        
+
         this.rapportForm.get('date_debut_vehicule')?.enable();
         this.rapportForm.get('date_fin_vehicule')?.enable();
         this.rapportForm.get('modele_id')?.enable();
@@ -291,7 +291,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
           this.temp = [];
           this.errorMessage = response.message || "Aucune donnée trouvée ou erreur inattendue.";
         }
-        
+
         this.loadingIndicator = false;
         this.isGeneratingReport = false;
         if (this.rows.length === 0 && !this.errorMessage) {
@@ -347,7 +347,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
         filters.vehicule_id = this.rapportForm.get('vehicule_id')?.value;
         filters.type_intervention_id = this.rapportForm.get('type_intervention_id')?.value;
     }
-    
+
     Object.keys(filters).forEach(key => {
         if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
             delete filters[key];

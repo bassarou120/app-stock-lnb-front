@@ -3,7 +3,7 @@ import { Observable, of} from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
-import { MouvementStock, Article, Fournisseur } from "../interface/models";
+import { MouvementStock, Article, Fournisseur, UniteDeMesure } from "../interface/models";
 import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
@@ -56,6 +56,15 @@ export class MouvementStockService  {
         )
       );
     }
+    getAllUniteDeMesure(): Observable<UniteDeMesure[]> {
+        return this.http.get<{ success: boolean; message: string; data: { data: UniteDeMesure[] } }>(
+          `${this.url}/unite-de-mesure`
+        ).pipe(
+          map((response: { success: boolean; message: string; data: { data: UniteDeMesure[] } }) =>
+            response.data.data // On récupère uniquement le tableau de UniteDeMesure
+          )
+        );
+      }
 
   // Nouvelle méthode pour l'ajout multiple
   saveMultipleMouvementStockEntree(formData: FormData): Observable<any> {

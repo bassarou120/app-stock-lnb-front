@@ -148,8 +148,8 @@ export class DashboardComponent implements OnInit {
         console.log('Users data received in component:', data);
         this.usersWithRoles = data.filter(user => {
           // Vérifie si l'utilisateur a un rôle et si ce rôle n'est PAS 'admin' ou 'super-admin'
-          return user.role && 
-                 user.role.libelle_role !== 'Admin' && 
+          return user.role &&
+                 user.role.libelle_role !== 'Admin' &&
                  user.role.libelle_role !== 'Super Admin';
         });
         console.log('Users data after filtering (admin/super-admin excluded):', this.usersWithRoles);
@@ -173,7 +173,7 @@ export class DashboardComponent implements OnInit {
       series: [{
         name: 'Customers',
         data: [
-          
+
           57.7, 56.8, 58.9, 62.4, 58.7, 58.4, 56.7, 52.7, 52.3, 50.5, 55.4, 50.4, 52.4, 48.7, 47.4, 43.3, 38.9, 34.7, 31.0, 32.6, 36.8, 35.8, 32.7, 33.2, 30.8, 28.6, 28.4, 27.7, 27.7, 25.9, 24.3, 21.9, 22.0, 23.5, 27.3, 30.2, 27.2, 29.9, 25.1, 23.0, 23.7, 23.4, 27.9, 23.2, 23.9, 19.2, 15.1, 15.0, 11.0, 9.20, 7.47, 11.6, 15.7, 13.9, 12.5, 13.5, 15.0, 13.9, 13.2, 18.1, 20.6, 21.0, 25.3, 25.3, 20.9, 18.7, 15.3, 14.5, 17.9, 15.9, 16.3, 14.1, 12.1, 14.8, 17.2, 17.7, 14.0, 18.6, 18.4, 22.6, 25.0, 28.1, 28.0, 24.1, 24.2, 28.2, 26.2, 29.3, 26.0, 23.9, 28.8, 25.1, 21.7, 23.0, 20.7, 29.7, 30.2, 32.5, 31.4, 33.6, 30.0, 34.2, 36.9, 35.5, 34.7, 36.9
         ]
       }],
@@ -221,7 +221,7 @@ export class DashboardComponent implements OnInit {
   }
 
 
- 
+
   getMonthlySalesChartOptions(themeVariables: ThemeCssVariablesType) {
     return {
       series: [{
@@ -280,7 +280,7 @@ export class DashboardComponent implements OnInit {
   }
 
 
- 
+
   getCloudStorageChartOptions(themeVariables: ThemeCssVariablesType) {
     return {
       series: [67],
@@ -321,15 +321,15 @@ export class DashboardComponent implements OnInit {
     }
   };
 
-  
+
   getOrdersChartOptions(themeVariables: ThemeCssVariablesType) {
     return {
       series: [{
         name: 'Orders',
-        data: [30, 40, 45, 50, 49, 60, 70, 91] 
+        data: [30, 40, 45, 50, 49, 60, 70, 91]
       }],
       chart: {
-        type: 'bar', 
+        type: 'bar',
         height: 100,
         foreColor: themeVariables.secondary,
         toolbar: { show: false },
@@ -356,7 +356,7 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-  
+
   getGrowthChartOptions(themeVariables: ThemeCssVariablesType) {
     return {
       series: [{

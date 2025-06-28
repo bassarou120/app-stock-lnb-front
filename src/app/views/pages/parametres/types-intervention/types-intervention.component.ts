@@ -1,118 +1,156 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit } from '@angular/core'; // `inject` et `NgbCalendar` sont retirés
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { TypeInterventionService } from '../../../../core/services/types-intervention/types-intervention.service';
-import { TypeIntervention } from '../../../../core/services/interface/models';
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angular/forms";
-import { CommonModule } from '@angular/common';
-import { NgbAlertModule, NgbCalendar, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgbDropdownModule, NgbDateStruct  } from '@ng-bootstrap/ng-bootstrap';
+import { TypeIntervention } from '../../../../core/services/interface/models'; 
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
+import { CommonModule } from '@angular/common'; // DatePipe n'est plus strictement nécessaire si vous ne formatez pas de dates spécifiques, mais je le garde au cas où d'autres usages subsistent dans le template.
+import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'; // NgbDatepickerModule et NgbDateStruct sont retirés
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
-declare var bootstrap: any;
+import { Router } from '@angular/router';
+
+
+declare var bootstrap: any; // Pour les modales Bootstrap
 
 @Component({
-  selector: 'app-types-intervention',
-  standalone: true,
-  imports: [
-    RouterLink,
-    NgxDatatableModule,
-    ReactiveFormsModule,
-    CommonModule,
-    NgbAlertModule,
-    NgbDropdownModule,
-    NgbDatepickerModule,
-    NgbTooltipModule 
-  ],
-  templateUrl: 'types-intervention.component.html'
+  selector: 'app-types-intervention',
+  standalone: true,
+  imports: [
+    RouterLink,
+    NgxDatatableModule,
+    ReactiveFormsModule,
+    CommonModule,
+    NgbAlertModule,
+    NgbDropdownModule,
+    NgbTooltipModule,
+    // DatePipe // Commenté si non utilisé ailleurs pour le nettoyage des imports
+  ],
+  templateUrl: 'types-intervention.component.html'
 })
 export class TypesInterventionComponent implements OnInit {
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canVoirParamGeneraux: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres 
 
-  currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
-  rows: TypeIntervention[] = [];
-  temp: TypeIntervention[] = [];
-  loadingIndicator = true;
-  reorderable = true;
-  ColumnMode = ColumnMode;
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages 
 
-  alertAjoutVisible: boolean = false;  
-  alertModifVisible: boolean = false;  
-  alertSuppVisible: boolean = false; 
+  // currentDate: NgbDateStruct = inject(NgbCalendar).getToday(); // Rétiré, plus de datepicker direct
+  rows: TypeIntervention[] = [];
+  temp: TypeIntervention[] = [];
+  loadingIndicator = true;
+  reorderable = true;
+  ColumnMode = ColumnMode;
 
-  // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
-  isAdding: boolean = false;    
-  isEditing: boolean = false;   
-  isDeleting: boolean = false;  
-  // -----------------------------------------------------------
+  alertAjoutVisible: boolean = false; 
+  alertModifVisible: boolean = false; 
+  alertSuppVisible: boolean = false; 
 
-  public addTypeIntervention!: FormGroup ;
-  public editTypeIntervention!: FormGroup ;
-  public deleteTypeIntervention!: FormGroup ;
+  // Indicateurs pour gérer les soumissions simultanées et les spinners
+  isAdding: boolean = false; 
+  isEditing: boolean = false; 
+  isDeleting: boolean = false; 
 
-  @ViewChild('table') table!: DatatableComponent;
+  public addTypeIntervention!: FormGroup;
+  public editTypeIntervention!: FormGroup;
+  public deleteTypeIntervention!: FormGroup;
 
-  constructor(private typeInterventionService: TypeInterventionService, private formBuilder: FormBuilder,) {}
+  @ViewChild('table') table!: DatatableComponent;
 
-  ngOnInit(): void {
-  this.loadTypeInterventions();
-  this.initForms(); // Appeler une méthode pour initialiser les formulaires
-}
+  constructor(
+    private typeInterventionService: TypeInterventionService,
+    private formBuilder: FormBuilder,
+    private router: Router
+    // private datePipe: DatePipe // Commenté si non utilisé ailleurs pour le nettoyage des imports
+  ) {}
 
-initForms(): void {
-  // Formulaire d'ajout
-  this.addTypeIntervention = this.formBuilder.group({
-    libelle_type_intervention: ["", [Validators.required]],
-    applicable_seul_vehicule: [0, [Validators.required]], // Valeur par défaut 0 (false)
-    observation: ["", []],
-    has_expiration_date: [false], // Nouvelle propriété pour la checkbox
-    date_expiration: [null] // Initialiser à null, le validateur sera ajouté/retiré
-  });
+  ngOnInit(): void {
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
 
-  // Écouter les changements sur 'has_expiration_date' pour le formulaire d'ajout
-  this.addTypeIntervention.get('has_expiration_date')?.valueChanges.subscribe(hasExpiration => {
-    const dateExpirationControl = this.addTypeIntervention.get('date_expiration');
-    if (dateExpirationControl) {
-      if (hasExpiration) {
-        dateExpirationControl.setValidators(Validators.required);
-      } else {
-        dateExpirationControl.clearValidators();
-        dateExpirationControl.patchValue(null); // Vider la valeur si la checkbox est décochée
-      }
-      dateExpirationControl.updateValueAndValidity(); // Mettre à jour la validité
+
+        // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadTypeInterventions();
+        this.initForms();
     }
-  });
+  }
 
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
 
-  // Formulaire d'édition
-  this.editTypeIntervention = this.formBuilder.group({
-    id: [0, [Validators.required]],
-    libelle_type_intervention: ["", [Validators.required]],
-    applicable_seul_vehicule: [0, [Validators.required]], // Valeur par défaut 0
-    observation: ["", []],
-    has_expiration_date: [false], // Nouvelle propriété pour la checkbox
-    date_expiration: [null] // Initialiser à null
-  });
-
-  // Écouter les changements sur 'has_expiration_date' pour le formulaire d'édition
-  this.editTypeIntervention.get('has_expiration_date')?.valueChanges.subscribe(hasExpiration => {
-    const dateExpirationControl = this.editTypeIntervention.get('date_expiration');
-    if (dateExpirationControl) {
-      if (hasExpiration) {
-        dateExpirationControl.setValidators(Validators.required);
-      } else {
-        dateExpirationControl.clearValidators();
-        dateExpirationControl.patchValue(null); // Vider la valeur si la checkbox est décochée
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
       }
-      dateExpirationControl.updateValueAndValidity();
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canVoirParamGeneraux = allowedFonctionnalites.includes('Voir Parametres Généraux');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirParamGeneraux;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirParamGeneraux: this.canVoirParamGeneraux,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages generaux');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
     }
-  });
+  }
 
-  // Formulaire de suppression (pas de changement ici)
-  this.deleteTypeIntervention = this.formBuilder.group({
-    id: [0, [Validators.required]],
-  });
-}
 
-  // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
+  // Initialise les formulaires réactifs
+  initForms(): void {
+    // Le champ date_expiration est maintenu dans le FormGroup mais ne sera jamais affiché/manipulé par l'UI.
+    // Sa valeur sera fixée à null lors de la soumission.
+    this.addTypeIntervention = this.formBuilder.group({
+      libelle_type_intervention: ["", [Validators.required]],
+      // applicable_seul_vehicule sera traité comme un booléen (true/false) pour les checkboxes Angular
+      // Le backend (via $casts) convertira correctement true/false en 1/0 ou vice-versa.
+      applicable_seul_vehicule: [false, [Validators.required]], 
+      observation: ["", []],
+      // has_expiration_date sera également traité comme un booléen
+      has_expiration_date: [false], 
+      date_expiration: [null] // Gardé dans le formGroup, mais toujours nullé à l'envoi
+    });
+
+    // Supprime les écouteurs de changements de valeur qui manipulaient la date_expiration.
+    // Cette logique n'est plus nécessaire puisque le champ de date est supprimé.
+    // this.addTypeIntervention.get('has_expiration_date')?.valueChanges.subscribe(...);
+
+
+    this.editTypeIntervention = this.formBuilder.group({
+      id: [0, [Validators.required]],
+      libelle_type_intervention: ["", [Validators.required]],
+      applicable_seul_vehicule: [false, [Validators.required]],
+      observation: ["", []],
+      has_expiration_date: [false],
+      date_expiration: [null]
+    });
+
+    // Supprime les écouteurs de changements de valeur pour l'édition également.
+    // this.editTypeIntervention.get('has_expiration_date')?.valueChanges.subscribe(...);
+
+    this.deleteTypeIntervention = this.formBuilder.group({
+      id: [0, [Validators.required]],
+    });
+  }
+
+  // Marque tous les contrôles d'un FormGroup comme touchés pour déclencher l'affichage des erreurs
   private markFormGroupTouched(formGroup: FormGroup) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
@@ -121,108 +159,122 @@ initForms(): void {
       }
     });
   }
-  // ---------------------------------------------------------------------
 
-    onClickSubmitAddTypeIntervention() {
-    // 1. Vérifier si une soumission est déjà en cours
+  // Charge la liste des types d'intervention depuis le service
+  loadTypeInterventions(): void {
+    this.loadingIndicator = true;
+    this.typeInterventionService.getAllTypeInterventions().subscribe(
+      (data: TypeIntervention[]) => {
+        // Le `map` n'est plus nécessaire ici car `has_expiration_date` est maintenant un champ direct du backend
+        // et son type est déjà `boolean` grâce à l'interface TypeIntervention et aux casts Laravel.
+        this.rows = data; 
+        this.temp = [...this.rows]; // Sauvegarde pour le filtrage local
+        this.loadingIndicator = false;
+      },
+      (error) => {
+        console.error('Erreur lors du chargement des types d\'intervention :', error);
+        this.loadingIndicator = false;
+      }
+    );
+  }
+
+  // Prépare le formulaire d'édition avec les données de la ligne sélectionnée
+  getEditForm(row: TypeIntervention): void {
+    this.editTypeIntervention.patchValue({
+      id: row.id,
+      libelle_type_intervention: row.libelle_type_intervention,
+      // Les valeurs booléennes sont directement patchées
+      applicable_seul_vehicule: row.applicable_seul_vehicule,
+      observation: row.observation,
+      has_expiration_date: row.has_expiration_date, // Directement depuis l'objet du backend
+      date_expiration: null // Toujours null dans le formulaire puisque le champ de date n'est pas affiché
+    });
+    // Pas besoin de mettre à jour les validateurs car date_expiration n'est plus requis par l'UI.
+  }
+
+  // Prépare le formulaire de suppression avec l'ID de la ligne sélectionnée
+  getDeleteForm(row: TypeIntervention): void {
+    this.deleteTypeIntervention.patchValue({
+      id: row.id
+    });
+  }
+
+  // Gère la soumission du formulaire d'ajout
+  onClickSubmitAddTypeIntervention() {
     if (this.isAdding) {
       console.warn('Ajout de type d\'intervention déjà en cours. Opération annulée.');
       return;
     }
 
-    // 2. Valider le formulaire
-    // Si la checkbox 'has_expiration_date' est cochée, 'date_expiration' doit être valide.
-    // Si elle n'est pas cochée, 'date_expiration' doit être null et le validateur retiré.
-    // Le `updateValueAndValidity()` dans le `valueChanges` s'en charge.
     if (this.addTypeIntervention.invalid) {
       this.markFormGroupTouched(this.addTypeIntervention);
       alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
       return;
     }
 
-    // 3. Activer l'indicateur de chargement
-    this.isAdding = true;
+    this.isAdding = true; // Active le spinner et désactive le bouton
 
     const formData = { ...this.addTypeIntervention.value };
 
-    // Formatage de la date d'expiration si elle existe et est définie
-    if (formData.has_expiration_date && formData.date_expiration) {
-      formData.date_expiration = this.formatDate(formData.date_expiration);
-    } else {
-      formData.date_expiration = null; // Assurez-vous que c'est null si non applicable
-    }
-
-    // Retirer la propriété 'has_expiration_date' du formData car le backend n'en a pas besoin
-    delete formData.has_expiration_date;
+    // Strictement selon votre demande : le champ date_expiration est toujours null pour le backend.
+    formData.date_expiration = null;
+    
+    // has_expiration_date est maintenant une propriété du modèle qui sera envoyée.
+    // Nous ne la supprimons plus ici, elle sera envoyée telle quelle (true/false) au service.
 
     this.typeInterventionService.saveTypeIntervention(formData).subscribe({
       next: (data: any) => {
-        this.loadTypeInterventions();
-        this.addTypeIntervention.reset();
-        // Réinitialiser les valeurs par défaut et l'état de la checkbox
+        this.loadTypeInterventions(); // Recharge les données du tableau
+        this.addTypeIntervention.reset(); // Réinitialise le formulaire
+        // Réinitialise les checkboxes à false après l'ajout pour les prochains ajouts
         this.addTypeIntervention.patchValue({
-          applicable_seul_vehicule: 0, // Réinitialiser à 0 par défaut
-          has_expiration_date: false // Réinitialiser à false par défaut
+          applicable_seul_vehicule: false,
+          has_expiration_date: false 
         });
-        // S'assurer que le validateur de date_expiration est retiré après reset
-        this.addTypeIntervention.get('date_expiration')?.clearValidators();
-        this.addTypeIntervention.get('date_expiration')?.updateValueAndValidity();
 
-
-        // Fermer le modal manuellement
         const modal = document.getElementById('add_typeIntervention');
-        // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
 
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
         setTimeout(() => {
           this.alertAjoutVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
           setTimeout(() => {
             this.alertAjoutVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+          }, 2000);
+        }, 200);
       },
       error: (error: any) => {
         console.error('Erreur lors de l\'ajout de l\'intervention :', error);
         alert('Une erreur s\'est produite lors de l\'ajout. Veuillez réessayer.');
       },
       complete: () => {
-        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
         this.isAdding = false;
       }
     });
   }
 
-    onClickSubmitEditTypeIntervention() {
-    // 1. Vérifier si une soumission est déjà en cours
+  // Gère la soumission du formulaire d'édition
+  onClickSubmitEditTypeIntervention() {
     if (this.isEditing) {
       console.warn('Modification de type d\'intervention déjà en cours. Opération annulée.');
       return;
     }
 
-    // 2. Valider le formulaire
     if (this.editTypeIntervention.invalid) {
       this.markFormGroupTouched(this.editTypeIntervention);
       alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
       return;
     }
 
-    // 3. Activer l'indicateur de chargement
     this.isEditing = true;
 
     const formData = { ...this.editTypeIntervention.value };
 
-    // Formatage de la date d'expiration si elle existe et est définie
-    if (formData.has_expiration_date && formData.date_expiration) {
-      formData.date_expiration = this.formatDate(formData.date_expiration);
-    } else {
-      formData.date_expiration = null; // Assurez-vous que c'est null si non applicable
-    }
-
-    // Retirer la propriété 'has_expiration_date' du formData
-    delete formData.has_expiration_date;
+    // Strictement selon votre demande : le champ date_expiration est toujours null pour le backend.
+    formData.date_expiration = null;
+    
+    // has_expiration_date est une propriété du modèle qui sera envoyée.
+    // Nous ne la supprimons plus ici, elle sera envoyée telle quelle (true/false) au service.
 
     const id = this.editTypeIntervention.value.id;
     this.typeInterventionService.editTypeIntervention(formData).subscribe({
@@ -230,169 +282,86 @@ initForms(): void {
         this.loadTypeInterventions();
         this.editTypeIntervention.reset();
 
-        // Fermer le modal manuellement
         const modal = document.getElementById('edit_typeIntervention');
-        // @ts-ignore - pour éviter les erreurs TypeScript
         const bsModal = bootstrap.Modal.getInstance(modal);
         bsModal?.hide();
 
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
         setTimeout(() => {
           this.alertModifVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
           setTimeout(() => {
             this.alertModifVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+          }, 2000);
+        }, 200);
       },
       error: (error: any) => {
         console.error('Erreur lors de la modification du Type Intervention :', error);
         alert('Une erreur s\'est produite lors de la modification. Veuillez réessayer.');
       },
       complete: () => {
-        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
         this.isEditing = false;
       }
     });
   }
 
-  onClickSubmitDeleteTypeIntervention(){
-    console.log(this.deleteTypeIntervention.value);
-    // const spinner = document.querySelector('.spinnerDelete'); // Ce spinner sera géré par [disabled] et le texte du bouton
-
-    // 1. Vérifier si une soumission est déjà en cours
+  // Gère la soumission du formulaire de suppression
+  onClickSubmitDeleteTypeIntervention() {
     if (this.isDeleting) {
       console.warn('Suppression de type d\'intervention déjà en cours. Opération annulée.');
       return;
     }
 
-    // 2. Valider le formulaire
-    if (this.deleteTypeIntervention.invalid) {
-      alert("Désolé, le formulaire n'est pas bien renseigné");
-      return;
-    }
-
-    // 3. Activer l'indicateur de chargement
-    this.isDeleting = true;
-    // if (spinner) spinner.classList.remove('d-none'); // Géré par isDeleting
-
-    this.typeInterventionService.deleteTypeIntervention(this.deleteTypeIntervention.value).subscribe({
-      next: (data: any) => {
-        this.loadTypeInterventions();
-        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        this.deleteTypeIntervention.reset();
-
-        // Fermer le modal manuellement
-        const modal = document.getElementById('delete_typeIntervention');
-        // @ts-ignore - pour éviter les erreurs TypeScript
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
-
-        // Attendre que le modal soit fermé avant d'afficher l'alerte
-        setTimeout(() => {
-          this.alertSuppVisible = true;
-          console.log('Alert visible après fermeture du modal:', this.alertSuppVisible);
-
-          // Utilisation de la transition pour faire apparaitre l'alerte
-          setTimeout(() => {
-            this.alertSuppVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
-        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-      },
-      error: (error: any) => {
-        console.error('Erreur lors de la supression du Type Intervention :', error);
-        // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
-      complete: () => {
-        // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
-        this.isDeleting = false;
-      }
-    });
-  }
-
-    formatDate(date: NgbDateStruct): string {
-      const year = date.year;
-      const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
-      const day = date.day.toString().padStart(2, '0');
-      return `${year}-${month}-${day}`; // Format YYYY-MM-DD
-    }
-
-    // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
-    convertToNgbDate(dateString: string): NgbDateStruct | null {
-      if (!dateString) return null;
-      const parts = dateString.split('-'); // Séparer YYYY-MM-DD
-      return {
-        year: +parts[0],
-        month: +parts[1],
-        day: +parts[2],
-      };
-    }
-
-    loadTypeInterventions(): void {
-      this.typeInterventionService.getAllTypeInterventions().subscribe(
-        (data: TypeIntervention[]) => {
-          this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
-          this.rows = data;
-          this.loadingIndicator = false;
-        },
-        error => {
-          console.error('Erreur lors du chargement des Type Interventions', error);
-          this.loadingIndicator = false;
-        }
-      );
-    }
-
-    updateFilter(event: KeyboardEvent): void {
-      const val = (event.target as HTMLInputElement).value.toLowerCase();
-
-      this.rows = this.temp.filter(typeIntervention =>
-        typeIntervention.libelle_type_intervention.toLowerCase().includes(val)
-      );
-
-      this.table.offset = 0;
-    }
-
-    getEditForm(row: any) {
-      // Déterminer si le champ date_expiration a une valeur pour initialiser la checkbox
-      const hasExpiration = row.date_expiration !== null && row.date_expiration !== undefined && row.date_expiration !== '';
-
-      this.editTypeIntervention.patchValue({
-        id: row.id,
-        libelle_type_intervention: row.libelle_type_intervention,
-        applicable_seul_vehicule: row.applicable_seul_vehicule ? 1 : 0,
-        observation: row.observation,
-        has_expiration_date: hasExpiration, // Initialiser la nouvelle checkbox
-        date_expiration: this.convertToNgbDate(row.date_expiration) // Convertir la date si elle existe, sinon null
-      });
-
-      // Mettre à jour les validateurs après patchValue pour s'assurer de la bonne application
-      const dateExpirationControl = this.editTypeIntervention.get('date_expiration');
-      if (dateExpirationControl) {
-          if (hasExpiration) {
-              dateExpirationControl.setValidators(Validators.required);
-          } else {
-              dateExpirationControl.clearValidators();
-          }
-          dateExpirationControl.updateValueAndValidity();
-      }
+    if (this.deleteTypeIntervention.invalid) {
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+      return;
     }
 
-    getDeleteForm(row: any){
-      this.deleteTypeIntervention.patchValue({
-      id:row.id,
-      })
-    }
+    this.isDeleting = true;
 
-    onCheckboxChange(event: any) {
-      this.addTypeIntervention.patchValue({
-        applicable_seul_vehicule: event.target.checked ? 1 : 0
-      });
-    }
+    this.typeInterventionService.deleteTypeIntervention(this.deleteTypeIntervention.value).subscribe({
+      next: (data: any) => {
+        this.loadTypeInterventions();
+        this.deleteTypeIntervention.reset();
 
-    onCheckboxEditChange(event: any) {
-      this.editTypeIntervention.patchValue({
-        applicable_seul_vehicule: event.target.checked ? 1 : 0
-      });
-    }
-  }
+        const modal = document.getElementById('delete_typeIntervention');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertSuppVisible = true;
+          setTimeout(() => {
+            this.alertSuppVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de la suppression du Type Intervention :', error);
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      },
+      complete: () => {
+        this.isDeleting = false;
+      }
+    });
+  }
+
+  // Méthode de filtrage pour le tableau ngx-datatable
+  updateFilter(event: KeyboardEvent): void {
+    const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+    this.rows = this.temp.filter(typeIntervention =>
+      (typeIntervention.libelle_type_intervention?.toLowerCase().includes(val) || false) ||
+      (typeIntervention.observation?.toLowerCase().includes(val) || false) || 
+      (typeIntervention.applicable_seul_vehicule ? 'oui' : 'non').includes(val) || 
+      (typeIntervention.has_expiration_date ? 'oui' : 'non').includes(val) 
+    );
+
+    if (this.table) {
+      this.table.offset = 0;
+    }
+  }
+
+  // Les méthodes onCheckboxChange et onCheckboxEditChange ne sont plus nécessaires car
+  // les checkboxes Angular gèrent directement les valeurs booléennes via formControlName.
+  // Vous pouvez les supprimer si elles ne sont pas appelées ailleurs dans votre code.
+  // onCheckboxChange(event: any) { ... }
+  // onCheckboxEditChange(event: any) { ... }
+}

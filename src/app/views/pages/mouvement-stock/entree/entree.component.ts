@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementStockService } from '../../../../core/services/mouvementstock/entree.service';
-import { MouvementStock, Article, Fournisseur } from '../../../../core/services/interface/models';
+import { MouvementStock, Article, Fournisseur, UniteDeMesure } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
@@ -10,8 +10,8 @@ import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
-import {environment} from "../../../../../environments/environment";
-
+import { environment } from "../../../../../environments/environment";
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -34,6 +34,16 @@ declare var bootstrap: any;
 })
 export class EntreeComponent implements OnInit {
 
+  // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canViewEntries: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canAddStock: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canAddStockMultiple: boolean = true;     // Pour "Ajout du Stock" (bouton multiple)
+  canModifyStock: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canDeleteStock: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canExportStock: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: MouvementStock[] = [];
   temp: MouvementStock[] = [];
@@ -41,13 +51,14 @@ export class EntreeComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  articles: Article[] = []; // Liste des types articles
-  fournisseurs: Fournisseur[] = []; // Liste des types Fournisseurs
-  selectedTypeImmoId: number | null = null; // ID sélectionné
+  articles: Article[] = [];
+  uniteDeMesures: UniteDeMesure[] = [];
+  fournisseurs: Fournisseur[] = [];
+  selectedTypeImmoId: number | null = null;
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;
+  alertModifVisible: boolean = false;
+  alertSuppVisible: boolean = false;
 
   public addEntree!: FormGroup;
   public editEntree!: FormGroup;
@@ -56,43 +67,127 @@ export class EntreeComponent implements OnInit {
 
   public url: string = environment.base_url_backend;
 
-  mouvements: MouvementStock[] = [];  // tableau pour stocker les mouvements
-  loading: boolean = false;            // booléen pour indiquer le chargement
-  errorMessage: string = '';           // message d’erreur
+  mouvements: MouvementStock[] = [];
+  loading: boolean = false;
+  errorMessage: string = '';
 
+  isAddingSingleEntree: boolean = false;
+  isAddingMultipleEntrees: boolean = false;
 
-  // NOUVELLES PROPRIÉTÉS POUR GÉRER L'ÉTAT DE SOUMISSION
-  isAddingSingleEntree: boolean = false; // Pour l'ajout d'une seule entrée
-  isAddingMultipleEntrees: boolean = false; // Pour l'ajout multiple d'entrées
-
-
-  // Fichiers sélectionnés
-  selectedFiles: File[] = []; // Pour l'ajout multiple
-  selectedFile: File | null = null; // Pour l'ajout simple
+  selectedFiles: File[] = [];
+  selectedFile: File | null = null;
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private entreeService: MouvementStockService, private formBuilder: FormBuilder,) { }
+  constructor(private entreeService: MouvementStockService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
-    this.loadArticles();
-    this.loadFournisseurs();
-    this.loadEntrees();
+    console.log('🔄 EntreeComponent ngOnInit démarré');
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+      this.loadArticles();
+      this.loadFournisseurs();
+      this.loadEntrees();
+      this.loadUniteDeMesures();
+      this.initializeForms();
+    }
+
+    console.log('✅ EntreeComponent ngOnInit terminé');
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddStock = allowedFonctionnalites.includes('Ajout du Stock');
+      this.canAddStockMultiple = allowedFonctionnalites.includes('Ajout du Stock');
+      this.canModifyStock = allowedFonctionnalites.includes('Modification du Stock');
+      this.canDeleteStock = allowedFonctionnalites.includes('Suppression du Stock');
+      this.canExportStock = allowedFonctionnalites.includes('Export Stock');
+      this.canViewEntries = allowedFonctionnalites.includes('Voir les entrées') ;
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canViewEntries;
+
+      console.log('🔐 Permissions calculées:', {
+        canAddStock: this.canAddStock,
+        canAddStockMultiple: this.canAddStockMultiple,
+        canModifyStock: this.canModifyStock,
+        canDeleteStock: this.canDeleteStock,
+        canExportStock: this.canExportStock,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 REDIRECTION VERS PAGE D'ERREUR 403 SI PAS DACCES
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des entrées de stock');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Définir les permissions par défaut
+  private setDefaultPermissions(): void {
+    this.canViewEntries = true;
+    this.canAddStock = true;
+    this.canModifyStock = true;
+    this.canDeleteStock = true;
+    this.canExportStock = true;
+    this.hasPageAccess = true;
+    console.log('✅ Permissions par défaut appliquées');
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Vérifier une permission
+  private checkPermission(requiredPermissions: string[]): boolean {
+    return requiredPermissions.some(permission =>
+      this.allowedFonctionnalites.includes(permission)
+    );
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les formulaires (séparée pour plus de clarté)
+  private initializeForms(): void {
     this.addEntree = this.formBuilder.group({
       id_Article: [null, [Validators.required]],
       id_fournisseur: [null, [Validators.required]],
+      id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
       qte: [1, [Validators.required]],
+      prixUnitaire: [100, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
+      piece_jointe_mouvement: [null] // 🔥 AJOUT DU CHAMP MANQUANT
     });
+
     this.editEntree = this.formBuilder.group({
       id: [0, [Validators.required]],
       id_Article: [null, [Validators.required]],
       id_fournisseur: [null, [Validators.required]],
+      id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
       qte: [1, [Validators.required]],
+      prixUnitaire: [100, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
+      // 🔥 PAS DE piece_jointe_mouvement pour l'édition (généralement on ne modifie pas les fichiers)
     });
+
     this.deleteEntree = this.formBuilder.group({
       id: [0, [Validators.required]],
     });
@@ -102,7 +197,7 @@ export class EntreeComponent implements OnInit {
       id_fournisseur: [null, [Validators.required]],
       numero_borderau: ["", [Validators.required]],
       date_mouvement: ["", [Validators.required]],
-      piece_jointe_mouvement: [null],
+      piece_jointe_mouvement: [null], // 🔥 CHAMP DÉJÀ PRÉSENT
       articles: this.formBuilder.array([
         this.createArticleFormGroup()
       ])
@@ -113,35 +208,215 @@ export class EntreeComponent implements OnInit {
   get articlesArray(): FormArray {
     return this.addEntreeMultipleForm.get('articles') as FormArray;
   }
+
   // Crée un nouveau FormGroup pour un article
   createArticleFormGroup(): FormGroup {
     return this.formBuilder.group({
       id_Article: [null, [Validators.required]],
+      id_unite_de_mesure: [null, [Validators.required]],
       description: ["", []],
-      qte: [1, [Validators.required]]
+      qte: [1, [Validators.required]],
+      prixUnitaire: [100, [Validators.required]]
     });
   }
+
   // Ajoute un nouvel article au FormArray
   addArticle(): void {
     this.articlesArray.push(this.createArticleFormGroup());
   }
+
   // Supprime un article du FormArray
   removeArticle(index: number): void {
     this.articlesArray.removeAt(index);
   }
+
   // Gestion de la sélection de fichiers
   onFileSelected(event: any): void {
-    this.selectedFiles = Array.from(event.target.files);
+    if (event.target.files && event.target.files.length > 0) {
+      this.selectedFiles = Array.from(event.target.files);
+      console.log('Fichiers sélectionnés (multiple):', this.selectedFiles.length);
+    }
   }
 
-  onFileSelectedOnefile(event: any) {
+/*   onFileSelectedOnefile(event: any) {
+    if (event.target.files && event.target.files.length > 0) {
+      this.selectedFile = event.target.files[0];
+      console.log('Fichier sélectionné (simple):', this.selectedFile.name);
+    }
+  } */
+
+    onFileSelectedOnefile(event: any) {
     this.selectedFile = event.target.files[0];
   }
 
-  // Soumission d'ajout multiple (nouvelle méthode)
+  // Soumission d'ajout multiple
   onClickSubmitAddEntreeMultiple() {
-    // AJOUTEZ CETTE VÉRIFICATION AU DÉBUT DE LA FONCTION
+    // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
+    if (!this.canAddStock || !this.canAddStockMultiple) {
+      alert('Vous n\'avez pas l\'autorisation d\'ajouter du stock.');
+      return;
+    }
+
     if (this.isAddingMultipleEntrees) {
+        console.warn('Soumission multiple détectée pour Entrée Multiple. Annulation.');
+        return; // Empêche l'exécution si déjà en cours
+    }
+
+    const spinner = document.querySelector('.spinner-multiple-add');
+
+    if (this.addEntreeMultipleForm.valid) {
+      this.isAddingMultipleEntrees = true; // Désactiver le bouton d'ajout multiple
+      if (spinner) spinner.classList.remove('d-none');
+      console.log('isAddingMultipleEntrees mis à true.'); // Log pour le débogage
+
+
+      // Préparer les données du formulaire
+      const formData = new FormData();
+
+      // Ajouter les données communes
+      formData.append('id_fournisseur', this.addEntreeMultipleForm.value.id_fournisseur);
+      formData.append('numero_borderau', this.addEntreeMultipleForm.value.numero_borderau);
+      formData.append('date_mouvement', this.formatDate(this.addEntreeMultipleForm.value.date_mouvement));
+      // Ajouter les articles correctement à FormData
+      this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
+        formData.append(`articles[${index}][id_Article]`, article.id_Article);
+        formData.append(`articles[${index}][id_unite_de_mesure]`, article.id_unite_de_mesure);
+        formData.append(`articles[${index}][description]`, article.description);
+        formData.append(`articles[${index}][qte]`, article.qte);
+        formData.append(`articles[${index}][prixUnitaire]`, article.prixUnitaire);
+      });
+
+      // Ajouter les fichiers si présents
+      if (this.selectedFiles.length > 0) {
+        this.selectedFiles.forEach((file, index) => {
+          formData.append(`piece_jointe_mouvement[${index}]`, file, file.name);
+        });
+      }
+      console.log(formData);
+      // Envoyer la requête
+      this.entreeService.saveMultipleMouvementStockEntree(formData).subscribe(
+        (data: any) => {
+          this.loadEntrees();
+          if (spinner) spinner.classList.add('d-none');
+          this.addEntreeMultipleForm.reset();
+          this.selectedFiles = [];
+
+          // Réinitialiser le FormArray avec un seul élément
+          while (this.articlesArray.length !== 0) {
+            this.articlesArray.removeAt(0);
+          }
+          this.addArticle();
+          this.isAddingMultipleEntrees = false; // Réactiver le bouton
+          console.log('Soumission Entrée Multiple réussie. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
+
+
+          // Fermer le modal
+          const modal = document.getElementById('add_entree_multiple');
+          // @ts-ignore
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
+
+          // Afficher l'alerte de succès
+          setTimeout(() => {
+            this.alertAjoutVisible = true;
+            setTimeout(() => {
+              this.alertAjoutVisible = false;
+            }, 2000);
+          }, 200);
+        },
+        (error: any) => {
+          console.error('Erreur lors de l\'ajout multiple d\'entrées :', error);
+          if (spinner) spinner.classList.add('d-none');
+          this.isAddingMultipleEntrees = false; // Réactiver le bouton en cas d'erreur
+          console.error('Soumission Entrée Multiple échouée. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
+          alert('Une erreur s\'est produite. Veuillez réessayer.');
+        }
+      );
+    } else {
+      if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.addEntreeMultipleForm);
+      alert("Veuillez remplir correctement tous les champs obligatoires");
+      console.log('Formulaire Entrée Multiple invalide.'); // Log pour le débogage
+    }
+  }
+
+  // Soumission d'ajout simple
+  onClickSubmitAddEntree() {
+    if (!this.canAddStock) {
+      alert('Vous n\'avez pas l\'autorisation d\'ajouter du stock.');
+      return;
+    }
+
+    if (this.isAddingSingleEntree) {
+        console.warn('Soumission multiple détectée pour Entrée Simple. Annulation.');
+        return; // Empêche l'exécution si déjà en cours
+    }
+
+    console.log(this.addEntree.value);
+    const spinner = document.querySelector('.spinner-single-add');
+
+    if (this.addEntree.valid) {
+      this.isAddingSingleEntree = true; // Désactiver le bouton d'ajout simple
+      if (spinner) spinner.classList.remove('d-none');
+      console.log('isAddingSingleEntree mis à true.'); // Log pour le débogage
+
+      const formData = new FormData();
+
+      formData.append('id_Article', this.addEntree.value.id_Article);
+      formData.append('id_fournisseur', this.addEntree.value.id_fournisseur);
+      formData.append('id_unite_de_mesure', this.addEntree.value.id_unite_de_mesure);
+      formData.append('description', this.addEntree.value.description || '');
+      formData.append('qte', this.addEntree.value.qte);
+      formData.append('prixUnitaire', this.addEntree.value.prixUnitaire);
+      formData.append('date_mouvement', this.formatDate(this.addEntree.value.date_mouvement));
+
+      // Ajout du fichier si présent
+      if (this.selectedFile) {
+        formData.append('piece_jointe_mouvement', this.selectedFile);
+      }
+
+      this.entreeService.saveMouvementStockEntree(formData).subscribe(
+        (data: any) => {
+          this.loadEntrees();
+          if (spinner) spinner.classList.add('d-none');
+          this.addEntree.reset();
+          this.selectedFile = null;
+          this.isAddingSingleEntree = false; // Réactiver le bouton
+          console.log('Soumission Entrée Simple réussie. isAddingSingleEntree mis à false.'); // Log pour le débogage
+
+
+          const modal = document.getElementById('add_entree');
+          // @ts-ignore
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
+
+          setTimeout(() => {
+            this.alertAjoutVisible = true;
+            setTimeout(() => {
+              this.alertAjoutVisible = false;
+            }, 2000);
+          }, 200);
+        },
+        (error: any) => {
+          console.error('Erreur lors de l\'ajout de l\'entrée :', error);
+          if (spinner) spinner.classList.add('d-none');
+          this.isAddingSingleEntree = false; // Réactiver le bouton en cas d'erreur
+          console.error('Soumission Entrée Simple échouée. isAddingSingleEntree mis à false.'); // Log pour le débogage
+          alert('Une erreur s\'est produite. Veuillez réessayer.');
+        }
+      );
+    } else {
+      if (spinner) spinner.classList.add('d-none');
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+      console.log('Formulaire Entrée Simple invalide.'); // Log pour le débogage
+    }
+
+  }
+
+  onClickSubmitEditEntree() {
+    // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
+    if (!this.canModifyStock) {
+        if (this.isAddingMultipleEntrees) {
         console.warn('Soumission multiple détectée pour Entrée Multiple. Annulation.');
         return; // Empêche l'exécution si déjà en cours
     }
@@ -219,87 +494,20 @@ export class EntreeComponent implements OnInit {
       this.markFormGroupTouched(this.addEntreeMultipleForm);
       alert("Veuillez remplir correctement tous les champs obligatoires");
       console.log('Formulaire Entrée Multiple invalide.'); // Log pour le débogage
-    }
-  }
-
-  // Soumission d'ajout simple
-  onClickSubmitAddEntree() {
-    // AJOUTEZ CETTE VÉRIFICATION AU DÉBUT DE LA FONCTION
-    if (this.isAddingSingleEntree) {
-        console.warn('Soumission multiple détectée pour Entrée Simple. Annulation.');
-        return; // Empêche l'exécution si déjà en cours
+    }  alert('Vous n\'avez pas l\'autorisation de modifier le stock.');
+      return;
     }
 
-    console.log(this.addEntree.value);
-    const spinner = document.querySelector('.spinner-single-add');
-
-    if (this.addEntree.valid) {
-      this.isAddingSingleEntree = true; // Désactiver le bouton d'ajout simple
-      if (spinner) spinner.classList.remove('d-none');
-      console.log('isAddingSingleEntree mis à true.'); // Log pour le débogage
-
-      const formData = new FormData();
-
-      formData.append('id_Article', this.addEntree.value.id_Article);
-      formData.append('id_fournisseur', this.addEntree.value.id_fournisseur);
-      formData.append('description', this.addEntree.value.description || '');
-      formData.append('qte', this.addEntree.value.qte);
-      formData.append('date_mouvement', this.formatDate(this.addEntree.value.date_mouvement));
-
-      // Ajout du fichier si présent
-      if (this.selectedFile) {
-        formData.append('piece_jointe_mouvement', this.selectedFile);
-      }
-
-      this.entreeService.saveMouvementStockEntree(formData).subscribe(
-        (data: any) => {
-          this.loadEntrees();
-          if (spinner) spinner.classList.add('d-none');
-          this.addEntree.reset();
-          this.selectedFile = null;
-          this.isAddingSingleEntree = false; // Réactiver le bouton
-          console.log('Soumission Entrée Simple réussie. isAddingSingleEntree mis à false.'); // Log pour le débogage
-
-
-          const modal = document.getElementById('add_entree');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertAjoutVisible = true;
-            setTimeout(() => {
-              this.alertAjoutVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de l\'ajout de l\'entrée :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isAddingSingleEntree = false; // Réactiver le bouton en cas d'erreur
-          console.error('Soumission Entrée Simple échouée. isAddingSingleEntree mis à false.'); // Log pour le débogage
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
-      console.log('Formulaire Entrée Simple invalide.'); // Log pour le débogage
-    }
-  }
-
-
-  onClickSubmitEditEntree() {
     console.log(this.editEntree.value);
     const spinner = document.querySelector('.spinnerModif');
 
     if (this.editEntree.valid) {
       if (spinner) spinner.classList.remove('d-none');
-      const id = this.editEntree.value.id;
       const formData = {
         ...this.editEntree.value,
         date_mouvement: this.formatDate(this.editEntree.value.date_mouvement),
       };
+
       this.entreeService.editMouvementStockEntree(formData).subscribe(
         (data: any) => {
           this.loadEntrees();
@@ -313,8 +521,6 @@ export class EntreeComponent implements OnInit {
 
           setTimeout(() => {
             this.alertModifVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
-
             setTimeout(() => {
               this.alertModifVisible = false;
             }, 2000);
@@ -333,6 +539,12 @@ export class EntreeComponent implements OnInit {
   }
 
   onClickSubmitDeleteEntree() {
+    // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
+    if (!this.canDeleteStock) {
+      alert('Vous n\'avez pas l\'autorisation de supprimer du stock.');
+      return;
+    }
+
     console.log(this.deleteEntree.value);
     const spinner = document.querySelector('.spinnerDelete');
 
@@ -351,15 +563,13 @@ export class EntreeComponent implements OnInit {
 
           setTimeout(() => {
             this.alertSuppVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertSuppVisible);
-
             setTimeout(() => {
               this.alertSuppVisible = false;
             }, 2000);
           }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de la supression de l\'entree :', error);
+          console.error('Erreur lors de la suppression de l\'entree :', error);
           if (spinner) spinner.classList.add('d-none');
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
@@ -370,7 +580,7 @@ export class EntreeComponent implements OnInit {
     }
   }
 
-  // Fonction utilitaire pour marquer tous les champs comme touchés (validation)
+  // Fonction utilitaire pour marquer tous les champs comme touchés
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
@@ -391,6 +601,7 @@ export class EntreeComponent implements OnInit {
       }
     });
   }
+
   loadFournisseurs(): void {
     this.entreeService.getAllFournisseurs().subscribe({
       next: (data) => {
@@ -402,6 +613,16 @@ export class EntreeComponent implements OnInit {
     });
   }
 
+  loadUniteDeMesures(): void {
+    this.entreeService.getAllUniteDeMesure().subscribe({
+      next: (data) => {
+        this.uniteDeMesures = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des uniteDeMesures :", err);
+      }
+    });
+  }
 
   loadEntrees(): void {
     this.entreeService.getAllMouvementStockEntree().subscribe(
@@ -432,8 +653,10 @@ export class EntreeComponent implements OnInit {
       id: row.id,
       id_Article: row.id_Article,
       id_fournisseur: row.id_fournisseur,
+      id_unite_de_mesure: row.id_unite_de_mesure,
       description: row.description,
       qte: row.qte,
+      prixUnitaire: row.prixUnitaire,
       date_mouvement: this.convertToNgbDate(row.date_mouvement),
     })
   }
@@ -451,7 +674,6 @@ export class EntreeComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-
   // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
   convertToNgbDate(dateString: string): NgbDateStruct | null {
     if (!dateString) return null;
@@ -464,6 +686,12 @@ export class EntreeComponent implements OnInit {
   }
 
   downloadMouvementsEntreePDF(): void {
+    // 🔥 VÉRIFICATION DE PERMISSION AVANT EXPORT
+    if (!this.canExportStock) {
+      alert('Vous n\'avez pas l\'autorisation d\'exporter les données de stock.');
+      return;
+    }
+
     this.entreeService.imprimerMouvementsEntree().subscribe(
       (response: Blob) => {
         const fileURL = window.URL.createObjectURL(response);
@@ -482,6 +710,16 @@ export class EntreeComponent implements OnInit {
     );
   }
 
+  // 🔥 MÉTHODE DE DEBUG (à supprimer en production)
+  debugPermissions(): void {
+    console.log('🔍 DEBUG PERMISSIONS:');
+    console.log('canAddStock:', this.canAddStock);
+    console.log('canModifyStock:', this.canModifyStock);
+    console.log('canDeleteStock:', this.canDeleteStock);
+    console.log('canExportStock:', this.canExportStock);
+    console.log('hasPageAccess:', this.hasPageAccess);
 
-
+    const allowedFonctionnalites = JSON.parse(localStorage.getItem('allowedFonctionnalites') || '[]');
+    console.log('Fonctionnalités dans localStorage:', allowedFonctionnalites);
+  }
 }

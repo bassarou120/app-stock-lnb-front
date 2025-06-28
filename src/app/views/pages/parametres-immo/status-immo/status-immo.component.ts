@@ -7,6 +7,7 @@ import { FormGroup, FormBuilder, Validators, ReactiveFormsModule  } from "@angu
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
+import { Router } from '@angular/router';
 declare var bootstrap: any;
 
 @Component({
@@ -23,6 +24,11 @@ declare var bootstrap: any;
   templateUrl: 'status-immo.component.html'
 })
 export class StatusImmosComponent implements OnInit {
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canVoirParamImmo: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: StatusImmo[] = [];
   temp: StatusImmo[] = [];
@@ -45,10 +51,18 @@ export class StatusImmosComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private statusImmoService: StatusImmoService, private formBuilder: FormBuilder,) {}
+  constructor(private statusImmoService: StatusImmoService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
-    this.loadStatusImmos();
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
+   
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadStatusImmos();
+    }
+
     this.addStatusImmo = this.formBuilder.group({
       libelle_status_immo: ["", [Validators.required]],
     });
@@ -60,6 +74,45 @@ export class StatusImmosComponent implements OnInit {
       id: [0, [Validators.required]],
     });
   }
+
+// 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canVoirParamImmo = allowedFonctionnalites.includes('Voir Parametres Immo');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirParamImmo;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirParamImmo: this.canVoirParamImmo,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages de parc');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+
 
   // MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS
   private markFormGroupTouched(formGroup: FormGroup) {
@@ -129,7 +182,7 @@ export class StatusImmosComponent implements OnInit {
   onClickSubmitEditStatusImmo(){
     console.log(this.editStatusImmo.value);
 
-    // const spinner = document.querySelector('.spinner-edit'); 
+    // const spinner = document.querySelector('.spinner-edit');
 
     // Vérifier si une soumission est déjà en cours
     if (this.isEditingStatus) {
@@ -141,7 +194,7 @@ export class StatusImmosComponent implements OnInit {
       this.isEditingStatus = true; // Désactiver le bouton Modifier
       // if (spinner) spinner.classList.remove('d-none');
 
-      const id = this.editStatusImmo.value.id; 
+      const id = this.editStatusImmo.value.id;
       this.statusImmoService.editStatusImmos(this.editStatusImmo.value).subscribe(
         {
             next: (data: any) => {

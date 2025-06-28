@@ -12,8 +12,11 @@ export interface Commune {
 export interface RetourTicket {
   id: number;
   mouvementTicket_id: number;
+  mouvementTicket? : MouvementTicket;
   coupon_ticket_id: number;
+  coupon_ticket? : CouponTicket;
   compagnie_petrolier_id: number;
+  compagnie_petrolier? : CompagniePetroliere;
   qte: number;
   created_at: string;
   updated_at: string;
@@ -23,7 +26,9 @@ export interface AnnulationTicket {
   id: number;
   mouvementTicket_id: number;
   coupon_ticket_id: number;
+  coupon_ticket? : CouponTicket;
   compagnie_petrolier_id: number;
+  compagnie_petrolier? : CompagniePetroliere;
   qte: number;
   created_at: string;
   updated_at: string;
@@ -81,6 +86,12 @@ export interface Bureau {
   id: number;
   libelle_bureau: string;
   valeur: number;
+  created_at: string;
+  updated_at: string;
+}
+export interface UniteDeMesure {
+  id: number;
+  libelle: string;
   created_at: string;
   updated_at: string;
 }
@@ -152,7 +163,8 @@ export interface TypeIntervention {
   applicable_seul_vehicule: boolean;
   observation: string;
   date_expiration: string;
-  created_at: string;
+  created_at: string| null;
+  has_expiration_date?: boolean; 
   updated_at: string;
 }
 export interface TypeMouvement {
@@ -246,9 +258,13 @@ export interface MouvementStockGrouped {
 export interface MouvementTicket {
   id: number;
   vehicule_id: number;
+  vehicule? : Vehicule;
   compagnie_petrolier_id: number;
+  compagnie_petrolier? : CompagniePetroliere;
   coupon_ticket_id: number;
+  coupon_ticket? : CouponTicket;
   employe_id: number;
+  employe? : Employe;
   commune_depart: number;
   commune_arriver: number;
   description: string;
@@ -288,6 +304,7 @@ export interface InterventionVehicule {
   commune_arrivee_id: number;
   type_intervention_id: number;
   typeIntervention?: TypeIntervention;
+  date_expiration?: string;
 }
 
 export interface Utilisateur {
@@ -298,11 +315,11 @@ export interface Utilisateur {
   phone: string;
   sexe: 'Masculin' | 'Féminin';
   active: boolean;
-  photo?: string; 
-  role_id: number; 
+  photo?: string;
+  role_id: number;
   role?: Role;
-  employe_id?: number; 
-  employe?: Employe; 
+  employe_id?: number;
+  employe?: Employe;
   last_activity?: Date;
   created_at?: Date;
   updated_at?: Date;
@@ -391,7 +408,7 @@ export interface User {
 export interface LoginResponse {
   token: string;
   user: User;
-  perm: any[]; 
+  perm: any[];
 }
 
 export interface DashboardData {
@@ -410,12 +427,12 @@ export interface ApiResponse<T> {
 
 export interface PaginatedResponse<T> {
   current_page: number;
-  data: T[]; 
+  data: T[];
   first_page_url: string;
   from: number;
   last_page: number;
   last_page_url: string;
-  links: any[]; 
+  links: any[];
   next_page_url: string | null;
   path: string;
   per_page: number;

@@ -2,13 +2,17 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsVehiculeService } from '../../../core/services/interventionvehicules/interventionvehicules.service';
-import { InterventionVehicule, TypeIntervention, Vehicule, Commune } from '../../../core/services/interface/models'; // Assurez-vous que le chemin est correct et que Commune est bien importée
-import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms"; // Ajout de FormArray
-import { CommonModule } from '@angular/common';
-import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+// Assurez-vous que le chemin est correct et que Commune est bien importée
+import { InterventionVehicule, TypeIntervention, Vehicule, Commune } from '../../../core/services/interface/models';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
+import { CommonModule, DatePipe } from '@angular/common'; // Ajout de DatePipe
+// Import de NgbDate pour la conversion des dates si nécessaire (bien que NgbDateStruct soit plus couramment utilisé avec NgbDatepicker)
+import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
-import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+// Correction de l'import pour NgSelectComponent, il faut importer le module complet
+import { NgSelectModule } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -23,17 +27,26 @@ declare var bootstrap: any;
     CommonModule,
     NgbAlertModule,
     NgbDropdownModule,
-    MyNgSelectComponent,
+    NgSelectModule, // Utiliser NgSelectModule
     NgbDatepickerModule,
-    FeatherIconDirective
+    FeatherIconDirective,
+    DatePipe // Ajout de DatePipe pour le formatage dans le template
   ],
   templateUrl: 'interventionvehicules.component.html'
 })
 
 export class InterventionVehiculeComponent implements OnInit {
+  // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddInterventionVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canModifyInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canDeleteInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canViewInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
-  rows: InterventionVehicule[] = []; // Utilisez l'interface InterventionVehicule
+  rows: InterventionVehicule[] = [];
   temp: InterventionVehicule[] = [];
   loadingIndicator = true;
   reorderable = true;
@@ -47,47 +60,118 @@ export class InterventionVehiculeComponent implements OnInit {
   public editInterventionVehicule!: FormGroup;
   public deleteInterventionVehicule!: FormGroup;
 
-  vehicules: Vehicule[] = []; // Liste des véhicules
-  communes: Commune[] = [];
-  typeInterventions: TypeIntervention[] = [];
+  vehicules: Vehicule[] = [];
+  communes: Commune[] = []; // Gardé si utilisé ailleurs, mais pas directement dans cette logique
+  typeInterventions: TypeIntervention[] = []; // Liste complète des types d'intervention avec has_expiration_date
 
   // NOUVELLES PROPRIÉTÉS POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingInterventionVehicule: boolean = false;
   isEditingInterventionVehicule: boolean = false;
   isDeletingInterventionVehicule: boolean = false;
 
+  // NOUVEAU: Propriétés pour la gestion de l'affichage conditionnel de date_expiration
+  showExpirationDateInput: boolean = false; // Pour la modale d'ajout
+  editShowExpirationDateInput: boolean = false; // Pour la modale d'édition
+
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private interventionVehiculeService: InterventionsVehiculeService, private formBuilder: FormBuilder) { }
+  constructor(
+    private interventionVehiculeService: InterventionsVehiculeService,
+    private formBuilder: FormBuilder,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
-    this.loadVehicules();
-    this.loadCommunes();
-    this.loadInterventionVehicules();
-    this.loadtypeInterventions();
 
+    this.initializePermissions();
+    if (this.hasPageAccess) {
+      console.log('ngOnInit: Démarrage du chargement des données...');
+      this.loadVehicules();
+      this.loadCommunes();
+      this.loadInterventionVehicules();
+      this.loadtypeInterventions(); // Charger les types d'intervention, essentiel pour `has_expiration_date`
+      this.initForms(); // Appeler une méthode pour initialiser les formulaires
+    }
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddInterventionVehicule = allowedFonctionnalites.includes('Ajout Intervention vehicule');
+      this.canModifyInterventionVehicule = allowedFonctionnalites.includes('Modification Intervention vehicule');
+      this.canDeleteInterventionVehicule = allowedFonctionnalites.includes('Suppression Intervention vehicule');
+      this.canViewInterventionVehicule= allowedFonctionnalites.includes('Voir intervention vehicule');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canViewInterventionVehicule ;
+
+
+      console.log('🔐 Permissions calculées:', {
+        canAddInterventionVehicule: this.canAddInterventionVehicule,
+        canModifyInterventionVehicule: this.canModifyInterventionVehicule,
+        canDeleteInterventionVehicule: this.canDeleteInterventionVehicule
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des entrées de stock');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+  // Méthode pour initialiser les formulaires
+  initForms(): void {
     this.addInterventionVehicule = this.formBuilder.group({
       vehicule_id: [null, [Validators.required]],
       titre: ["", [Validators.required]],
       observation: ["", [Validators.required]],
-      date_intervention: ["", [Validators.required]],
-      montant: ["", [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0)
+      date_intervention: [this.currentDate, [Validators.required]], // Date par défaut
+      montant: ["", [Validators.required, Validators.min(0)]],
       type_intervention_id: [null, [Validators.required]],
-      // commune_depart: [null, [Validators.required]],
-      // commune_arriver: [null, [Validators.required]],
+      date_expiration: [null], // Initialisé à null, son validateur et visibilité seront gérés dynamiquement
+    });
+
+    // Écouter les changements sur le champ type_intervention_id pour le formulaire d'ajout
+    // L'événement `(change)` de ng-select passe la valeur directement, pas un objet Event.
+    // Donc, `typeId` est déjà l'ID.
+    this.addInterventionVehicule.get('type_intervention_id')?.valueChanges.subscribe((typeId: number) => {
+      console.log('addInterventionVehicule: type_intervention_id changed to', typeId);
+      this.handleTypeInterventionChange(typeId, 'add');
     });
 
     this.editInterventionVehicule = this.formBuilder.group({
       id: [0, [Validators.required]],
-      vehicule_id: [null, [Validators.required]], // Changé de 0 à null
+      vehicule_id: [null, [Validators.required]],
       titre: ["", [Validators.required]],
       observation: ["", [Validators.required]],
-      date_intervention: ["", [Validators.required]],
-      montant: ["", [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0)
-      type_intervention_id: [null, [Validators.required]], // Changé de 0 à null
-      // commune_depart: [null, [Validators.required]],
-      // commune_arriver: [null, [Validators.required]],
+      date_intervention: [this.currentDate, [Validators.required]], // Date par défaut
+      montant: ["", [Validators.required, Validators.min(0)]],
+      type_intervention_id: [null, [Validators.required]],
+      date_expiration: [null], // Initialisé à null, son validateur et visibilité seront gérés dynamiquement
+    });
+
+    // Écouter les changements sur le champ type_intervention_id pour le formulaire d'édition
+    this.editInterventionVehicule.get('type_intervention_id')?.valueChanges.subscribe((typeId: number) => {
+      console.log('editInterventionVehicule: type_intervention_id changed to', typeId);
+      this.handleTypeInterventionChange(typeId, 'edit');
     });
 
     this.deleteInterventionVehicule = this.formBuilder.group({
@@ -95,162 +179,56 @@ export class InterventionVehiculeComponent implements OnInit {
     });
   }
 
-  onClickSubmitAddInterventionVehicule() {
-    // console.log('onClickSubmitAddInterventionVehicule appelé. isAddingInterventionVehicule:', this.isAddingInterventionVehicule); // Commenté
+  // Gère la logique d'affichage et de validation de la date d'expiration
+  // typeId peut être directement l'ID (number) ou l'objet complet du ng-select
+  handleTypeInterventionChange(eventOrId: any, formType: 'add' | 'edit'): void {
+    let typeId: number | null = null;
 
-    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
-    if (this.isAddingInterventionVehicule) {
-      // console.warn('Soumission multiple détectée pour Intervention Véhicule. Annulation.'); // Commenté
-      return; // Empêche l'exécution si déjà en cours
+    // Déterminer l'ID réel à partir de l'événement ng-select
+    if (typeof eventOrId === 'number') { // Si c'est directement l'ID (via valueChanges)
+      typeId = eventOrId;
+    } else if (eventOrId && typeof eventOrId === 'object' && eventOrId.id !== undefined) {
+      // Si c'est l'objet complet envoyé par (change) de ng-select (avec bindValue="id")
+      typeId = eventOrId.id;
+    } else {
+      typeId = null; // Gérer les cas où la valeur est undefined, null ou un type inattendu
     }
 
-    const spinner = document.querySelector('.spinner-add-interv-vehicule'); // Assurez-vous que ce sélecteur correspond à votre HTML
+    console.log(`handleTypeInterventionChange: Called for formType: ${formType}, resolved typeId: ${typeId}`);
 
-    if (this.addInterventionVehicule.valid) {
-      this.isAddingInterventionVehicule = true; // Désactiver le bouton
-      // console.log('isAddingInterventionVehicule mis à true.'); // Commenté
+    const selectedType = this.typeInterventions.find(type => type.id === typeId);
+    console.log('handleTypeInterventionChange: Selected Type from array:', selectedType);
+    console.log('handleTypeInterventionChange: has_expiration_date for selected type:', selectedType?.has_expiration_date);
 
-      if (spinner) {
-        spinner.classList.remove('d-none');
-        // console.log('Spinner Intervention Véhicule affiché.'); // Commenté
+    const dateExpirationControl = formType === 'add' ?
+      this.addInterventionVehicule.get('date_expiration') :
+      this.editInterventionVehicule.get('date_expiration');
+
+    if (dateExpirationControl) {
+      if (selectedType?.has_expiration_date) {
+        console.log(`handleTypeInterventionChange: ${formType} - Setting date_expiration as visible and required.`);
+        // Si le type d'intervention a une date d'expiration, afficher le champ et le rendre requis
+        if (formType === 'add') {
+          this.showExpirationDateInput = true;
+        } else {
+          this.editShowExpirationDateInput = true;
+        }
+        dateExpirationControl.setValidators(Validators.required);
+      } else {
+        console.log(`handleTypeInterventionChange: ${formType} - Hiding date_expiration, clearing value and validators.`);
+        // Sinon, masquer le champ, vider sa valeur et retirer les validateurs
+        if (formType === 'add') {
+          this.showExpirationDateInput = false;
+        } else {
+          this.editShowExpirationDateInput = false;
+        }
+        dateExpirationControl.clearValidators();
+        dateExpirationControl.patchValue(null); // Vider la valeur si la date d'expiration n'est pas requise
       }
-
-      const formData = {
-        ...this.addInterventionVehicule.value,
-        date_intervention: this.formatDate(this.addInterventionVehicule.value.date_intervention), // Convertir la date
-      };
-      this.interventionVehiculeService.saveInterventionVehicule(formData).subscribe(
-        (data: any) => {
-          this.loadInterventionVehicules();
-          if (spinner) spinner.classList.add('d-none');
-          this.addInterventionVehicule.reset();
-          this.isAddingInterventionVehicule = false; // Réactiver le bouton
-          // console.log('Soumission Intervention Véhicule réussie. isAddingInterventionVehicule mis à false.'); // Commenté
-
-          const modal = document.getElementById('add_intervention_vehicule');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertAjoutVisible = true;
-            // console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible); // Commenté
-            setTimeout(() => {
-              this.alertAjoutVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de l\'ajout de l\'intervention du véhicule :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isAddingInterventionVehicule = false; // Réactiver le bouton en cas d'erreur
-          // console.error('Soumission Intervention Véhicule échouée. isAddingInterventionVehicule mis à false.'); // Commenté
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+      dateExpirationControl.updateValueAndValidity(); // Mettre à jour la validité du contrôle
+      console.log(`handleTypeInterventionChange: ${formType} - date_expiration control validity updated. Current status:`, dateExpirationControl.status);
     } else {
-      if (spinner) spinner.classList.add('d-none');
-      this.markFormGroupTouched(this.addInterventionVehicule); // Marquer les champs comme touchés
-      alert("Désolé, le formulaire n'est pas bien renseigné");
-      // console.log('Formulaire Intervention Véhicule invalide.'); // Commenté
-    }
-  }
-
-  onClickSubmitEditInterventionVehicule() {
-    // console.log(this.editInterventionVehicule.value); // Commenté
-    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
-    if (this.isEditingInterventionVehicule) {
-      // console.warn('Soumission multiple détectée pour édition Intervention Véhicule. Annulation.'); // Commenté
-      return; // Empêche l'exécution si déjà en cours
-    }
-
-    const spinner = document.querySelector('.spinnerModif');
-
-    if (this.editInterventionVehicule.valid) {
-      this.isEditingInterventionVehicule = true; // Désactiver le bouton
-      if (spinner) spinner.classList.remove('d-none');
-      // const id = this.editInterventionVehicule.value.id; // Non utilisé, peut être supprimé
-      const formData = {
-        ...this.editInterventionVehicule.value,
-        date_intervention: this.formatDate(this.editInterventionVehicule.value.date_intervention), // Convertir la date
-      };
-      this.interventionVehiculeService.editInterventionVehicule(formData).subscribe(
-        (data: any) => {
-          this.loadInterventionVehicules();
-          if (spinner) spinner.classList.add('d-none');
-          this.editInterventionVehicule.reset();
-          this.isEditingInterventionVehicule = false; // Réactiver le bouton
-
-          const modal = document.getElementById('edit_intervention_vehicule');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertModifVisible = true;
-            // console.log('Alert visible après fermeture du modal:', this.alertModifVisible); // Commenté
-            setTimeout(() => {
-              this.alertModifVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de la modification de l\'intervention du véhicule :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isEditingInterventionVehicule = false; // Réactiver le bouton en cas d'erreur
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      this.markFormGroupTouched(this.editInterventionVehicule); // Marquer les champs comme touchés
-      alert("Désolé, le formulaire n'est pas bien renseigné");
-    }
-  }
-
-  onClickSubmitDeleteInterventionVehicule() {
-    // console.log(this.deleteInterventionVehicule.value); // Commenté
-    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
-    if (this.isDeletingInterventionVehicule) {
-      // console.warn('Soumission multiple détectée pour suppression Intervention Véhicule. Annulation.'); // Commenté
-      return; // Empêche l'exécution si déjà en cours
-    }
-
-    const spinner = document.querySelector('.spinnerDelete');
-
-    if (this.deleteInterventionVehicule.valid) {
-      this.isDeletingInterventionVehicule = true; // Désactiver le bouton
-      if (spinner) spinner.classList.remove('d-none');
-      this.interventionVehiculeService.deleteInterventionVehicule(this.deleteInterventionVehicule.value).subscribe(
-        (data: any) => {
-          this.loadInterventionVehicules();
-          if (spinner) spinner.classList.add('d-none');
-          this.deleteInterventionVehicule.reset();
-          this.isDeletingInterventionVehicule = false; // Réactiver le bouton
-
-          const modal = document.getElementById('delete_intervention_vehicule');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertSuppVisible = true;
-            // console.log('Alert visible après fermeture du modal:', this.alertSuppVisible); // Commenté
-            setTimeout(() => {
-              this.alertSuppVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de la suppression de l\'intervention du véhicule :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isDeletingInterventionVehicule = false; // Réactiver le bouton en cas d'erreur
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+        console.warn(`handleTypeInterventionChange: date_expiration control not found for ${formType} form.`);
     }
   }
 
@@ -266,11 +244,12 @@ export class InterventionVehiculeComponent implements OnInit {
   }
 
   loadInterventionVehicules(): void {
+    console.log('loadInterventionVehicules: Chargement des interventions véhicules...');
     this.interventionVehiculeService.getAllInterventionsVehicule().subscribe(
       (data: InterventionVehicule[]) => {
+        console.log('loadInterventionVehicules: Données reçues:', data);
         this.temp = [...data];
         this.rows = data;
-        // console.log('Structure de this.rows :', this.rows); // Commenté
         this.loadingIndicator = false;
       },
       error => {
@@ -280,54 +259,241 @@ export class InterventionVehiculeComponent implements OnInit {
     );
   }
 
-  // updateFilter(event: KeyboardEvent): void {
-  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+  onClickSubmitAddInterventionVehicule() {
+    console.log('onClickSubmitAddInterventionVehicule: Tentative d\'ajout...');
+    if (this.isAddingInterventionVehicule) {
+      console.warn('Soumission multiple détectée pour Intervention Véhicule. Annulation.');
+      return;
+    }
 
-  //   this.rows = this.temp.filter(interventionVehicule =>
-  //     interventionVehicule.titre.toLowerCase().includes(val) ||
-  //     interventionVehicule.observation.toLowerCase().includes(val) ||
-  //     interventionVehicule.date_intervention.toLowerCase().includes(val) ||
-  //     // Vérifier si l'objet imbriqué existe avant d'accéder à ses propriétés
-  //     (interventionVehicule.vehicule && interventionVehicule.vehicule.immatriculation.toLowerCase().includes(val)) ||
-  //     (interventionVehicule.type_intervention && interventionVehicule.type_intervention.libelle_type_intervention.toLowerCase().includes(val))
-  //   );
+    if (this.addInterventionVehicule.invalid) {
+      this.markFormGroupTouched(this.addInterventionVehicule);
+      console.error('Formulaire d\'ajout invalide. Erreurs:', this.addInterventionVehicule.errors, 'Controls:', this.addInterventionVehicule.controls);
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      return;
+    }
 
-  //   this.table.offset = 0;
-  // }
+    this.isAddingInterventionVehicule = true;
 
-  updateFilter(event: KeyboardEvent): void {
-    const val = (event.target as HTMLInputElement).value.toLowerCase();
+    const formData = {
+      ...this.addInterventionVehicule.value,
+      // Convertir NgbDateStruct en string 'YYYY-MM-DD'
+      date_intervention: this.formatDate(this.addInterventionVehicule.value.date_intervention),
+      // Gérer date_expiration: la convertir si elle est présente et requise, sinon null
+      date_expiration: this.addInterventionVehicule.value.date_expiration ?
+                       this.formatDate(this.addInterventionVehicule.value.date_expiration) : null
+    };
+    console.log('onClickSubmitAddInterventionVehicule: Données à envoyer:', formData);
 
-    this.rows = this.temp.filter(interventionVehicule =>
-      interventionVehicule.titre.toLowerCase().includes(val)
+    this.interventionVehiculeService.saveInterventionVehicule(formData).subscribe(
+      (data: any) => {
+        console.log('onClickSubmitAddInterventionVehicule: Ajout réussi:', data);
+        this.loadInterventionVehicules();
+        this.addInterventionVehicule.reset();
+        this.isAddingInterventionVehicule = false;
+
+        // Réinitialiser les champs de date par défaut et masquer/vider date_expiration
+        this.addInterventionVehicule.patchValue({
+          date_intervention: this.currentDate, // Réinitialiser à la date actuelle
+          vehicule_id: null, // Réinitialiser le select
+          type_intervention_id: null, // Réinitialiser le select
+          observation: "",
+          titre: "",
+          montant: "",
+          date_expiration: null // Vider la date d'expiration après l'ajout
+        });
+        this.showExpirationDateInput = false; // Masquer le champ de date d'expiration après reset
+        this.addInterventionVehicule.get('date_expiration')?.clearValidators(); // Retirer les validateurs
+        this.addInterventionVehicule.get('date_expiration')?.updateValueAndValidity(); // Mettre à jour la validité
+
+
+        const modal = document.getElementById('add_intervention_vehicule');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        console.error('Erreur lors de l\'ajout de l\'intervention du véhicule :', error);
+        this.isAddingInterventionVehicule = false;
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      }
     );
-
-    this.table.offset = 0;
   }
 
-  getEditForm(row: any) {
+  onClickSubmitEditInterventionVehicule() {
+    console.log('onClickSubmitEditInterventionVehicule: Tentative d\'édition...');
+    if (this.isEditingInterventionVehicule) {
+      console.warn('Soumission multiple détectée pour édition Intervention Véhicule. Annulation.');
+      return;
+    }
+
+    if (this.editInterventionVehicule.invalid) {
+      this.markFormGroupTouched(this.editInterventionVehicule);
+      console.error('Formulaire d\'édition invalide. Erreurs:', this.editInterventionVehicule.errors, 'Controls:', this.editInterventionVehicule.controls);
+      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      return;
+    }
+
+    this.isEditingInterventionVehicule = true;
+    const formData = {
+      ...this.editInterventionVehicule.value,
+      date_intervention: this.formatDate(this.editInterventionVehicule.value.date_intervention),
+      date_expiration: this.editInterventionVehicule.value.date_expiration ?
+                       this.formatDate(this.editInterventionVehicule.value.date_expiration) : null
+    };
+    console.log('onClickSubmitEditInterventionVehicule: Données à envoyer:', formData);
+
+
+    this.interventionVehiculeService.editInterventionVehicule(formData).subscribe(
+      (data: any) => {
+        console.log('onClickSubmitEditInterventionVehicule: Édition réussie:', data);
+        this.loadInterventionVehicules();
+        this.editInterventionVehicule.reset();
+        this.isEditingInterventionVehicule = false;
+
+        // Masquer le champ de date d'expiration après reset
+        this.editShowExpirationDateInput = false;
+        this.editInterventionVehicule.get('date_expiration')?.clearValidators(); // Retirer les validateurs
+        this.editInterventionVehicule.get('date_expiration')?.updateValueAndValidity(); // Mettre à jour la validité
+
+        const modal = document.getElementById('edit_intervention_vehicule');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertModifVisible = true;
+          setTimeout(() => {
+            this.alertModifVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        console.error('Erreur lors de la modification de l\'intervention du véhicule :', error);
+        this.isEditingInterventionVehicule = false;
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      }
+    );
+  }
+
+  onClickSubmitDeleteInterventionVehicule() {
+    console.log('onClickSubmitDeleteInterventionVehicule: Tentative de suppression...');
+    if (this.isDeletingInterventionVehicule) {
+      console.warn('Soumission multiple détectée pour suppression Intervention Véhicule. Annulation.');
+      return;
+    }
+
+    if (this.deleteInterventionVehicule.invalid) {
+      console.error('Formulaire de suppression invalide. Erreurs:', this.deleteInterventionVehicule.errors, 'Controls:', this.deleteInterventionVehicule.controls);
+      alert("Désolé, le formulaire n'est pas bien renseigné");
+      return;
+    }
+
+    this.isDeletingInterventionVehicule = true;
+    console.log('onClickSubmitDeleteInterventionVehicule: ID à supprimer:', this.deleteInterventionVehicule.value.id);
+
+    this.interventionVehiculeService.deleteInterventionVehicule(this.deleteInterventionVehicule.value).subscribe(
+      (data: any) => {
+        console.log('onClickSubmitDeleteInterventionVehicule: Suppression réussie:', data);
+        this.loadInterventionVehicules();
+        this.deleteInterventionVehicule.reset();
+        this.isDeletingInterventionVehicule = false;
+
+        const modal = document.getElementById('delete_intervention_vehicule');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertSuppVisible = true;
+          setTimeout(() => {
+            this.alertSuppVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        console.error('Erreur lors de la suppression de l\'intervention du véhicule :', error);
+        this.isDeletingInterventionVehicule = false;
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      }
+    );
+  }
+
+  // updateFilter amélioré pour inclure la date d'expiration
+  updateFilter(event: KeyboardEvent): void {
+    const val = (event.target as HTMLInputElement).value.toLowerCase();
+    console.log('updateFilter: Filtering with value:', val);
+
+    this.rows = this.temp.filter(interventionVehicule =>
+      (interventionVehicule.titre?.toLowerCase().includes(val) || false) ||
+      (interventionVehicule.observation?.toLowerCase().includes(val) || false) ||
+      (interventionVehicule.vehicule?.immatriculation?.toLowerCase().includes(val) || false) ||
+      (interventionVehicule.typeIntervention?.libelle_type_intervention?.toLowerCase().includes(val) || false) ||
+      // Filtrer aussi par la date d'expiration si elle est présente et le type d'intervention a has_expiration_date
+      (interventionVehicule.typeIntervention?.has_expiration_date && interventionVehicule.date_expiration ?
+         this.formatDate(this.convertToNgbDate(interventionVehicule.date_expiration) as NgbDateStruct)?.toLowerCase().includes(val) : false) ||
+      // Filtrer par la date d'intervention
+      (interventionVehicule.date_intervention ? this.formatDate(this.convertToNgbDate(interventionVehicule.date_intervention) as NgbDateStruct)?.toLowerCase().includes(val) : false)
+    );
+    console.log('updateFilter: Filtered rows count:', this.rows.length);
+
+    if (this.table) {
+      this.table.offset = 0;
+    }
+  }
+
+  // Prépare le formulaire d'édition
+  getEditForm(row: InterventionVehicule) {
+    console.log('getEditForm: Préparation du formulaire d\'édition pour la ligne:', row);
+    // IMPORTANT: Assurez-vous que row.typeIntervention est chargé (eager loading dans Laravel)
+    // ou chargez-le manuellement si ce n'est pas le cas.
+    // L'existence de `row.typeIntervention?.has_expiration_date` est clé ici.
+    console.log('getEditForm: row.typeIntervention:', row.typeIntervention);
+    console.log('getEditForm: row.typeIntervention?.has_expiration_date:', row.typeIntervention?.has_expiration_date);
+
+    this.editShowExpirationDateInput = !!row.typeIntervention?.has_expiration_date;
+    console.log('getEditForm: Initial editShowExpirationDateInput set to:', this.editShowExpirationDateInput);
+
+
     this.editInterventionVehicule.patchValue({
       id: row.id,
       vehicule_id: row.vehicule_id,
       titre: row.titre,
       observation: row.observation,
-      date_intervention: this.convertToNgbDate(row.date_intervention),
+      date_intervention: this.convertToNgbDate(row.date_intervention), // Convertir pour le datepicker
       montant: row.montant,
       type_intervention_id: row.type_intervention_id,
-      // commune_depart: row.commune_depart,
-      // commune_arriver: row.commune_arriver,
-    })
+      // Patch la date d'expiration si elle doit être affichée ET existe, sinon null
+      date_expiration: this.editShowExpirationDateInput && row.date_expiration ? this.convertToNgbDate(row.date_expiration) : null,
+    });
+    console.log('getEditForm: Formulaire d\'édition patché avec les valeurs:', this.editInterventionVehicule.value);
+
+
+    // Déclenche la logique pour date_expiration après le patchValue initial
+    // Ceci s'assurera que les validateurs sont bien mis à jour.
+    this.handleTypeInterventionChange(row.type_intervention_id, 'edit');
+    console.log('getEditForm: Appel de handleTypeInterventionChange après patchValue.');
   }
 
   getDeleteForm(row: any) {
+    console.log('getDeleteForm: Préparation du formulaire de suppression pour la ligne:', row);
     this.deleteInterventionVehicule.patchValue({
       id: row.id,
     })
   }
 
   loadVehicules(): void {
+    console.log('loadVehicules: Chargement des véhicules...');
     this.interventionVehiculeService.getAllVehicules().subscribe({
       next: (data) => {
+        console.log('loadVehicules: Données véhicules reçues:', data);
         this.vehicules = data;
       },
       error: (err) => {
@@ -337,9 +503,11 @@ export class InterventionVehiculeComponent implements OnInit {
   }
 
   loadtypeInterventions(): void {
+    console.log('loadtypeInterventions: Chargement des types d\'intervention...');
     this.interventionVehiculeService.getAllTypeInterventions().subscribe({
       next: (data) => {
-        this.typeInterventions = data; // Stocker la liste des typeInterventions
+        console.log('loadtypeInterventions: Données typeInterventions reçues:', data);
+        this.typeInterventions = data; // Stocker la liste des typeInterventions avec has_expiration_date
       },
       error: (err) => {
         console.error("Erreur lors du chargement des typeInterventions :", err);
@@ -348,10 +516,11 @@ export class InterventionVehiculeComponent implements OnInit {
   }
 
   loadCommunes(): void {
+    console.log('loadCommunes: Chargement des communes...');
     this.interventionVehiculeService.getAllCommunes().subscribe({
       next: (data) => {
-        this.communes = data; // Stocker la liste des communes
-        // console.log('Communes chargées :', this.communes); // Commenté
+        console.log('loadCommunes: Données communes reçues:', data);
+        this.communes = data;
       },
       error: (err) => {
         console.error("Erreur lors du chargement des communes :", err);
@@ -359,18 +528,23 @@ export class InterventionVehiculeComponent implements OnInit {
     });
   }
 
-  formatDate(date: NgbDateStruct): string {
+  // Convertit NgbDateStruct en string 'YYYY-MM-DD'
+  formatDate(date: NgbDateStruct | string | null): string | null { // Ajout de `| null`
+    if (!date) return null;
+    if (typeof date === 'string') { // Si c'est déjà une chaîne, la retourner telle quelle
+      return date;
+    }
     const year = date.year;
     const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
     const day = date.day.toString().padStart(2, '0');
-    return `${year}-${month}-${day}`; // Format YYYY-MM-DD
+    return `${year}-${month}-${day}`;
   }
 
-
   // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
-  convertToNgbDate(dateString: string): NgbDateStruct | null {
+  convertToNgbDate(dateString: string | null): NgbDateStruct | null {
     if (!dateString) return null;
-    const parts = dateString.split('-'); // Séparer YYYY-MM-DD
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return null;
     return {
       year: +parts[0],
       month: +parts[1],
@@ -379,8 +553,10 @@ export class InterventionVehiculeComponent implements OnInit {
   }
 
   downloadInterventionsVehiculePDF(): void {
+    console.log('downloadInterventionsVehiculePDF: Tentative de téléchargement du PDF...');
     this.interventionVehiculeService.imprimerInterventionsVehicule().subscribe(
       (response: Blob) => {
+        console.log('downloadInterventionsVehiculePDF: PDF reçu, taille:', response.size);
         const fileURL = window.URL.createObjectURL(response);
         const a = document.createElement('a');
         a.href = fileURL;
@@ -389,6 +565,7 @@ export class InterventionVehiculeComponent implements OnInit {
         a.click();
         document.body.removeChild(a);
         window.URL.revokeObjectURL(fileURL);
+        console.log('downloadInterventionsVehiculePDF: PDF téléchargé avec succès.');
       },
       error => {
         console.error('Erreur lors du téléchargement du PDF des interventions de véhicule:', error);

@@ -10,6 +10,7 @@ import { NgbDropdownModule, NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -31,6 +32,13 @@ declare var bootstrap: any;
   templateUrl: 'sortie.component.html'
 })
 export class SortieComponent implements OnInit {
+
+  // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddAttribution: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  // canModifyAttribution: boolean = true;
+  // canDeleteAttribution: boolean = true;
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   rows: MouvementTicket[] = [];
@@ -69,10 +77,12 @@ export class SortieComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private sortieService: MouvementTicketService, private formBuilder: FormBuilder,) { }
+  constructor(private sortieService: MouvementTicketService, private formBuilder: FormBuilder,private router: Router) { }
 
 
   ngOnInit(): void {
+    this.initializePermissions();
+    if (this.hasPageAccess) {
     this.loadCommunes();
     this.loadTypeMouvements();
     this.loadCompagniePetrolieres()
@@ -80,6 +90,7 @@ export class SortieComponent implements OnInit {
     this.loadEmployes();
     this.loadVehicules();
     this.loadSorties();
+    }
     this.addSortie = this.formBuilder.group({
       compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
@@ -113,6 +124,44 @@ export class SortieComponent implements OnInit {
     this.deleteSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
     });
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddAttribution = allowedFonctionnalites.includes('Attribution ticket');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canAddAttribution ;
+
+
+      console.log('🔐 Permissions calculées:', {
+        canAddAttribution: this.canAddAttribution,
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des entrées de stock');
+        this.router.navigate(['/error/403']);
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
   }
 
   onClickSubmitAddSortie() {
@@ -347,12 +396,16 @@ export class SortieComponent implements OnInit {
     this.sortieService.getCouponTicketsWithCompagnies().subscribe({
       next: (res) => {
         if (res.success) {
-          this.couponTicketsWithCompagnies = res.data.map((item: any) => {
+          this.couponTicketsWithCompagnies = res.data
+          .filter((item: any) => item.coupon_ticket && item.compagnie)
+          .map((item: any) => {
+            const coupon = item.coupon_ticket;
+            const compagnie = item.compagnie;
             return {
               id: item.coupon_ticket.id,
-              displayLabel: `${item.coupon_ticket.libelle} (${item.compagnie.libelle})`,
-              coupon_ticket_id: item.coupon_ticket.id,
-              compagnie_petrolier_id: item.compagnie.id
+              displayLabel: `${item.coupon_ticket.libelle ?? ''} (${item.compagnie.libelle ?? ''})`,
+              coupon_ticket_id: coupon?.id ?? null,
+              compagnie_petrolier_id: compagnie?.id ?? null
             };
           });
           // console.log("Bonjour", this.couponTicketsWithCompagnies); // Commenté

@@ -20,6 +20,37 @@ export class PermissionService  {
     );
   }
 
+   getCurrentUserPermissions(): Observable<Permission[]> {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const roleId = user.role_id;
+
+  return this.http.get<Permission[]>(`${this.url}/permissions/role/${roleId}`);
+} 
+
+/* getCurrentUserPermissions(): Observable<Permission[]> {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const roleId = user.role_id;
+  return this.http.get<any>(`${this.url}/permissions/role/${roleId}`).pipe(
+    map(response => {
+      console.log('🔍 Structure de la réponse getCurrentUserPermissions:', response);
+      // Essayez différentes structures possibles :
+      if (response.data && response.data.data) {
+        return response.data.data; // Structure comme getPermissions()
+      } else if (response.data) {
+        return response.data; // Structure directe dans data
+      } else if (Array.isArray(response)) {
+        return response; // Réponse directe en tableau
+      } else {
+        console.error('Structure de réponse inconnue:', response);
+        return [];
+      }
+    })
+  );
+} */
+
+
+
+
   updatePermission(payload: any): Observable<any> {
   return this.http.post(`${this.url}/permissions/toggle`, payload);
 }
