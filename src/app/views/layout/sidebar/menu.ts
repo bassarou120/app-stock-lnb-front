@@ -298,7 +298,8 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         label: 'Paramètre Entreprise',
-        link: '/parametres/entreprise',
+        link: '/parametres-site', // Le lien vers la nouvelle route
+        module: 'Parametrage',
       },
       {
         label: 'Type Mouvement',

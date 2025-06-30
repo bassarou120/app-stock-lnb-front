@@ -474,3 +474,13 @@ export interface BackendPostResource<T> { // Exporté pour être utilisé dans l
   message: string;
   data: T; // Le type de 'data' dépend du contenu
 }
+
+export interface AppSetting {
+  id?: number; // L'ID de la ligne dans la table de base de données Laravel (optionnel, mais utile)
+  key: string; // La clé unique du paramètre (ex: 'company_name', 'primary_color', 'logo_url')
+  value: string; // La valeur du paramètre (URL, code hex, Base64, etc.)
+  type?: 'text' | 'color' | 'image_url' | 'base64_image' | 'number'; // Ajout de 'base64_image'
+  description?: string; // Une description pour l'interface d'administration
+}
+
+export type AppSettingsMap = Map<string, AppSetting>;
