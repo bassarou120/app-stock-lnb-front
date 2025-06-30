@@ -27,9 +27,10 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: |
+
             front-lnb-stock.tar
             docker-compose.yml
-          target: "${{ secrets.TARGET_DIR }}/front"
+          target: "${{ secrets.TARGET_DIR }}"
 
       - name: 🔐 Connexion SSH pour charger et déployer
         uses: appleboy/ssh-action@v1.0.3
@@ -38,7 +39,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ${{ secrets.TARGET_DIR }}/front
+            cd ${{ secrets.TARGET_DIR }}
             docker load -i front-lnb-stock.tar
             docker compose down
             docker compose up -d
