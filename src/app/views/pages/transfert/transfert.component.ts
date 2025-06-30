@@ -33,13 +33,15 @@ declare var bootstrap: any;
 export class TransfertComponent implements OnInit {
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
-    // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canAddTransfert: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
   canExportTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   canModifyTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   canDeleteTransfert: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   canViewTransfert: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
+  etatOptions: string[] = ['Bon', 'Usé', 'Défectueux / En panne', 'Irréparable'];
 
 
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
@@ -61,6 +63,7 @@ export class TransfertComponent implements OnInit {
   immobilisations: Immobilisation[] = []; // Liste des immos
   bureaux: Bureau[] = []; // Liste des Bureaux,
   employes: Employe[] = []; // Liste des Employes,
+  magasinId: number | null = null;
 
   // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingTransfert: boolean = false; // Pour l'ajout d'un transfert
@@ -74,12 +77,12 @@ export class TransfertComponent implements OnInit {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-        // Ensuite charger les données seulement si on a accès
+    // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
-        this.loadImmobilisations();
-        this.loadEmployes();
-        this.loadBureaux();
-        this.loadTransferts();
+      this.loadImmobilisations();
+      this.loadEmployes();
+      this.loadBureaux();
+      this.loadTransferts();
     }
 
 
@@ -91,7 +94,33 @@ export class TransfertComponent implements OnInit {
       employe_id: [null, [Validators.required]],
       date_mouvement: ["", [Validators.required]],
       observation: ["", []],
+      etat: [null],
+      date_mise_en_service: [null]
     });
+
+    this.addTransfert.get('old_bureau_id')?.valueChanges.subscribe(() => this.updateMiseEnServiceField());
+    this.addTransfert.get('old_employe_id')?.valueChanges.subscribe(() => this.updateMiseEnServiceField());
+
+
+    // Dynamique : gestion conditionnelle des champs
+    this.addTransfert.get('bureau_id')?.valueChanges.subscribe((bureauId) => {
+      const etatControl = this.addTransfert.get('etat');
+      const employeControl = this.addTransfert.get('employe_id');
+
+      if (bureauId === this.magasinId) {
+        etatControl?.setValidators([Validators.required]);
+        employeControl?.clearValidators();
+        employeControl?.setValue(null);
+      } else {
+        etatControl?.clearValidators();
+        etatControl?.setValue(null);
+        employeControl?.setValidators([Validators.required]);
+      }
+
+      etatControl?.updateValueAndValidity();
+      employeControl?.updateValueAndValidity();
+    });
+
     this.editTransfert = this.formBuilder.group({
       id: [0, [Validators.required]],
       immo_id: [null, [Validators.required]],
@@ -106,6 +135,23 @@ export class TransfertComponent implements OnInit {
       id: [0, [Validators.required]],
     });
   }
+
+  updateMiseEnServiceField(): void {
+    const oldBureau = this.addTransfert.get('old_bureau_id')?.value;
+    const oldEmploye = this.addTransfert.get('old_employe_id')?.value;
+    const miseServiceControl = this.addTransfert.get('date_mise_en_service');
+
+    if (!oldBureau && !oldEmploye) {
+      // Mise en service initiale
+      miseServiceControl?.setValidators([Validators.required]);
+    } else {
+      miseServiceControl?.clearValidators();
+      miseServiceControl?.setValue(null);
+    }
+
+    miseServiceControl?.updateValueAndValidity();
+  }
+
 
   // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
   private initializePermissions(): void {
@@ -126,7 +172,7 @@ export class TransfertComponent implements OnInit {
       this.canViewTransfert = allowedFonctionnalites.includes('Voir les Transferts');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess =  this.canViewTransfert;
+      this.hasPageAccess = this.canViewTransfert;
 
       console.log('🔐 Permissions calculées:', {
         canAddTransfert: this.canAddTransfert,
@@ -149,74 +195,134 @@ export class TransfertComponent implements OnInit {
     }
   }
 
-  onClickSubmitAddTransfert() {
+  // onClickSubmitAddTransfert() {
 
-    if (!this.canAddTransfert) {
-      alert('Vous n\'avez pas l\'autorisation d\'effectuer un transfert.');
+  //   if (!this.canAddTransfert) {
+  //     alert('Vous n\'avez pas l\'autorisation d\'effectuer un transfert.');
+  //     return;
+  //   }
+
+  //   console.log('onClickSubmitAddTransfert appelé. isAddingTransfert:', this.isAddingTransfert);
+
+  //   // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+  //   if (this.isAddingTransfert) {
+  //     console.warn('Soumission multiple détectée pour Transfert. Annulation.');
+  //     return; // Empêche l'exécution si déjà en cours
+  //   }
+
+  //   const spinner = document.querySelector('.spinner-add-transfert'); // Assurez-vous que ce sélecteur correspond à votre HTML
+
+  //   if (this.addTransfert.valid) {
+  //     this.isAddingTransfert = true; // Désactiver le bouton
+  //     console.log('isAddingTransfert mis à true.');
+
+  //     if (spinner) {
+  //       spinner.classList.remove('d-none');
+  //       console.log('Spinner Transfert affiché.');
+  //     }
+
+  //     const formData = {
+  //       ...this.addTransfert.value,
+  //       date_mouvement: this.formatDate(this.addTransfert.value.date_mouvement), // Convertir la date
+  //     };
+  //     this.transfertService.saveTransfert(formData).subscribe(
+  //       (data: any) => {
+  //         this.loadTransferts();
+  //         if (spinner) spinner.classList.add('d-none');
+  //         this.addTransfert.reset();
+  //         this.isAddingTransfert = false; // Réactiver le bouton
+  //         console.log('Soumission Transfert réussie. isAddingTransfert mis à false.');
+
+  //         // Fermer le modal manuellement
+  //         const modal = document.getElementById('add_transfert');
+  //         // @ts-ignore - pour éviter les erreurs TypeScript
+  //         const bsModal = bootstrap.Modal.getInstance(modal);
+  //         bsModal?.hide();
+
+  //         // Attendre que le modal soit fermé avant d'afficher l'alerte
+  //         setTimeout(() => {
+  //           this.alertAjoutVisible = true;
+  //           console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+
+  //           // Utilisation de la transition pour faire apparaitre l'alerte
+  //           setTimeout(() => {
+  //             this.alertAjoutVisible = false;
+  //           }, 2000); // L'alerte disparaît après 2 secondes
+  //         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+  //       },
+  //       (error: any) => {
+  //         console.error('Erreur lors de l\'ajout du transfert :', error);
+  //         if (spinner) spinner.classList.add('d-none');
+  //         this.isAddingTransfert = false; // Réactiver le bouton en cas d'erreur
+  //         console.error('Soumission Transfert échouée. isAddingTransfert mis à false.');
+  //         alert('Une erreur s\'est produite. Veuillez réessayer.');
+  //       }
+  //     );
+  //   } else {
+  //     if (spinner) spinner.classList.add('d-none');
+  //     this.markFormGroupTouched(this.addTransfert); // Marquer les champs comme touchés pour afficher les erreurs
+  //     alert("Désolé, le formulaire n'est pas bien renseigné");
+  //     console.log('Formulaire Transfert invalide.');
+  //   }
+  // }
+
+  // Marquer tous les champs comme touchés
+  // markFormGroupTouched(formGroup: FormGroup) {
+  //   Object.values(formGroup.controls).forEach(control => {
+  //     control.markAsTouched();
+  //   });
+  // }
+
+  onClickSubmitAddTransfert() {
+    if (this.isAddingTransfert) {
+      console.warn('Soumission en cours. Annulé.');
       return;
     }
 
-    console.log('onClickSubmitAddTransfert appelé. isAddingTransfert:', this.isAddingTransfert);
-
-    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
-    if (this.isAddingTransfert) {
-      console.warn('Soumission multiple détectée pour Transfert. Annulation.');
-      return; // Empêche l'exécution si déjà en cours
-    }
-
-    const spinner = document.querySelector('.spinner-add-transfert'); // Assurez-vous que ce sélecteur correspond à votre HTML
+    const spinner = document.querySelector('.spinner-add-transfert');
 
     if (this.addTransfert.valid) {
-      this.isAddingTransfert = true; // Désactiver le bouton
-      console.log('isAddingTransfert mis à true.');
-
-      if (spinner) {
-        spinner.classList.remove('d-none');
-        console.log('Spinner Transfert affiché.');
-      }
+      this.isAddingTransfert = true;
+      if (spinner) spinner.classList.remove('d-none');
 
       const formData = {
         ...this.addTransfert.value,
-        date_mouvement: this.formatDate(this.addTransfert.value.date_mouvement), // Convertir la date
+        date_mouvement: this.formatDate(this.addTransfert.value.date_mouvement),
+        date_mise_en_service: this.addTransfert.value.date_mise_en_service
+          ? this.formatDate(this.addTransfert.value.date_mise_en_service)
+          : null,
       };
+
       this.transfertService.saveTransfert(formData).subscribe(
         (data: any) => {
           this.loadTransferts();
           if (spinner) spinner.classList.add('d-none');
           this.addTransfert.reset();
-          this.isAddingTransfert = false; // Réactiver le bouton
-          console.log('Soumission Transfert réussie. isAddingTransfert mis à false.');
+          this.isAddingTransfert = false;
 
           // Fermer le modal manuellement
           const modal = document.getElementById('add_transfert');
-          // @ts-ignore - pour éviter les erreurs TypeScript
+          // @ts-ignore
           const bsModal = bootstrap.Modal.getInstance(modal);
           bsModal?.hide();
 
-          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertAjoutVisible = true;
-            console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
-
-            // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
               this.alertAjoutVisible = false;
-            }, 2000); // L'alerte disparaît après 2 secondes
-          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+            }, 2000);
+          }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de l\'ajout du transfert :', error);
           if (spinner) spinner.classList.add('d-none');
-          this.isAddingTransfert = false; // Réactiver le bouton en cas d'erreur
-          console.error('Soumission Transfert échouée. isAddingTransfert mis à false.');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          this.isAddingTransfert = false;
+          alert("Erreur lors de l'enregistrement.");
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      this.markFormGroupTouched(this.addTransfert); // Marquer les champs comme touchés pour afficher les erreurs
-      alert("Désolé, le formulaire n'est pas bien renseigné");
-      console.log('Formulaire Transfert invalide.');
+      this.markFormGroupTouched(this.addTransfert);
+      alert("Formulaire invalide.");
     }
   }
 
@@ -422,6 +528,8 @@ export class TransfertComponent implements OnInit {
     this.transfertService.getAllBureaux().subscribe({
       next: (data) => {
         this.bureaux = data; // Stocker la liste des bureaux
+        const magasin = this.bureaux.find(b => b.libelle_bureau?.toLowerCase() === 'magasin');
+        this.magasinId = magasin?.id ?? null;
       },
       error: (err) => {
         console.error("Erreur lors du chargement des bureaux :", err);

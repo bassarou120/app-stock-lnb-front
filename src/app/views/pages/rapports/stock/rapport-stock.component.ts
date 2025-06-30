@@ -138,7 +138,8 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     private fournisseursService: FournisseursService,
     private typeMouvementService: TypeMouvementService,
     private employesService: EmployesService,
-    private bureauxService: BureauxService
+    private bureauxService: BureauxService,
+    private ngbCalendar: NgbCalendar // <-- INJECTION DE NgbCalendar
   ) { }
 
   ngOnInit(): void {
@@ -187,12 +188,17 @@ export class RapportStockComponent implements OnInit, OnDestroy {
   }
 
   initForm(): void {
+    // <-- DÉBUT DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
+    const today = this.ngbCalendar.getToday();
+    const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
+    // <-- FIN DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
+
     this.rapportForm = this.fb.group({
       id_type_rapport: [null, Validators.required],
 
       // Champs communs aux rapports (dates)
-      date_debut: [{ value: null, disabled: true }],
-      date_fin: [{ value: null, disabled: true }],
+      date_debut: [firstDayOfMonth, Validators.required], // <-- Date par défaut et Validation
+      date_fin: [today, Validators.required],             // <-- Date par défaut et Validation
 
       // Champs spécifiques au rapport d'entrée
       id_Article_entree: [{ value: null, disabled: true }],
@@ -207,18 +213,29 @@ export class RapportStockComponent implements OnInit, OnDestroy {
       qte_min_etat: [{ value: null, disabled: true }],
       qte_max_etat: [{ value: null, disabled: true }],
     });
+    // Appliquer le validateur de plage de dates au formulaire dès l'initialisation
+    this.rapportForm.setValidators(this.dateRangeValidatorForReport());
+    this.rapportForm.updateValueAndValidity();
+    console.log('RapportStockComponent: Form initialized with default dates and initial validators.');
   }
 
   onTypeRapportChange(typeRapportId: string | null): void {
     this.selectedReportTypeId = typeRapportId;
-    this.resetFormControls();
+    this.resetFormControls(); // Réinitialise et désactive tous les contrôles, y compris les dates.
 
-    // Activer les champs de date pour tous les types de rapports de stock
+    // <-- DÉBUT DES MODIFICATIONS POUR LES DATES PAR DÉFAUT (RÉAPPLICATION)
+    const today = this.ngbCalendar.getToday();
+    const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
+    // <-- FIN DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
+
+    // Réactiver et appliquer les dates par défaut aux champs de date globaux
+    this.rapportForm.get('date_debut')?.setValue(firstDayOfMonth); // <-- Réapplication de la date par défaut
+    this.rapportForm.get('date_fin')?.setValue(today);             // <-- Réapplication de la date par défaut
     this.rapportForm.get('date_debut')?.enable();
     this.rapportForm.get('date_fin')?.enable();
     this.rapportForm.get('date_debut')?.setValidators(Validators.required);
     this.rapportForm.get('date_fin')?.setValidators(Validators.required);
-    this.rapportForm.setValidators(this.dateRangeValidatorForReport());
+    this.rapportForm.setValidators(this.dateRangeValidatorForReport()); // Réapplique le validateur de groupe
 
     switch (typeRapportId) {
       case 'entree':
@@ -227,6 +244,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showStockStatusFilters = false;
         this.rapportForm.get('id_Article_entree')?.enable();
         this.rapportForm.get('id_fournisseur_entree')?.enable();
+        console.log('onTypeRapportChange: Showing entry filters.');
         break;
 
       case 'sortie':
@@ -235,6 +253,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showStockStatusFilters = false;
         this.rapportForm.get('id_Article_sortie')?.enable();
         this.rapportForm.get('id_employe_sortie')?.enable();
+        console.log('onTypeRapportChange: Showing exit filters.');
         break;
 
       case 'etat_stock':
@@ -246,26 +265,30 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.rapportForm.get('qte_max_etat')?.enable();
         this.rapportForm.get('qte_min_etat')?.setValidators(Validators.min(0));
         this.rapportForm.get('qte_max_etat')?.setValidators(Validators.min(0));
-        this.rapportForm.setValidators(this.quantityRangeValidator());
+        this.rapportForm.setValidators(this.quantityRangeValidator()); // Appliquer le validateur spécifique pour les quantités
+        console.log('onTypeRapportChange: Showing stock status filters.');
         break;
 
       default:
         this.showEntryFilters = false;
         this.showExitFilters = false;
         this.showStockStatusFilters = false;
+        // Désactiver et nettoyer les validateurs des dates si aucun type de rapport n'est sélectionné
         this.rapportForm.get('date_debut')?.disable();
         this.rapportForm.get('date_fin')?.disable();
         this.rapportForm.get('date_debut')?.clearValidators();
         this.rapportForm.get('date_fin')?.clearValidators();
-        this.rapportForm.clearValidators();
-        this.rapportForm.reset({ id_type_rapport: typeRapportId });
+        this.rapportForm.clearValidators(); // Effacer aussi les validateurs de groupe
+        this.rapportForm.reset({ id_type_rapport: typeRapportId }); // Réinitialise et garde le type sélectionné
         this.markFormGroupTouched(this.rapportForm);
+        console.log('onTypeRapportChange: No specific report type selected or unknown.');
         break;
     }
     this.rapportForm.updateValueAndValidity();
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
+    console.log('onTypeRapportChange: Form updated and errors/rows cleared.');
   }
 
   // NOUVEAU VALIDATEUR : Pour les plages de quantités (qte_min_etat <= qte_max_etat)
@@ -289,26 +312,28 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     Object.keys(this.rapportForm.controls).forEach(key => {
       const control = this.rapportForm.get(key);
       if (control && key !== 'id_type_rapport') {
-        control.disable();
-        control.clearValidators();
         control.setValue(null);
+        control.clearValidators();
+        control.disable();
       }
     });
     this.showEntryFilters = false;
     this.showExitFilters = false;
     this.showStockStatusFilters = false;
-    this.rapportForm.clearValidators();
+    this.rapportForm.clearValidators(); // Clear group validators as well
     this.rapportForm.updateValueAndValidity();
     this.rows = [];
     this.temp = [];
+    console.log('All non-type-rapport form controls reset and filters hidden.');
   }
 
   loadFilterData(): void {
-    this.articlesService.getAllArticles().pipe(takeUntil(this.destroy$)).subscribe((data: Article[]) => this.articles = data);
-    this.fournisseursService.getAllFournisseurs().pipe(takeUntil(this.destroy$)).subscribe((data: Fournisseur[]) => this.fournisseurs = data);
-    this.typeMouvementService.getAllTypeMouvement().pipe(takeUntil(this.destroy$)).subscribe((data: TypeMouvement[]) => this.typeMouvements = data);
-    this.employesService.getAllEmployes().pipe(takeUntil(this.destroy$)).subscribe((data: Employe[]) => this.employes = data);
-    this.bureauxService.getAllBureaux().pipe(takeUntil(this.destroy$)).subscribe((data: Bureau[]) => this.bureaux = data);
+    console.log('Loading filter data...');
+    this.articlesService.getAllArticles().pipe(takeUntil(this.destroy$)).subscribe((data: Article[]) => { this.articles = data; console.log('Articles loaded:', data.length); });
+    this.fournisseursService.getAllFournisseurs().pipe(takeUntil(this.destroy$)).subscribe((data: Fournisseur[]) => { this.fournisseurs = data; console.log('Fournisseurs loaded:', data.length); });
+    this.typeMouvementService.getAllTypeMouvement().pipe(takeUntil(this.destroy$)).subscribe((data: TypeMouvement[]) => { this.typeMouvements = data; console.log('TypeMouvements loaded:', data.length); });
+    this.employesService.getAllEmployes().pipe(takeUntil(this.destroy$)).subscribe((data: Employe[]) => { this.employes = data; console.log('Employes loaded:', data.length); });
+    this.bureauxService.getAllBureaux().pipe(takeUntil(this.destroy$)).subscribe((data: Bureau[]) => { this.bureaux = data; console.log('Bureaux loaded:', data.length); });
   }
 
   // NOUVELLE FONCTION UTILITAIRE POUR PARSER LES DATES
@@ -617,8 +642,6 @@ export class RapportStockComponent implements OnInit, OnDestroy {
                 (item.article?.code_article?.toLowerCase().includes(val) || false) ||
                 ((item.fournisseur && item.fournisseur.nom) ? item.fournisseur.nom.toLowerCase().includes(val) : false) ||
                 ((item.type_mouvement && item.type_mouvement.libelle_type_mouvement) ? item.type_mouvement.libelle_type_mouvement.toLowerCase().includes(val) : false) ||
-                // ((item.employe && (item.employe as Employe).nom && (item.employe as Employe).prenom) ? `${(item.employe as Employe).nom} ${(item.employe as Employe).prenom}`.toLowerCase().includes(val) : false) ||
-                ((item.bureau && item.bureau.libelle_bureau) ? item.bureau.libelle_bureau.toLowerCase().includes(val) : false) ||
                 (dateMouvementStr?.toLowerCase().includes(val) || false);
         return match;
       });

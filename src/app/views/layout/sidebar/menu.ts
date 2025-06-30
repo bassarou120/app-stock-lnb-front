@@ -1,7 +1,6 @@
 import { MenuItem } from './menu.model';
 
 export const MENU: MenuItem[] = [
-
   {
     label: 'Menu principal',
     isTitle: true
@@ -301,8 +300,8 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         label: 'Paramètre Entreprise',
-        link: '/parametres/entreprise',
-        fonctionnalites: ['Voir Parametres Généraux']
+        link: '/parametres-site', // Le lien vers la nouvelle route
+        module: 'Parametrage',
       },
       {
         label: 'Type Mouvement',

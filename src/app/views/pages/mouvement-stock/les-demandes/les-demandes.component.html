@@ -1,3 +1,9 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Mouvement Stock</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Les demandes</li>
+    </ol>
+  </nav>
 <!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
 <div class="row" *ngIf="hasPageAccess">
 
@@ -80,19 +86,29 @@
           <!-- <button class="btn btn-sm btn-primary" (click)="toggleGroup(group.code_mouvement)">
             {{ expandedGroupCode === group.code_mouvement ? 'Fermer' : 'Voir' }}
           </button> -->
-          <button class="btn btn-sm btn-primary" (click)="toggleGroup(group.code_mouvement)">
-            {{ expandedGroupCode === group.code_mouvement ? 'Fermer ▲' : 'Voir ▼' }}
+          <button class="btn btn-sm btn-primary m-2" (click)="toggleGroup(group.code_mouvement)">
+            {{ expandedGroupCode === group.code_mouvement ? '▲' : '👁️' }}
           </button>
+          <button *ngIf="canTreatDemande"
+        class="btn btn-sm"
+        [ngClass]="{
+          'btn-warning': isGroupTraitable(group),
+          'btn-success': !isGroupTraitable(group)
+        }"
+        data-bs-toggle="modal"
+        data-bs-target="#tout_traiter"
+        (click)="openToutTraiterModal(group.code_mouvement)"
+        [disabled]="!isGroupTraitable(group)">
+  Tout traiter
+</button>
+
         </td>
       </tr>
       <tr *ngIf="expandedGroupCode === group.code_mouvement">
         <td colspan="8" style="padding: 0;">
           <table class="table table-sm table-striped mb-0">
             <thead>
-              <button *ngIf="canTreatDemande" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tout_traiter"
-                (click)="openToutTraiterModal(group.code_mouvement)" [disabled]="!isGroupTraitable(group)">
-                tout traiter
-              </button>
+
               <tr>
                 <th>Code</th>
                 <th>Article</th>
@@ -116,10 +132,19 @@
                 <!-- <td>{{ detail.date_mouvement  }}</td> -->
                 <td>{{ detail.statut }}</td>
                 <td>
-                  <button *ngIf="canTreatDemande"class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit_statut_sortie"
-                    (click)="getStatutForm(detail)" [disabled]="detail.statut === 'Accordé'">
-                    Traiter
-                  </button>
+                  <button *ngIf="canTreatDemande"
+        class="btn btn-sm"
+        [ngClass]="{
+          'btn-warning': detail.statut !== 'Accordé',
+          'btn-success': detail.statut === 'Accordé'
+        }"
+        data-bs-toggle="modal"
+        data-bs-target="#edit_statut_sortie"
+        (click)="getStatutForm(detail)"
+        [disabled]="detail.statut === 'Accordé'">
+  {{ detail.statut === 'Accordé' ? 'Traité' : 'À traiter' }}
+</button>
+
                 </td>
               </tr>
             </tbody>

@@ -96,6 +96,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     private cd: ChangeDetectorRef, // Inject ChangeDetectorRef
     // private departService: DepartService,
     // private arriverService: ArriverService,
+    private ngbCalendar: NgbCalendar // <-- INJECTION DE NgbCalendar
   ) { }
 
   ngOnInit(): void {
@@ -142,41 +143,53 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   }
 
   initForm(): void {
+    // <-- DÉBUT DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
+    const today = this.ngbCalendar.getToday();
+    const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
+    // <-- FIN DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
+
     this.rapportForm = this.fb.group({
       id_type_rapport: [null, Validators.required],
 
       // Filtres pour Entrée Ticket
-      date_debut_entree_t: [{value: null, disabled: true}],
-      date_fin_entree_t: [{value: null, disabled: true}],
-      coupon_ticket_id_entree: [{value: null, disabled: true}],
-      compagnie_id_entree: [{value: null, disabled: true}],
+      date_debut_entree_t: [firstDayOfMonth], // <-- Date par défaut
+      date_fin_entree_t: [today],             // <-- Date par défaut
+      coupon_ticket_id_entree: [null],
+      compagnie_id_entree: [null],
 
       // Filtres pour Sortie Ticket
-      date_debut_sortie_t: [{value: null, disabled: true}],
-      date_fin_sortie_t: [{value: null, disabled: true}],
-      coupon_ticket_id_sortie: [{value: null, disabled: true}],
-      compagnie_id_sortie: [{value: null, disabled: true}],
-      employe_id_sortie: [{value: null, disabled: true}],
-      vehicule_id_sortie: [{value: null, disabled: true}],
-      depart_id_sortie: [{value: null, disabled: true}],
-      arriver_id_sortie: [{value: null, disabled: true}],
+      date_debut_sortie_t: [firstDayOfMonth], // <-- Date par défaut
+      date_fin_sortie_t: [today],             // <-- Date par défaut
+      coupon_ticket_id_sortie: [null],
+      compagnie_id_sortie: [null],
+      employe_id_sortie: [null],
+      vehicule_id_sortie: [null],
+      depart_id_sortie: [null],
+      arriver_id_sortie: [null],
 
       // Filtres pour Retour Ticket
-      date_debut_retour_t: [{value: null, disabled: true}],
-      date_fin_retour_t: [{value: null, disabled: true}],
-      coupon_id_retour: [{value: null, disabled: true}],
-      compagnie_id_retour: [{value: null, disabled: true}],
+      date_debut_retour_t: [firstDayOfMonth], // <-- Date par défaut
+      date_fin_retour_t: [today],             // <-- Date par défaut
+      coupon_id_retour: [null],
+      compagnie_id_retour: [null],
+
       // Filtres pour Annulation Ticket
-      date_debut_annulation_t: [{value: null, disabled: true}],
-      date_fin_annulation_t: [{value: null, disabled: true}],
-      coupon_id_annulation: [{value: null, disabled: true}],
-      compagnie_id_annulation: [{value: null, disabled: true}],
+      date_debut_annulation_t: [firstDayOfMonth], // <-- Date par défaut
+      date_fin_annulation_t: [today],             // <-- Date par défaut
+      coupon_id_annulation: [null],
+      compagnie_id_annulation: [null],
     });
+    console.log('RapportTicketComponent: Form initialized with default dates.');
   }
 
   onTypeRapportChange(typeRapportId: string | null): void {
     this.selectedReportTypeId = typeRapportId;
     this.resetFormControls(); // Réinitialise et désactive tous les champs
+
+    // <-- DÉBUT DES MODIFICATIONS POUR LES DATES PAR DÉFAUT (RÉAPPLICATION)
+    const today = this.ngbCalendar.getToday();
+    const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
+    // <-- FIN DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
 
     // Réactive le sélecteur de type de rapport (il ne doit jamais être désactivé)
     this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required);
@@ -186,6 +199,8 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     switch (typeRapportId) {
       case 'entree ticket':
         this.showEntreeTicketFilters = true;
+        this.rapportForm.get('date_debut_entree_t')?.setValue(firstDayOfMonth); // <-- Réapplication
+        this.rapportForm.get('date_fin_entree_t')?.setValue(today);             // <-- Réapplication
         this.rapportForm.get('date_debut_entree_t')?.enable();
         this.rapportForm.get('date_fin_entree_t')?.enable();
         this.rapportForm.get('coupon_ticket_id_entree')?.enable();
@@ -195,10 +210,13 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_entree_t')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_entree_t')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport('date_debut_entree_t', 'date_fin_entree_t'));
+        console.log('onTypeRapportChange: Showing Entree Ticket filters with default dates.');
         break;
 
       case 'sortie ticket':
         this.showSortieTicketFilters = true;
+        this.rapportForm.get('date_debut_sortie_t')?.setValue(firstDayOfMonth); // <-- Réapplication
+        this.rapportForm.get('date_fin_sortie_t')?.setValue(today);             // <-- Réapplication
         this.rapportForm.get('date_debut_sortie_t')?.enable();
         this.rapportForm.get('date_fin_sortie_t')?.enable();
         this.rapportForm.get('coupon_ticket_id_sortie')?.enable();
@@ -212,10 +230,13 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_sortie_t')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_sortie_t')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport('date_debut_sortie_t', 'date_fin_sortie_t'));
+        console.log('onTypeRapportChange: Showing Sortie Ticket filters with default dates.');
         break;
 
       case 'retour ticket':
         this.showRetourTicketFilters = true;
+        this.rapportForm.get('date_debut_retour_t')?.setValue(firstDayOfMonth); // <-- Réapplication
+        this.rapportForm.get('date_fin_retour_t')?.setValue(today);             // <-- Réapplication
         this.rapportForm.get('date_debut_retour_t')?.enable();
         this.rapportForm.get('date_fin_retour_t')?.enable();
         this.rapportForm.get('coupon_id_retour')?.enable();
@@ -225,10 +246,13 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_retour_t')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_retour_t')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport('date_debut_retour_t', 'date_fin_retour_t'));
+        console.log('onTypeRapportChange: Showing Retour Ticket filters with default dates.');
         break;
 
       case 'annulation ticket':
         this.showAnnulationTicketFilters = true;
+        this.rapportForm.get('date_debut_annulation_t')?.setValue(firstDayOfMonth); // <-- Réapplication
+        this.rapportForm.get('date_fin_annulation_t')?.setValue(today);             // <-- Réapplication
         this.rapportForm.get('date_debut_annulation_t')?.enable();
         this.rapportForm.get('date_fin_annulation_t')?.enable();
         this.rapportForm.get('coupon_id_annulation')?.enable();
@@ -238,6 +262,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_annulation_t')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_annulation_t')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport('date_debut_annulation_t', 'date_fin_annulation_t'));
+        console.log('onTypeRapportChange: Showing Annulation Ticket filters with default dates.');
         break;
 
       default:
@@ -245,9 +270,9 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.showSortieTicketFilters = false;
         this.showRetourTicketFilters = false;
         this.showAnnulationTicketFilters = false;
-        // this.rapportForm.reset({ id_type_rapport: typeRapportId });
         // Remettre à null toutes les dates spécifiques pour éviter des valeurs résiduelles
         this.resetSpecificDateControls();
+        console.log('onTypeRapportChange: No specific report type selected or unknown.');
         break;
     }
     // Décaler l'appel à updateValueAndValidity pour éviter ExpressionChangedAfterItHasBeenCheckedError
@@ -272,15 +297,15 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     allSpecificControls.forEach(key => {
       const control = this.rapportForm.get(key);
       if (control) {
-        control.disable();
+        control.setValue(null); // <-- Toujours setValue(null) en premier
         control.clearValidators();
-        control.setValue(null);
+        control.disable();
       }
     });
 
     this.rapportForm.clearValidators(); // Efface les validateurs de niveau FormGroup
-    // this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required); // Ré-applique le validateur pour le type de rapport
-    // this.rapportForm.updateValueAndValidity(); // Très important
+    this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required); // Ré-applique le validateur pour le type de rapport
+    // Pas de updateValueAndValidity ici, il est appelé une fois à la fin de onTypeRapportChange
     // Assurer que les indicateurs d'affichage sont tous false par défaut
     this.showEntreeTicketFilters = false;
     this.showSortieTicketFilters = false;
@@ -298,14 +323,28 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.rapportForm.get('date_fin_retour_t')?.setValue(null);
     this.rapportForm.get('date_debut_annulation_t')?.setValue(null);
     this.rapportForm.get('date_fin_annulation_t')?.setValue(null);
+    console.log('Specific date controls reset to null.');
   }
 
 
   loadFilterData(): void {
-    this.couponTicketService.getAllCouponTickets().pipe(takeUntil(this.destroy$)).subscribe((data: CouponTicket[]) => this.couponTicketsList = data);
-    this.compagnieService.getAllCompagniePetrolieres().pipe(takeUntil(this.destroy$)).subscribe((data: CompagniePetroliere[]) => this.compagniesList = data);
-    this.employesService.getAllEmployes().pipe(takeUntil(this.destroy$)).subscribe((data: Employe[]) => this.employesList = data);
-    this.vehiculeService.getAllVehicules().pipe(takeUntil(this.destroy$)).subscribe((data: Vehicule[]) => this.vehiculesList = data);
+    console.log('Loading filter data for Ticket...');
+    this.couponTicketService.getAllCouponTickets().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: CouponTicket[]) => { this.couponTicketsList = data; console.log('CouponTickets loaded:', data.length); },
+      (error) => console.error('Error loading couponTickets:', error)
+    );
+    this.compagnieService.getAllCompagniePetrolieres().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: CompagniePetroliere[]) => { this.compagniesList = data; console.log('Compagnies loaded:', data.length); },
+      (error) => console.error('Error loading compagnies:', error)
+    );
+    this.employesService.getAllEmployes().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: Employe[]) => { this.employesList = data; console.log('Employes loaded:', data.length); },
+      (error) => console.error('Error loading employes:', error)
+    );
+    this.vehiculeService.getAllVehicules().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: Vehicule[]) => { this.vehiculesList = data; console.log('Vehicules loaded:', data.length); },
+      (error) => console.error('Error loading vehicules:', error)
+    );
     // this.departService.getAllDeparts().pipe(takeUntil(this.destroy$)).subscribe((data: Depart[]) => this.departsList = data);
     // this.arriverService.getAllArrivers().pipe(takeUntil(this.destroy$)).subscribe((data: Arriver[]) => this.arriversList = data);
   }
