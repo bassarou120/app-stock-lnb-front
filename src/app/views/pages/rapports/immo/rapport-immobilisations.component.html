@@ -1,446 +1,551 @@
 <!-- src/app/views/pages/rapport/immobilisations/rapport-immobilisations.component.html -->
 <div class="row">
   <div class="col-md-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body d-flex justify-content-between">
-        <div>
-          <h4 class="card-title">Rapports d'Immobilisations</h4>
-          <p class="text-secondary">Générez et consultez différents rapports sur les immobilisations.</p>
-        </div>
-        <div class="d-flex gap-2">
-          <!-- Bouton Imprimer PDF -->
-          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center"
-            (click)="downloadRapportImmosPDF()" [disabled]="isGeneratingReport || rapportForm.invalid">
-            <div class="spinner-border spinner-border-sm text-primary me-2" [class.d-none]="!isGeneratingReport"
-              role="status">
-              <span class="visually-hidden">Préparation...</span>
-            </div>
-            <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
-            {{ isGeneratingReport ? 'Préparation...' : 'Imprimer PDF' }}
-          </button>
-        </div>
+      <div class="card">
+          <div class="card-body d-flex justify-content-between">
+              <div>
+                  <h4 class="card-title">Rapports d'Immobilisations</h4>
+                  <p class="text-secondary">Générez et consultez différents rapports sur les immobilisations.</p>
+              </div>
+              <div class="d-flex gap-2">
+                  <!-- Bouton Imprimer PDF -->
+                  <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center"
+                      (click)="downloadRapportImmosPDF()" [disabled]="isGeneratingReport || rapportForm.invalid">
+                      <div class="spinner-border spinner-border-sm text-primary me-2" [class.d-none]="!isGeneratingReport"
+                          role="status">
+                          <span class="visually-hidden">Préparation...</span>
+                      </div>
+                      <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+                      {{ isGeneratingReport ? 'Préparation...' : 'Imprimer PDF' }}
+                  </button>
+              </div>
+          </div>
+
+          <div class="card-body">
+              <div>
+                  <form [formGroup]="rapportForm" novalidate class="forms-sample">
+                      <div class="row justify-content-center">
+                          <!-- Sélecteur du Type de Rapport d'Immobilisation (OBLIGATOIRE) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="id_type_rapport" class="form-label">Type de Rapport <span
+                                      class="text-danger">*</span></label>
+                              <ng-container *ngIf="typeRapportsImmo && typeRapportsImmo.length > 0; else notypeRapportsImmo">
+                                  <ng-select [items]="typeRapportsImmo" bindLabel="libelle" bindValue="id"
+                                      formControlName="id_type_rapport" [clearable]="true"
+                                      placeholder="Sélectionnez le type de rapport"
+                                      [ngClass]="{'is-invalid': rapportForm.get('id_type_rapport')?.invalid && (rapportForm.get('id_type_rapport')?.dirty || rapportForm.get('id_type_rapport')?.touched)}">
+                                  </ng-select>
+                              </ng-container>
+                              <ng-template #notypeRapportsImmo>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun type de Rapport. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                              <div *ngIf="rapportForm.get('id_type_rapport')?.invalid && (rapportForm.get('id_type_rapport')?.dirty || rapportForm.get('id_type_rapport')?.touched)" class="invalid-feedback">
+                                  Le type de rapport est obligatoire.
+                              </div>
+                          </div>
+                      </div>
+
+                      <!-- Messages d'erreur généraux du formulaire (pour les validateurs de groupe comme les dates) -->
+                      <div *ngIf="rapportForm.errors?.['dateRangeInvalidOrder']" class="alert alert-danger mt-3">
+                          La date de début ne peut pas être postérieure à la date de fin.
+                      </div>
+                      <div *ngIf="rapportForm.errors?.['dateRangeMissingStartDate']" class="alert alert-danger mt-3">
+                          Veuillez sélectionner une date de début.
+                      </div>
+                      <div *ngIf="rapportForm.errors?.['dateRangeMissingEndDate']" class="alert alert-danger mt-3">
+                          Veuillez sélectionner une date de fin.
+                      </div>
+
+
+                      <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'ENREGISTREMENT -->
+                      <div class="row" *ngIf="showRegistrationFilters">
+                          <hr class="my-4"> <!-- Séparateur visuel -->
+                          <h5 class="mb-3">Filtres pour le rapport d'Enregistrement</h5>
+
+                          <!-- Code Immobilisation (ng-select) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="code_immo" class="form-label">Code Immobilisation</label>
+                              <ng-container *ngIf="immobilisationCodes && immobilisationCodes.length > 0; else noimmobilisationCode">
+                                  <ng-select [items]="immobilisationCodes" formControlName="code_immo"
+                                      [clearable]="true" placeholder="Sélectionnez un code (Optionnel)">
+                                  </ng-select>
+                              </ng-container>
+                              <ng-template #noimmobilisationCode>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                          </div>
+
+                          <!-- Date de création (Acquisition) - OPTIONNELLE POUR CE RAPPORT -->
+                          <div class="col-md-6 mb-3">
+                              <label for="dateDebutAcquisition" class="form-label">Date de création (Optionnel)</label>
+                              <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="da1.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="da1"
+                                      ngbDatepicker #da1="ngbDatepicker" formControlName="date_debut_acquisition">
+                              </div>
+                          </div>
+                      </div>
+                      <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ENREGISTREMENT -->
+
+
+                      <!-- FILTRES SPÉCIFIQUES AU RAPPORT DE TRANSFERT -->
+                      <div class="row" *ngIf="showTransferFilters">
+                          <hr class="my-4">
+                          <h5 class="mb-3">Filtres pour le rapport de Transfert</h5>
+
+                          <!-- Dates de mouvement (Obligatoires) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="dateDebutMouvement" class="form-label">Date de mouvement (Début) <span
+                                      class="text-danger">*</span></label>
+                              <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dm1.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dm1"
+                                      ngbDatepicker #dm1="ngbDatepicker" formControlName="date_debut_mouvement"
+                                      [maxDate]="rapportForm.get('date_fin_mouvement')?.value || undefined"
+                                      [class.is-invalid]="(rapportForm.get('date_debut_mouvement')?.invalid && rapportForm.get('date_debut_mouvement')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                              </div>
+                              <div
+                                  *ngIf="rapportForm.get('date_debut_mouvement')?.invalid && rapportForm.get('date_debut_mouvement')?.touched">
+                                  <small *ngIf="rapportForm.get('date_debut_mouvement')?.errors?.required" class="text-danger"> *La date
+                                      de début est obligatoire.</small>
+                              </div>
+                          </div>
+
+                          <div class="col-md-6 mb-3">
+                              <label for="dateFinMouvement" class="form-label">Date de mouvement (Fin) <span
+                                      class="text-danger">*</span></label>
+                              <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dm2.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dm2"
+                                      ngbDatepicker #dm2="ngbDatepicker" formControlName="date_fin_mouvement"
+                                      [minDate]="rapportForm.get('date_debut_mouvement')?.value || undefined"
+                                      [class.is-invalid]="(rapportForm.get('date_fin_mouvement')?.invalid && rapportForm.get('date_fin_mouvement')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                              </div>
+                              <div
+                                  *ngIf="rapportForm.get('date_fin_mouvement')?.invalid && rapportForm.get('date_fin_mouvement')?.touched">
+                                  <small *ngIf="rapportForm.get('date_fin_mouvement')?.errors?.required" class="text-danger"> *La date
+                                      de fin est obligatoire.</small>
+                                  <small
+                                      *ngIf="rapportForm.get('date_fin_mouvement')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']"
+                                      class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                              </div>
+                          </div>
+
+                          <!-- Ancien Bureau (Optionnel) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="oldBureau" class="form-label">Ancien Bureau (Optionnel)</label>
+                              <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux">
+                                  <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="old_bureau_id"
+                                      [clearable]="true" placeholder="Sélectionner un ancien bureau">
+                                  </ng-select>
+                              </ng-container>
+                              <ng-template #noBureaux>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                          </div>
+
+                          <!-- Nouveau Bureau (Optionnel) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="newBureau" class="form-label">Nouveau Bureau (Optionnel)</label>
+                              <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux2">
+                                  <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="bureau_id"
+                                      [clearable]="true" placeholder="Sélectionner un nouveau bureau">
+                                  </ng-select>
+                              </ng-container>
+                              <ng-template #noBureaux2>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                          </div>
+
+                          <!-- Ancien Employé (Optionnel) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="oldEmploye" class="form-label">Ancien Personnel (Optionnel)</label>
+                              <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
+                              <ng-select [items]="employes" bindLabel="nom" bindValue="id" formControlName="old_employe_id"
+                                  [clearable]="true" placeholder="Sélectionner un ancien personnel">
+                                  <ng-template ng-label-tmp let-item="item">
+                                      {{item.nom}} {{item.prenom}}
+                                  </ng-template>
+                                  <ng-template ng-option-tmp let-item="item">
+                                      {{item.nom}} {{item.prenom}}
+                                  </ng-template>
+                              </ng-select>
+                              </ng-container>
+                              <ng-template #noEmploye>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun Employe. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                          </div>
+
+                          <!-- Nouveau Employé (Optionnel) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="newEmploye" class="form-label">Nouveau Personnel (Optionnel)</label>
+                              <ng-container *ngIf="employes && employes.length > 0; else noEmploye2">
+                              <ng-select [items]="employes" bindLabel="nom" bindValue="id" formControlName="employe_id"
+                                  [clearable]="true" placeholder="Sélectionner un nouveau personnel">
+                                  <ng-template ng-label-tmp let-item="item">
+                                      {{item.nom}} {{item.prenom}}
+                                  </ng-template>
+                                  <ng-template ng-option-tmp let-item="item">
+                                      {{item.nom}} {{item.prenom}}
+                                  </ng-template>
+                              </ng-select>
+                              </ng-container>
+                              <ng-template #noEmploye2>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun Employe. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                          </div>
+
+                      </div>
+                      <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT DE TRANSFERT -->
+
+
+                      <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION -->
+                      <div class="row" *ngIf="showInterventionFilters">
+                          <hr class="my-4">
+                          <h5 class="mb-3">Filtres pour le rapport d'Intervention</h5>
+
+                          <!-- Dates d'intervention (Obligatoires) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="dateDebutIntervention" class="form-label">Date d'intervention (Début) <span
+                                      class="text-danger">*</span></label>
+                              <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="di1.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="di1"
+                                      ngbDatepicker #di1="ngbDatepicker" formControlName="date_debut_intervention"
+                                      [maxDate]="rapportForm.get('date_fin_intervention')?.value || undefined"
+                                      [class.is-invalid]="(rapportForm.get('date_debut_intervention')?.invalid && rapportForm.get('date_debut_intervention')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                              </div>
+                              <div
+                                  *ngIf="rapportForm.get('date_debut_intervention')?.invalid && rapportForm.get('date_debut_intervention')?.touched">
+                                  <small *ngIf="rapportForm.get('date_debut_intervention')?.errors?.required" class="text-danger"> *La
+                                      date de début est obligatoire.</small>
+                              </div>
+                          </div>
+
+                          <div class="col-md-6 mb-3">
+                              <label for="dateFinIntervention" class="form-label">Date d'intervention (Fin) <span
+                                      class="text-danger">*</span></label>
+                              <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="di2.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="di2"
+                                      ngbDatepicker #di2="ngbDatepicker" formControlName="date_fin_intervention"
+                                      [minDate]="rapportForm.get('date_debut_intervention')?.value || undefined"
+                                      [class.is-invalid]="(rapportForm.get('date_fin_intervention')?.invalid && rapportForm.get('date_fin_intervention')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                              </div>
+                              <div
+                                  *ngIf="rapportForm.get('date_fin_intervention')?.invalid && rapportForm.get('date_fin_intervention')?.touched">
+                                  <small *ngIf="rapportForm.get('date_fin_intervention')?.errors?.required" class="text-danger"> *La
+                                      date de fin est obligatoire.</small>
+                                  <small
+                                      *ngIf="rapportForm.get('date_fin_intervention')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']"
+                                      class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                              </div>
+                          </div>
+
+                          <!-- Type d'Intervention (Optionnel) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="typeIntervention" class="form-label">Type d'Intervention (Optionnel)</label>
+                              <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else noTypeInterventions">
+                              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id"
+                                  formControlName="type_intervention_id" [clearable]="true"
+                                  placeholder="Sélectionner un type d'intervention">
+                              </ng-select>
+                              </ng-container>
+                              <ng-template #noTypeInterventions>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun Type Intervention. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                          </div>
+
+                          <!-- Immobilisation (Optionnel) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="immo" class="form-label">Immobilisation (Optionnel)</label>
+                              <ng-container *ngIf="immobilisations && immobilisations.length > 0; else noImmobilisation2">
+                              <ng-select [items]="immobilisations" bindLabel="designation" bindValue="id" formControlName="immo_id"
+                                  [clearable]="true" placeholder="Sélectionner une immobilisation">
+                                  <ng-template ng-label-tmp let-item="item">
+                                      {{item.code}} - {{item.designation}}
+                                  </ng-template>
+                                  <ng-template ng-option-tmp let-item="item">
+                                      {{item.code}} - {{item.designation}}
+                                  </ng-template>
+                              </ng-select>
+                              </ng-container>
+                              <ng-template #noImmobilisation2>
+                                  <div class="alert alert-danger"
+                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                      <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
+                                  </div>
+                              </ng-template>
+                          </div>
+
+                      </div>
+                      <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION -->
+
+                      <!-- NOUVEAU: FILTRES SPÉCIFIQUES À LA FICHE D'INVENTAIRE -->
+                      <div class="row" *ngIf="showInventoryFilters">
+                          <hr class="my-4">
+                          <h5 class="mb-3">Filtres pour la Fiche d'Inventaire</h5>
+
+                          <!-- Dates d'acquisition pour l'inventaire (Obligatoires) -->
+                          <div class="col-md-6 mb-3">
+                              <label for="dateDebutInventaire" class="form-label">Date d'Acquisition (Début) <span
+                                      class="text-danger">*</span></label>
+                              <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="din1.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="din1"
+                                      ngbDatepicker #din1="ngbDatepicker" formControlName="date_debut_inventaire"
+                                      [maxDate]="rapportForm.get('date_fin_inventaire')?.value || undefined"
+                                      [class.is-invalid]="(rapportForm.get('date_debut_inventaire')?.invalid && rapportForm.get('date_debut_inventaire')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                              </div>
+                              <div
+                                  *ngIf="rapportForm.get('date_debut_inventaire')?.invalid && rapportForm.get('date_debut_inventaire')?.touched">
+                                  <small *ngIf="rapportForm.get('date_debut_inventaire')?.errors?.required" class="text-danger"> *La date
+                                      de début est obligatoire.</small>
+                              </div>
+                          </div>
+
+                          <div class="col-md-6 mb-3">
+                              <label for="dateFinInventaire" class="form-label">Date d'Acquisition (Fin) <span
+                                      class="text-danger">*</span></label>
+                              <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="din2.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="din2"
+                                      ngbDatepicker #din2="ngbDatepicker" formControlName="date_fin_inventaire"
+                                      [minDate]="rapportForm.get('date_debut_inventaire')?.value || undefined"
+                                      [class.is-invalid]="(rapportForm.get('date_fin_inventaire')?.invalid && rapportForm.get('date_fin_inventaire')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                              </div>
+                              <div
+                                  *ngIf="rapportForm.get('date_fin_inventaire')?.invalid && rapportForm.get('date_fin_inventaire')?.touched">
+                                  <small *ngIf="rapportForm.get('date_fin_inventaire')?.errors?.required" class="text-danger"> *La date
+                                      de fin est obligatoire.</small>
+                                  <small
+                                      *ngIf="rapportForm.get('date_fin_inventaire')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']"
+                                      class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                              </div>
+                          </div>
+                      </div>
+                      <!-- Fin NOUVEAU: FILTRES SPÉCIFIQUES À LA FICHE D'INVENTAIRE -->
+
+
+                      <!-- Bouton Charger Rapport -->
+                      <div class="d-flex justify-content-center gap-3 mt-4">
+                          <button type="submit" class="btn btn-primary btn-icon-text" (click)="loadRapportImmos()"
+                              [disabled]="isGeneratingReport || rapportForm.invalid">
+                              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isGeneratingReport"
+                                  role="status">
+                                  <span class="visually-hidden">Chargement...</span>
+                              </div>
+                              <i class="btn-icon-prepend" data-feather="refresh-ccw" appFeatherIcon></i>
+                              {{ isGeneratingReport ? 'Chargement...' : 'Charger Rapport' }}
+                          </button>
+                      </div>
+                      <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
+                          {{ errorMessage }}
+                      </div>
+                  </form>
+              </div>
+          </div>
       </div>
-
-      <div class="card-body">
-        <div>
-          <form [formGroup]="rapportForm" novalidate class="forms-sample">
-            <div class="row justify-content-center">
-              <!-- Sélecteur du Type de Rapport d'Immobilisation (OBLIGATOIRE) -->
-              <div class="col-md-6 mb-3">
-                <label for="id_type_rapport" class="form-label">Type de Rapport <span
-                    class="text-danger">*</span></label>
-                <ng-container *ngIf="typeRapportsImmo && typeRapportsImmo.length > 0; else notypeRapportsImmo">
-                  <ng-select [items]="typeRapportsImmo" bindLabel="libelle" bindValue="id"
-                    formControlName="id_type_rapport" [clearable]="true" placeholder="Sélectionnez le type de rapport">
-                  </ng-select>
-                </ng-container>
-                <ng-template #notypeRapportsImmo>
-                  <div class="alert alert-danger"
-                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun type de Rapport. Veuillez en créer.
-                  </div>
-                </ng-template>
-              </div>
-            </div>
-
-            <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'ENREGISTREMENT -->
-            <div class="row" *ngIf="showRegistrationFilters">
-              <hr class="my-4"> <!-- Séparateur visuel -->
-              <h5 class="mb-3">Filtres pour le rapport d'Enregistrement</h5>
-
-              <!-- Code Immobilisation (ng-select) -->
-              <div class="col-md-6 mb-3">
-                <label for="code_immo" class="form-label">Code Immobilisation</label>
-                <ng-container *ngIf="immobilisationCodes && immobilisationCodes.length > 0; else noimmobilisationCode">
-                  <ng-select [items]="immobilisationCodes" bindLabel="item" bindValue="item" formControlName="code_immo"
-                    [clearable]="true" placeholder="Sélectionnez un code (Optionnel)">
-                  </ng-select>
-                </ng-container>
-                <ng-template #noimmobilisationCode>
-                  <div class="alert alert-danger"
-                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
-                  </div>
-                </ng-template>
-              </div>
-
-              <!-- Date de création (Acquisition) - OPTIONNELLE POUR CE RAPPORT -->
-              <div class="col-md-6 mb-3">
-                <label for="dateDebutAcquisition" class="form-label">Date de création (Optionnel)</label>
-                <div class="input-group">
-                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="da1.toggle()">
-                    <i data-feather="calendar" appFeatherIcon></i>
-                  </button>
-                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="da1"
-                    ngbDatepicker #da1="ngbDatepicker" formControlName="date_debut_acquisition">
-                </div>
-                <!-- Pas d'erreur *ngIf="...errors?.required" car le champ est optionnel -->
-              </div>
-            </div>
-            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ENREGISTREMENT -->
-
-
-            <!-- FILTRES SPÉCIFIQUES AU RAPPORT DE TRANSFERT -->
-            <div class="row" *ngIf="showTransferFilters">
-              <hr class="my-4">
-              <h5 class="mb-3">Filtres pour le rapport de Transfert</h5>
-
-              <!-- Dates de mouvement (Obligatoires) -->
-              <div class="col-md-6 mb-3">
-                <label for="dateDebutMouvement" class="form-label">Date de mouvement (Début) <span
-                    class="text-danger">*</span></label>
-                <div class="input-group">
-                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dm1.toggle()">
-                    <i data-feather="calendar" appFeatherIcon></i>
-                  </button>
-                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dm1"
-                    ngbDatepicker #dm1="ngbDatepicker" formControlName="date_debut_mouvement"
-                    [maxDate]="rapportForm.get('date_fin_mouvement')?.value || undefined"
-                    [class.is-invalid]="(rapportForm.get('date_debut_mouvement')?.invalid && rapportForm.get('date_debut_mouvement')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
-                </div>
-                <div
-                  *ngIf="rapportForm.get('date_debut_mouvement')?.invalid && rapportForm.get('date_debut_mouvement')?.touched">
-                  <small *ngIf="rapportForm.get('date_debut_mouvement')?.errors?.required" class="text-danger"> *La date
-                    de début est obligatoire.</small>
-                </div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="dateFinMouvement" class="form-label">Date de mouvement (Fin) <span
-                    class="text-danger">*</span></label>
-                <div class="input-group">
-                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dm2.toggle()">
-                    <i data-feather="calendar" appFeatherIcon></i>
-                  </button>
-                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dm2"
-                    ngbDatepicker #dm2="ngbDatepicker" formControlName="date_fin_mouvement"
-                    [minDate]="rapportForm.get('date_debut_mouvement')?.value || undefined"
-                    [class.is-invalid]="(rapportForm.get('date_fin_mouvement')?.invalid && rapportForm.get('date_fin_mouvement')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
-                </div>
-                <div
-                  *ngIf="rapportForm.get('date_fin_mouvement')?.invalid && rapportForm.get('date_fin_mouvement')?.touched">
-                  <small *ngIf="rapportForm.get('date_fin_mouvement')?.errors?.required" class="text-danger"> *La date
-                    de fin est obligatoire.</small>
-                  <small
-                    *ngIf="rapportForm.get('date_fin_mouvement')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']"
-                    class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
-                </div>
-              </div>
-
-              <!-- Ancien Bureau (Optionnel) -->
-              <div class="col-md-6 mb-3">
-                <label for="oldBureau" class="form-label">Ancien Bureau (Optionnel)</label>
-                <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux">
-                  <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="old_bureau_id"
-                    [clearable]="true" placeholder="Sélectionner un ancien bureau">
-                  </ng-select>
-                </ng-container>
-                <ng-template #noBureaux>
-                  <div class="alert alert-danger"
-                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
-                  </div>
-                </ng-template>
-              </div>
-
-              <!-- Nouveau Bureau (Optionnel) -->
-              <div class="col-md-6 mb-3">
-                <label for="newBureau" class="form-label">Nouveau Bureau (Optionnel)</label>
-                <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux2">
-                  <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="bureau_id"
-                    [clearable]="true" placeholder="Sélectionner un nouveau bureau">
-                  </ng-select>
-                </ng-container>
-                <ng-template #noBureaux2>
-                  <div class="alert alert-danger"
-                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
-                  </div>
-                </ng-template>
-              </div>
-
-              <!-- Ancien Employé (Optionnel) -->
-              <div class="col-md-6 mb-3">
-                <label for="oldEmploye" class="form-label">Ancien Personnel (Optionnel)</label>
-                <ng-container *ngIf="employes && employes.length > 0; else noEmploye">
-                <ng-select [items]="employes" bindLabel="nom" bindValue="id" formControlName="old_employe_id"
-                  [clearable]="true" placeholder="Sélectionner un ancien personnel">
-                  <ng-template ng-label-tmp let-item="item">
-                    {{item.nom}} {{item.prenom}}
-                  </ng-template>
-                  <ng-template ng-option-tmp let-item="item">
-                    {{item.nom}} {{item.prenom}}
-                  </ng-template>
-                </ng-select>
-                </ng-container>
-                <ng-template #noEmploye>
-                  <div class="alert alert-danger"
-                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun Employe. Veuillez en créer.
-                  </div>
-                </ng-template>
-              </div>
-
-              <!-- Nouveau Employé (Optionnel) -->
-              <div class="col-md-6 mb-3">
-                <label for="newEmploye" class="form-label">Nouveau Personnel (Optionnel)</label>
-                <ng-container *ngIf="employes && employes.length > 0; else noEmploye2">
-                <ng-select [items]="employes" bindLabel="nom" bindValue="id" formControlName="employe_id"
-                  [clearable]="true" placeholder="Sélectionner un nouveau personnel">
-                  <ng-template ng-label-tmp let-item="item">
-                    {{item.nom}} {{item.prenom}}
-                  </ng-template>
-                  <ng-template ng-option-tmp let-item="item">
-                    {{item.nom}} {{item.prenom}}
-                  </ng-template>
-                </ng-select>
-                </ng-container>
-                <ng-template #noEmploye2>
-                  <div class="alert alert-danger"
-                    style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun Employe. Veuillez en créer.
-                  </div>
-                </ng-template>
-              </div>
-
-            </div>
-            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT DE TRANSFERT -->
-
-
-            <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION -->
-            <div class="row" *ngIf="showInterventionFilters">
-              <hr class="my-4">
-              <h5 class="mb-3">Filtres pour le rapport d'Intervention</h5>
-
-              <!-- Dates d'intervention (Obligatoires) -->
-              <div class="col-md-6 mb-3">
-                <label for="dateDebutIntervention" class="form-label">Date d'intervention (Début) <span
-                    class="text-danger">*</span></label>
-                <div class="input-group">
-                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="di1.toggle()">
-                    <i data-feather="calendar" appFeatherIcon></i>
-                  </button>
-                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="di1"
-                    ngbDatepicker #di1="ngbDatepicker" formControlName="date_debut_intervention"
-                    [maxDate]="rapportForm.get('date_fin_intervention')?.value || undefined"
-                    [class.is-invalid]="(rapportForm.get('date_debut_intervention')?.invalid && rapportForm.get('date_debut_intervention')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
-                </div>
-                <div
-                  *ngIf="rapportForm.get('date_debut_intervention')?.invalid && rapportForm.get('date_debut_intervention')?.touched">
-                  <small *ngIf="rapportForm.get('date_debut_intervention')?.errors?.required" class="text-danger"> *La
-                    date de début est obligatoire.</small>
-                </div>
-              </div>
-
-              <div class="col-md-6 mb-3">
-                <label for="dateFinIntervention" class="form-label">Date d'intervention (Fin) <span
-                    class="text-danger">*</span></label>
-                <div class="input-group">
-                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="di2.toggle()">
-                    <i data-feather="calendar" appFeatherIcon></i>
-                  </button>
-                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="di2"
-                    ngbDatepicker #di2="ngbDatepicker" formControlName="date_fin_intervention"
-                    [minDate]="rapportForm.get('date_debut_intervention')?.value || undefined"
-                    [class.is-invalid]="(rapportForm.get('date_fin_intervention')?.invalid && rapportForm.get('date_fin_intervention')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
-                </div>
-                <div
-                  *ngIf="rapportForm.get('date_fin_intervention')?.invalid && rapportForm.get('date_fin_intervention')?.touched">
-                  <small *ngIf="rapportForm.get('date_fin_intervention')?.errors?.required" class="text-danger"> *La
-                    date de fin est obligatoire.</small>
-                  <small
-                    *ngIf="rapportForm.get('date_fin_intervention')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']"
-                    class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
-                </div>
-              </div>
-
-              <!-- Type d'Intervention (Optionnel) -->
-              <div class="col-md-6 mb-3">
-                <label for="typeIntervention" class="form-label">Type d'Intervention (Optionnel)</label>
-                <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else noTypeInterventions">
-                <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id"
-                  formControlName="type_intervention_id" [clearable]="true"
-                  placeholder="Sélectionner un type d'intervention">
-                </ng-select>
-                </ng-container>
-                <ng-template #noTypeInterventions>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Type Intervention. Veuillez en créer.
-              </div>
-            </ng-template>
-              </div>
-
-              <!-- Immobilisation (Optionnel) -->
-              <div class="col-md-6 mb-3">
-                <label for="immo" class="form-label">Immobilisation (Optionnel)</label>
-                <ng-container *ngIf="immobilisations && immobilisations.length > 0; else noImmobilisation2">
-                <ng-select [items]="immobilisations" bindLabel="designation" bindValue="id" formControlName="immo_id"
-                  [clearable]="true" placeholder="Sélectionner une immobilisation">
-                  <ng-template ng-label-tmp let-item="item">
-                    {{item.code}} - {{item.designation}}
-                  </ng-template>
-                  <ng-template ng-option-tmp let-item="item">
-                    {{item.code}} - {{item.designation}}
-                  </ng-template>
-                </ng-select>
-                </ng-container>
-                <ng-template #noImmobilisation2>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
-              </div>
-            </ng-template>
-              </div>
-
-            </div>
-            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION -->
-
-
-            <!-- Bouton Charger Rapport -->
-            <div class="d-flex justify-content-center gap-3 mt-4">
-              <button type="button" class="btn btn-primary btn-icon-text" (click)="loadRapportImmos()"
-                [disabled]="isGeneratingReport || rapportForm.invalid">
-                <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isGeneratingReport"
-                  role="status">
-                  <span class="visually-hidden">Chargement...</span>
-                </div>
-                <i class="btn-icon-prepend" data-feather="refresh-ccw" appFeatherIcon></i>
-                {{ isGeneratingReport ? 'Chargement...' : 'Charger Rapport' }}
-              </button>
-            </div>
-            <div *ngIf="errorMessage" class="alert alert-danger mt-3" role="alert">
-              {{ errorMessage }}
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
 <div class="row mt-4">
   <div class="col-md-12 stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h6 class="card-title">Résultats du Rapport</h6>
-        <div class="row mb-3 d-flex justify-content-between">
-          <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
-              (keyup)="updateFilter($event)" />
+      <div class="card">
+          <div class="card-body">
+              <h6 class="card-title">Résultats du Rapport</h6>
+              <div class="row mb-3 d-flex justify-content-between">
+                  <div class="col-xl-3 col-md-4">
+                      <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+                          (keyup)="updateFilter($event)" />
+                  </div>
+              </div>
+              <div class="table-responsive">
+                  <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+                      [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+
+                      <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
+                      <ng-container *ngIf="selectedReportTypeId === 'enregistrement'">
+                          <ngx-datatable-column name="N°">
+                              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                                  {{ rowIndex + 1 }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
+                          <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
+                          <ngx-datatable-column name="Montant TTC">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.montant_ttc | number:'1.2-2' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Status">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.status_immo?.libelle_status_immo || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+                          <ngx-datatable-column name="Groupe type immo">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Sous type immo">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.sous_type_immo?.libelle || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Personnel">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.employe?.fullnameEmploye || 'Non défini' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Date de création">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.date_acquisition | date:'dd/MM/yyyy' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                      </ng-container>
+
+                      <ng-container *ngIf="selectedReportTypeId === 'transfert'">
+                          <ngx-datatable-column name="N°">
+                              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                                  {{ rowIndex + 1 }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Code Immo" prop="immobilisation.code"></ngx-datatable-column>
+                          <ngx-datatable-column name="Désignation Immo" prop="immobilisation.designation"></ngx-datatable-column>
+                          <ngx-datatable-column name="Ancien Bureau" prop="old_bureau.libelle_bureau"></ngx-datatable-column>
+                          <ngx-datatable-column name="Nouveau Bureau" prop="bureau.libelle_bureau"></ngx-datatable-column>
+                          <ngx-datatable-column name="Ancien personnel">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.old_employe?.nom }} {{ row.old_employe?.prenom }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Nouveau personnel">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.employe?.nom }} {{ row.employe?.prenom }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Date Mouvement">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.date_mouvement | date:'dd/MM/yyyy' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+                      </ng-container>
+
+                      <ng-container *ngIf="selectedReportTypeId === 'intervention'">
+                          <ngx-datatable-column name="N°">
+                              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                                  {{ rowIndex + 1 }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Code Immo" prop="immobilisation.code"></ngx-datatable-column>
+                          <ngx-datatable-column name="Type d'Intervention">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.type_intervention?.libelle_type_intervention || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Titre" prop="titre"></ngx-datatable-column>
+                          <ngx-datatable-column name="Date Intervention">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.date_intervention | date:'dd/MM/yyyy' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Coût">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.cout | number:'1.2-2' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+                      </ng-container>
+
+                      <!-- NOUVEAU: COLONNES SPÉCIFIQUES À LA FICHE D'INVENTAIRE -->
+                      <ng-container *ngIf="selectedReportTypeId === 'inventaire'">
+                          <ngx-datatable-column name="N°">
+                              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                                  {{ rowIndex + 1 }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
+                          <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
+                          
+                          <ngx-datatable-column name="Date Acquisition">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.date_acquisition | date:'dd/MM/yyyy' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          
+                          <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
+                          <ngx-datatable-column name="Groupe">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Sous-Type">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.sous_type_immo?.libelle || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Statut">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.status_immo?.libelle_status_immo || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Localisation">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.bureau?.libelle_bureau || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Affecté à">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.employe?.fullnameEmploye || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+                      </ng-container>
+
+                  </ngx-datatable>
+              </div>
+              <div *ngIf="rows.length === 0 && !loadingIndicator && !errorMessage" class="no-data-message mt-3">
+                  <p class="text-center text-muted">Veuillez sélectionner un type de rapport et charger les données.</p>
+              </div>
           </div>
-        </div>
-        <div class="table-responsive">
-          <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
-
-            <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
-            <ng-container *ngIf="selectedReportTypeId === 'enregistrement'">
-              <ngx-datatable-column name="N°">
-                <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                  {{ rowIndex + 1 }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
-              <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
-              <ngx-datatable-column name="Montant TTC">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.montant_ttc | number:'1.2-2' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <!-- <ngx-datatable-column name="Statut" prop="statusImmo.libelle_status_immo"></ngx-datatable-column> -->
-              <ngx-datatable-column name="Status">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.status_immo?.libelle_status_immo || 'N/A' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
-              <!-- <ngx-datatable-column name="Groupe type immo" prop="groupeTypeImmo.libelle_groupe_type_immo"></ngx-datatable-column>
-                <ngx-datatable-column name="Sous type immo" prop="sousTypeImmo.libelle_sous_type_immo"></ngx-datatable-column> -->
-              <ngx-datatable-column name="Groupe type immo">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Sous type immo">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.sous_type_immo?.libelle || 'N/A' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Personnel">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.employe?.fullnameEmploye || 'Non défini' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Date de création">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.date_acquisition | date:'dd/MM/yyyy' }}
-                </ng-template>
-              </ngx-datatable-column>
-            </ng-container>
-
-            <ng-container *ngIf="selectedReportTypeId === 'transfert'">
-              <ngx-datatable-column name="N°">
-                <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                  {{ rowIndex + 1 }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Code Immo" prop="immobilisation.code"></ngx-datatable-column>
-              <ngx-datatable-column name="Désignation Immo" prop="immobilisation.designation"></ngx-datatable-column>
-              <ngx-datatable-column name="Ancien Bureau" prop="old_bureau.libelle_bureau"></ngx-datatable-column>
-              <ngx-datatable-column name="Nouveau Bureau" prop="bureau.libelle_bureau"></ngx-datatable-column>
-              <ngx-datatable-column name="Ancien personnel">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.old_employe?.nom }} {{ row.old_employe?.prenom }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Nouveau personnel">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.employe?.nom }} {{ row.employe?.prenom }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Date Mouvement">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.date_mouvement | date:'dd/MM/yyyy' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Motif" prop="observation"></ngx-datatable-column>
-            </ng-container>
-
-            <ng-container *ngIf="selectedReportTypeId === 'intervention'">
-              <ngx-datatable-column name="N°">
-                <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                  {{ rowIndex + 1 }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Code Immo" prop="immobilisation.code"></ngx-datatable-column>
-              <!-- <ngx-datatable-column name="Désignation Immo" prop="immobilisation.designation"></ngx-datatable-column> -->
-              <ngx-datatable-column name="Type d'Intervention">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.type_intervention?.libelle_type_intervention || 'N/A' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <!-- <ngx-datatable-column name="Type Intervention" prop="typeIntervention.libelle"></ngx-datatable-column> -->
-              <ngx-datatable-column name="Titre" prop="titre"></ngx-datatable-column>
-              <ngx-datatable-column name="Date Intervention">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.date_intervention | date:'dd/MM/yyyy' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Coût">
-                <ng-template let-row="row" ngx-datatable-cell-template>
-                  {{ row.cout | number:'1.2-2' }}
-                </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
-            </ng-container>
-
-          </ngx-datatable>
-        </div>
-        <div *ngIf="rows.length === 0 && !loadingIndicator && !errorMessage" class="no-data-message mt-3">
-          <p class="text-center text-muted">Veuillez sélectionner un type de rapport et charger les données.</p>
-        </div>
       </div>
-    </div>
   </div>
 </div>
