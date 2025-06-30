@@ -12,6 +12,9 @@ jobs:
       - name: 📥 Checkout du code
         uses: actions/checkout@v3
 
+      - name: 🔍 Lister les fichiers présents (debug)
+        run: ls -la
+
       - name: 🔧 Build de l’image Docker
         run: |
           docker build -t front-lnb-stock:latest .
@@ -20,14 +23,13 @@ jobs:
         run: |
           docker save front-lnb-stock:latest -o front-lnb-stock.tar
 
-      - name: 📤 Transfert de l’image vers le serveur distant
+      - name: 📤 Transfert de l’image et docker-compose.yml vers le serveur distant
         uses: appleboy/scp-action@v0.1.4
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           source: |
-
             front-lnb-stock.tar
             docker-compose.yml
           target: "${{ secrets.TARGET_DIR }}"
@@ -41,5 +43,6 @@ jobs:
           script: |
             cd ${{ secrets.TARGET_DIR }}
             docker load -i front-lnb-stock.tar
+            rm front-lnb-stock.tar
             docker compose down
             docker compose up -d
