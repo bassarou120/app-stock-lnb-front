@@ -61,6 +61,7 @@ export class InterventionComponent implements OnInit {
 
   immobilisations: Immobilisation[] = []; // Liste des immos
   typeInterventions: TypeIntervention[] = []; // Liste des types d'intervention
+  intervention_immo: Intervention[] = [];
 
   // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingIntervention: boolean = false; // Pour l'ajout d'une intervention
@@ -80,6 +81,7 @@ export class InterventionComponent implements OnInit {
         this.loadImmobilisations();
         this.loadtypeInterventions();
         this.loadInterventions();
+        this.loadInterventions_immo();
     }
 
     this.addIntervention = this.formBuilder.group({
@@ -360,6 +362,18 @@ export class InterventionComponent implements OnInit {
         this.loadingIndicator = false;
       }
     );
+  }
+
+
+    loadInterventions_immo(): void {
+    this.interventionService.getAllInterventions_immos().subscribe({
+      next: (data) => {
+        this.intervention_immo = data; // Stocker la liste des interventions immos
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des immobilisations :", err);
+      }
+    });
   }
 
   // updateFilter(event: KeyboardEvent): void {

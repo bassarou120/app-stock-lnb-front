@@ -208,4 +208,14 @@ export class ImmobilisationRapportService {
       catchError(this.handleError<Blob>('imprimerRapportData'))
     );
   }
+
+    getAllInterventions_immos(): Observable<Intervention[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Intervention[] } }>(
+      `${this.apiUrl}/intervention_immo`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Intervention[] } }) =>
+        response.data.data // On récupère uniquement le tableau des Interventions
+      )
+    );
+  }
 }

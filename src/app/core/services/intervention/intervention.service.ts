@@ -24,6 +24,16 @@ export class InterventionsService {
     );
   }
 
+  getAllInterventions_immos(): Observable<Intervention[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Intervention[] } }>(
+      `${this.url}/intervention_immo`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Intervention[] } }) =>
+        response.data.data // On récupère uniquement le tableau des Interventions
+      )
+    );
+  }
+
   saveIntervention(data: Intervention): Observable<Intervention> {
     return this.http.post<Intervention>(`${this.url}/interventions`, data);
   }

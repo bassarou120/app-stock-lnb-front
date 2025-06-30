@@ -270,22 +270,22 @@
                               </div>
                           </div>
 
-                          <!-- Type d'Intervention (Optionnel) -->
-                          <div class="col-md-6 mb-3">
-                              <label for="typeIntervention" class="form-label">Type d'Intervention (Optionnel)</label>
-                              <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else noTypeInterventions">
-                              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id"
-                                  formControlName="type_intervention_id" [clearable]="true"
-                                  placeholder="Sélectionner un type d'intervention">
-                              </ng-select>
-                              </ng-container>
-                              <ng-template #noTypeInterventions>
-                                  <div class="alert alert-danger"
-                                      style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                                      <i class="feather icon-alert-circle"></i> Aucun Type Intervention. Veuillez en créer.
-                                  </div>
-                              </ng-template>
-                          </div>
+              <!-- Type d'Intervention (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="typeIntervention" class="form-label">Type d'Intervention (Optionnel)</label>
+                <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else noTypeInterventions">
+                <ng-select [items]="intervention_immo" bindLabel="libelle_type_intervention" bindValue="id"
+                  formControlName="type_intervention_id" [clearable]="true"
+                  placeholder="Sélectionner un type d'intervention">
+                </ng-select>
+                </ng-container>
+                <ng-template #noTypeInterventions>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Type Intervention. Veuillez en créer.
+              </div>
+            </ng-template>
+              </div>
 
                           <!-- Immobilisation (Optionnel) -->
                           <div class="col-md-6 mb-3">

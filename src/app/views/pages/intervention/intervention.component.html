@@ -196,7 +196,7 @@
             <label for="type_intervention_id" class="form-label">Type d'intervention <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else notypeInterventions">
-              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
+              <ng-select [items]="intervention_immo" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
                 [clearable]="true" placeholder="Sélectionnez le Type d'Intervention">
               </ng-select>
               <div
@@ -337,7 +337,7 @@
             <label for="type_intervention_id" class="form-label">Type d'intervention <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else notypeInterventions">
-              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
+              <ng-select [items]="intervention_immo" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
                 [clearable]="true" placeholder="Sélectionnez le Type d'Intervention">
               </ng-select>
               <div

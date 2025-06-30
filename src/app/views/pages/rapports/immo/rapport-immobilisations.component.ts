@@ -61,11 +61,12 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   @ViewChild('table') table!: DatatableComponent;
 
   rapportForm!: FormGroup;
-  rows: (Immobilisation | Transfert | Intervention)[] = [];
-  temp: (Immobilisation | Transfert | Intervention)[] = [];
+  rows: (Immobilisation | Transfert | Intervention)[] = []; // Type de données élargi
+  temp: (Immobilisation | Transfert | Intervention)[] = []; // Type de données élargi
   loadingIndicator = false;
   ColumnMode = ColumnMode;
 
+  // Listes pour les dropdowns de filtrage
   bureaux: Bureau[] = [];
   employes: Employe[] = [];
   fournisseurs: Fournisseur[] = [];
@@ -73,22 +74,24 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   sousTypesImmo: SousTypeImmo[] = [];
   statusImmos: StatusImmo[] = [];
   vehicules: Vehicule[] = [];
-  immobilisationCodes: string[] = [];
-  immobilisations: Immobilisation[] = [];
-  typeInterventions: TypeIntervention[] = [];
+  immobilisationCodes: string[] = []; // Pour le rapport d'enregistrement
+  immobilisations: Immobilisation[] = []; // NOUVEAU: Pour le filtre des interventions
+  typeInterventions: TypeIntervention[] = []; // NOUVEAU: Pour le filtre des interventions
+  intervention_immo: Intervention[] = [];
 
+  // NOUVEAU: Types de rapports
   typeRapportsImmo: TypeRapportImmo[] = [
     { id: 'enregistrement', libelle: 'Rapport d\'Enregistrement des Immobilisations' },
     { id: 'transfert', libelle: 'Rapport des Transferts d\'Immobilisations' },
     { id: 'intervention', libelle: 'Rapport des Interventions sur Immobilisations' },
-    { id: 'inventaire', libelle: 'Fiche d\'inventaire' },
+    { id: 'intervention', libelle: 'Fiche d\'inventaire' },
   ];
-  selectedReportTypeId: string | null = null;
+  selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
+  // Indicateurs pour l'affichage conditionnel des filtres
   showRegistrationFilters: boolean = false;
   showTransferFilters: boolean = false;
-  showInterventionFilters: boolean = false;
-  showInventoryFilters: boolean = false;
+  showInterventionFilters: boolean = false; // NOUVEAU
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -97,7 +100,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private rapportService: ImmobilisationRapportService,
+    private rapportService: ImmobilisationRapportService, // Ce service gérera les deux types de rapports
     private bureauxService: BureauxService,
     private employesService: EmployesService,
     private fournisseursService: FournisseursService,
@@ -117,9 +120,11 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     console.log('RapportImmobilisationsComponent: ngOnInit called. Initializing form and loading filter data...');
     this.initForm();
     this.loadFilterData();
-    this.loadImmobilisationCodes();
-    this.loadImmobilisationsForFilter();
-    this.loadTypeInterventionsForFilter();
+    this.loadInterventions_immo();
+    this.loadImmobilisationCodes(); // Toujours charger si le rapport d'enregistrement existe
+    this.loadImmobilisationsForFilter(); // NOUVEAU: Charger les immobilisations pour le filtre d'intervention
+    this.loadTypeInterventionsForFilter(); // NOUVEAU: Charger les types d'intervention pour le filtre
+    // Écouter les changements sur le type de rapport pour adapter le formulaire
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
       console.log('Rapport type changed to:', typeRapportId);
       this.onTypeRapportChange(typeRapportId);
@@ -132,6 +137,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  // Validateur de plage de dates (utilisé pour les transferts et les interventions)
   dateRangeValidatorForReport(): ValidatorFn {
     return (group: AbstractControl): { [key: string]: any } | null => {
       const formGroup = group as FormGroup;
@@ -179,7 +185,6 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     };
   }
 
-
   initForm(): void {
     const today = this.ngbCalendar.getToday();
     const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
@@ -223,11 +228,14 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_acquisition')?.setValue(firstDayOfMonth);
         console.log('Set date_debut_acquisition to:', this.rapportForm.get('date_debut_acquisition')?.value);
         this.enableAndSetValidators(['code_immo', 'date_debut_acquisition'], this.rapportForm);
+        this.rapportForm.get('date_debut_acquisition')?.clearValidators();
+        this.rapportForm.get('date_debut_acquisition')?.updateValueAndValidity();
         this.rapportForm.clearValidators();
         console.log('onTypeRapportChange: Showing registration filters.');
         break;
 
       case 'transfert':
+        this.showRegistrationFilters = false;
         this.showTransferFilters = true;
         this.rapportForm.get('date_debut_mouvement')?.setValue(firstDayOfMonth);
         console.log('Set date_debut_mouvement to:', this.rapportForm.get('date_debut_mouvement')?.value);
@@ -238,6 +246,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
           'old_bureau_id', 'bureau_id',
           'old_employe_id', 'employe_id'
         ], this.rapportForm);
+
         this.rapportForm.get('date_debut_mouvement')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_mouvement')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport());
@@ -256,6 +265,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
           'date_debut_intervention', 'date_fin_intervention',
           'type_intervention_id', 'immo_id'
         ], this.rapportForm);
+
         this.rapportForm.get('date_debut_intervention')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_intervention')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport());
@@ -404,6 +414,18 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     );
   }
 
+      loadInterventions_immo(): void {
+    this.interventionService.getAllInterventions_immos().subscribe({
+      next: (data) => {
+        this.intervention_immo = data; // Stocker la liste des interventions immos
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des immobilisations :", err);
+      }
+    });
+  }
+
+
   loadRapportImmos(): void {
     console.log('--- Tentative de chargement du rapport ---');
     console.log('Form isValid before API call:', this.rapportForm.valid);
@@ -479,6 +501,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
 
     console.log('Envoi des filtres au backend:', filters);
 
+    // Utilisation de la nouvelle méthode générique dans le service
     this.rapportService.getRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
       (response: BackendPostResource<PaginatedResponse<(Immobilisation | Transfert | Intervention)>>) => {
         console.log('Réponse du backend (brute du service):', response);
@@ -498,11 +521,14 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         this.isGeneratingReport = false;
         if (this.rows.length === 0 && !this.errorMessage) {
           this.errorMessage = "Aucune donnée trouvée pour les critères spécifiés.";
+        } else if (this.rows.length > 0) {
+          this.errorMessage = '';
         }
+        console.log('Données du rapport chargées et affichées:', this.rows);
       },
       (error: any) => {
         console.error('Erreur lors du chargement du rapport:', error);
-        this.errorMessage = `Erreur lors du chargement du rapport: ${error.message || 'Veuillez réessayer. Vérifiez la console pour plus de détails.'}`;
+        this.errorMessage = `Erreur lors du chargement du rapport: ${error.message || 'Veuillez réessayer.'}`;
         this.loadingIndicator = false;
         this.isGeneratingReport = false;
         this.rows = [];
@@ -513,6 +539,14 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
 
   downloadRapportImmosPDF(): void {
     console.log('--- Tentative d\'impression du rapport PDF ---');
+    console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
+    console.log('Form errors (PDF):', this.rapportForm.errors);
+    Object.keys(this.rapportForm.controls).forEach(key => {
+      if (this.rapportForm.get(key)?.errors) {
+        console.log(`Errors on control ${key} (PDF):`, this.rapportForm.get(key)?.errors);
+      }
+    });
+
     if (this.rapportForm.invalid) {
       this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires avant d'imprimer.";
       this.markFormGroupTouched(this.rapportForm);
@@ -579,6 +613,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
 
     console.log('Envoi des filtres pour PDF au backend:', filters);
 
+    // Utilisation de la nouvelle méthode générique dans le service
     this.rapportService.imprimerRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
       (response: Blob) => {
         console.log('Réponse PDF reçue du backend.');
@@ -627,7 +662,9 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     console.log('Form group marked as touched.');
   }
 
+  // La recherche locale s'applique à la vue actuelle (rows), peu importe le type de rapport
   updateFilter(event: KeyboardEvent): void {
+
     const val = (event.target as HTMLInputElement).value.toLowerCase();
     console.log('Valeur de recherche locale:', val);
 
@@ -670,7 +707,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
             const inventaireItem = item as Immobilisation;
             match = (inventaireItem.code?.toLowerCase().includes(val) || false) ||
                     (inventaireItem.designation?.toLowerCase().includes(val) || false) ||
-                    
+
                     (inventaireItem.observation?.toLowerCase().includes(val) || false) ||
                     (inventaireItem.bureau?.libelle_bureau?.toLowerCase().includes(val) || false) ||
                     (inventaireItem.employe?.nom?.toLowerCase().includes(val) || false) ||

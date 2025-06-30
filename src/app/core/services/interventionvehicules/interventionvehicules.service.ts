@@ -23,6 +23,18 @@ export class InterventionsVehiculeService {
     );
   }
 
+  getAllIntervention_Vehicule(): Observable<InterventionVehicule[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: InterventionVehicule[] } }>(
+      `${this.url}/intervention_vehicule`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: InterventionVehicule[] } }) =>
+        response.data.data
+      )
+    );
+  }
+
+
+
 
   saveInterventionVehicule(data: InterventionVehicule): Observable<InterventionVehicule> {
     return this.http.post<InterventionVehicule>(`${this.url}/intervention-vehicules`, data);

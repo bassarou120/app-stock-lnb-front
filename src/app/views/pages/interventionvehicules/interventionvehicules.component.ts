@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsVehiculeService } from '../../../core/services/interventionvehicules/interventionvehicules.service';
 // Assurez-vous que le chemin est correct et que Commune est bien importée
-import { InterventionVehicule, TypeIntervention, Vehicule, Commune } from '../../../core/services/interface/models';
+import { InterventionVehicule, TypeIntervention, Vehicule, Commune, Intervention } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule, DatePipe } from '@angular/common'; // Ajout de DatePipe
 // Import de NgbDate pour la conversion des dates si nécessaire (bien que NgbDateStruct soit plus couramment utilisé avec NgbDatepicker)
@@ -63,6 +63,7 @@ export class InterventionVehiculeComponent implements OnInit {
   vehicules: Vehicule[] = [];
   communes: Commune[] = []; // Gardé si utilisé ailleurs, mais pas directement dans cette logique
   typeInterventions: TypeIntervention[] = []; // Liste complète des types d'intervention avec has_expiration_date
+  intervention_vehicule: InterventionVehicule[] = [];
 
   // NOUVELLES PROPRIÉTÉS POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingInterventionVehicule: boolean = false;
@@ -90,6 +91,7 @@ export class InterventionVehiculeComponent implements OnInit {
       this.loadVehicules();
       this.loadCommunes();
       this.loadInterventionVehicules();
+      this.loadInterventions_vehicules();
       this.loadtypeInterventions(); // Charger les types d'intervention, essentiel pour `has_expiration_date`
       this.initForms(); // Appeler une méthode pour initialiser les formulaires
     }
@@ -258,6 +260,17 @@ export class InterventionVehiculeComponent implements OnInit {
       }
     );
   }
+
+    loadInterventions_vehicules(): void {
+    this.interventionVehiculeService.getAllIntervention_Vehicule().subscribe({
+        next: (data) => {
+          this.intervention_vehicule = data; // ❌ Mais on assigne à intervention_immo !
+        },
+        error: (err) => {
+          console.error("Erreur lors du chargement des immobilisations :", err); // ❌ Message incohérent
+        }
+      });
+    }
 
   onClickSubmitAddInterventionVehicule() {
     console.log('onClickSubmitAddInterventionVehicule: Tentative d\'ajout...');

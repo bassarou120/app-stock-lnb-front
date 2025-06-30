@@ -34,7 +34,7 @@ export class AnnulationTicketComponent implements OnInit {
   canVoirTicketAnnuler: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
   canAddAnnulationTicket: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
 
-  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages 
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: AnnulationTicket[] = [];
   temp: AnnulationTicket[] = [];
