@@ -3,6 +3,8 @@ version: '3.8'
 services:
   front_lnb_stock-app:
     build: .
+
+#    image: front-lnb-stock:latest
     container_name: front_lnb_stock
     restart: always
 
