@@ -40,7 +40,9 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
   // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canViewDemande: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
-  canTreatDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canValidDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canRefuseDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canAccordDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
   hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
@@ -79,7 +81,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
         this.loadGroupedMouvements();
     }
 
-    
+
     console.log("Oui la fonction est appelée")
     this.editStatutSortie = this.formBuilder.group({
       id: [null, Validators.required],
@@ -132,13 +134,17 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
 
       // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
       this.canViewDemande = allowedFonctionnalites.includes('Voir Les demandes');
-      this.canTreatDemande = allowedFonctionnalites.includes('Traiter de demande');
+      this.canValidDemande = allowedFonctionnalites.includes('Validation de demande');
+      this.canRefuseDemande = allowedFonctionnalites.includes('Refus de demande');
+      this.canAccordDemande = allowedFonctionnalites.includes('Accorder de demande');
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canViewDemande || this.canTreatDemande;
+      this.hasPageAccess = this.canViewDemande ;
 
       console.log('🔐 Permissions calculées:', {
         canViewDemande: this.canViewDemande,
-        canTreatDemande: this.canTreatDemande,
+        canValidDemande: this.canValidDemande,
+        canRefuseDemande: this.canRefuseDemande,
+        canAccordDemande: this.canAccordDemande,
         hasPageAccess: this.hasPageAccess
       });
 
@@ -153,6 +159,23 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
       console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
       // En cas d'erreur, garder les permissions par défaut (true)
     }
+  }
+
+  // Propriété calculée pour les statuts disponibles
+  get availableStatuts(): string[] {
+    const statuts: string[] = ['En attente']; // Toujours disponible
+
+    if (this.canValidDemande) {
+      statuts.push('Validé');
+    }
+    if (this.canRefuseDemande) {
+      statuts.push('Refusé');
+    }
+    if (this.canAccordDemande) {
+      statuts.push('Accordé');
+    }
+
+    return statuts;
   }
 
 

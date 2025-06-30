@@ -22,6 +22,7 @@ import { VehiculeService } from '../../../../core/services/vehicules/vehicules.s
 import { ImmobilisationsService } from '../../../../core/services/enregistrement-immos/enregistrement-immos.service';
 import { TypeInterventionService } from '../../../../core/services/types-intervention/types-intervention.service'; // NOUVEAU: Service TypeIntervention
 // import { TypeInterventionService } from './../../../../core/services/types-intervention/types-intervention.service';
+import { InterventionsService } from '../../../../core/services/intervention/intervention.service';
 
 // Interfaces
 import {
@@ -75,7 +76,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   immobilisationCodes: string[] = []; // Pour le rapport d'enregistrement
   immobilisations: Immobilisation[] = []; // NOUVEAU: Pour le filtre des interventions
   typeInterventions: TypeIntervention[] = []; // NOUVEAU: Pour le filtre des interventions
-
+  intervention_immo: Intervention[] = [];
 
   // NOUVEAU: Types de rapports
   typeRapportsImmo: TypeRapportImmo[] = [
@@ -108,11 +109,13 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     private vehiculeService: VehiculeService,
     private immobilisationsService: ImmobilisationsService, // Pour les codes immo et les filtres d'intervention
     private TypeInterventionService: TypeInterventionService, // NOUVEAU: Pour les filtres d'intervention
+    private interventionService: InterventionsService
   ) { }
 
   ngOnInit(): void {
     this.initForm();
     this.loadFilterData();
+    this.loadInterventions_immo();
     this.loadImmobilisationCodes(); // Toujours charger si le rapport d'enregistrement existe
     this.loadImmobilisationsForFilter(); // NOUVEAU: Charger les immobilisations pour le filtre d'intervention
     this.loadTypeInterventionsForFilter(); // NOUVEAU: Charger les types d'intervention pour le filtre
@@ -316,6 +319,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   }
 
   loadTypeInterventionsForFilter(): void { // NOUVEAU: Pour le filtre des interventions
+    //this.interventionService.getAllInterventions_immos()
     this.TypeInterventionService.getAllTypeInterventions().pipe(takeUntil(this.destroy$)).subscribe(
       (data: TypeIntervention[]) => {
         this.typeInterventions = data;
@@ -325,6 +329,17 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         console.error('Erreur lors du chargement des types d\'intervention pour le filtre:', error);
       }
     );
+  }
+
+      loadInterventions_immo(): void {
+    this.interventionService.getAllInterventions_immos().subscribe({
+      next: (data) => {
+        this.intervention_immo = data; // Stocker la liste des interventions immos
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des immobilisations :", err);
+      }
+    });
   }
 
 

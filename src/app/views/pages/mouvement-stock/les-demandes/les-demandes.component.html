@@ -1,5 +1,5 @@
 <!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
-<div class="row" *ngIf="!hasPageAccess">
+<div class="row" *ngIf="hasPageAccess">
 
   <div *ngIf="loading">Chargement...</div>
 
@@ -31,7 +31,7 @@
 
 
 <!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
-<div class="row" *ngIf="!hasPageAccess">
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -89,7 +89,7 @@
         <td colspan="8" style="padding: 0;">
           <table class="table table-sm table-striped mb-0">
             <thead>
-              <button *ngIf="canTreatDemande" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tout_traiter"
+              <button *ngIf="canValidDemande || canAccordDemande || canRefuseDemande" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#tout_traiter"
                 (click)="openToutTraiterModal(group.code_mouvement)" [disabled]="!isGroupTraitable(group)">
                 tout traiter
               </button>
@@ -116,7 +116,7 @@
                 <!-- <td>{{ detail.date_mouvement  }}</td> -->
                 <td>{{ detail.statut }}</td>
                 <td>
-                  <button *ngIf="canTreatDemande"class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit_statut_sortie"
+                  <button *ngIf="canValidDemande || canAccordDemande || canRefuseDemande" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#edit_statut_sortie"
                     (click)="getStatutForm(detail)" [disabled]="detail.statut === 'Accordé'">
                     Traiter
                   </button>
@@ -148,7 +148,7 @@
           novalidate>
           <div class="mb-3">
             <label for="statut" class="form-label">Nouveau Statut <span class="text-danger">*</span></label>
-            <ng-select [items]="['En attente', 'Refusé', 'Accordé']" [clearable]="false"
+            <ng-select [items]="availableStatuts" [clearable]="false"
               placeholder="Sélectionnez le statut" formControlName="statut">
             </ng-select>
             <div *ngIf="editStatutSortie.get('statut')?.invalid && editStatutSortie.get('statut')?.touched">

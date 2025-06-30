@@ -227,7 +227,7 @@
             <label for="add_type_intervention_id" class="form-label">Type d'intervention <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else noTypeInterventionsTemplate">
-              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id"
+              <ng-select [items]="intervention_vehicule" bindLabel="libelle_type_intervention" bindValue="id"
                 formControlName="type_intervention_id"
                 [clearable]="true"
                 placeholder="Sélectionnez le Type d'Intervention"
@@ -358,7 +358,7 @@
             <label for="edit_type_intervention_id" class="form-label">Type d'intervention <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="typeInterventions && typeInterventions.length > 0; else noTypeInterventionsTemplate">
-              <ng-select [items]="typeInterventions" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
+              <ng-select [items]="intervention_vehicule" bindLabel="libelle_type_intervention" bindValue="id" formControlName="type_intervention_id"
                 [clearable]="true" placeholder="Sélectionnez le Type d'Intervention"
                 (change)="handleTypeInterventionChange($event, 'edit')"
                 [ngClass]="{ 'is-invalid': editInterventionVehicule.get('type_intervention_id')?.invalid && editInterventionVehicule.get('type_intervention_id')?.touched }">
