@@ -1,23 +1,15 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, inject, TemplateRef } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { VehiculeService } from '../../../core/services/vehicules/vehicules.service';
 import { Vehicule, Modele, Marque } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
-import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
-
-// Importez FeatherIconDirective si vous l'utilisez, sinon retirez-la.
-// Pour l'instant, je la retire car elle n'était pas présente dans l'import list du @Component
-// mais était implicitement utilisée par la présence dans le fichier précédent.
-// Si vous l'utilisez dans votre HTML pour les véhicules, ajoutez-la ici et dans `imports`.
-// import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
-
-declare var bootstrap: any;
 
 @Component({
   selector: 'app-vehicules',
@@ -41,11 +33,11 @@ export class VehiculesComponent implements OnInit {
 
     // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
-  canAddVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
-  canViewVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
-  canModifyVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
-  canDeleteVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
-  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canAddVehicule: boolean = true;
+  canViewVehicule: boolean = true;
+  canModifyVehicule: boolean = true;
+  canDeleteVehicule: boolean = true;
+  hasPageAccess: boolean = true;
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
@@ -55,71 +47,74 @@ export class VehiculesComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  modeles: Modele[] = []; // Liste des modeles
-  marques: Marque[] = []; // Liste des marques
+  modeles: Modele[] = [];
+  marques: Marque[] = [];
 
-  alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
-  alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
-  alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertAjoutVisible: boolean = false;
+  alertModifVisible: boolean = false;
+  alertSuppVisible: boolean = false;
 
   public addVehicule!: FormGroup;
   public editVehicule!: FormGroup;
   public deleteVehicule!: FormGroup;
 
-  // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION MULTIPLE
-  isAddingVehicules: boolean = false; // Pour l'ajout de plusieurs véhicules
+  isAddingVehicules: boolean = false;
+  isDeletingVehicule: boolean = false;
+  isEditingVehicule: boolean = false;
 
   @ViewChild('table') table!: DatatableComponent;
+  @ViewChild('addVehiculeContent') addVehiculeContent!: TemplateRef<any>;
+  @ViewChild('editVehiculeContent') editVehiculeContent!: TemplateRef<any>;
+  @ViewChild('deleteVehiculeContent') deleteVehiculeContent!: TemplateRef<any>;
 
-  constructor(private vehiculeService: VehiculeService, private formBuilder: FormBuilder, private router: Router) { }
+  constructor(
+    private vehiculeService: VehiculeService,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    public modalService: NgbModal
+  ) { }
 
   ngOnInit(): void {
-
-    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
     if (this.hasPageAccess) {
       this.loadMarques();
       this.loadModeles();
       this.loadVehicules();
-      this.initForm(); // Initialise le formulaire d'ajout avec le FormArray
+      this.initForm();
     }
 
     this.editVehicule = this.formBuilder.group({
       id: [0, [Validators.required]],
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
-      immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]], // Validation de l'immatriculation
+      immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
       numero_chassis: ["", [Validators.required]],
-      kilometrage: [0, [Validators.required, Validators.min(0)]], // Ajout d'un validateur min(0)
+      kilometrage: [0, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
     });
     this.deleteVehicule = this.formBuilder.group({
-      id: [0, [Validators.required]],
+      id: [null, [Validators.required]],
     });
   }
 
-  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
   private initializePermissions(): void {
     try {
       const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
 
       if (!allowedFonctionnalitesStr) {
         console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
-        return; // Garder les permissions par défaut (true)
+        return;
       }
 
       const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
       console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
 
-      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
       this.canAddVehicule = allowedFonctionnalites.includes('Ajout vehicule');
       this.canModifyVehicule = allowedFonctionnalites.includes('Modification vehicule');
       this.canDeleteVehicule = allowedFonctionnalites.includes('Suppression vehicule');
       this.canViewVehicule = allowedFonctionnalites.includes('Voir parc vehicule');
 
-      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
       this.hasPageAccess = this.canViewVehicule ;
-
 
       console.log('🔐 Permissions calculées:', {
         canAddVehicule: this.canAddVehicule,
@@ -127,7 +122,6 @@ export class VehiculesComponent implements OnInit {
         canDeleteVehicule: this.canDeleteVehicule
       });
 
-      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
         this.router.navigate(['/error/403']);
@@ -136,7 +130,6 @@ export class VehiculesComponent implements OnInit {
 
     } catch (error) {
       console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
-      // En cas d'erreur, garder les permissions par défaut (true)
     }
   }
 
@@ -145,202 +138,205 @@ export class VehiculesComponent implements OnInit {
       vehicules: this.formBuilder.array([this.createVehiculeFormGroup()])
     });
   }
-  // Getter pour accéder facilement au FormArray
+
   get vehiculesArray(): FormArray {
     return this.addVehicule.get('vehicules') as FormArray;
   }
-  // Méthode pour créer un groupe de formulaire pour un seul vehicule
+
   createVehiculeFormGroup(): FormGroup {
     return this.formBuilder.group({
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
-      immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]], // Validation de l'immatriculation
+      immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
       numero_chassis: ["", [Validators.required]],
-      kilometrage: [null, [Validators.required, Validators.min(0)]], // Changé en null initial, ajout min(0)
+      kilometrage: [null, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
     });
   }
-  // Ajouter un nouveau groupe de vehicule
+
   addNewVehicule(): void {
     this.vehiculesArray.push(this.createVehiculeFormGroup());
   }
-  // Supprimer un vehicule
+
   removeVehicule(index: number): void {
-    if (this.vehiculesArray.length > 1) { // Toujours laisser au moins un champ
+    if (this.vehiculesArray.length > 1) {
       this.vehiculesArray.removeAt(index);
     }
   }
 
-  onClickSubmitAddVehicules(): void {
-    // console.log('onClickSubmitAddVehicules appelé. isAddingVehicules:', this.isAddingVehicules); // Commenté
+  // NOUVELLE MÉTHODE: Pour ouvrir le modal d'ajout
+  openAddVehiculeModal(): void {
+    this.initForm(); // Réinitialise le formulaire avant d'ouvrir le modal
+    this.modalService.open(this.addVehiculeContent, { centered: true, size: 'xl' }); // Ouvre le modal
+  }
 
-    // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
+
+  onClickSubmitAddVehicules(): void {
+    console.log('onClickSubmitAddVehicules appelé. isAddingVehicules:', this.isAddingVehicules);
+
     if (this.isAddingVehicules) {
-      // console.warn('Soumission multiple détectée pour Véhicules. Annulation.'); // Commenté
-      return; // Empêche l'exécution si déjà en cours
+      console.warn('Soumission multiple détectée pour Véhicules. Annulation.');
+      return;
     }
 
-    const spinner = document.querySelector('.spinner-add-vehicule'); // Assurez-vous que ce sélecteur correspond à votre HTML
+    const spinner = document.querySelector('.spinner-add-vehicule');
 
     if (this.addVehicule.valid) {
-      this.isAddingVehicules = true; // Désactiver le bouton
-      // console.log('isAddingVehicules mis à true.'); // Commenté
+      this.isAddingVehicules = true;
+      console.log('isAddingVehicules mis à true.');
 
       if (spinner) {
         spinner.classList.remove('d-none');
-        // console.log('Spinner Véhicule affiché.'); // Commenté
+        console.log('Spinner Véhicule affiché.');
       }
 
       const vehiculesToSave = this.vehiculesArray.value.map((vehicule: any) => {
         return {
           ...vehicule,
-          // Formater la date de chaque véhicule individuellement
           date_mise_en_service: this.formatDate(vehicule.date_mise_en_service)
         };
       });
 
-      // Créer un observable pour sauvegarder tous les Vehicule
       this.vehiculeService.saveMultipleVehicules(vehiculesToSave).subscribe(
         (data: any) => {
           this.loadVehicules();
           if (spinner) spinner.classList.add('d-none');
-          this.initForm(); // Réinitialiser le formulaire avec un seul Vehicule vide
-          this.isAddingVehicules = false; // Réactiver le bouton
-          // console.log('Soumission Véhicules réussie. isAddingVehicules mis à false.'); // Commenté
+          this.initForm();
+          this.isAddingVehicules = false;
+          console.log('Soumission Véhicules réussie. isAddingVehicules mis à false.');
 
-          // Fermer le modal manuellement
-          const modal = document.getElementById('add_vehicule');
-          // @ts-ignore - pour éviter les erreurs TypeScript
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
+          this.modalService.dismissAll(); // Utilisation de NgbModal pour fermer
 
-          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertAjoutVisible = true;
-            // console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible); // Commenté
-
-            // Utilisation de la transition pour faire apparaitre l'alerte
+            console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
             setTimeout(() => {
               this.alertAjoutVisible = false;
-            }, 2000); // L'alerte disparaît après 2 secondes
-          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+            }, 2000);
+          }, 200);
         },
         (error: any) => {
           console.error('Erreur lors de l\'ajout des Vehicules :', error);
           if (spinner) spinner.classList.add('d-none');
-          this.isAddingVehicules = false; // Réactiver le bouton en cas d'erreur
-          // console.error('Soumission Véhicules échouée. isAddingVehicules mis à false.'); // Commenté
+          this.isAddingVehicules = false;
+          console.error('Soumission Véhicules échouée. isAddingVehicules mis à false.');
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      this.markFormGroupTouched(this.addVehicule); // Marquer les champs comme touchés pour afficher les erreurs
+      this.markFormGroupTouched(this.addVehicule);
       alert("Désolé, le formulaire n'est pas bien renseigné");
-      // console.log('Formulaire Véhicules invalide.'); // Commenté
+      console.log('Formulaire Véhicules invalide.');
     }
   }
 
 
   onClickSubmitEditVehicule() {
-    // console.log(this.editVehicule.value); // Commenté
+    console.log('onClickSubmitEditVehicule appelé. Valeur du formulaire:', this.editVehicule.value);
+
+    if (this.isEditingVehicule) {
+      console.warn('Modification déjà en cours. Annulation.');
+      return;
+    }
+
     const spinner = document.querySelector('.spinnerModif');
 
-    // NOTE: Il serait bon d'avoir une propriété isEditingVehicule: boolean = false;
-    // et de la gérer de la même manière que pour l'ajout.
-    // this.isEditingVehicule = true; // Ajoutez ceci
     if (this.editVehicule.valid) {
+      this.isEditingVehicule = true;
       if (spinner) spinner.classList.remove('d-none');
-      // const id = this.editVehicule.value.id; // Non utilisé, peut être supprimé
       const formData = {
         ...this.editVehicule.value,
-        date_mise_en_service: this.formatDate(this.editVehicule.value.date_mise_en_service), // Convertir la date
+        date_mise_en_service: this.formatDate(this.editVehicule.value.date_mise_en_service),
       };
+      console.log('Envoi de la modification pour Vehicule:', formData);
       this.vehiculeService.editVehicule(formData).subscribe(
         (data: any) => {
           this.loadVehicules();
           if (spinner) spinner.classList.add('d-none');
           this.editVehicule.reset();
-          // this.isEditingVehicule = false; // Ajoutez ceci
+          this.isEditingVehicule = false;
 
-          // Fermer le modal manuellement
-          const modal = document.getElementById('edit_vehicule');
-          // @ts-ignore - pour éviter les erreurs TypeScript
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
+          this.modalService.dismissAll(); // Utilisation de NgbModal pour fermer
 
-          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertModifVisible = true;
-            // console.log('Alert visible après fermeture du modal:', this.alertModifVisible); // Commenté
+            console.log('Alert visible après fermeture du modal:', this.alertModifVisible);
 
-            // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
               this.alertModifVisible = false;
-            }, 2000); // L'alerte disparaît après 2 secondes
-          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+            }, 2000);
+          }, 200);
         },
         (error: any) => {
           console.error('Erreur lors de la modification du Vehicule :', error);
           if (spinner) spinner.classList.add('d-none');
-          // this.isEditingVehicule = false; // Ajoutez ceci
+          this.isEditingVehicule = false;
           alert('Une erreur s\'est produite. Veuillez réessayer.');
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      this.markFormGroupTouched(this.editVehicule); // Marquer les champs comme touchés
+      this.isEditingVehicule = false;
+      this.markFormGroupTouched(this.editVehicule);
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
 
   onClickSubmitDeleteVehicule() {
-    // console.log(this.deleteVehicule.value); // Commenté
+    console.log('onClickSubmitDeleteVehicule appelé. isDeletingVehicule:', this.isDeletingVehicule);
+
+    if (this.isDeletingVehicule) {
+      console.warn('Soumission de suppression multiple détectée. Annulation.');
+      return;
+    }
+
     const spinner = document.querySelector('.spinnerDelete');
 
-    // NOTE: Il serait bon d'avoir une propriété isDeletingVehicule: boolean = false;
-    // et de la gérer de la même manière que pour l'ajout.
-    // this.isDeletingVehicule = true; // Ajoutez ceci
     if (this.deleteVehicule.valid) {
+      this.isDeletingVehicule = true;
+      console.log('isDeletingVehicule mis à true.');
       if (spinner) spinner.classList.remove('d-none');
+
+      const vehiculeIdToDelete = this.deleteVehicule.value.id;
+      console.log('ID du véhicule à supprimer:', vehiculeIdToDelete);
+
       this.vehiculeService.deleteVehicule(this.deleteVehicule.value).subscribe(
         (data: any) => {
+          console.log('Réponse de suppression:', data);
           this.loadVehicules();
           if (spinner) spinner.classList.add('d-none');
           this.deleteVehicule.reset();
-          // this.isDeletingVehicule = false; // Ajoutez ceci
+          this.isDeletingVehicule = false;
+          console.log('Suppression réussie. isDeletingVehicule mis à false.');
 
-          // Fermer le modal manuellement
-          const modal = document.getElementById('delete_vehicule');
-          // @ts-ignore - pour éviter les erreurs TypeScript
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
+          this.modalService.dismissAll(); // Utilisation de NgbModal pour fermer
 
-          // Attendre que le modal soit fermé avant d'afficher l'alerte
           setTimeout(() => {
             this.alertSuppVisible = true;
-            // console.log('Alert visible après fermeture du modal:', this.alertSuppVisible); // Commenté
+            console.log('Alert de suppression visible après fermeture du modal:', this.alertSuppVisible);
 
-            // Utilisation de la transition pour faire apparaitre l'alerte
             setTimeout(() => {
               this.alertSuppVisible = false;
-            }, 2000); // L'alerte disparaît après 2 secondes
-          }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+            }, 2000);
+          }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de la supression du Vehicule :', error);
+          console.error('Erreur lors de la suppression du Vehicule :', error);
           if (spinner) spinner.classList.add('d-none');
-          // this.isDeletingVehicule = false; // Ajoutez ceci
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          this.isDeletingVehicule = false;
+          console.error('Suppression échouée. isDeletingVehicule mis à false.');
+          alert(`Une erreur s'est produite lors de la suppression: ${error.message || 'Veuillez réessayer.'}`);
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      this.isDeletingVehicule = false;
+      alert("Désolé, le formulaire de suppression n'est pas bien renseigné (ID manquant).");
+      console.warn('Formulaire de suppression invalide.');
     }
   }
 
-  // Fonction utilitaire pour marquer tous les champs comme touchés (validation)
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
@@ -354,7 +350,7 @@ export class VehiculesComponent implements OnInit {
   loadModeles(): void {
     this.vehiculeService.getAllModeles().subscribe({
       next: (data) => {
-        this.modeles = data; // Stocker la liste des modeles
+        this.modeles = data;
       },
       error: (err) => {
         console.error("Erreur lors du chargement des modeles :", err);
@@ -365,7 +361,7 @@ export class VehiculesComponent implements OnInit {
   loadMarques(): void {
     this.vehiculeService.getAllMarques().subscribe({
       next: (data) => {
-        this.marques = data; // Stocker la liste des marques
+        this.marques = data;
       },
       error: (err) => {
         console.error("Erreur lors du chargement des marques :", err);
@@ -373,13 +369,14 @@ export class VehiculesComponent implements OnInit {
     });
   }
 
-
   loadVehicules(): void {
+    this.loadingIndicator = true;
     this.vehiculeService.getAllVehicules().subscribe(
       (data: Vehicule[]) => {
-        this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
+        this.temp = [...data];
         this.rows = data;
         this.loadingIndicator = false;
+        console.log('Véhicules chargés avec succès:', data.length);
       },
       error => {
         console.error('Erreur lors du chargement des Véhicules', error);
@@ -388,25 +385,15 @@ export class VehiculesComponent implements OnInit {
     );
   }
 
-  // updateFilter(event: KeyboardEvent): void {
-  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
-
-  //   this.rows = this.temp.filter(vehicule =>
-  //     vehicule.immatriculation.toLowerCase().includes(val) ||
-  //     vehicule.numero_chassis.toLowerCase().includes(val) ||
-  //     vehicule.date_mise_en_service.toLowerCase().includes(val) ||
-  //     // Vérifier si l'objet imbriqué existe avant d'accéder à ses propriétés
-  //     (vehicule.marque && vehicule.marque.libelle_marque.toLowerCase().includes(val)) ||
-  //     (vehicule.modele && vehicule.modele.libelle_modele.toLowerCase().includes(val))
-  //   );
-
-  //   this.table.offset = 0;
-  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(vehicule =>
-      vehicule.immatriculation.toLowerCase().includes(val)
+      vehicule.immatriculation.toLowerCase().includes(val) ||
+      (vehicule.numero_chassis && vehicule.numero_chassis.toLowerCase().includes(val)) ||
+      (vehicule.date_mise_en_service && vehicule.date_mise_en_service.toLowerCase().includes(val)) ||
+      (vehicule.marque && vehicule.marque.libelle && vehicule.marque.libelle.toLowerCase().includes(val)) ||
+      (vehicule.modele && vehicule.modele.libelle_modele && vehicule.modele.libelle_modele.toLowerCase().includes(val))
     );
 
     this.table.offset = 0;
@@ -421,32 +408,39 @@ export class VehiculesComponent implements OnInit {
       numero_chassis: row.numero_chassis,
       kilometrage: row.kilometrage,
       date_mise_en_service: this.convertToNgbDate(row.date_mise_en_service),
-    })
+    });
+    this.modalService.open(this.editVehiculeContent, { centered: true });
   }
 
   getDeleteForm(row: any) {
+    console.log('getDeleteForm appelé pour ID:', row.id);
     this.deleteVehicule.patchValue({
       id: row.id,
-    })
+    });
+    console.log('Formulaire deleteVehicule patché avec ID:', this.deleteVehicule.value.id);
+    this.modalService.open(this.deleteVehiculeContent, { centered: true });
   }
 
   formatDate(date: NgbDateStruct): string {
+    if (!date) return '';
     const year = date.year;
-    const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
+    const month = date.month.toString().padStart(2, '0');
     const day = date.day.toString().padStart(2, '0');
-    return `${year}-${month}-${day}`; // Format CCYY-MM-DD
+    return `${year}-${month}-${day}`;
   }
 
-
-  // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
   convertToNgbDate(dateString: string): NgbDateStruct | null {
     if (!dateString) return null;
-    const parts = dateString.split('-'); // Séparer CCYY-MM-DD
-    return {
-      year: +parts[0],
-      month: +parts[1],
-      day: +parts[2],
-    };
+    const parts = dateString.split('-');
+    if (parts.length === 3 && !isNaN(Number(parts[0])) && !isNaN(Number(parts[1])) && !isNaN(Number(parts[2]))) {
+      return {
+        year: +parts[0],
+        month: +parts[1],
+        day: +parts[2],
+      };
+    }
+    console.warn('Format de date invalide pour convertToNgbDate:', dateString);
+    return null;
   }
 
   downloadListeVehiculesPDF(): void {

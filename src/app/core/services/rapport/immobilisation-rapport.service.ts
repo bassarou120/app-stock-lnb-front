@@ -5,7 +5,7 @@ import { Observable, throwError } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 
-// Importe les interfaces nécessaires (Assurez-vous que Intervention est importé ici)
+// Importe les interfaces nécessaires
 import { Immobilisation, PaginatedResponse, BackendPostResource, Transfert, Intervention } from '../interface/models';
 
 @Injectable({
@@ -25,8 +25,7 @@ export class ImmobilisationRapportService {
         errorMessage = `Erreur côté client: ${error.error.message}`;
       } else {
         if (error.status === 422 && error.error && typeof error.error === 'object') {
-          // Laravel validation errors are often nested in 'errors' object if present
-          const validationErrors = Object.values(error.error.errors || error.error).flat(); // Check for 'errors' key first
+          const validationErrors = Object.values(error.error.errors || error.error).flat();
           errorMessage = `Erreur de validation: ${validationErrors.join(', ')}`;
         } else {
           errorMessage = `Erreur du serveur (code ${error.status}): ${error.message || JSON.stringify(error.error)}`;
@@ -40,7 +39,6 @@ export class ImmobilisationRapportService {
   /**
    * Récupère les données du rapport (immobilisations, transferts ou interventions) en fonction des filtres.
    * @param filters Un objet contenant les critères de filtrage, y compris 'id_type_rapport'.
-   * CORRECTION: Le type de retour inclut maintenant Intervention
    */
   getRapportData(filters: { [key: string]: any }): Observable<BackendPostResource<PaginatedResponse<Immobilisation | Transfert | Intervention>>> {
     let endpoint = '';
@@ -61,7 +59,7 @@ export class ImmobilisationRapportService {
         if (filters['code_immo']) {
           params = params.set('code_immo', filters['code_immo']);
         }
-        if (filters['date_debut_acquisition']) {
+        if (filters['date_debut_acquisition']) { // Ce champ est spécifique à ce rapport
           params = params.set('date_debut_acquisition', filters['date_debut_acquisition']);
         }
         break;
@@ -101,14 +99,26 @@ export class ImmobilisationRapportService {
           params = params.set('immo_id', filters['immo_id']);
         }
         break;
+      case 'inventaire': // <-- NOUVEAU: Ajout du case pour 'inventaire'
+        endpoint = `${this.apiUrl}/rapports/inventaire`; // Endpoint pour l'inventaire
+        if (filters['date_debut']) { // Ces dates correspondent aux dates d'acquisition pour l'inventaire
+          params = params.set('date_debut_acquisition', filters['date_debut']);
+        }
+        if (filters['date_fin']) {
+          params = params.set('date_fin_acquisition', filters['date_fin']);
+        }
+        // Pas d'autres filtres spécifiques ici selon notre discussion
+        break;
       default:
         return throwError(() => new Error(`Type de rapport non valide pour l\'affichage des données: '${reportType}'.`));
     }
 
+    // Le paramètre id_type_rapport est toujours ajouté, mais il est déjà extrait
+    // et utilisé dans le switch, donc pas besoin de le remettre dans params s'il est déjà géré par l'endpoint.
+    // Cependant, le backend peut en avoir besoin pour sa propre logique de routage/dispatch.
     params = params.set('id_type_rapport', reportType);
 
     console.log(`Requête GET vers: ${endpoint} avec params:`, params.toString());
-    // CORRECTION: Le type de retour inclut maintenant Intervention
     return this.http.get<BackendPostResource<PaginatedResponse<Immobilisation | Transfert | Intervention>>>(endpoint, { params: params }).pipe(
       catchError(this.handleError<BackendPostResource<PaginatedResponse<Immobilisation | Transfert | Intervention>>>('getRapportData'))
     );
@@ -162,7 +172,7 @@ export class ImmobilisationRapportService {
           params = params.set('employe_id', filters['employe_id']);
         }
         break;
-      case 'intervention': // CORRECTION: Ajout de la logique pour le cas 'intervention'
+      case 'intervention':
         endpoint = `${this.apiUrl}/rapports/interventions/imprimer`;
         if (filters['date_debut']) {
           params = params.set('date_debut', filters['date_debut']);
@@ -177,8 +187,16 @@ export class ImmobilisationRapportService {
           params = params.set('immo_id', filters['immo_id']);
         }
         break;
+      case 'inventaire': // <-- NOUVEAU: Ajout du case pour 'inventaire' pour l'impression PDF
+        endpoint = `${this.apiUrl}/rapports/inventaire/imprimer`; // Endpoint pour l'impression PDF de l'inventaire
+        if (filters['date_debut']) { // Ces dates correspondent aux dates d'acquisition pour l'inventaire
+          params = params.set('date_debut_acquisition', filters['date_debut']);
+        }
+        if (filters['date_fin']) {
+          params = params.set('date_fin_acquisition', filters['date_fin']);
+        }
+        break;
       default:
-        // L'erreur ici sera plus spécifique
         return throwError(() => new Error(`Type de rapport non valide pour l\'impression: '${reportType}'.`));
     }
 

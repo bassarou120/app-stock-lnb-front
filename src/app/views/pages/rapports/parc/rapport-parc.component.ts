@@ -1,5 +1,5 @@
 // src/app/views/pages/rapports/parc/rapport-parc.component.ts
-import { Component, ViewChild, OnInit, OnDestroy, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, OnDestroy, inject, ChangeDetectorRef } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, AbstractControl, ValidatorFn } from '@angular/forms';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { NgbDateStruct, NgbCalendar, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
@@ -10,11 +10,11 @@ import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 
 // Services
-import { ParcRapportService, BackendPostResource } from '../../../../core/services/rapport/parc-rapport.service'; // Nouveau service
+import { ParcRapportService, BackendPostResource } from '../../../../core/services/rapport/parc-rapport.service';
 import { VehiculeService } from '../../../../core/services/vehicules/vehicules.service';
-import { TypeInterventionService } from '../../../../core/services/types-intervention/types-intervention.service'; // Assurez-vous que ce service existe
-import { MarquesService } from '../../../../core/services/marques/marques.service'; // Assurez-vous que ce service existe
-import { ModelesService } from '../../../../core/services/modeles/modeles.service'; // Assurez-vous que ce service existe
+import { TypeInterventionService } from '../../../../core/services/types-intervention/types-intervention.service';
+import { MarquesService } from '../../../../core/services/marques/marques.service';
+import { ModelesService } from '../../../../core/services/modeles/modeles.service';
 
 // Interfaces
 import {
@@ -25,12 +25,12 @@ import { Subject, takeUntil } from 'rxjs';
 
 // Définir les types de rapport pour le parc
 interface TypeRapportParc {
-  id: string; // 'vehicule' ou 'intervention_vehicule'
+  id: string;
   libelle: string;
 }
 
 @Component({
-  selector: 'app-rapport-parc', // Renommé pour être spécifique aux rapports de parc
+  selector: 'app-rapport-parc',
   standalone: true,
   imports: [
     CommonModule,
@@ -44,7 +44,7 @@ interface TypeRapportParc {
     NgxDatatableModule,
     DatePipe,
   ],
-  templateUrl: './rapport-parc.component.html', // Chemin du nouveau template
+  templateUrl: './rapport-parc.component.html',
   styleUrls: []
 })
 export class RapportParcComponent implements OnInit, OnDestroy {
@@ -57,17 +57,17 @@ export class RapportParcComponent implements OnInit, OnDestroy {
   ColumnMode = ColumnMode;
 
   // Listes pour les dropdowns de filtrage
-  vehiculesList: Vehicule[] = []; // Liste de tous les véhicules (pour filtres d'intervention)
-  typeInterventionsList: TypeIntervention[] = []; // Liste de tous les types d'intervention
-  marquesList: Marque[] = []; // Liste de toutes les marques
-  modelesList: Modele[] = []; // Liste de tous les modèles
+  vehiculesList: Vehicule[] = [];
+  typeInterventionsList: TypeIntervention[] = [];
+  marquesList: Marque[] = [];
+  modelesList: Modele[] = [];
 
   // Types de rapports de parc
   typeRapportsParc: TypeRapportParc[] = [
     { id: 'vehicule', libelle: 'Liste des Véhicules' },
     { id: 'intervention_vehicule', libelle: 'Rapport des Interventions sur Véhicules' }
   ];
-  selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
+  selectedReportTypeId: string | null = null;
 
   // Indicateurs pour l'affichage conditionnel des filtres
   showVehiculeFilters: boolean = false;
@@ -80,11 +80,13 @@ export class RapportParcComponent implements OnInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private parcRapportService: ParcRapportService, // Nouveau service
+    private parcRapportService: ParcRapportService,
     private vehiculesService: VehiculeService,
     private typeInterventionService: TypeInterventionService,
     private marquesService: MarquesService,
     private modelesService: ModelesService,
+    private ngbCalendar: NgbCalendar,
+    private cd: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
@@ -131,29 +133,36 @@ export class RapportParcComponent implements OnInit, OnDestroy {
   }
 
   initForm(): void {
+    const today = this.ngbCalendar.getToday();
+    const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
+
     this.rapportForm = this.fb.group({
       id_type_rapport: [null, Validators.required],
 
-      // Filtres pour Rapport Véhicule
-      date_debut_vehicule: [null],
-      date_fin_vehicule: [null],
+      // Filtres pour Rapport Véhicule (les dates sont optionnelles, pas de Validators.required ici)
+      date_debut_vehicule: [firstDayOfMonth],
+      date_fin_vehicule: [today],
       modele_id: [null],
       marque_id: [null],
 
-      // Filtres pour Rapport Intervention Véhicule
-      date_debut_intervention_v: [null],
-      date_fin_intervention_v: [null],
+      // Filtres pour Rapport Intervention Véhicule (les dates sont obligatoires)
+      date_debut_intervention_v: [firstDayOfMonth],
+      date_fin_intervention_v: [today],
       vehicule_id: [null],
       type_intervention_id: [null],
     });
+    console.log('RapportParcComponent: Form initialized with default dates.');
   }
 
   onTypeRapportChange(typeRapportId: string | null): void {
     this.selectedReportTypeId = typeRapportId;
     this.resetFormControls(); // Réinitialise et désactive tous les champs
 
+    const today = this.ngbCalendar.getToday();
+    const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
+
     // Réactive le sélecteur de type de rapport (il ne doit jamais être désactivé)
-    this.rapportForm.get('id_type_rapport')?.enable();
+    this.rapportForm.get('id_type_rapport')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
     this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required);
     this.rapportForm.clearValidators(); // Efface les validateurs de niveau FormGroup pour éviter les conflits initiaux
 
@@ -162,76 +171,97 @@ export class RapportParcComponent implements OnInit, OnDestroy {
         this.showVehiculeFilters = true;
         this.showInterventionVFilters = false;
 
-        this.rapportForm.get('date_debut_vehicule')?.enable();
-        this.rapportForm.get('date_fin_vehicule')?.enable();
-        this.rapportForm.get('modele_id')?.enable();
-        this.rapportForm.get('marque_id')?.enable();
+        this.rapportForm.get('date_debut_vehicule')?.setValue(firstDayOfMonth, { emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('date_fin_vehicule')?.setValue(today, { emitEvent: false });             // <-- Ajout de emitEvent: false
 
-        // Les dates d'acquisition sont optionnelles dans le backend, donc pas de Validators.required
-        // On n'ajoute pas de validateur de plage de dates au niveau du formulaire pour ce cas, car les dates sont optionnelles.
-        // Si les deux dates sont remplies, la validation de la plage se fera via le backend ou si nous ajoutons un validateur custom qui s'active si les DEUX sont remplis.
+        this.rapportForm.get('date_debut_vehicule')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('date_fin_vehicule')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('modele_id')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('marque_id')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+
+        console.log('onTypeRapportChange: Showing vehicule filters with default dates.');
         break;
 
       case 'intervention_vehicule':
         this.showVehiculeFilters = false;
         this.showInterventionVFilters = true;
 
-        this.rapportForm.get('date_debut_intervention_v')?.enable();
-        this.rapportForm.get('date_fin_intervention_v')?.enable();
-        this.rapportForm.get('vehicule_id')?.enable();
-        this.rapportForm.get('type_intervention_id')?.enable();
+        this.rapportForm.get('date_debut_intervention_v')?.setValue(firstDayOfMonth, { emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('date_fin_intervention_v')?.setValue(today, { emitEvent: false });             // <-- Ajout de emitEvent: false
 
-        // Les dates d'intervention sont obligatoires
+        this.rapportForm.get('date_debut_intervention_v')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('date_fin_intervention_v')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('vehicule_id')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('type_intervention_id')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+
         this.rapportForm.get('date_debut_intervention_v')?.setValidators(Validators.required);
         this.rapportForm.get('date_fin_intervention_v')?.setValidators(Validators.required);
         this.rapportForm.setValidators(this.dateRangeValidatorForReport('date_debut_intervention_v', 'date_fin_intervention_v'));
+        // updateValueAndValidity sera appelé dans le setTimeout final
+        console.log('onTypeRapportChange: Showing intervention vehicule filters with default dates.');
         break;
 
       default:
         this.showVehiculeFilters = false;
         this.showInterventionVFilters = false;
-        this.rapportForm.reset({ id_type_rapport: typeRapportId });
-        // S'assurer que les dates sont nulles si aucun rapport n'est sélectionné
-        this.rapportForm.get('date_debut_vehicule')?.setValue(null);
-        this.rapportForm.get('date_fin_vehicule')?.setValue(null);
-        this.rapportForm.get('date_debut_intervention_v')?.setValue(null);
-        this.rapportForm.get('date_fin_intervention_v')?.setValue(null);
+        // Le resetFormControls() gère déjà la remise à null des valeurs et la désactivation.
+        // On s'assure juste que le type de rapport reste sélectionné si l'utilisateur change d'avis.
+        this.rapportForm.get('id_type_rapport')?.setValue(typeRapportId, { emitEvent: false }); // <-- Ajout de emitEvent: false
+        console.log('onTypeRapportChange: No specific report type selected or unknown.');
         break;
     }
-    this.rapportForm.updateValueAndValidity(); // Recalculer la validité après les changements
+    // Décaler l'appel à updateValueAndValidity et la détection de changement
+    setTimeout(() => {
+        this.rapportForm.updateValueAndValidity();
+        this.cd.detectChanges(); // Force la détection des changements après la mise à jour du formulaire
+    }, 0);
+
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
   }
 
   private resetFormControls(): void {
-    // Liste de tous les contrôles, sauf 'id_type_rapport'
-    const allControls = [
-      'date_debut_vehicule', 'date_fin_vehicule', 'modele_id', 'marque_id',
-      'date_debut_intervention_v', 'date_fin_intervention_v', 'vehicule_id', 'type_intervention_id'
-    ];
-
-    allControls.forEach(key => {
-      const control = this.rapportForm.get(key);
-      if (control) {
-        control.disable();
-        control.clearValidators();
-        control.setValue(null);
+    // Itérer sur tous les contrôles du formulaire, sauf 'id_type_rapport'
+    Object.keys(this.rapportForm.controls).forEach(key => {
+      if (key !== 'id_type_rapport') {
+        const control = this.rapportForm.get(key);
+        if (control) {
+          control.setValue(null, { emitEvent: false }); // <-- Ajout de emitEvent: false
+          control.clearValidators();
+          control.disable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        }
       }
     });
 
-    this.rapportForm.clearValidators(); // Efface les validateurs de niveau FormGroup
-    this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required); // Ré-applique le validateur pour le type de rapport
-    this.rapportForm.updateValueAndValidity(); // Très important
+    // Réinitialiser les indicateurs d'affichage
     this.showVehiculeFilters = false;
     this.showInterventionVFilters = false;
+
+    this.rapportForm.clearValidators(); // Efface les validateurs de niveau FormGroup
+    this.rapportForm.get('id_type_rapport')?.setValidators(Validators.required); // Ré-applique le validateur pour le type de rapport
+    // Pas de updateValueAndValidity ici, il est appelé une seule fois à la fin de onTypeRapportChange
+    console.log('All non-type-rapport form controls reset and filters hidden.');
   }
 
   loadFilterData(): void {
-    this.vehiculesService.getAllVehicules().pipe(takeUntil(this.destroy$)).subscribe((data: Vehicule[]) => this.vehiculesList = data);
-    this.typeInterventionService.getAllTypeInterventions().pipe(takeUntil(this.destroy$)).subscribe((data: TypeIntervention[]) => this.typeInterventionsList = data);
-    this.marquesService.getAllMarques().pipe(takeUntil(this.destroy$)).subscribe((data: Marque[]) => this.marquesList = data);
-    this.modelesService.getAllModeles().pipe(takeUntil(this.destroy$)).subscribe((data: Modele[]) => this.modelesList = data);
+    console.log('Loading filter data for Parc...');
+    this.vehiculesService.getAllVehicules().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: Vehicule[]) => { this.vehiculesList = data; console.log('Vehicules loaded:', data.length); },
+      (error) => console.error('Error loading vehicules:', error)
+    );
+    this.typeInterventionService.getAllTypeInterventions().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: TypeIntervention[]) => { this.typeInterventionsList = data; console.log('TypeInterventions loaded:', data.length); },
+      (error) => console.error('Error loading typeInterventions:', error)
+    );
+    this.marquesService.getAllMarques().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: Marque[]) => { this.marquesList = data; console.log('Marques loaded:', data.length); },
+      (error) => console.error('Error loading marques:', error)
+    );
+    this.modelesService.getAllModeles().pipe(takeUntil(this.destroy$)).subscribe(
+      (data: Modele[]) => { this.modelesList = data; console.log('Modeles loaded:', data.length); },
+      (error) => console.error('Error loading modeles:', error)
+    );
   }
 
   loadRapportParc(): void {
@@ -256,7 +286,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const filters: { [key: string]: any } = {
-        id_type_rapport: this.selectedReportTypeId, // Toujours inclure le type de rapport
+        id_type_rapport: this.selectedReportTypeId,
     };
 
     if (this.selectedReportTypeId === 'vehicule') {
@@ -271,7 +301,6 @@ export class RapportParcComponent implements OnInit, OnDestroy {
         filters.type_intervention_id = this.rapportForm.get('type_intervention_id')?.value;
     }
 
-    // Nettoyer les filtres vides avant l'envoi
     Object.keys(filters).forEach(key => {
         if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
             delete filters[key];
@@ -333,7 +362,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const filters: { [key: string]: any } = {
-        id_type_rapport: this.selectedReportTypeId, // Toujours inclure le type de rapport
+        id_type_rapport: this.selectedReportTypeId,
     };
 
     if (this.selectedReportTypeId === 'vehicule') {
