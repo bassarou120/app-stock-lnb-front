@@ -63,6 +63,7 @@ export class InterventionVehiculeComponent implements OnInit {
   vehicules: Vehicule[] = [];
   communes: Commune[] = []; // Gardé si utilisé ailleurs, mais pas directement dans cette logique
   typeInterventions: TypeIntervention[] = []; // Liste complète des types d'intervention avec has_expiration_date
+  intervention_vehicule: InterventionVehicule[] = [];
 
   // NOUVELLES PROPRIÉTÉS POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingInterventionVehicule: boolean = false;
@@ -90,6 +91,7 @@ export class InterventionVehiculeComponent implements OnInit {
       this.loadVehicules();
       this.loadCommunes();
       this.loadInterventionVehicules();
+      this.loadInterventions_vehicule();
       this.loadtypeInterventions(); // Charger les types d'intervention, essentiel pour `has_expiration_date`
       this.initForms(); // Appeler une méthode pour initialiser les formulaires
     }
@@ -487,6 +489,17 @@ export class InterventionVehiculeComponent implements OnInit {
     this.deleteInterventionVehicule.patchValue({
       id: row.id,
     })
+  }
+
+  loadInterventions_vehicule(): void {
+    this.interventionVehiculeService.getAllInterventions_vehicule().subscribe({
+      next: (data) => {
+        this.intervention_vehicule = data; // Stocker la liste des interventions immos
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des immobilisations :", err);
+      }
+    });
   }
 
   loadVehicules(): void {

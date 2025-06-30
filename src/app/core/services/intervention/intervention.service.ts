@@ -46,6 +46,26 @@ export class InterventionsService {
     );
   }
 
+  getAllInterventions_immo(): Observable<TypeIntervention[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: TypeIntervention[] } }>(
+      `${this.url}/intervention_immo`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: TypeIntervention[] } }) =>
+        response.data.data // On récupère uniquement le tableau de TypeIntervention
+      )
+    );
+  }
+
+  getAllInterventions_immos(): Observable<Intervention[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Intervention[] } }>(
+      `${this.url}/intervention_immo`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Intervention[] } }) =>
+        response.data.data // On récupère uniquement le tableau de TypeIntervention
+      )
+    );
+  }
+
   getAllTypeInterventions(): Observable<TypeIntervention[]> {
     return this.http.get<{ success: boolean; message: string; data: { data: TypeIntervention[] } }>(
       `${this.url}/type-interventions`
@@ -55,7 +75,6 @@ export class InterventionsService {
       )
     );
   }
-
 
   imprimerInterventions(): Observable<Blob> {
     const printUrl = `${environment.backend}/interventions/imprimer`;

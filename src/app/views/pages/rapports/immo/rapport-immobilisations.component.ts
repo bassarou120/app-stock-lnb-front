@@ -20,7 +20,9 @@ import { SousTypeImmoService } from '../../../../core/services/sous-type-immo/so
 import { StatusImmoService } from '../../../../core/services/status-immo/status-immo.service';
 import { VehiculeService } from '../../../../core/services/vehicules/vehicules.service';
 import { ImmobilisationsService } from '../../../../core/services/enregistrement-immos/enregistrement-immos.service';
-import { TypeInterventionService } from '../../../../core/services/types-intervention/types-intervention.service';
+import { TypeInterventionService} from '../../../../core/services/types-intervention/types-intervention.service';
+import { InterventionsService} from '../../../../core/services/intervention/intervention.service';
+
 
 // Interfaces
 import {
@@ -40,7 +42,8 @@ interface TypeRapportImmo {
   selector: 'app-rapport-immobilisations',
   standalone: true,
   imports: [
-    CommonModule,
+ 
+  CommonModule,
     NgSelectModule,
     ReactiveFormsModule,
     FormsModule,
@@ -76,6 +79,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   immobilisationCodes: string[] = [];
   immobilisations: Immobilisation[] = [];
   typeInterventions: TypeIntervention[] = [];
+  intervention_immo: Intervention[] = [];
 
   typeRapportsImmo: TypeRapportImmo[] = [
     { id: 'enregistrement', libelle: 'Rapport d\'Enregistrement des Immobilisations' },
@@ -107,6 +111,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     private vehiculeService: VehiculeService,
     private immobilisationsService: ImmobilisationsService,
     private TypeInterventionService: TypeInterventionService,
+    private interventionsService: InterventionsService,
     public datePipe: DatePipe,
     private ngbCalendar: NgbCalendar
   ) {
@@ -118,6 +123,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     this.initForm();
     this.loadFilterData();
     this.loadImmobilisationCodes();
+    this.loadInterventions_immo();
     this.loadImmobilisationsForFilter();
     this.loadTypeInterventionsForFilter();
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
@@ -127,6 +133,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+
     console.log('RapportImmobilisationsComponent: ngOnDestroy called. Cleaning up subscriptions.');
     this.destroy$.next();
     this.destroy$.complete();
@@ -692,6 +699,17 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       this.table.offset = 0;
       console.log('Datatable offset reset.');
     }
+  }
+
+  loadInterventions_immo(): void {
+    this.interventionsService.getAllInterventions_immos().subscribe({
+      next: (data) => {
+        this.intervention_immo = data; // Stocker la liste des interventions immos
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des immobilisations :", err);
+      }
+    });
   }
 
 }

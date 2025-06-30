@@ -61,6 +61,7 @@ export class InterventionComponent implements OnInit {
 
   immobilisations: Immobilisation[] = []; // Liste des immos
   typeInterventions: TypeIntervention[] = []; // Liste des types d'intervention
+  intervention_immo: Intervention[] = [];
 
   // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingIntervention: boolean = false; // Pour l'ajout d'une intervention
@@ -78,6 +79,7 @@ export class InterventionComponent implements OnInit {
     // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
         this.loadImmobilisations();
+        this.loadInterventions_immo();
         this.loadtypeInterventions();
         this.loadInterventions();
     }
@@ -344,6 +346,17 @@ export class InterventionComponent implements OnInit {
 
       if (control instanceof FormGroup || control instanceof FormArray) {
         this.markFormGroupTouched(control);
+      }
+    });
+  }
+
+  loadInterventions_immo(): void {
+    this.interventionService.getAllInterventions_immos().subscribe({
+      next: (data) => {
+        this.intervention_immo = data; // Stocker la liste des interventions immos
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des immobilisations :", err);
       }
     });
   }

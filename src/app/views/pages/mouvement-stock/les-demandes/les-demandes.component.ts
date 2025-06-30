@@ -40,7 +40,9 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
   // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canViewDemande: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
-  canTreatDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canValidDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canRefuseDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canAccordDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
   hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
@@ -116,6 +118,22 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
     });
   }
 
+  // Propriété calculée pour les statuts disponibles
+  get availableStatuts(): string[] {
+    const statuts: string[] = ['En attente']; // Toujours disponible
+
+    if (this.canValidDemande) {
+      statuts.push('Validé');
+    }
+    if (this.canRefuseDemande) {
+      statuts.push('Refusé');
+    }
+    if (this.canAccordDemande) {
+      statuts.push('Accordé');
+    }
+
+    return statuts;
+  }
 
   // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
   private initializePermissions(): void {
@@ -132,13 +150,17 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
 
       // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
       this.canViewDemande = allowedFonctionnalites.includes('Voir Les demandes');
-      this.canTreatDemande = allowedFonctionnalites.includes('Traiter de demande');
+      this.canValidDemande = allowedFonctionnalites.includes('Validation de demande');
+      this.canRefuseDemande = allowedFonctionnalites.includes('Refus de demande');
+      this.canAccordDemande = allowedFonctionnalites.includes('Accorder de demande');
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canViewDemande || this.canTreatDemande;
+      this.hasPageAccess = this.canViewDemande ;
 
       console.log('🔐 Permissions calculées:', {
         canViewDemande: this.canViewDemande,
-        canTreatDemande: this.canTreatDemande,
+        canValidDemande: this.canValidDemande,
+        canRefuseDemande: this.canRefuseDemande,
+        canAccordDemande: this.canAccordDemande,
         hasPageAccess: this.hasPageAccess
       });
 

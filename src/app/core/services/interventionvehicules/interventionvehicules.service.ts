@@ -66,6 +66,16 @@ export class InterventionsVehiculeService {
       )
     );
   }
+  
+  getAllInterventions_vehicule(): Observable<InterventionVehicule[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: InterventionVehicule[] } }>(
+      `${this.url}/intervention_vehicule`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: InterventionVehicule[] } }) =>
+        response.data.data // On récupère uniquement le tableau de TypeIntervention
+      )
+    );
+  }
 
   imprimerInterventionsVehicule(): Observable<Blob> {
     const printUrl = `${environment.backend}/interventions-vehicule/imprimer`;
