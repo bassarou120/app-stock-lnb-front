@@ -1,0 +1,42 @@
+name: CI/CD - Build Image & Deploy Without Registry
+
+on:
+  push:
+    branches: [bassarou_dev]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v3
+
+      - name: 🔧 Build de l’image Docker
+        run: |
+          docker build -t front-lnb-stock:latest .
+
+      - name: 📦 Export de l’image dans un fichier
+        run: |
+          docker save front-lnb-stock:latest -o front-lnb-stock.tar
+
+      - name: 📤 Transfert de l’image vers le serveur distant
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "front-lnb-stock.tar"
+          target: "${{ secrets.TARGET_DIR }}"
+
+      - name: 🔐 Connexion SSH pour charger et déployer
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd ${{ secrets.TARGET_DIR }}
+            docker load -i front-lnb-stock.tar
+            docker compose down
+            docker compose up -d
