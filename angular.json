@@ -17,7 +17,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/demo1",
+            "outputPath": "dist/",
             "allowedCommonJsDependencies": [
               "feather-icons",
               "sweetalert2",
