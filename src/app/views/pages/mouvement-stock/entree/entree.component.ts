@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { environment } from "../../../../../environments/environment";
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -78,7 +79,7 @@ export class EntreeComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private entreeService: MouvementStockService, private formBuilder: FormBuilder) { }
+  constructor(private entreeService: MouvementStockService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
     console.log('🔄 EntreeComponent ngOnInit démarré');
@@ -116,18 +117,11 @@ export class EntreeComponent implements OnInit {
       this.canAddStockMultiple = allowedFonctionnalites.includes('Ajout du Stock');
       this.canModifyStock = allowedFonctionnalites.includes('Modification du Stock');
       this.canDeleteStock = allowedFonctionnalites.includes('Suppression du Stock');
-      this.canExportStock = allowedFonctionnalites.includes('Export Stock') ||
-                           allowedFonctionnalites.includes('Export Rapport Stock');
+      this.canExportStock = allowedFonctionnalites.includes('Export Stock');
+      this.canViewEntries = allowedFonctionnalites.includes('Voir les entrées') ;
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canAddStock ||
-                          this.canAddStockMultiple ||
-                          this.canModifyStock ||
-                          this.canDeleteStock ||
-                          this.canExportStock ||
-                          allowedFonctionnalites.includes('Voir Etat de Stock') ||
-                          allowedFonctionnalites.includes('Voir Les demandes') ||
-                          allowedFonctionnalites.includes('Sorties de Stock');
+      this.hasPageAccess = this.canViewEntries;
 
       console.log('🔐 Permissions calculées:', {
         canAddStock: this.canAddStock,
@@ -138,11 +132,11 @@ export class EntreeComponent implements OnInit {
         hasPageAccess: this.hasPageAccess
       });
 
-      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      // 🔥 REDIRECTION VERS PAGE D'ERREUR 403 SI PAS DACCES
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la page des entrées de stock');
-        // Optionnel: redirection automatique
-        // this.router.navigate(['/dashboard']);
+        this.router.navigate(['/error/403']);
+        return;
       }
 
     } catch (error) {

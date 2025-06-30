@@ -85,7 +85,6 @@ ngOnInit(): void {
   });
   this.iconSidebar(desktopMedium);
 
-
     console.log('🔄 Sidebar ngOnInit');
 
     // Charger le menu au démarrage
@@ -290,12 +289,6 @@ private createFilteredMenu(originalMenu: MenuItem[], allowedModules: string[], a
   });
 
   return filteredMenu;
-}
-
-// Garder la méthode handlePermissionsUpdate simple
-private handlePermissionsUpdate = (event: any) => {
-  console.log('🔄 Sidebar: Permissions mises à jour reçues');
-  this.loadFilteredMenu();
 }
 
 /**

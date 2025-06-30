@@ -3,15 +3,16 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsVehiculeService } from '../../../core/services/interventionvehicules/interventionvehicules.service';
 // Assurez-vous que le chemin est correct et que Commune est bien importée
-import { InterventionVehicule, TypeIntervention, Vehicule, Commune } from '../../../core/services/interface/models'; 
+import { InterventionVehicule, TypeIntervention, Vehicule, Commune } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule, DatePipe } from '@angular/common'; // Ajout de DatePipe
 // Import de NgbDate pour la conversion des dates si nécessaire (bien que NgbDateStruct soit plus couramment utilisé avec NgbDatepicker)
-import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule, NgbDate } from '@ng-bootstrap/ng-bootstrap'; 
+import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule, NgbDate } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 // Correction de l'import pour NgSelectComponent, il faut importer le module complet
-import { NgSelectModule } from '@ng-select/ng-select'; 
+import { NgSelectModule } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
+import { Router } from '@angular/router';
 
 
 declare var bootstrap: any;
@@ -35,9 +36,17 @@ declare var bootstrap: any;
 })
 
 export class InterventionVehiculeComponent implements OnInit {
+  // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddInterventionVehicule: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canModifyInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canDeleteInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  canViewInterventionVehicule: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
-  rows: InterventionVehicule[] = []; 
+  rows: InterventionVehicule[] = [];
   temp: InterventionVehicule[] = [];
   loadingIndicator = true;
   reorderable = true;
@@ -51,7 +60,7 @@ export class InterventionVehiculeComponent implements OnInit {
   public editInterventionVehicule!: FormGroup;
   public deleteInterventionVehicule!: FormGroup;
 
-  vehicules: Vehicule[] = []; 
+  vehicules: Vehicule[] = [];
   communes: Commune[] = []; // Gardé si utilisé ailleurs, mais pas directement dans cette logique
   typeInterventions: TypeIntervention[] = []; // Liste complète des types d'intervention avec has_expiration_date
 
@@ -68,18 +77,64 @@ export class InterventionVehiculeComponent implements OnInit {
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(
-    private interventionVehiculeService: InterventionsVehiculeService, 
-    private formBuilder: FormBuilder
+    private interventionVehiculeService: InterventionsVehiculeService,
+    private formBuilder: FormBuilder,
+    private router: Router
   ) { }
 
   ngOnInit(): void {
-    console.log('ngOnInit: Démarrage du chargement des données...');
-    this.loadVehicules();
-    this.loadCommunes();
-    this.loadInterventionVehicules();
-    this.loadtypeInterventions(); // Charger les types d'intervention, essentiel pour `has_expiration_date`
 
-    this.initForms(); // Appeler une méthode pour initialiser les formulaires
+    this.initializePermissions();
+    if (this.hasPageAccess) {
+      console.log('ngOnInit: Démarrage du chargement des données...');
+      this.loadVehicules();
+      this.loadCommunes();
+      this.loadInterventionVehicules();
+      this.loadtypeInterventions(); // Charger les types d'intervention, essentiel pour `has_expiration_date`
+      this.initForms(); // Appeler une méthode pour initialiser les formulaires
+    }
+  }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canAddInterventionVehicule = allowedFonctionnalites.includes('Ajout Intervention vehicule');
+      this.canModifyInterventionVehicule = allowedFonctionnalites.includes('Modification Intervention vehicule');
+      this.canDeleteInterventionVehicule = allowedFonctionnalites.includes('Suppression Intervention vehicule');
+      this.canViewInterventionVehicule= allowedFonctionnalites.includes('Voir intervention vehicule');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canViewInterventionVehicule ;
+
+
+      console.log('🔐 Permissions calculées:', {
+        canAddInterventionVehicule: this.canAddInterventionVehicule,
+        canModifyInterventionVehicule: this.canModifyInterventionVehicule,
+        canDeleteInterventionVehicule: this.canDeleteInterventionVehicule
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des entrées de stock');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
   }
 
   // Méthode pour initialiser les formulaires
@@ -104,12 +159,12 @@ export class InterventionVehiculeComponent implements OnInit {
 
     this.editInterventionVehicule = this.formBuilder.group({
       id: [0, [Validators.required]],
-      vehicule_id: [null, [Validators.required]], 
+      vehicule_id: [null, [Validators.required]],
       titre: ["", [Validators.required]],
       observation: ["", [Validators.required]],
       date_intervention: [this.currentDate, [Validators.required]], // Date par défaut
       montant: ["", [Validators.required, Validators.min(0)]],
-      type_intervention_id: [null, [Validators.required]], 
+      type_intervention_id: [null, [Validators.required]],
       date_expiration: [null], // Initialisé à null, son validateur et visibilité seront gérés dynamiquement
     });
 
@@ -140,13 +195,13 @@ export class InterventionVehiculeComponent implements OnInit {
     }
 
     console.log(`handleTypeInterventionChange: Called for formType: ${formType}, resolved typeId: ${typeId}`);
-    
+
     const selectedType = this.typeInterventions.find(type => type.id === typeId);
     console.log('handleTypeInterventionChange: Selected Type from array:', selectedType);
     console.log('handleTypeInterventionChange: has_expiration_date for selected type:', selectedType?.has_expiration_date);
 
-    const dateExpirationControl = formType === 'add' ? 
-      this.addInterventionVehicule.get('date_expiration') : 
+    const dateExpirationControl = formType === 'add' ?
+      this.addInterventionVehicule.get('date_expiration') :
       this.editInterventionVehicule.get('date_expiration');
 
     if (dateExpirationControl) {
@@ -225,7 +280,7 @@ export class InterventionVehiculeComponent implements OnInit {
       // Convertir NgbDateStruct en string 'YYYY-MM-DD'
       date_intervention: this.formatDate(this.addInterventionVehicule.value.date_intervention),
       // Gérer date_expiration: la convertir si elle est présente et requise, sinon null
-      date_expiration: this.addInterventionVehicule.value.date_expiration ? 
+      date_expiration: this.addInterventionVehicule.value.date_expiration ?
                        this.formatDate(this.addInterventionVehicule.value.date_expiration) : null
     };
     console.log('onClickSubmitAddInterventionVehicule: Données à envoyer:', formData);
@@ -235,7 +290,7 @@ export class InterventionVehiculeComponent implements OnInit {
         console.log('onClickSubmitAddInterventionVehicule: Ajout réussi:', data);
         this.loadInterventionVehicules();
         this.addInterventionVehicule.reset();
-        this.isAddingInterventionVehicule = false; 
+        this.isAddingInterventionVehicule = false;
 
         // Réinitialiser les champs de date par défaut et masquer/vider date_expiration
         this.addInterventionVehicule.patchValue({
@@ -266,7 +321,7 @@ export class InterventionVehiculeComponent implements OnInit {
       },
       (error: any) => {
         console.error('Erreur lors de l\'ajout de l\'intervention du véhicule :', error);
-        this.isAddingInterventionVehicule = false; 
+        this.isAddingInterventionVehicule = false;
         alert('Une erreur s\'est produite. Veuillez réessayer.');
       }
     );
@@ -290,7 +345,7 @@ export class InterventionVehiculeComponent implements OnInit {
     const formData = {
       ...this.editInterventionVehicule.value,
       date_intervention: this.formatDate(this.editInterventionVehicule.value.date_intervention),
-      date_expiration: this.editInterventionVehicule.value.date_expiration ? 
+      date_expiration: this.editInterventionVehicule.value.date_expiration ?
                        this.formatDate(this.editInterventionVehicule.value.date_expiration) : null
     };
     console.log('onClickSubmitEditInterventionVehicule: Données à envoyer:', formData);
@@ -304,7 +359,7 @@ export class InterventionVehiculeComponent implements OnInit {
         this.isEditingInterventionVehicule = false;
 
         // Masquer le champ de date d'expiration après reset
-        this.editShowExpirationDateInput = false; 
+        this.editShowExpirationDateInput = false;
         this.editInterventionVehicule.get('date_expiration')?.clearValidators(); // Retirer les validateurs
         this.editInterventionVehicule.get('date_expiration')?.updateValueAndValidity(); // Mettre à jour la validité
 
@@ -382,7 +437,7 @@ export class InterventionVehiculeComponent implements OnInit {
       (interventionVehicule.vehicule?.immatriculation?.toLowerCase().includes(val) || false) ||
       (interventionVehicule.typeIntervention?.libelle_type_intervention?.toLowerCase().includes(val) || false) ||
       // Filtrer aussi par la date d'expiration si elle est présente et le type d'intervention a has_expiration_date
-      (interventionVehicule.typeIntervention?.has_expiration_date && interventionVehicule.date_expiration ? 
+      (interventionVehicule.typeIntervention?.has_expiration_date && interventionVehicule.date_expiration ?
          this.formatDate(this.convertToNgbDate(interventionVehicule.date_expiration) as NgbDateStruct)?.toLowerCase().includes(val) : false) ||
       // Filtrer par la date d'intervention
       (interventionVehicule.date_intervention ? this.formatDate(this.convertToNgbDate(interventionVehicule.date_intervention) as NgbDateStruct)?.toLowerCase().includes(val) : false)
@@ -477,7 +532,7 @@ export class InterventionVehiculeComponent implements OnInit {
   formatDate(date: NgbDateStruct | string | null): string | null { // Ajout de `| null`
     if (!date) return null;
     if (typeof date === 'string') { // Si c'est déjà une chaîne, la retourner telle quelle
-      return date; 
+      return date;
     }
     const year = date.year;
     const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
@@ -489,7 +544,7 @@ export class InterventionVehiculeComponent implements OnInit {
   convertToNgbDate(dateString: string | null): NgbDateStruct | null {
     if (!dateString) return null;
     const parts = dateString.split('-');
-    if (parts.length !== 3) return null; 
+    if (parts.length !== 3) return null;
     return {
       year: +parts[0],
       month: +parts[1],

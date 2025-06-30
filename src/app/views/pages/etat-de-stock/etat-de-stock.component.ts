@@ -5,6 +5,7 @@ import { Categorie, Article } from '../../../core/services/interface/models';
 import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';  // Ajoutez cette importation
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -21,6 +22,14 @@ declare var bootstrap: any;
   styleUrls: ['etat-de-stock.component.scss']
 })
 export class EtatStockComponent implements OnInit {
+
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canViewEtatStock: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+  canExportEtatStock: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+
+
   rows: Article[] = [];
   temp: Article[] = [];
   loadingIndicator = true;
@@ -31,13 +40,67 @@ export class EtatStockComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleService: ArticleService){}
+  constructor(private articleService: ArticleService, private router: Router){}
 
   // Variable pour stocker le texte de recherche
   searchText: string = '';
   ngOnInit(): void {
-    this.loadCategories();
-    this.loadArticles();
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadCategories();
+        this.loadArticles();
+    }
+  }
+
+
+    // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canViewEtatStock = allowedFonctionnalites.includes('Voir Etat de Stock');
+      this.canExportEtatStock = allowedFonctionnalites.includes('Export Stock')
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canViewEtatStock ;
+                          
+
+      console.log('🔐 Permissions calculées:', {
+        canViewEtatStock: this.canViewEtatStock,
+        canExportEtatStock: this.canExportEtatStock,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la page des etats de stock');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+    // 🔥 NOUVELLE MÉTHODE : Définir les permissions par défaut
+  private setDefaultPermissions(): void {
+    this.canViewEtatStock = true;
+    this.canExportEtatStock = true;
+    this.hasPageAccess = true;
+    console.log('✅ Permissions par défaut appliquées');
   }
 
   loadCategories(): void {
@@ -122,6 +185,12 @@ applyFilters(): void {
   }
 
   downloadEtatStock() {
+    // 🔥 VÉRIFICATION DE PERMISSION AVANT EXPORT
+    if (!this.canExportEtatStock) {
+      alert('Vous n\'avez pas l\'autorisation d\'exporter l`\'etat du stock.');
+      return;
+    }
+
     this.articleService.imprimerEtatStock().subscribe((response: Blob) => {
       const fileURL = window.URL.createObjectURL(response);
       const a = document.createElement('a');

@@ -9,7 +9,7 @@ import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from 
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
-
+import { Router } from '@angular/router';
 
 declare var bootstrap: any;
 
@@ -31,6 +31,18 @@ declare var bootstrap: any;
   templateUrl: 'intervention.component.html'
 })
 export class InterventionComponent implements OnInit {
+
+    // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canAddIntervention: boolean = false;    // DÉFAUT À TRUE pour éviter les blocages
+  canExportIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canModifyIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canDeleteIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+  canVoirIntervention: boolean = false; // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = false;  //  DÉFAUT À TRUE pour éviter les blocages
+
+
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
   rows: Intervention[] = [];
@@ -56,12 +68,19 @@ export class InterventionComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private interventionService: InterventionsService, private formBuilder: FormBuilder,) { }
+  constructor(private interventionService: InterventionsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
-    this.loadImmobilisations();
-    this.loadtypeInterventions();
-    this.loadInterventions();
+
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadImmobilisations();
+        this.loadtypeInterventions();
+        this.loadInterventions();
+    }
 
     this.addIntervention = this.formBuilder.group({
       immo_id: [null, [Validators.required]],
@@ -84,8 +103,68 @@ export class InterventionComponent implements OnInit {
       id: [0, [Validators.required]],
     });
   }
+
+  // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return;
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+
+      // 🔥 PERMISSIONS CORRECTES
+      this.canAddIntervention = allowedFonctionnalites.includes('Ajout intervention');
+      this.canVoirIntervention = allowedFonctionnalites.includes('Voir les Interventions Immo');
+       this.canModifyIntervention = allowedFonctionnalites.includes('Modification intervention');
+      this.canDeleteIntervention = allowedFonctionnalites.includes('Suppression intervention');
+      this.canExportIntervention = allowedFonctionnalites.includes('Exporter immobilisation');
+
+
+      // 🔥 ACCÈS À LA PAGE SIMPLIFIÉ
+      this.hasPageAccess =
+                        this.canVoirIntervention;
+
+                              // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages generaux');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+      console.log('🔐 Permissions intervention:', {
+        canAddIntervention: this.canAddIntervention,
+        canModifyIntervention: this.canModifyIntervention,
+        canDeleteIntervention: this.canDeleteIntervention,
+        canExportIntervention: this.canExportIntervention,
+        canVoirIntervention: this.canVoirIntervention,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé à la gestion des immobilisations');
+        this.router.navigate(['/error/403']);
+        // Optionnel: redirection automatique
+        // this.router.navigate(['/dashboard']);
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur permissions intervention:', error);
+    }
+  }
+
+
+
   onClickSubmitAddIntervention() {
-    // console.log('onClickSubmitAddIntervention appelé. isAddingIntervention:', this.isAddingIntervention); // Commenté
+
+    if (!this.canAddIntervention) {
+      alert('Vous n\'avez pas l\'autorisation d\'ajouter une intervention.');
+      return;
+    }
 
     // AJOUT DE LA VÉRIFICATION POUR PRÉVENIR LES DOUBLES CLICS
     if (this.isAddingIntervention) {
@@ -150,7 +229,12 @@ export class InterventionComponent implements OnInit {
   }
 
   onClickSubmitEditIntervention() {
-    // console.log(this.editIntervention.value); // Commenté
+
+    if (!this.canModifyIntervention) {
+      alert('Vous n\'avez pas l\'autorisation de modifier une intervention.');
+      return;
+    }
+
     const spinner = document.querySelector('.spinnerModif');
 
     // NOTE: Il serait bon d'avoir une propriété isEditingIntervention: boolean = false;
@@ -201,6 +285,13 @@ export class InterventionComponent implements OnInit {
   }
 
   onClickSubmitDeleteIntervention() {
+
+    if (!this.canDeleteIntervention) {
+      alert('Vous n\'avez pas l\'autorisation de modifier une intervention.');
+      return;
+    }
+
+
     // console.log(this.deleteIntervention.value); // Commenté
     const spinner = document.querySelector('.spinnerDelete');
 
@@ -355,6 +446,12 @@ export class InterventionComponent implements OnInit {
   }
 
   downloadInterventionsPDF(): void {
+
+    if (!this.canExportIntervention) {
+      alert('Vous n\'avez pas l\'autorisation d\'exportr la liste des interventions.');
+      return;
+    }
+
     this.interventionService.imprimerInterventions().subscribe(
       (response: Blob) => {
         const fileURL = window.URL.createObjectURL(response);

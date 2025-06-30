@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-communes',
@@ -23,6 +24,12 @@ declare var bootstrap: any;
   templateUrl: 'communes.component.html'
 })
 export class CommunesComponent implements OnInit {
+
+  // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  allowedFonctionnalites: string[] = [];
+  canVoirParamParc: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
+
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   rows: Commune[] = [];
   temp: Commune[] = [];
@@ -46,10 +53,17 @@ export class CommunesComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private communesService: CommunesService, private formBuilder: FormBuilder,) {}
+  constructor(private communesService: CommunesService, private formBuilder: FormBuilder, private router: Router) {}
 
   ngOnInit(): void {
-    this.loadCommunes();
+    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
+    this.initializePermissions();
+
+    // Ensuite charger les données seulement si on a accès
+    if (this.hasPageAccess) {
+        this.loadCommunes();
+    }
+
     this.addCommune = this.formBuilder.group({
       libelle_commune: ["", [Validators.required]],
    });
@@ -61,6 +75,45 @@ export class CommunesComponent implements OnInit {
       id: [0, [Validators.required]],
    });
   }
+
+// 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
+  private initializePermissions(): void {
+    try {
+      const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
+
+      if (!allowedFonctionnalitesStr) {
+        console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
+        return; // Garder les permissions par défaut (true)
+      }
+
+      const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
+      console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
+
+      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
+      this.canVoirParamParc = allowedFonctionnalites.includes('Voir Parametres Parc');
+
+      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
+      this.hasPageAccess = this.canVoirParamParc;
+
+      console.log('🔐 Permissions calculées:', {
+        canVoirParamParc: this.canVoirParamParc,
+        hasPageAccess: this.hasPageAccess
+      });
+
+      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD
+      if (!this.hasPageAccess) {
+        console.warn('❌ Accès refusé parametrages de parc');
+        this.router.navigate(['/error/403']);
+        return;
+      }
+
+    } catch (error) {
+      console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
+      // En cas d'erreur, garder les permissions par défaut (true)
+    }
+  }
+
+
 
   // --- MÉTHODE UTILITAIRE POUR MARQUER TOUS LES CONTRÔLES DE FORMULAIRE COMME TOUCHÉS ---
   private markFormGroupTouched(formGroup: FormGroup) {
