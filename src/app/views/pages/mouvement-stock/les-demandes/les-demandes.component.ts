@@ -79,7 +79,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
         this.loadGroupedMouvements();
     }
 
-    
+
     console.log("Oui la fonction est appelée")
     this.editStatutSortie = this.formBuilder.group({
       id: [null, Validators.required],
@@ -321,7 +321,12 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
           this.editStatutSortie.reset();
           this.isStatutModifLoading = false; // Réactive le bouton
 
-          this.modalService.dismissAll();
+          // this.modalService.dismissAll();
+          // Fermer le modal
+          const modal = document.getElementById('edit_statut_sortie');
+          // @ts-ignore
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
 
           setTimeout(() => {
             this.alertModifVisible = true;
@@ -364,7 +369,12 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
         this.edit_all.reset();
         this.isProcessingAll = false; // Réactive le bouton
 
-        this.modalService.dismissAll();
+        // this.modalService.dismissAll();
+        // Fermer le modal
+          const modal = document.getElementById('tout_traiter');
+          // @ts-ignore
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
 
         setTimeout(() => {
           this.alertModifAllVisible = true;

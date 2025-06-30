@@ -1,5 +1,5 @@
 <!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
-<div class="row" *ngIf="!hasPageAccess">
+<div class="row" *ngIf="hasPageAccess">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a routerLink=".">Mouvement Stock</a></li>
@@ -45,7 +45,7 @@
 
 
 
-<div class="row" *ngIf="!hasPageAccess">
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">

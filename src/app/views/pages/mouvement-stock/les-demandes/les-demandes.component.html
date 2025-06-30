@@ -1,5 +1,5 @@
 <!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
-<div class="row" *ngIf="!hasPageAccess">
+<div class="row" *ngIf="hasPageAccess">
 
   <div *ngIf="loading">Chargement...</div>
 
@@ -31,7 +31,7 @@
 
 
 <!-- 🔥 VÉRIFICATION D'ACCÈS À LA PAGE -->
-<div class="row" *ngIf="!hasPageAccess">
+<div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
