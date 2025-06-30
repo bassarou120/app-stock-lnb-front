@@ -65,7 +65,7 @@ export class ImmobilisationComponent implements OnInit {
   sousTypeImmo: SousTypeImmo[] = []; // Liste des SousTypeImmo
   groupeTypeImmo: GroupeTypeImmo[] = []; // Liste des GroupeTypeImmo
 
-  etatOptions: string[] = ['Bon', 'Usé', 'Défectueux', 'Irréparable'];
+  etatOptions: string[] = ['Bon', 'Usé', 'Défectueux / En panne', 'Irréparable'];
 
   // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingImmobilisation: boolean = false; // Pour l'ajout d'une immobilisation

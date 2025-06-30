@@ -141,7 +141,7 @@
     <div class="modal-content">
       <!-- En-tête du modal -->
       <div class="modal-header">
-        <h5 class="modal-title" id="addTransfertLabel">Ajouter un Transfert</h5>
+        <h5 class="modal-title" id="addTransfertLabel">Ajouter un Transfert / Affectation</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
@@ -222,10 +222,21 @@
             </ng-template>
           </div>
 
+          <div class="mb-3" *ngIf="addTransfert.get('bureau_id')?.value === magasinId">
+            <label class="form-label">État <span class="text-danger">*</span></label>
+            <ng-select [items]="etatOptions" formControlName="etat" [clearable]="true"
+              placeholder="Sélectionnez l'état">
+            </ng-select>
+
+            <div *ngIf="addTransfert.get('etat')?.invalid && addTransfert.get('etat')?.touched">
+              <small class="text-danger"> *L'état est obligatoire</small>
+            </div>
+          </div>
+
 
 
           <!-- Sélectionner nouveau employe -->
-          <div class="mb-3">
+          <div class="mb-3" *ngIf="addTransfert.get('bureau_id')?.value !== magasinId">
             <label for="employe_id" class="form-label">Nouveau Personnel <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="employes && employes.length > 0; else noemployes">
@@ -246,6 +257,25 @@
                 <i class="feather icon-alert-circle"></i> Aucun Personnel. Veuillez en créer.
               </div>
             </ng-template>
+          </div>
+          
+          <!-- date_mise_en_service -->
+          <div class="mb-3" *ngIf="!addTransfert.get('old_bureau_id')?.value && !addTransfert.get('old_employe_id')?.value">
+            <label for="date_mise_en_service" class="form-label">
+              Date de Mise en Service <span class="text-danger">*</span>
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="mTransfert.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpTransfert"
+                [(ngModel)]="currentDate" ngbDatepicker #mTransfert="ngbDatepicker"
+                formControlName="date_mise_en_service">
+            </div>
+
+            <div *ngIf="addTransfert.get('date_mise_en_service')?.invalid && addTransfert.get('date_mise_en_service')?.touched">
+              <small class="text-danger"> *la date de mise en service est obligatoire</small>
+            </div>
           </div>
 
           <!-- date_mouvement -->

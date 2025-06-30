@@ -74,6 +74,11 @@
             <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
             <ngx-datatable-column name="Montant ttc" prop="montant_ttc"></ngx-datatable-column>
             <ngx-datatable-column name="Etat" prop="etat"></ngx-datatable-column>
+            <ngx-datatable-column name="Status immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.status_immo?.libelle_status_immo || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
             <ngx-datatable-column name="Groupe type immo">
               <ng-template let-row="row" ngx-datatable-cell-template>
@@ -85,11 +90,7 @@
                 {{ row.sous_type_immo?.libelle || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Status immo">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.status_immo?.libelle_status_immo || 'N/A' }}
-              </ng-template>
-            </ngx-datatable-column>
+
             <ngx-datatable-column name="Personnel">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.employe?.fullnameEmploye || 'Non défini' }}
@@ -369,15 +370,15 @@
 
 
           <!-- isVehicule  ?? -->
-          <div class="form-check mb-3">
+          <!-- <div class="form-check mb-3">
             <input type="checkbox" class="form-check-input" id="checkDefault" (change)="onCheckboxChange($event)">
             <label class="form-check-label" for="checkDefault">
               Cette Immobilisation est une voiture ?
             </label>
-          </div>
+          </div> -->
 
           <!-- Sélectionner un le véhicule si l'immo est un véhicule -->
-          <div class="mb-3" *ngIf="addImmobilisation.get('isVehicule')?.value === 1">
+          <!-- <div class="mb-3" *ngIf="addImmobilisation.get('isVehicule')?.value === 1">
             <label for="vehicule_id" class="form-label">Immatriculation du véhicule</label>
 
             <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehicule">
@@ -388,16 +389,16 @@
                 *ngIf="addImmobilisation.get('vehicule_id')?.invalid && addImmobilisation.get('vehicule_id')?.touched">
                 <small class="text-danger"> *l'immatriculation du est obligatoire</small>
               </div>
-            </ng-container>
+            </ng-container> -->
 
             <!-- Message si aucun Vehicule n'existe -->
-            <ng-template #noVehicule>
+            <!-- <ng-template #noVehicule>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Véhicule. Veuillez en créer.
               </div>
             </ng-template>
-          </div>
+          </div> -->
 
 
 

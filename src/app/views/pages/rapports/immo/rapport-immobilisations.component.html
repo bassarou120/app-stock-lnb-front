@@ -129,7 +129,7 @@
 
               <!-- Ancien Bureau (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="oldBureau" class="form-label">Ancien Bureau (Optionnel)</label>
+                <label for="oldBureau" class="form-label">Ancien Bureau / Localisation (Optionnel)</label>
                 <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux">
                   <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="old_bureau_id"
                     [clearable]="true" placeholder="Sélectionner un ancien bureau">
@@ -145,7 +145,7 @@
 
               <!-- Nouveau Bureau (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="newBureau" class="form-label">Nouveau Bureau (Optionnel)</label>
+                <label for="newBureau" class="form-label">Nouveau Bureau / Localisation (Optionnel)</label>
                 <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux2">
                   <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="bureau_id"
                     [clearable]="true" placeholder="Sélectionner un nouveau bureau">
