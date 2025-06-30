@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd ${{ secrets.TARGET_DIR }}
+            cd ${{ secrets.TARGET_DIR }}/front
             docker load -i front-lnb-stock.tar
             docker compose down
             docker compose up -d
