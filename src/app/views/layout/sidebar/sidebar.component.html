@@ -1,14 +1,18 @@
 <nav class="sidebar">
   <div class="sidebar-header">
 
-    <!--- Logo -->
-    <!-- <a routerLink="/" class="sidebar-brand">
-      <span>LNB</span>
-    </a> -->
-
-    <a routerLink="/" class="sidebar-brand">
-      <img src="images/logo.png" alt="logo">
+    <!-- LOGO ET NOM DU SITE DYNAMIQUES -->
+    <!-- Cette section a été modifiée pour afficher le logo et le nom du site depuis le service -->
+    <a routerLink="/" class="sidebar-brand d-flex align-items-center">
+      <img
+        [src]="logoUrl"
+        alt="logo du site"
+        style="height: 40px; width: auto; object-fit: contain; margin-right: 8px;"
+        (error)="logoUrl = 'https://placehold.co/50x50/A0B3C8/FFFFFF?text=Logo+Error'"
+      />
+      <!-- <span class="fw-bold">{{ siteName }}</span> Affichage du nom du site -->
     </a>
+    <!-- FIN DE LA SECTION LOGO ET NOM DU SITE DYNAMIQUES -->
 
     <!--- Toggler -->
     <div class="sidebar-toggler" #sidebarToggler (click)="toggleSidebar($event)">

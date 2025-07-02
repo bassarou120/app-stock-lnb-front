@@ -44,7 +44,7 @@
   
           <!-- Section Aperçu Actuel (visible après chargement) -->
           <div *ngIf="!loading" class="mb-4 p-3 border rounded bg-light">
-            <h5 class="card-title mb-3">Aperçu Actuel</h5>
+            <h5 class="card-title text-secondary">Aperçu Actuel</h5>
             <div class="d-flex align-items-center flex-column flex-sm-row">
               <div class="flex-shrink-0 mb-3 mb-sm-0 me-sm-4">
                 <img
@@ -56,9 +56,9 @@
                 />
               </div>
               <div class="text-center text-sm-start">
-                <p class="text-muted mb-1">Nom du site actuel :</p>
+                <p class="text-secondary">Nom du site actuel :</p>
                 <h4 class="text-primary fw-bold">{{ siteName }}</h4>
-                <p class="text-muted mb-1 mt-2">Couleur principale actuelle :</p>
+                <p class="text-secondary">Couleur principale actuelle :</p>
                 <div class="d-inline-block border border-dark rounded" [style.backgroundColor]="mainColor" style="width: 30px; height: 30px;"></div>
                 <span class="ms-2 fw-bold" [style.color]="mainColor">{{ mainColor }}</span>
               </div>
