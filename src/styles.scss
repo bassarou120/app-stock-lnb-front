@@ -1,4 +1,16 @@
+@import '../src/styles/variables';
+// @import '~bootstrap/scss/bootstrap';
 /* You can add global styles to this file, and also import other style files */
+
+// Définissez les variables CSS de Bootstrap ici dans :root.
+// Ces valeurs seront les couleurs par défaut si JavaScript ne les modifie pas.
+:root {
+  --bs-primary: #00993E; /* Votre couleur verte par défaut */
+  --bs-primary-rgb: 0, 153, 62; /* La version RGB de votre couleur verte par défaut */
+  // Vous pouvez aussi garder --main-app-color si d'autres parties de votre code l'utilisent,
+  // mais pour Bootstrap, nous ciblons directement --bs-primary.
+  // --main-app-color: #00993E;
+}
 
 
 // Global icon font
@@ -21,6 +33,8 @@
 
 
 // NobleUI styles for LTR layout
+// Ce fichier (./styles/styles.scss) doit importer votre fichier de variables personnalisées
+// AVANT d'importer Bootstrap lui-même.
 @import "./styles/styles.scss";
 
 // NobleUI styles for RTL layout. Replace the above style with this CSS file to enable RTL styles
@@ -29,3 +43,8 @@
 body {
   font-family: 'Poppins', sans-serif !important;
 }
+
+/*
+ * SUPPRIMÉ : Les règles CSS directes comme .btn-primary, .text-primary, etc.
+ * Elles ne sont plus nécessaires car Bootstrap utilisera directement --bs-primary et --bs-primary-rgb.
+ */

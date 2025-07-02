@@ -1,12 +1,13 @@
 import { NgStyle } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core'; // Ajout de OnDestroy
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { FormGroup,FormBuilder, ReactiveFormsModule,Validators } from "@angular/forms";
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
 
-
+import { SiteSettingsService } from '../../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
+import { Subject, takeUntil } from 'rxjs'; // NOUVEAUX IMPORTS POUR GÉRER LES OBSERVABLES
 
 
 @Component({
@@ -22,30 +23,53 @@ import { CommonModule } from '@angular/common';
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDestroy
 
   returnUrl: string = '/';
-  // returnUrl: any;
-    public loginForm!: FormGroup ;
+  public loginForm!: FormGroup ;
 
-  constructor(private formBuilder: FormBuilder,private authService: AuthService,private router: Router, private route: ActivatedRoute) {}
+  // PROPRIÉTÉ POUR LE NOM DU SITE (AJOUTÉE)
+  siteName: string = 'Chargement...';
+
+  // SUBJECT POUR GÉRER LA DÉSINSCRIPTION (AJOUTÉ)
+  private destroy$ = new Subject<void>();
+
+  constructor(
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private siteSettingsService: SiteSettingsService // INJECTION DU SERVICE
+  ) {}
 
   ngOnInit(): void {
-    // Get the return URL from the route parameters, or default to '/'
     this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
     this.loginForm = this.formBuilder.group({
       email: ["" ,[Validators.required]],
       password: ["" ,[Validators.required]],
-   });
+    });
+
+    // S'abonner aux changements du nom du site (AJOUTÉ)
+    this.siteSettingsService.siteSettings$.pipe(
+      takeUntil(this.destroy$) // Gérer la désinscription
+    ).subscribe(settings => {
+      this.siteName = settings.companyName;
+      console.log('LoginComponent: Nom du site mis à jour:', this.siteName);
+    });
+
+    // Optionnel: Charger les paramètres du site au démarrage de la page de connexion
+    // Utile si l'utilisateur arrive directement sur la page de connexion sans passer par AppComponent
+    this.siteSettingsService.getSettings().subscribe({
+        next: () => console.log('LoginComponent: Paramètres du site chargés.'),
+        error: (err) => console.error('LoginComponent: Erreur au chargement des paramètres:', err)
+    });
   }
 
-  // onLoggedin(e: Event) {
-  //   e.preventDefault();
-  //   localStorage.setItem('isLoggedin', 'true');
-  //   if (localStorage.getItem('isLoggedin') === 'true') {
-  //     this.router.navigate([this.returnUrl]);
-  //   }
-  // }
+  // MÉTHODE ngOnDestroy POUR LA DÉSINSCRIPTION (AJOUTÉE)
+  ngOnDestroy(): void {
+    this.destroy$.next(); // Émet une valeur pour désinscrire tous les abonnements RxJS
+    this.destroy$.complete(); // Complète le Subject
+  }
 
   onLoggedin(e: Event) {
     e.preventDefault();
@@ -72,8 +96,4 @@ export class LoginComponent implements OnInit {
     alert("Désolé, le formulaire n'est pas bien renseigné");
   }
   }
-
-
-
-
 }
