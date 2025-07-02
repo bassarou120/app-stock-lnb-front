@@ -173,7 +173,7 @@
           novalidate>
           <div class="mb-3">
             <label for="statut" class="form-label">Nouveau Statut <span class="text-danger">*</span></label>
-            <ng-select [items]="['En attente', 'Refusé', 'Accordé']" [clearable]="false"
+            <ng-select [items]="['Refusé', 'Accordé']" [clearable]="false"
               placeholder="Sélectionnez le statut" formControlName="statut">
             </ng-select>
             <div *ngIf="editStatutSortie.get('statut')?.invalid && editStatutSortie.get('statut')?.touched">
@@ -254,7 +254,7 @@
 
           <div class="mb-3">
             <label for="statut" class="form-label">Nouveau Statut <span class="text-danger">*</span></label>
-            <ng-select [items]="['En attente', 'Refusé', 'Accordé']" [clearable]="false"
+            <ng-select [items]="['Refusé', 'Accordé']" [clearable]="false"
               placeholder="Sélectionnez le statut" formControlName="statut">
             </ng-select>
             <div *ngIf="editStatutSortie.get('statut')?.invalid && editStatutSortie.get('statut')?.touched">
