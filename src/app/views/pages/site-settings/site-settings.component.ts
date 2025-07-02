@@ -26,8 +26,8 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
   newLogoFile: File | null = null;
 
   // MODIFIÉ: Initialisation de la couleur principale en vert
-  mainColor: string = '#28a745'; // Couleur principale actuellement sauvegardée (Vert Bootstrap)
-  newMainColor: string = '#28a745'; // Couleur sélectionnée dans le champ de saisie
+  mainColor: string = '#00993E'; // Couleur principale actuellement sauvegardée (Vert Bootstrap)
+  newMainColor: string = '#00993E'; // Couleur sélectionnée dans le champ de saisie
 
   loading: boolean = true;
   isSaving: boolean = false;
@@ -56,7 +56,7 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
       siteName: ['', Validators.required],
       logoFile: [null],
       // MODIFIÉ: Initialisation du formulaire avec la couleur verte
-      mainColor: ['#28a745', Validators.required] // Initialisation avec une couleur verte par défaut
+      mainColor: ['#00993E', Validators.required] // Initialisation avec une couleur verte par défaut
     });
   }
 
@@ -77,7 +77,7 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
         this.siteName = companyNameSetting?.value || 'Nom du Site';
         this.logoUrl = logoUrlSetting?.value ? this.siteSettingsService.getPublicStorageUrl(logoUrlSetting.value) : 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo';
         // MODIFIÉ: Utilisation de la couleur verte par défaut si non trouvée
-        this.mainColor = mainColorSetting?.value || '#28a745'; // Mettre à jour la couleur principale
+        this.mainColor = mainColorSetting?.value || '#00993E'; // Mettre à jour la couleur principale
 
         // Mettre à jour les valeurs du formulaire
         this.siteSettingsForm.patchValue({

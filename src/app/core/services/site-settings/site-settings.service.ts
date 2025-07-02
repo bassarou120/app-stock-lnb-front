@@ -30,7 +30,7 @@ export class SiteSettingsService {
   private _siteSettings = new BehaviorSubject<SiteSettings>({
     companyName: 'Nom du Site',
     logoUrl: 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo',
-    mainColor: '#28a745' // Vert par défaut
+    mainColor: '#00993E' // Vert par défaut
   });
 
   // Observable public pour que les composants puissent s'abonner aux paramètres mis à jour
@@ -56,7 +56,7 @@ export class SiteSettingsService {
         this._siteSettings.next({
           companyName: companyNameSetting?.value || 'Nom du Site',
           logoUrl: fullLogoUrl,
-          mainColor: mainColorSetting?.value || '#28a745'
+          mainColor: mainColorSetting?.value || '#00993E'
         });
         console.log('SiteSettingsService: Paramètres mis à jour dans BehaviorSubject', this._siteSettings.getValue());
       })
