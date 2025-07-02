@@ -46,6 +46,8 @@ export class TransfertComponent implements OnInit {
 
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
+  messageEnMagazin:string="";
+
   rows: Transfert[] = [];
   temp: Transfert[] = [];
   loadingIndicator = true;
@@ -552,6 +554,9 @@ export class TransfertComponent implements OnInit {
     this.transfertService.getOldInfo(idImmo).subscribe(
       (response) => {
         console.log('Info Récupérée:', response);
+        if (response.bureau==null && response.employe==null) {
+          this.messageEnMagazin="Cette Immo est actuellement en magasin"
+        }
         this.addTransfert.patchValue({
           old_bureau_id: response.bureau, // Assurez-vous que 'bureau' dans response est l'ID du bureau
           old_employe_id: response.employe // Assurez-vous que 'employe' dans response est l'ID de l'employé

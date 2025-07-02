@@ -82,7 +82,7 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Ancien Bureau/Localisation">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.old_bureau?.libelle_bureau || 'Non défini' }}
+                {{ row.old_bureau?.libelle_bureau || 'Magasin' }}
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Nouveau Bureau/Localisation">
@@ -159,9 +159,12 @@
                 [clearable]="true" placeholder="Sélectionnez l'immobilisation" (change)="updateOldInfo()">
               </ng-select>
 
-              <div
-                *ngIf="addTransfert.get('immo_id')?.invalid && addTransfert.get('immo_id')?.touched">
+              <div *ngIf="addTransfert.get('immo_id')?.invalid && addTransfert.get('immo_id')?.touched">
                 <small class="text-danger"> *L'immobilisation est obligatoire</small>
+              </div>
+
+              <div *ngIf="addTransfert.get('old_employe_id')?.value == null && addTransfert.get('old_bureau_id')?.value == null && addTransfert.get('immo_id')?.value">
+                <small class="text-danger"> {{messageEnMagazin}} </small>
               </div>
             </ng-container>
 
@@ -175,7 +178,7 @@
           </div>
 
           <!-- old_bureau_id -->
-          <div class="mb-3">
+          <div class="mb-3" *ngIf="addTransfert.get('old_bureau_id')?.value !== null" >
             <label for="old_bureau_id" class="form-label">Ancien Bureau/Localisation <span class="text-danger"></span></label>
             <input type="text" class="form-control" id="old_bureau_id" placeholder="" autocomplete="off"
               [class.invalid]="addTransfert.get('old_bureau_id')?.invalid && addTransfert.get('old_bureau_id')?.touched"
@@ -187,7 +190,7 @@
           </div>
 
           <!-- old_employe_id -->
-          <div class="mb-3">
+          <div class="mb-3" *ngIf="addTransfert.get('old_employe_id')?.value !== null">
             <label for="old_employe_id" class="form-label">Ancien Personnel <span class="text-danger"></span></label>
             <input type="text" class="form-control" id="old_employe_id" placeholder="" autocomplete="off"
               [class.invalid]="addTransfert.get('old_employe_id')?.invalid && addTransfert.get('old_employe_id')?.touched"
@@ -258,7 +261,7 @@
               </div>
             </ng-template>
           </div>
-          
+
           <!-- date_mise_en_service -->
           <div class="mb-3" *ngIf="!addTransfert.get('old_bureau_id')?.value && !addTransfert.get('old_employe_id')?.value">
             <label for="date_mise_en_service" class="form-label">
@@ -281,7 +284,7 @@
           <!-- date_mouvement -->
           <div class="mb-3">
             <label for="date_mouvement" class="form-label">
-              Date du Transfert <span class="text-danger">*</span>
+              Date du Transfert/Affectation <span class="text-danger">*</span>
             </label>
             <div class="input-group mb-5">
               <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dTransfert.toggle()">
