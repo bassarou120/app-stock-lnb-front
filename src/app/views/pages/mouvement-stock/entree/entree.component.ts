@@ -64,6 +64,7 @@ export class EntreeComponent implements OnInit {
   public editEntree!: FormGroup;
   public deleteEntree!: FormGroup;
   public addEntreeMultipleForm: FormGroup;
+  public selectedEntree: any = null;
 
   public url: string = environment.base_url_backend;
 
@@ -161,6 +162,11 @@ export class EntreeComponent implements OnInit {
     return requiredPermissions.some(permission =>
       this.allowedFonctionnalites.includes(permission)
     );
+  }
+
+  // Créer une méthode séparée pour "Voir plus"
+  getViewForm(row: any): void {
+    this.selectedEntree = row; // Stocker la ligne sélectionnée
   }
 
   // 🔥 NOUVELLE MÉTHODE : Initialiser les formulaires (séparée pour plus de clarté)

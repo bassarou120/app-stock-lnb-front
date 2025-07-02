@@ -69,6 +69,8 @@ export class ImmobilisationComponent implements OnInit {
 
   // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingImmobilisation: boolean = false; // Pour l'ajout d'une immobilisation
+    // NOUVELLE PROPRIÉTÉ pour stocker l'immobilisation sélectionnée
+  public selectedImmobilisation: any = null;
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -195,6 +197,12 @@ export class ImmobilisationComponent implements OnInit {
 
     this.hasPageAccess = true;
     console.log('✅ Permissions par défaut appliquées');
+  }
+
+    // 🔥 NOUVELLE MÉTHODE pour "Voir plus"
+  getViewForm(row: any): void {
+    this.selectedImmobilisation = row; // Stocker la ligne sélectionnée
+    console.log('Immobilisation sélectionnée:', this.selectedImmobilisation);
   }
 
   onClickSubmitAddImmobilisation() {

@@ -37,6 +37,14 @@
             data-bs-target="#add_sortie">
             Ajouter
           </button> -->
+          <button
+                  type="button"
+                  class="btn btn-outline-primary btn-icon-text align-self-center"
+                  (click)="downloadMouvementsSortiePDF()"
+                  title="Exporter la liste des sorties">
+              <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+              Imprimer
+            </button>
         </div>
       </div>
     </div>

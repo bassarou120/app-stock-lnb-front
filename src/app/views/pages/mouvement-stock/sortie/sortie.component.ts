@@ -288,6 +288,27 @@ export class SortieComponent implements OnInit {
       }
     });
   }
+
+    downloadMouvementsSortiePDF(): void {
+    // 🔥 VÉRIFICATION DE PERMISSION AVANT EXPORT
+
+    this.sortieService.imprimerMouvementsSortie().subscribe(
+      (response: Blob) => {
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = 'liste_mouvements_sorties.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+      },
+      error => {
+        console.error('Erreur lors du téléchargement du PDF des mouvements de sortie:', error);
+        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+      }
+    );
+  }
   
   loadEmployes(): void {
     this.sortieService.getAllEmployes().subscribe({

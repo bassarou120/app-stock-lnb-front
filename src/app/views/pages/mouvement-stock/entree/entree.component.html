@@ -188,6 +188,17 @@
                       <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                     </a>
                     <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+
+                      <!-- 🔥 BOUTON VOIR PLUS -->
+                      <a ngbDropdownItem
+                        class="d-flex align-items-center"
+                        data-bs-toggle="modal"
+                        data-bs-target="#voir_plus"
+                        (click)="getViewForm(row)">
+                        <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i>
+                        <span>Voir plus</span>
+                      </a>
+
                       <!-- 🔥 BOUTON MODIFIER CONDITIONNEL -->
                       <a *ngIf="canModifyStock"
                          ngbDropdownItem
@@ -365,6 +376,147 @@
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
             </div>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <!-- Voir entree Modal  -->
+  <div id="voir_plus" class="modal fade" tabindex="-1" aria-labelledby="voirEntreeLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="voirEntreeLabel">
+            <i class="feather icon-eye me-2"></i>
+            Détails du Mouvement d'entrée
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid" *ngIf="selectedEntree">
+            
+            <!-- 🔥 SECTION ARTICLE -->
+            <div class="card mb-3">
+              <div class="card-header bg-primary text-white">
+                <h6 class="mb-0"><i class="feather icon-package me-2"></i>Informations Article</h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <p><strong>Code Article :</strong> 
+                      <span class="text-muted"> {{ selectedEntree.article?.code_article || 'N/A' }}</span>
+                    </p>
+                    <p><strong>Article :</strong> 
+                      <span class="text-muted"> {{ selectedEntree.article?.libelle || 'N/A' }}</span>
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Quantité : </strong> 
+                      <span class="badge bg-info"> {{ selectedEntree.qte || 'N/A' }}</span>
+                    </p>
+                    <p><strong>Unité de Mesure :</strong> 
+                      <span class="text-muted"> {{ selectedEntree.unite_de_mesure?.libelle || 'Non défini' }}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 🔥 SECTION PRIX ET FOURNISSEUR -->
+            <div class="card mb-3">
+              <div class="card-header bg-success text-white">
+                <h6 class="mb-0"><i class="feather icon-dollar-sign me-2"></i>Informations Financières</h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6">
+                    <p><strong>Prix Unitaire :</strong> 
+                      <span class="text-success fw-bold"> {{ selectedEntree.prixUnitaire || 'N/A' }} FCFA</span>
+                    </p>
+                    <p><strong>Coût Moyen Pondéré :</strong> 
+                      <span class="text-info"> {{ selectedEntree.cout_moyen_pondere || 'N/A' }}</span>
+                    </p>
+                  </div>
+                  <div class="col-md-6">
+                    <p><strong>Fournisseur :</strong> 
+                      <span class="text-muted"> {{ selectedEntree.fournisseur?.nom || 'Non défini' }}</span>
+                    </p>
+                    <p><strong>Date du mouvement :</strong> 
+                      <span class="text-muted"> {{ selectedEntree.date_mouvement | date:'dd/MM/yyyy' }}</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 🔥 SECTION DESCRIPTION -->
+            <div class="card mb-3">
+              <div class="card-header bg-info text-white">
+                <h6 class="mb-0"><i class="feather icon-file-text me-2"></i>Description</h6>
+              </div>
+              <div class="card-body">
+                <p class="text-muted mb-0">
+                   {{ selectedEntree.description || 'Aucune description disponible' }}
+                </p>
+              </div>
+            </div>
+
+            <!-- 🔥 SECTION DOCUMENTS -->
+            <div class="card mb-3" *ngIf="selectedEntree.pieces_jointes?.length > 0">
+              <div class="card-header bg-warning text-dark">
+                <h6 class="mb-0"><i class="feather icon-paperclip me-2"></i>Documents joints</h6>
+              </div>
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-md-6" *ngFor="let piece of selectedEntree.pieces_jointes">
+                    <a [href]="url + '/' + piece.url" 
+                       target="_blank" 
+                       class="btn btn-outline-primary btn-sm mb-2 w-100">
+                      <i class="feather icon-download me-2"></i>
+                      Télécharger le document
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 🔥 MESSAGE SI AUCUN DOCUMENT -->
+            <div class="card mb-3" *ngIf="!selectedEntree.pieces_jointes || selectedEntree.pieces_jointes.length === 0">
+              <div class="card-header bg-secondary text-white">
+                <h6 class="mb-0"><i class="feather icon-paperclip me-2"></i>Documents joints</h6>
+              </div>
+              <div class="card-body text-center">
+                <i class="feather icon-file-x text-muted" style="font-size: 2rem;"></i>
+                <p class="text-muted mt-2 mb-0">Aucun document joint à ce mouvement</p>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- 🔥 MESSAGE SI AUCUNE DONNÉE -->
+          <div *ngIf="!selectedEntree" class="text-center py-4">
+            <i class="feather icon-alert-circle text-warning" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">Aucune donnée à afficher</p>
+          </div>
+        </div>
+        
+        <!-- 🔥 FOOTER AVEC BOUTONS D'ACTION -->
+        <div class="modal-footer">
+          <button *ngIf="canModifyStock" 
+                  type="button" 
+                  class="btn btn-primary"
+                  data-bs-toggle="modal"
+                  data-bs-target="#edit_entree"
+                  data-bs-dismiss="modal"
+                  (click)="getEditForm(selectedEntree)">
+            <i class="feather icon-edit me-2"></i>
+            Modifier ce mouvement
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="feather icon-x me-2"></i>
+            Fermer
+          </button>
         </div>
       </div>
     </div>

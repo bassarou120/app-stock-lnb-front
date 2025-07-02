@@ -55,6 +55,8 @@ export class SortieComponent implements OnInit {
 
   couponTicketsWithCompagnies: any[] = [];
   selectedCouponTicket: any = null;
+    // 🔥 AJOUTER cette propriété
+  selectedSortie: any = null;
 
 
   quantiteDisponible: number = 0;
@@ -163,6 +165,34 @@ export class SortieComponent implements OnInit {
       // En cas d'erreur, garder les permissions par défaut (true)
     }
   }
+
+    // 🔥 AJOUTER cette méthode
+  getViewForm(row: any) {
+    if (!row || !row.id) {
+      console.error('Données de sortie invalides:', row);
+      return;
+    }
+    
+    this.selectedSortie = row;
+    console.log('Sortie sélectionnée pour affichage:', row);
+  }
+
+  // 🔥 AJOUTER méthodes utilitaires pour les calculs de dates
+// 🔥 AJOUTER ces méthodes utilitaires
+getDaysSinceAttribution(dateAttribution: string): number {
+  if (!dateAttribution) return 0;
+  const attributionDate = new Date(dateAttribution);
+  const today = new Date();
+  const diffTime = today.getTime() - attributionDate.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+// Méthode pour calculer le ratio litres/trajet
+calculateLitresPerTrajet(qteAttribue: number, nbreTrajet: number): number {
+  if (!qteAttribue || !nbreTrajet || nbreTrajet === 0) return 0;
+  return qteAttribue / nbreTrajet;
+}
+
 
   onClickSubmitAddSortie() {
     // console.log('onClickSubmitAddSortie appelé. isAddingSortie:', this.isAddingSortie); // Commenté
