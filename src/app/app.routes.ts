@@ -59,6 +59,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/transfert/transfert.routes')
       },
       {
+        path: 'site-settings',
+        loadChildren: () => import('./views/pages/site-settings/site-settings.routes')
+      },
+      {
         path: 'parametres',
         loadChildren: () => import('./views/pages/parametres/parametres.routes')
       },
