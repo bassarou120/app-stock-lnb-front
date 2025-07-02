@@ -73,7 +73,8 @@ export class InterventionVehiculeComponent implements OnInit {
   // NOUVEAU: Propriétés pour la gestion de l'affichage conditionnel de date_expiration
   showExpirationDateInput: boolean = false; // Pour la modale d'ajout
   editShowExpirationDateInput: boolean = false; // Pour la modale d'édition
-
+  // 🔥 NOUVELLE PROPRIÉTÉ pour stocker l'intervention véhicule sélectionnée
+  public selectedInterventionVehicule: any = null;
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -137,6 +138,12 @@ export class InterventionVehiculeComponent implements OnInit {
       console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
       // En cas d'erreur, garder les permissions par défaut (true)
     }
+  }
+
+    // ✅ AJOUTER cette méthode
+  getViewForm(row: any) {
+    this.selectedInterventionVehicule = row;
+    console.log('Intervention véhicule sélectionnée:', row);
   }
 
   // Méthode pour initialiser les formulaires
@@ -491,6 +498,103 @@ export class InterventionVehiculeComponent implements OnInit {
     })
   }
 
+    // 🔥 MÉTHODE pour calculer les jours depuis l'intervention
+  getDaysSinceIntervention(dateIntervention: string): number {
+    if (!dateIntervention) return 0;
+    
+    const interventionDate = new Date(dateIntervention);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - interventionDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  }
+
+    // 🔥 MÉTHODE pour calculer les jours jusqu'à expiration
+  getDaysUntilExpiration(dateExpiration: string): number {
+    if (!dateExpiration) return 0;
+    
+    const expirationDate = new Date(dateExpiration);
+    const today = new Date();
+    const diffTime = expirationDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  }
+
+    // 🔥 MÉTHODE pour vérifier si l'intervention est expirée
+  isInterventionExpired(dateExpiration: string): boolean {
+    if (!dateExpiration) return false;
+    return this.getDaysUntilExpiration(dateExpiration) < 0;
+  }
+
+  // 🔥 MÉTHODE pour programmer un suivi (optionnel)
+  programmerSuivi(intervention: any): void {
+    console.log('Programmation d\'un suivi pour l\'intervention:', intervention);
+    // Vous pouvez implémenter cette méthode selon vos besoins
+    // Par exemple, ouvrir un modal de planification ou rediriger vers une page de suivi
+    alert('Fonctionnalité de programmation de suivi à implémenter');
+  }
+
+    // 🔥 MÉTHODE pour obtenir la couleur du badge selon l'état du véhicule
+  getVehiculeEtatBadgeClass(etat: string): string {
+    switch (etat?.toLowerCase()) {
+      case 'bon':
+        return 'bg-success';
+      case 'moyen':
+        return 'bg-warning text-dark';
+      case 'mauvais':
+        return 'bg-danger';
+      default:
+        return 'bg-secondary';
+    }
+  }
+
+  
+  // 🔥 MÉTHODE pour obtenir l'icône selon le type d'intervention
+  getInterventionTypeIcon(typeIntervention: string): string {
+    const type = typeIntervention?.toLowerCase() || '';
+    
+    if (type.includes('maintenance')) return 'icon-settings';
+    if (type.includes('réparation')) return 'icon-tool';
+    if (type.includes('contrôle') || type.includes('visite')) return 'icon-check-circle';
+    if (type.includes('assurance')) return 'icon-shield';
+    if (type.includes('carburant')) return 'icon-zap';
+    
+    return 'icon-truck'; // Icône par défaut
+  }
+
+    // 🔥 MÉTHODE pour formater le kilométrage
+  formatKilometrage(km: number): string {
+    if (!km) return 'N/A';
+    return new Intl.NumberFormat('fr-FR').format(km) + ' km';
+  }
+
+  // 🔥 MÉTHODES UTILITAIRES À AJOUTER
+getDaysExpiredSince(dateExpiration: string): number {
+  if (!dateExpiration) return 0;
+  
+  const expirationDate = new Date(dateExpiration);
+  const today = new Date();
+  const diffTime = today.getTime() - expirationDate.getTime();
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  return diffDays > 0 ? diffDays : 0;
+}
+
+    // 🔥 NOUVELLE MÉTHODE pour obtenir la valeur absolue
+  getAbsoluteDays(days: number): number {
+    return Math.abs(days);
+  }
+
+    // 🔥 MÉTHODE pour imprimer le rapport d'intervention véhicule (optionnel)
+  imprimerInterventionVehicule(intervention: any): void {
+    console.log('Impression du rapport d\'intervention véhicule:', intervention);
+    // Vous pouvez appeler votre service d'impression ici
+    // this.interventionVehiculeService.imprimerInterventionVehicule(intervention.id).subscribe(...);
+    window.print();
+  }
+
   loadInterventions_vehicule(): void {
     this.interventionVehiculeService.getAllInterventions_vehicule().subscribe({
       next: (data) => {
@@ -585,5 +689,18 @@ export class InterventionVehiculeComponent implements OnInit {
         alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
       }
     );
+  }
+
+  getTypeInterventionLibelle(intervention: any): string {
+    // Essayer différentes structures de données
+    if (intervention.type_intervention?.libelle_type_intervention) {
+      return intervention.type_intervention.libelle_type_intervention;
+    }
+    if (intervention.typeIntervention?.libelle_type_intervention) {
+      return intervention.typeIntervention.libelle_type_intervention;
+    }
+    // Fallback: chercher dans la liste des types
+    const typeIntervention = this.typeInterventions.find(t => t.id === intervention.type_intervention_id);
+    return typeIntervention?.libelle_type_intervention || 'N/A';
   }
 }

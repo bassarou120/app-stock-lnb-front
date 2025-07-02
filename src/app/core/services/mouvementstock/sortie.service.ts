@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable} from 'rxjs';
+import { Observable, of} from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
 import { MouvementStock, Article, Bureau, Employe, MouvementStockGrouped } from "../interface/models";
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -73,6 +73,23 @@ export class MouvementStockService  {
         response.data.data // On récupère uniquement le tableau de Employe
       )
     );
+  }
+
+    imprimerMouvementsSortie(): Observable<Blob> {
+      const printUrl = `${this.url}/imprimerSorties`; // L'URL de ton endpoint Laravel pour l'impression
+      console.log('Requête PDF pour les mouvements de sortie vers:', printUrl);
+      return this.http.get(printUrl, { responseType: 'blob' }).pipe(
+        tap(() => console.log('PDF des mouvements de sortie reçu.')),
+        catchError(this.handleError<Blob>('imprimerMouvementsSortie'))
+      );
+    }
+
+  private handleError<T>(operation = 'operation', result?: T) {
+    return (error: HttpErrorResponse): Observable<T> => {
+      console.error(`${operation} failed:`, error);
+      // Retourne un résultat vide ou par défaut pour que l'application continue de fonctionner
+      return of(result as T);
+    };
   }
 
   // **Ajout de la méthode pour mettre à jour le statut :**

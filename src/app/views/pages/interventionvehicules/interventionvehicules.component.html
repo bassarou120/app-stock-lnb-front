@@ -126,6 +126,17 @@
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+
+                    <!-- 🔥 NOUVEAU BOUTON VOIR PLUS -->
+                    <a ngbDropdownItem 
+                      class="d-flex align-items-center" 
+                      data-bs-toggle="modal"
+                      data-bs-target="#voir_plus_intervention_vehicule" 
+                      (click)="getViewForm(row)">
+                      <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> 
+                      <span>Voir plus</span>
+                    </a>
+
                     <a *ngIf="canModifyInterventionVehicule" ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                       data-bs-target="#edit_intervention_vehicule" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i>
@@ -146,6 +157,477 @@
     </div>
   </div>
 </div>
+
+<!-- 🔥 NOUVEAU MODAL VOIR PLUS INTERVENTION VEHICULE -->
+<div id="voir_plus_intervention_vehicule" class="modal fade" tabindex="-1" aria-labelledby="voirInterventionVehiculeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="voirInterventionVehiculeLabel">
+          <i class="feather icon-eye me-2"></i>
+          Détails de l'Intervention Véhicule
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid" *ngIf="selectedInterventionVehicule">
+          
+          <!-- 🔥 SECTION INFORMATIONS GÉNÉRALES -->
+          <div class="card mb-3">
+            <div class="card-header bg-primary text-white">
+              <h6 class="mb-0"><i class="feather icon-truck me-2"></i>Informations de l'Intervention</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Titre :</strong> 
+                    <span class="text-primary fw-bold">{{ selectedInterventionVehicule.titre || 'N/A' }}</span>
+                  </p>
+                  <p><strong>Type d'intervention :</strong> 
+                    <span class="badge bg-info">{{ getTypeInterventionLibelle(selectedInterventionVehicule) }}</span>
+                  </p>
+                  <p><strong>Date de l'intervention :</strong> 
+                    <span class="text-muted">
+                      <i class="feather icon-calendar me-1"></i>
+                      {{ selectedInterventionVehicule.date_intervention | date:'dd/MM/yyyy' }}
+                    </span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Coût de l'intervention :</strong> 
+                    <span class="text-success fw-bold fs-5">
+                      <i class="feather icon-dollar-sign me-1"></i>
+                      {{ selectedInterventionVehicule.montant | number:'1.0-0'  }} FCFA
+                    </span>
+                  </p>
+                  <p><strong>Statut :</strong> 
+                    <span class="badge bg-success">
+                      <i class="feather icon-check-circle me-1"></i>
+                      Intervention réalisée
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION VÉHICULE CONCERNÉ -->
+          <div class="card mb-3">
+            <div class="card-header bg-warning text-dark">
+              <h6 class="mb-0"><i class="feather icon-truck me-2"></i>Véhicule Concerné</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Immatriculation :</strong> 
+                    <span class="badge bg-dark fs-6">{{ selectedInterventionVehicule.vehicule?.immatriculation || 'N/A' }}</span>
+                  </p>
+                  <p><strong>Marque :</strong> 
+                    <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.marque || 'N/A' }}</span>
+                  </p>
+                  <p><strong>Modèle :</strong> 
+                    <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.modele || 'N/A' }}</span>
+                  </p>
+                </div>
+                                <div class="col-md-6">
+                  <p><strong>Type de véhicule :</strong> 
+                    <span class="badge bg-secondary">{{ selectedInterventionVehicule.vehicule?.type_vehicule?.libelle || 'N/A' }}</span>
+                  </p>
+                  <p><strong>Année :</strong> 
+                    <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.annee || 'N/A' }}</span>
+                  </p>
+                  <p><strong>Kilométrage :</strong> 
+                    <span class="text-info">{{ selectedInterventionVehicule.vehicule?.kilometrage | number:'1.0-0'  }} km</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION DATE D'EXPIRATION (si applicable) -->
+          <div class="card mb-3" *ngIf="selectedInterventionVehicule.date_expiration">
+            <div class="card-header" [ngClass]="{
+              'bg-success text-white': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 30,
+              'bg-warning text-dark': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) <= 30 && getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 0,
+              'bg-danger text-white': isInterventionExpired(selectedInterventionVehicule.date_expiration)
+            }">
+              <h6 class="mb-0">
+                <i class="feather icon-clock me-2"></i>
+                Validité de l'Intervention
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Date d'expiration :</strong> 
+                    <span class="text-muted">
+                      <i class="feather icon-calendar me-1"></i>
+                      {{ selectedInterventionVehicule.date_expiration | date:'dd/MM/yyyy' }}
+                    </span>
+                  </p>
+                </div>
+                <div class="col-md-6">
+                  <p><strong>Statut de validité :</strong></p>
+                  <div *ngIf="!isInterventionExpired(selectedInterventionVehicule.date_expiration)">
+                    <span class="badge" [ngClass]="{
+                      'bg-success': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 30,
+                      'bg-warning text-dark': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) <= 30
+                    }">
+                      <i class="feather icon-check-circle me-1"></i>
+                      Valide encore {{ getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) }} jour(s)
+                    </span>
+                  </div>
+                  <div *ngIf="isInterventionExpired(selectedInterventionVehicule.date_expiration)">
+                    <span class="badge bg-danger">
+                      <i class="feather icon-alert-triangle me-1"></i>
+                      Expirée depuis {{ getAbsoluteDays(getDaysUntilExpiration(selectedInterventionVehicule.date_expiration)) }} jour(s)
+                    </span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Alerte d'expiration -->
+              <div class="alert mt-3" [ngClass]="{
+                'alert-success': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 30,
+                'alert-warning': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) <= 30 && getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 0,
+                'alert-danger': isInterventionExpired(selectedInterventionVehicule.date_expiration)
+              }">
+                <div class="d-flex align-items-center">
+                  <i class="feather me-2" [ngClass]="{
+                    'icon-check-circle': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 30,
+                    'icon-alert-triangle': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) <= 30 && getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 0,
+                    'icon-x-circle': isInterventionExpired(selectedInterventionVehicule.date_expiration)
+                  }"></i>
+                  <span>
+                    <ng-container *ngIf="getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 30">
+                      <strong>Intervention valide :</strong> Aucune action requise pour le moment.
+                    </ng-container>
+                    <ng-container *ngIf="getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) <= 30 && getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 0">
+                      <strong>Attention :</strong> Cette intervention expire bientôt. Planifier un renouvellement.
+                    </ng-container>
+                    <ng-container *ngIf="isInterventionExpired(selectedInterventionVehicule.date_expiration)">
+                      <strong>Intervention expirée :</strong> Action immédiate requise pour renouveler cette intervention (expirée depuis {{ getDaysExpiredSince(selectedInterventionVehicule.date_expiration) }} jour(s)).
+                    </ng-container>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION OBSERVATIONS DÉTAILLÉES -->
+          <div class="card mb-3">
+            <div class="card-header bg-info text-white">
+              <h6 class="mb-0"><i class="feather icon-file-text me-2"></i>Observations et Détails</h6>
+            </div>
+            <div class="card-body">
+              <div class="bg-light p-4 rounded">
+                <h6 class="text-primary mb-3">
+                  <i class="feather icon-message-square me-2"></i>
+                  Rapport d'intervention
+                </h6>
+                <p class="text-muted mb-0" style="white-space: pre-wrap; line-height: 1.6;">
+                  {{ selectedInterventionVehicule.observation || 'Aucune observation disponible pour cette intervention véhicule.' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION RÉSUMÉ FINANCIER -->
+          <div class="card mb-3 border-success">
+            <div class="card-header bg-light border-success">
+              <h6 class="mb-0 text-success">
+                <i class="feather icon-trending-up me-2"></i>Résumé Financier
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row text-center">
+                <div class="col-md-4">
+                  <div class="border-end border-success">
+                    <h4 class="text-success mb-1">
+                      <i class="feather icon-dollar-sign"></i>
+                      {{ selectedInterventionVehicule.montant | number:'1.0-0' }}
+                    </h4>
+                    <small class="text-muted">Coût Total (FCFA)</small>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="border-end border-success">
+                    <h4 class="text-info mb-1">
+                      <i class="feather icon-truck"></i>
+                      {{ selectedInterventionVehicule.vehicule?.immatriculation || 'N/A' }}
+                    </h4>
+                    <small class="text-muted">Véhicule traité</small>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <h4 class="text-warning mb-1">
+                    <i class="feather icon-calendar"></i>
+                    {{ selectedInterventionVehicule.date_intervention | date:'MMM yyyy'  }}
+                  </h4>
+                  <small class="text-muted">Période d'intervention</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION TIMELINE/HISTORIQUE -->
+          <div class="card mb-3">
+            <div class="card-header bg-secondary text-white">
+              <h6 class="mb-0"><i class="feather icon-clock me-2"></i>Informations Temporelles</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary rounded-circle p-2 me-3">
+                      <i class="feather icon-calendar text-white"></i>
+                    </div>
+                    <div>
+                      <h6 class="mb-1">Date d'intervention</h6>
+                      <p class="text-muted mb-0">{{ selectedInterventionVehicule.date_intervention | date:'EEEE dd MMMM yyyy' }}</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="bg-info rounded-circle p-2 me-3">
+                      <i class="feather icon-plus-circle text-white"></i>
+                    </div>
+                    <div>
+                      <h6 class="mb-1">Date de création</h6>
+                      <p class="text-muted mb-0">{{ selectedInterventionVehicule.created_at | date:'dd/MM/yyyy à HH:mm' }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Durée depuis l'intervention -->
+              <div class="alert alert-light border-primary">
+                <div class="d-flex align-items-center">
+                  <i class="feather icon-info text-primary me-2"></i>
+                  <span class="text-primary">
+                    <strong>Intervention réalisée il y a :</strong>
+                    <ng-container *ngIf="selectedInterventionVehicule.date_intervention">
+                      {{ getDaysSinceIntervention(selectedInterventionVehicule.date_intervention) }} jour(s)
+                    </ng-container>
+                    <ng-container *ngIf="!selectedInterventionVehicule.date_intervention">
+                      Date non disponible
+                    </ng-container>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION CLASSIFICATION ET CATÉGORIE -->
+          <div class="card mb-3">
+            <div class="card-header bg-dark text-white">
+              <h6 class="mb-0"><i class="feather icon-layers me-2"></i>Classification de l'Intervention</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="border rounded p-3 h-100">
+                    <h6 class="text-primary mb-3">
+                      <i class="feather icon-tag me-2"></i>Type d'Intervention
+                    </h6>
+                    <div class="d-flex align-items-center">
+                      <span class="badge bg-primary fs-6 px-3 py-2">
+                        {{ selectedInterventionVehicule.type_intervention?.libelle_type_intervention || 'Non classifié' }}
+                      </span>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                      Catégorie de l'intervention effectuée
+                    </small>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="border rounded p-3 h-100">
+                    <h6 class="text-success mb-3">
+                      <i class="feather icon-target me-2"></i>Impact Financier
+                    </h6>
+                    <div class="d-flex align-items-center">
+                      <span class="badge fs-6 px-3 py-2" [ngClass]="{
+                        'bg-success': selectedInterventionVehicule.montant <= 100000,
+                        'bg-warning text-dark': selectedInterventionVehicule.montant > 100000 && selectedInterventionVehicule.montant <= 500000,
+                        'bg-danger': selectedInterventionVehicule.montant > 500000,
+                        'bg-secondary': !selectedInterventionVehicule.montant
+                      }">
+                        <ng-container *ngIf="selectedInterventionVehicule.montant <= 100000">Impact Faible</ng-container>
+                        <ng-container *ngIf="selectedInterventionVehicule.montant > 100000 && selectedInterventionVehicule.montant <= 500000">Impact Modéré</ng-container>
+                        <ng-container *ngIf="selectedInterventionVehicule.montant > 500000">Impact Élevé</ng-container>
+                        <ng-container *ngIf="!selectedInterventionVehicule.montant">Non évalué</ng-container>
+                      </span>
+                    </div>
+                    <small class="text-muted mt-2 d-block">
+                      Évaluation basée sur le coût
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION ACTIONS RECOMMANDÉES -->
+          <div class="card mb-3 border-warning">
+            <div class="card-header bg-warning text-dark">
+              <h6 class="mb-0"><i class="feather icon-alert-triangle me-2"></i>Recommandations</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-12">
+                  <div class="alert alert-info border-info">
+                    <h6 class="alert-heading">
+                      <i class="feather icon-lightbulb me-2"></i>
+                      Suggestions basées sur cette intervention véhicule
+                    </h6>
+                    <hr>
+                    <ul class="mb-0">
+                      <li *ngIf="selectedInterventionVehicule.montant > 200000" class="mb-2">
+                        <strong>Coût élevé détecté :</strong> Considérer une évaluation complète de l'état du véhicule
+                      </li>
+                      <li *ngIf="selectedInterventionVehicule.type_intervention?.libelle_type_intervention?.toLowerCase().includes('réparation')" class="mb-2">
+                        <strong>Réparation effectuée :</strong> Programmer un contrôle de suivi dans 1-3 mois
+                      </li>
+                      <li *ngIf="selectedInterventionVehicule.type_intervention?.libelle_type_intervention?.toLowerCase().includes('maintenance')" class="mb-2">
+                        <strong>Maintenance réalisée :</strong> Planifier la prochaine maintenance préventive
+                      </li>
+                      <li *ngIf="selectedInterventionVehicule.type_intervention?.libelle_type_intervention?.toLowerCase().includes('contrôle') || selectedInterventionVehicule.type_intervention?.libelle_type_intervention?.toLowerCase().includes('visite')" class="mb-2">
+                        <strong>Contrôle technique :</strong> Vérifier la date de validité et programmer le renouvellement
+                      </li>
+                      <li *ngIf="selectedInterventionVehicule.date_expiration && getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) <= 30" class="mb-2">
+                        <strong>Expiration proche :</strong> Programmer le renouvellement de cette intervention
+                      </li>
+                      <li *ngIf="isInterventionExpired(selectedInterventionVehicule.date_expiration)" class="mb-2">
+                        <strong>Intervention expirée :</strong> Action urgente requise pour la mise en conformité
+                      </li>
+                      <li class="mb-0">
+                        <strong>Documentation :</strong> Conserver ce rapport pour l'historique du véhicule
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 🔥 SECTION INFORMATIONS VÉHICULE DÉTAILLÉES -->
+          <div class="card mb-3">
+            <div class="card-header bg-success text-white">
+              <h6 class="mb-0"><i class="feather icon-info me-2"></i>Informations Complémentaires du Véhicule</h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-md-6">
+                  <h6 class="text-primary mb-3">Caractéristiques Techniques</h6>
+                  <p><strong>Marque :</strong> {{ selectedInterventionVehicule.vehicule?.marque || 'N/A' }}</p>
+                  <p><strong>Modèle :</strong> {{ selectedInterventionVehicule.vehicule?.modele || 'N/A' }}</p>
+                  <p><strong>Année :</strong> {{ selectedInterventionVehicule.vehicule?.annee || 'N/A' }}</p>
+                  <p><strong>Couleur :</strong> {{ selectedInterventionVehicule.vehicule?.couleur || 'N/A' }}</p>
+                </div>
+                <div class="col-md-6">
+                  <h6 class="text-success mb-3">État et Utilisation</h6>
+                  <p><strong>Kilométrage :</strong> 
+                    <span class="badge bg-info">{{ selectedInterventionVehicule.vehicule?.kilometrage | number:'1.0-0' }} km</span>
+                  </p>
+                  <p><strong>État général :</strong> 
+                    <span class="badge" [ngClass]="{
+                      'bg-success': selectedInterventionVehicule.vehicule?.etat === 'Bon',
+                      'bg-warning text-dark': selectedInterventionVehicule.vehicule?.etat === 'Moyen',
+                      'bg-danger': selectedInterventionVehicule.vehicule?.etat === 'Mauvais',
+                      'bg-secondary': !selectedInterventionVehicule.vehicule?.etat
+                    }">
+                      {{ selectedInterventionVehicule.vehicule?.etat || 'Non défini' }}
+                    </span>
+                  </p>
+                  <p><strong>Type de véhicule :</strong> {{ selectedInterventionVehicule.vehicule?.type_vehicule?.libelle || 'N/A' }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 🔥 MESSAGE SI AUCUNE DONNÉE -->
+        <div *ngIf="!selectedInterventionVehicule" class="text-center py-5">
+          <i class="feather icon-alert-circle text-warning" style="font-size: 3rem;"></i>
+          <p class="text-muted mt-3">Aucune donnée d'intervention véhicule à afficher</p>
+        </div>
+      </div>
+      
+      <!-- 🔥 FOOTER AVEC BOUTONS D'ACTION -->
+      <div class="modal-footer bg-light">
+        <div class="d-flex justify-content-between w-100">
+          <!-- Informations supplémentaires à gauche -->
+          <div class="d-flex align-items-center" *ngIf="selectedInterventionVehicule">
+            <small class="text-muted">
+              <i class="feather icon-user me-1"></i>
+              Intervention enregistrée le {{ selectedInterventionVehicule.created_at | date:'dd/MM/yyyy à HH:mm' }}
+            </small>
+          </div>
+          
+          <!-- Boutons d'action à droite -->
+          <div class="d-flex gap-2">
+            <!-- Bouton Imprimer/Exporter (optionnel) -->
+            <button type="button" 
+                    class="btn btn-outline-info"
+                    (click)="imprimerInterventionVehicule(selectedInterventionVehicule)"
+                    title="Imprimer le rapport d'intervention véhicule">
+              <i class="feather icon-printer me-2"></i>
+              Imprimer
+            </button>
+            
+            <!-- Bouton Programmer Suivi (optionnel) -->
+            <button type="button"
+                    class="btn btn-outline-warning"
+                    *ngIf="selectedInterventionVehicule?.date_expiration && getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) <= 60"
+                    title="Programmer un suivi ou renouvellement">
+              <i class="feather icon-calendar me-2"></i>
+              Programmer Suivi
+            </button>
+
+            
+            <!-- Bouton Modifier conditionnel -->
+            <button *ngIf="canModifyInterventionVehicule" 
+                    type="button" 
+                    class="btn btn-primary"
+                    data-bs-toggle="modal"
+                    data-bs-target="#edit_intervention_vehicule"
+                    data-bs-dismiss="modal"
+                    (click)="getEditForm(selectedInterventionVehicule)"
+                    title="Modifier cette intervention véhicule">
+              <i class="feather icon-edit me-2"></i>
+              Modifier
+            </button>
+            
+            <!-- Bouton Supprimer conditionnel -->
+<!--             <button *ngIf="canDeleteInterventionVehicule" 
+                    type="button" 
+                    class="btn btn-outline-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#delete_intervention_vehicule"
+                    data-bs-dismiss="modal"
+                    (click)="getDeleteForm(selectedInterventionVehicule)"
+                    title="Supprimer cette intervention véhicule">
+              <i class="feather icon-trash-2 me-2"></i>
+              Supprimer
+            </button> -->
+            
+            <!-- Bouton Fermer -->
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+              <i class="feather icon-x me-2"></i>
+              Fermer
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /🔥 FIN MODAL VOIR PLUS INTERVENTION VEHICULE -->
+
+
+
 
 <div id="add_intervention_vehicule" class="modal fade" tabindex="-1" aria-labelledby="addInterventionVehiculeLabel"
   aria-hidden="true">

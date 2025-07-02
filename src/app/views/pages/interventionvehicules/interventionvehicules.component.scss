@@ -1,0 +1,65 @@
+// Styles pour le modal "Voir plus"
+#voir_plus_intervention_vehicule {
+  .modal-dialog {
+    max-width: 95%;
+  }
+  
+  .card-header {
+    border-radius: 0.375rem 0.375rem 0 0 !important;
+  }
+  
+  .badge {
+    font-size: 0.875em;
+  }
+  
+  .border-end:last-child {
+    border-right: none !important;
+  }
+  
+  .bg-light {
+    background-color: #f8f9fa !important;
+  }
+
+  // Style pour les cercles d'icônes dans la timeline
+  .rounded-circle {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Styles spécifiques pour les alertes d'expiration
+  .alert-success {
+    border-left: 4px solid #28a745;
+  }
+  
+  .alert-warning {
+    border-left: 4px solid #ffc107;
+  }
+  
+  .alert-danger {
+    border-left: 4px solid #dc3545;
+  }
+}
+
+// Animation pour les cartes
+.card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+// Styles pour les badges d'impact
+.badge.fs-6 {
+  font-size: 1rem !important;
+}
+
+// Style pour les immatriculations
+.badge.bg-dark.fs-6 {
+  font-family: 'Courier New', monospace;
+  letter-spacing: 1px;
+}

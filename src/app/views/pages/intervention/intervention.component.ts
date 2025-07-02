@@ -62,6 +62,8 @@ export class InterventionComponent implements OnInit {
   immobilisations: Immobilisation[] = []; // Liste des immos
   typeInterventions: TypeIntervention[] = []; // Liste des types d'intervention
   intervention_immo: Intervention[] = [];
+    // 🔥 NOUVELLE PROPRIÉTÉ pour stocker l'intervention sélectionnée
+  public selectedIntervention: any = null;
 
   // NOUVELLE PROPRIÉTÉ POUR GÉRER L'ÉTAT DE SOUMISSION
   isAddingIntervention: boolean = false; // Pour l'ajout d'une intervention
@@ -159,7 +161,23 @@ export class InterventionComponent implements OnInit {
     }
   }
 
+  // 🔥 NOUVELLE MÉTHODE pour "Voir plus"
+  getViewForm(row: any): void {
+    this.selectedIntervention = row; // Stocker la ligne sélectionnée
+    console.log('Intervention sélectionnée:', this.selectedIntervention);
+  }
 
+
+  getDaysSinceIntervention(dateIntervention: string): number {
+    if (!dateIntervention) return 0;
+    
+    const interventionDate = new Date(dateIntervention);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - interventionDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    return diffDays;
+  }
 
   onClickSubmitAddIntervention() {
 
@@ -481,6 +499,16 @@ export class InterventionComponent implements OnInit {
         alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
       }
     );
+  }
+
+    // 🔥 MÉTHODE pour imprimer le rapport d'intervention (optionnel)
+  imprimerIntervention(intervention: any): void {
+    // Vous pouvez implémenter cette méthode selon vos besoins
+    // Par exemple, générer un PDF ou ouvrir une page d'impression
+    console.log('Impression du rapport d\'intervention:', intervention);
+    
+    // Exemple simple d'impression de la page
+    window.print();
   }
 
 }
