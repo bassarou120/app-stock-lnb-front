@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
+import { DynamicThemeService } from './dynamic-theme/dynamic-theme.service';
 
-export type ThemeCssVariablesType = {
+export interface ThemeCssVariablesType {
   primary: string;
   secondary: string;
   success: string;
@@ -17,6 +18,7 @@ export type ThemeCssVariablesType = {
   providedIn: 'root'
 })
 export class ThemeCssVariableService {
+  private dynamicThemeService = inject(DynamicThemeService);
 
   constructor() { }
 
@@ -43,5 +45,12 @@ export class ThemeCssVariableService {
       fontFamily     : this.getCssVariableValue('--bs-font-sans-serif')
     }
   }
-  
+
+  /**
+   * Retourne les couleurs dynamiques en temps réel
+   */
+  getDynamicThemeColors() {
+    return this.dynamicThemeService.colors$;
+  }
+
 }

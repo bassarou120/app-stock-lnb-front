@@ -5,9 +5,14 @@ import { SiteSettingsService } from '../../../core/services/site-settings/site-s
 import { Subject, takeUntil } from 'rxjs';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive'; // Assurez-vous du bon chemin
+import { DynamicThemeService } from '../../../core/services/dynamic-theme/dynamic-theme.service';
+import { ThemeCssVariableService } from '../../../core/services/theme-css-variable.service';
+
 
 @Component({
   selector: 'app-site-settings',
+  templateUrl: './site-settings.component.html',
+  styleUrls: ['./site-settings.component.scss'],
   standalone: true,
   imports: [
     CommonModule,
@@ -15,8 +20,7 @@ import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.di
     NgbAlertModule,
     FeatherIconDirective
   ],
-  templateUrl: './site-settings.component.html',
-  styleUrls: []
+
 })
 export class SiteSettingsComponent implements OnInit, OnDestroy {
   siteSettingsForm!: FormGroup;
@@ -34,16 +38,29 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
   error: string | null = null;
   successMessage: string | null = null;
 
+// Propriétés pour les couleurs dynamiques
+  currentThemeColors: any = {};
   private destroy$ = new Subject<void>();
 
   constructor(
     private fb: FormBuilder,
-    private siteSettingsService: SiteSettingsService
+    private siteSettingsService: SiteSettingsService,
+    private dynamicThemeService: DynamicThemeService,
+    private themeCssVariableService: ThemeCssVariableService
   ) { }
 
   ngOnInit(): void {
     this.initForm();
     this.loadSettings();
+     // Écouter les changements de couleurs en temps réel
+    this.dynamicThemeService.colors$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(colors => {
+      if (colors) {
+        this.currentThemeColors = colors;
+        console.log('🎨 Couleurs mises à jour dans site-settings:', colors);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -64,6 +81,7 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
    * Charge les paramètres du site depuis le backend.
    */
   loadSettings(): void {
+    console.log("hahah");
     this.loading = true;
     this.error = null;
     this.siteSettingsService.getSettings().pipe(takeUntil(this.destroy$)).subscribe({
@@ -77,6 +95,7 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
         this.siteName = companyNameSetting?.value || 'Nom du Site';
         this.logoUrl = logoUrlSetting?.value ? this.siteSettingsService.getPublicStorageUrl(logoUrlSetting.value) : 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo';
         // MODIFIÉ: Utilisation de la couleur verte par défaut si non trouvée
+        console.log("site logo url", this.logoUrl);
         this.mainColor = mainColorSetting?.value || '#00993E'; // Mettre à jour la couleur principale
 
         // Mettre à jour les valeurs du formulaire
@@ -131,10 +150,18 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
   /**
    * Gère le changement de couleur dans le sélecteur de couleur.
    */
-  onMainColorChange(event: Event): void {
+/*   onMainColorChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.newMainColor = input.value;
+  } */
+
+
+    onMainColorChange(event: any): void {
+    const newColor = event.target.value;
+    // Aperçu en temps réel (optionnel)
+    this.dynamicThemeService.updateColor('primary_color', newColor);
   }
+
 
   /**
    * Soumet le formulaire pour enregistrer les paramètres.
@@ -154,6 +181,16 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
     const mainColorValue = this.siteSettingsForm.get('mainColor')?.value;
 
     try {
+
+if (this.siteSettingsForm.valid) {
+      this.isSaving = true;
+      const formData = this.siteSettingsForm.value;
+
+      // Sauvegarder la couleur principale
+      this.saveColorSetting('primary_color', formData.mainColor);
+    }
+
+
       // 1. Sauvegarder le nom du site
       await this.siteSettingsService.saveSetting('company_name', siteNameValue, 'text').toPromise();
       console.log('Nom du site enregistré.');
@@ -188,6 +225,21 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
       this.isSaving = false;
     }
   }
+
+    private saveColorSetting(key: string, color: string): void {
+    // Appel à votre API pour sauvegarder
+    // Puis mettre à jour le thème
+    this.dynamicThemeService.updateColor('primary_color', color);
+
+    this.isSaving = false;
+    this.successMessage = 'Couleur mise à jour avec succès !';
+
+    // Effacer le message après 3 secondes
+    setTimeout(() => {
+      this.successMessage = '';
+    }, 3000);
+  }
+
 
   /**
    * Affiche un message temporaire (succès ou erreur).

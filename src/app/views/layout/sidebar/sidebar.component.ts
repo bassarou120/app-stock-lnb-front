@@ -99,13 +99,23 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadFilteredMenu();
 
     // S'abonner aux changements des paramètres du site (AJOUTÉ)
-    this.siteSettingsService.siteSettings$.pipe(
+/*     this.siteSettingsService.siteSettings$.pipe(
       takeUntil(this.destroy$) // Gérer la désinscription
     ).subscribe(settings => {
       this.siteName = settings.companyName;
       this.logoUrl = settings.logoUrl;
       console.log('SidebarComponent: Logo et nom du site mis à jour:', { name: this.siteName, logo: this.logoUrl });
-    });
+    }); */
+
+
+    // S'abonner aux changements des paramètres du site
+  this.siteSettingsService.siteSettings$.pipe(
+    takeUntil(this.destroy$)
+  ).subscribe(settings => {
+    this.siteName = settings.companyName;
+    this.logoUrl = settings.logoUrl;
+    console.log('SidebarComponent: Logo et nom du site mis à jour:', { name: this.siteName, logo: this.logoUrl });
+  });
 
 
     // Écouter les mises à jour de permissions

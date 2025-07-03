@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, BehaviorSubject, of } from 'rxjs';
+import { map, tap, catchError } from 'rxjs/operators';
 
 // Définition de l'interface pour un paramètre individuel stocké en DB
 interface Setting {
@@ -44,21 +44,65 @@ export class SiteSettingsService {
    * @returns Observable<Setting[]> Un tableau des paramètres bruts du site.
    */
   getSettings(): Observable<Setting[]> {
+    console.log('SiteSettingsService: Début du chargement des paramètres depuis:', `${this.backendBaseUrl}/api/site-settings`);
+
     return this.http.get<Setting[]>(`${this.backendBaseUrl}/api/site-settings`).pipe(
       tap(settings => {
+        console.log('SiteSettingsService: Données reçues de l\'API:', settings);
+
+        // Recherche des paramètres spécifiques
         const companyNameSetting = settings.find(s => s.key === 'company_name');
         const logoUrlSetting = settings.find(s => s.key === 'logo_url');
         const mainColorSetting = settings.find(s => s.key === 'main_color');
 
-        const currentLogoPath = logoUrlSetting?.value || null;
-        const fullLogoUrl = currentLogoPath ? this.getPublicStorageUrl(currentLogoPath) : 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo';
+        console.log('SiteSettingsService: Paramètres trouvés:', {
+          companyName: companyNameSetting,
+          logoUrl: logoUrlSetting,
+          mainColor: mainColorSetting
+        });
 
-        this._siteSettings.next({
+        // Traitement du logo
+        const currentLogoPath = logoUrlSetting?.value || null;
+        let fullLogoUrl: string;
+
+        if (currentLogoPath) {
+          fullLogoUrl = this.getPublicStorageUrl(currentLogoPath);
+          console.log('SiteSettingsService: URL du logo générée:', fullLogoUrl);
+        } else {
+          fullLogoUrl = 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo';
+          console.log('SiteSettingsService: Utilisation du logo par défaut');
+        }
+
+        // Création de l'objet des paramètres du site
+        const siteSettingsData = {
           companyName: companyNameSetting?.value || 'Nom du Site',
           logoUrl: fullLogoUrl,
           mainColor: mainColorSetting?.value || '#00993E'
-        });
-        console.log('SiteSettingsService: Paramètres mis à jour dans BehaviorSubject', this._siteSettings.getValue());
+        };
+
+        console.log('SiteSettingsService: Mise à jour du BehaviorSubject avec:', siteSettingsData);
+
+        // Mise à jour du BehaviorSubject
+        this._siteSettings.next(siteSettingsData);
+
+        console.log('SiteSettingsService: BehaviorSubject mis à jour. Valeur actuelle:', this._siteSettings.getValue());
+      }),
+      // Gestion des erreurs
+      catchError(error => {
+        console.error('SiteSettingsService: Erreur lors du chargement des paramètres:', error);
+
+        // En cas d'erreur, utiliser les valeurs par défaut
+        const defaultSettings = {
+          companyName: 'Nom du Site (Erreur de chargement)',
+          logoUrl: 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Erreur',
+          mainColor: '#00993E'
+        };
+
+        this._siteSettings.next(defaultSettings);
+        console.log('SiteSettingsService: Valeurs par défaut appliquées après erreur');
+
+        // Retourner un tableau vide pour maintenir le type Observable<Setting[]>
+        return of([]);
       })
     );
   }

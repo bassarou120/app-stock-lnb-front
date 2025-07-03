@@ -2,16 +2,50 @@
 // @import '~bootstrap/scss/bootstrap';
 /* You can add global styles to this file, and also import other style files */
 
-// Définissez les variables CSS de Bootstrap ici dans :root.
-// Ces valeurs seront les couleurs par défaut si JavaScript ne les modifie pas.
+// Variables CSS qui seront mises à jour dynamiquement
 :root {
-  --bs-primary: #00993E; /* Votre couleur verte par défaut */
-  --bs-primary-rgb: 0, 153, 62; /* La version RGB de votre couleur verte par défaut */
-  // Vous pouvez aussi garder --main-app-color si d'autres parties de votre code l'utilisent,
-  // mais pour Bootstrap, nous ciblons directement --bs-primary.
-  // --main-app-color: #00993E;
+  --bs-primary: #800040;  // Sera remplacé par le service
+  --bs-primary-rgb: 128, 0, 64;  // Sera calculé automatiquement
+  --bs-primary-hover: #660033;   // Sera calculé automatiquement
 }
 
+// Appliquer les couleurs dynamiques globalement
+.btn-primary {
+  background-color: var(--bs-primary) !important;
+  border-color: var(--bs-primary) !important;
+
+  &:hover, &:focus, &:active {
+    background-color: var(--bs-primary-hover) !important;
+    border-color: var(--bs-primary-hover) !important;
+  }
+}
+
+.text-primary {
+  color: var(--bs-primary) !important;
+}
+
+.bg-primary {
+  background-color: var(--bs-primary) !important;
+}
+
+.border-primary {
+  border-color: var(--bs-primary) !important;
+}
+
+.alert-primary {
+  color: var(--bs-primary) !important;
+  background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
+  border-color: rgba(var(--bs-primary-rgb), 0.2) !important;
+}
+
+// Pour les liens
+a {
+  color: var(--bs-primary) !important;
+
+  &:hover {
+    color: var(--bs-primary-hover) !important;
+  }
+}
 
 // Global icon font
 @import "../public/fonts/feather/style.css";

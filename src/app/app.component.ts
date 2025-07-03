@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { DOCUMENT } from '@angular/common';
 import { SiteSettingsService, SiteSettings } from './core/services/site-settings/site-settings.service'; // Importez SiteSettings
 import { Subject, takeUntil } from 'rxjs';
-
+import { DynamicThemeService } from './core/services/dynamic-theme/dynamic-theme.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +18,7 @@ import { Subject, takeUntil } from 'rxjs';
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'demo1';
+  private dynamicThemeService = Inject(DynamicThemeService);
 
   private destroy$ = new Subject<void>();
 
@@ -31,6 +32,7 @@ export class AppComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.dynamicThemeService.refreshTheme();
     const isLoggedIn = localStorage.getItem('isLoggedin') === 'true';
     if (isLoggedIn) {
       this.idleService.startWatching();

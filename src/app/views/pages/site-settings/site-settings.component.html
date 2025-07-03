@@ -3,7 +3,7 @@
       <li class="breadcrumb-item"><a routerLink=".">Paramètres du Site</a></li>
     </ol>
   </nav>
-  
+
   <!-- Alerte pour succès -->
   <ngb-alert *ngIf="successMessage" [dismissible]="false" class="alerte" [type]="'primary'">
     {{ successMessage }}
@@ -12,7 +12,7 @@
   <ngb-alert *ngIf="error" [dismissible]="false" class="alerte" [type]="'danger'">
     {{ error }}
   </ngb-alert>
-  
+
   <div class="row">
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card">
@@ -25,13 +25,13 @@
       </div>
     </div>
   </div>
-  
+
   <div class="row">
     <div class="col-md-12 stretch-card">
       <div class="card">
         <div class="card-body">
           <h6 class="card-title">Configuration Générale</h6>
-  
+
           <!-- Affichage du chargement -->
           <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
             <div class="text-center">
@@ -41,7 +41,7 @@
               <p class="mt-3 text-muted">Chargement des paramètres...</p>
             </div>
           </div>
-  
+
           <!-- Section Aperçu Actuel (visible après chargement) -->
           <div *ngIf="!loading" class="mb-4 p-3 border rounded bg-light">
             <h5 class="card-title text-secondary">Aperçu Actuel</h5>
@@ -64,11 +64,11 @@
               </div>
             </div>
           </div>
-  
+
           <!-- Section Formulaire de Modification (visible après chargement) -->
           <form *ngIf="!loading" [formGroup]="siteSettingsForm" (ngSubmit)="onSubmit()" class="forms-sample">
             <h6 class="card-title mb-3">Modifier les Paramètres</h6>
-  
+
             <!-- Nom du Site -->
             <div class="mb-3">
               <label for="siteName" class="form-label">Nom du Site <span class="text-danger">*</span></label>
@@ -84,7 +84,7 @@
                 Le nom du site est obligatoire.
               </div>
             </div>
-  
+
             <!-- Logo -->
             <div class="mb-3">
               <label for="logoFile" class="form-label">Logo du Site</label>
@@ -95,7 +95,7 @@
                 (change)="onFileSelected($event)"
                 class="form-control"
               />
-              
+
               <!-- Aperçu du logo sélectionné ou actuel -->
               <div *ngIf="previewLogoUrl" class="mt-3 d-flex align-items-center">
                 <img [src]="previewLogoUrl" alt="Aperçu du logo" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: contain; border-radius: .5rem;" />
@@ -111,7 +111,7 @@
                 Aucun logo défini. Cliquez ci-dessus pour en ajouter un.
               </p>
             </div>
-  
+
             <!-- Couleur Principale -->
             <div class="mb-3">
               <label for="mainColor" class="form-label">Couleur Principale <span class="text-danger">*</span></label>
@@ -131,7 +131,7 @@
                 La couleur principale est obligatoire.
               </div>
             </div>
-  
+
             <!-- Bouton de sauvegarde -->
             <div class="d-flex justify-content-end mt-4">
               <button
@@ -148,4 +148,3 @@
       </div>
     </div>
   </div>
-  
