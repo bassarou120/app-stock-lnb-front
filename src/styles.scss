@@ -1,51 +1,5 @@
-@import '../src/styles/variables';
-// @import '~bootstrap/scss/bootstrap';
 /* You can add global styles to this file, and also import other style files */
 
-// Variables CSS qui seront mises à jour dynamiquement
-:root {
-  --bs-primary: #800040;  // Sera remplacé par le service
-  --bs-primary-rgb: 128, 0, 64;  // Sera calculé automatiquement
-  --bs-primary-hover: #660033;   // Sera calculé automatiquement
-}
-
-// Appliquer les couleurs dynamiques globalement
-.btn-primary {
-  background-color: var(--bs-primary) !important;
-  border-color: var(--bs-primary) !important;
-
-  &:hover, &:focus, &:active {
-    background-color: var(--bs-primary-hover) !important;
-    border-color: var(--bs-primary-hover) !important;
-  }
-}
-
-.text-primary {
-  color: var(--bs-primary) !important;
-}
-
-.bg-primary {
-  background-color: var(--bs-primary) !important;
-}
-
-.border-primary {
-  border-color: var(--bs-primary) !important;
-}
-
-.alert-primary {
-  color: var(--bs-primary) !important;
-  background-color: rgba(var(--bs-primary-rgb), 0.1) !important;
-  border-color: rgba(var(--bs-primary-rgb), 0.2) !important;
-}
-
-// Pour les liens
-a {
-  color: var(--bs-primary) !important;
-
-  &:hover {
-    color: var(--bs-primary-hover) !important;
-  }
-}
 
 // Global icon font
 @import "../public/fonts/feather/style.css";
@@ -67,8 +21,6 @@ a {
 
 
 // NobleUI styles for LTR layout
-// Ce fichier (./styles/styles.scss) doit importer votre fichier de variables personnalisées
-// AVANT d'importer Bootstrap lui-même.
 @import "./styles/styles.scss";
 
 // NobleUI styles for RTL layout. Replace the above style with this CSS file to enable RTL styles
@@ -77,8 +29,3 @@ a {
 body {
   font-family: 'Poppins', sans-serif !important;
 }
-
-/*
- * SUPPRIMÉ : Les règles CSS directes comme .btn-primary, .text-primary, etc.
- * Elles ne sont plus nécessaires car Bootstrap utilisera directement --bs-primary et --bs-primary-rgb.
- */
