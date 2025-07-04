@@ -47,7 +47,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // PROPRIÉTÉS POUR LE LOGO ET LE NOM DU SITE (AJOUTÉES)
   siteName: string = 'Chargement...';
-  logoUrl: string = 'https://placehold.co/50x50/A0B3C8/FFFFFF?text=Logo'; // Placeholder par défaut
+  logoUrl: string = 'images/logo2.png'; // Placeholder par défaut
 
   permissions: any[] = [];
   accessibleModules: string[] = [];

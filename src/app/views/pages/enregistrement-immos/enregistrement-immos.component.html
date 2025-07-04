@@ -65,37 +65,37 @@
           <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
             <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
-            <ngx-datatable-column name="N°">
+            <!-- <ngx-datatable-column name="N°">
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                 {{ rowIndex + 1 }}
               </ng-template>
-            </ngx-datatable-column>
+            </ngx-datatable-column> -->
             <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
             <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
-            <ngx-datatable-column name="Montant ttc" prop="montant_ttc"></ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Montant ttc" prop="montant_ttc"></ngx-datatable-column> -->
             <ngx-datatable-column name="Etat" prop="etat"></ngx-datatable-column>
             <ngx-datatable-column name="Status immo">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.status_immo?.libelle_status_immo || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+            <!-- <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column> -->
             <ngx-datatable-column name="Groupe type immo">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.groupe_type_immo?.libelle || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Sous type immo">
+            <!-- <ngx-datatable-column name="Sous type immo">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.sous_type_immo?.libelle || 'N/A' }}
               </ng-template>
-            </ngx-datatable-column>
+            </ngx-datatable-column> -->
 
-            <ngx-datatable-column name="Personnel">
+            <!-- <ngx-datatable-column name="Personnel">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.employe?.fullnameEmploye || 'Non défini' }}
               </ng-template>
-            </ngx-datatable-column>
+            </ngx-datatable-column> -->
             <ngx-datatable-column name="Date de création" prop="date_acquisition"></ngx-datatable-column>
             <ngx-datatable-column *ngIf="canModifyImmo || canDeleteImmo" name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
@@ -106,12 +106,12 @@
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
 
                     <!-- 🔥 NOUVEAU BOUTON VOIR PLUS -->
-                    <a ngbDropdownItem 
-                      class="d-flex align-items-center" 
+                    <a ngbDropdownItem
+                      class="d-flex align-items-center"
                       data-bs-toggle="modal"
-                      data-bs-target="#voir_plus_immobilisation" 
+                      data-bs-target="#voir_plus_immobilisation"
                       (click)="getViewForm(row)">
-                      <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> 
+                      <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i>
                       <span>Voir plus</span>
                     </a>
 
@@ -448,7 +448,7 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid" *ngIf="selectedImmobilisation">
-          
+
           <!-- 🔥 SECTION INFORMATIONS GÉNÉRALES -->
           <div class="card mb-3">
             <div class="card-header bg-primary text-white">
@@ -457,13 +457,13 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Code : </strong> 
+                  <p><strong>Code : </strong>
                     <span class="">  {{ selectedImmobilisation.code || 'N/A' }}</span>
                   </p>
-                  <p><strong>Désignation : </strong> 
+                  <p><strong>Désignation : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.designation || 'N/A' }}</span>
                   </p>
-                  <p><strong>État : </strong> 
+                  <p><strong>État : </strong>
                     <span class="badge" [ngClass]="{
                       'bg-success': selectedImmobilisation.etat === 'Bon',
                       'bg-warning': selectedImmobilisation.etat === 'Usé',
@@ -475,13 +475,13 @@
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Status : </strong> 
+                  <p><strong>Status : </strong>
                     <span class="badge bg-info">  {{ selectedImmobilisation.status_immo?.libelle_status_immo || 'N/A' }}</span>
                   </p>
-                  <p><strong>Date d'acquisition : </strong> 
+                  <p><strong>Date d'acquisition : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.date_acquisition | date:'dd/MM/yyyy' }}</span>
                   </p>
-                  <p><strong>Personnel assigné : </strong> 
+                  <p><strong>Personnel assigné : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.employe?.fullnameEmploye || 'Non assigné' }}</span>
                   </p>
                 </div>
@@ -497,18 +497,18 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Montant TTC : </strong> 
+                  <p><strong>Montant TTC : </strong>
                     <span class="text-success fw-bold fs-5">  {{ selectedImmobilisation.montant_ttc | number:'1.0-0' }} FCFA</span>
                   </p>
-                  <p><strong>Durée amortie : </strong> 
+                  <p><strong>Durée amortie : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.duree_amorti || 'N/A' }} ans</span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Taux d'amortissement : </strong> 
+                  <p><strong>Taux d'amortissement : </strong>
                     <span class="text-info">  {{ selectedImmobilisation.taux_ammortissement || 'N/A' }}%</span>
                   </p>
-                  <p><strong>Durée d'amortissement : </strong> 
+                  <p><strong>Durée d'amortissement : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.duree_ammortissement || 'N/A' }} ans</span>
                   </p>
                 </div>
@@ -524,20 +524,20 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Groupe Type : </strong> 
+                  <p><strong>Groupe Type : </strong>
                     <span class="badge bg-primary">  {{ selectedImmobilisation.groupe_type_immo?.libelle || 'N/A' }}</span>
                   </p>
-                  <p><strong>Sous Type : </strong> 
+                  <p><strong>Sous Type : </strong>
                     <span class="badge bg-secondary">  {{ selectedImmobilisation.sous_type_immo?.libelle || 'N/A' }}</span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Fournisseur : </strong> 
+                  <p><strong>Fournisseur : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.fournisseur?.nom || 'Non défini' }}</span>
                   </p>
                   <!-- Affichage conditionnel pour les véhicules -->
                   <div *ngIf="selectedImmobilisation.isVehicule && selectedImmobilisation.vehicule">
-                    <p><strong>Véhicule : </strong> 
+                    <p><strong>Véhicule : </strong>
                       <span class="badge bg-warning text-dark">
                         <i class="feather icon-truck me-1"></i>
                           {{ selectedImmobilisation.vehicule?.immatriculation || 'N/A' }}
@@ -622,14 +622,14 @@
                 <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
               </a>
               <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                
+
                 <!-- 🔥 BOUTON VOIR PLUS - TOUJOURS VISIBLE -->
-                <a ngbDropdownItem 
-                  class="d-flex align-items-center" 
+                <a ngbDropdownItem
+                  class="d-flex align-items-center"
                   data-bs-toggle="modal"
-                  data-bs-target="#voir_plus_immobilisation" 
+                  data-bs-target="#voir_plus_immobilisation"
                   (click)="getViewForm(row)">
-                  <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> 
+                  <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i>
                   <span>Voir plus</span>
                 </a>
 
