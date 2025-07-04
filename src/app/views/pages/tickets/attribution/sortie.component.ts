@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, inject,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/sortie.service';
@@ -29,7 +29,9 @@ declare var bootstrap: any;
     NgbDatepickerModule,
     FeatherIconDirective
   ],
-  templateUrl: 'sortie.component.html'
+  templateUrl: 'sortie.component.html',
+  styleUrls: ['sortie.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class SortieComponent implements OnInit {
 
@@ -172,7 +174,7 @@ export class SortieComponent implements OnInit {
       console.error('Données de sortie invalides:', row);
       return;
     }
-    
+
     this.selectedSortie = row;
     console.log('Sortie sélectionnée pour affichage:', row);
   }

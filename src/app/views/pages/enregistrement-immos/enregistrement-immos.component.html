@@ -97,7 +97,9 @@
               </ng-template>
             </ngx-datatable-column> -->
             <ngx-datatable-column name="Date de création" prop="date_acquisition"></ngx-datatable-column>
-            <ngx-datatable-column *ngIf="canModifyImmo || canDeleteImmo" name="Actions">
+            <ngx-datatable-column *ngIf="canModifyImmo || canDeleteImmo" name="Actions" [frozenRight]="true"
+  [width]="130" [headerClass]="'actions-header'"
+                      [cellClass]="'actions-cell'">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -460,10 +462,10 @@
                   <p><strong>Code : </strong>
                     <span class="">  {{ selectedImmobilisation.code || 'N/A' }}</span>
                   </p>
-                  <p><strong>Désignation : </strong>
+                  <p class="mt-3"><strong>Désignation : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.designation || 'N/A' }}</span>
                   </p>
-                  <p><strong>État : </strong>
+                  <p class="mt-3"><strong>État : </strong>
                     <span class="badge" [ngClass]="{
                       'bg-success': selectedImmobilisation.etat === 'Bon',
                       'bg-warning': selectedImmobilisation.etat === 'Usé',
@@ -476,12 +478,12 @@
                 </div>
                 <div class="col-md-6">
                   <p><strong>Status : </strong>
-                    <span class="badge bg-info">  {{ selectedImmobilisation.status_immo?.libelle_status_immo || 'N/A' }}</span>
+                    <span>  {{ selectedImmobilisation.status_immo?.libelle_status_immo || 'N/A' }}</span>
                   </p>
-                  <p><strong>Date d'acquisition : </strong>
+                  <p class="mt-3"><strong>Date d'acquisition : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.date_acquisition | date:'dd/MM/yyyy' }}</span>
                   </p>
-                  <p><strong>Personnel assigné : </strong>
+                  <p class="mt-3"><strong>Personnel assigné : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.employe?.fullnameEmploye || 'Non assigné' }}</span>
                   </p>
                 </div>
@@ -500,15 +502,15 @@
                   <p><strong>Montant TTC : </strong>
                     <span class="text-success fw-bold fs-5">  {{ selectedImmobilisation.montant_ttc | number:'1.0-0' }} FCFA</span>
                   </p>
-                  <p><strong>Durée amortie : </strong>
+                  <p class="mt-3"><strong>Durée amortie : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.duree_amorti || 'N/A' }} ans</span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Taux d'amortissement : </strong>
+                  <p class="mt-3"><strong>Taux d'amortissement : </strong>
                     <span class="text-info">  {{ selectedImmobilisation.taux_ammortissement || 'N/A' }}%</span>
                   </p>
-                  <p><strong>Durée d'amortissement : </strong>
+                  <p class="mt-3"><strong>Durée d'amortissement : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.duree_ammortissement || 'N/A' }} ans</span>
                   </p>
                 </div>
@@ -518,21 +520,21 @@
 
           <!-- 🔥 SECTION CLASSIFICATION -->
           <div class="card mb-3">
-            <div class="card-header bg-info text-white">
+            <div class="card-header bg-success text-white">
               <h6 class="mb-0"><i class="feather icon-layers me-2"></i>Classification</h6>
             </div>
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
                   <p><strong>Groupe Type : </strong>
-                    <span class="badge bg-primary">  {{ selectedImmobilisation.groupe_type_immo?.libelle || 'N/A' }}</span>
+                    <span>  {{ selectedImmobilisation.groupe_type_immo?.libelle || 'N/A' }}</span>
                   </p>
-                  <p><strong>Sous Type : </strong>
-                    <span class="badge bg-secondary">  {{ selectedImmobilisation.sous_type_immo?.libelle || 'N/A' }}</span>
+                  <p class="mt-3"><strong>Sous Type : </strong>
+                    <span>  {{ selectedImmobilisation.sous_type_immo?.libelle || 'N/A' }}</span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Fournisseur : </strong>
+                  <p class="mt-3"><strong>Fournisseur : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.fournisseur?.nom || 'Non défini' }}</span>
                   </p>
                   <!-- Affichage conditionnel pour les véhicules -->

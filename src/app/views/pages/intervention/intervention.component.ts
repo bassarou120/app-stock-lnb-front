@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, inject,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsService } from '../../../core/services/intervention/intervention.service';
@@ -28,7 +28,9 @@ declare var bootstrap: any;
     FeatherIconDirective
 
   ],
-  templateUrl: 'intervention.component.html'
+  templateUrl: 'intervention.component.html',
+  styleUrls: ['intervention.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class InterventionComponent implements OnInit {
 
@@ -170,12 +172,12 @@ export class InterventionComponent implements OnInit {
 
   getDaysSinceIntervention(dateIntervention: string): number {
     if (!dateIntervention) return 0;
-    
+
     const interventionDate = new Date(dateIntervention);
     const today = new Date();
     const diffTime = Math.abs(today.getTime() - interventionDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
   }
 
@@ -506,7 +508,7 @@ export class InterventionComponent implements OnInit {
     // Vous pouvez implémenter cette méthode selon vos besoins
     // Par exemple, générer un PDF ou ouvrir une page d'impression
     console.log('Impression du rapport d\'intervention:', intervention);
-    
+
     // Exemple simple d'impression de la page
     window.print();
   }

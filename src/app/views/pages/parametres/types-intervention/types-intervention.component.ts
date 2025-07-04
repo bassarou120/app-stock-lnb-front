@@ -1,8 +1,8 @@
-import { Component, ViewChild, OnInit } from '@angular/core'; // `inject` et `NgbCalendar` sont retirés
+import { Component, ViewChild, OnInit,ViewEncapsulation } from '@angular/core'; // `inject` et `NgbCalendar` sont retirés
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { TypeInterventionService } from '../../../../core/services/types-intervention/types-intervention.service';
-import { TypeIntervention } from '../../../../core/services/interface/models'; 
+import { TypeIntervention } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from "@angular/forms";
 import { CommonModule } from '@angular/common'; // DatePipe n'est plus strictement nécessaire si vous ne formatez pas de dates spécifiques, mais je le garde au cas où d'autres usages subsistent dans le template.
 import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'; // NgbDatepickerModule et NgbDateStruct sont retirés
@@ -25,14 +25,16 @@ declare var bootstrap: any; // Pour les modales Bootstrap
     NgbTooltipModule,
     // DatePipe // Commenté si non utilisé ailleurs pour le nettoyage des imports
   ],
-  templateUrl: 'types-intervention.component.html'
+  templateUrl: 'types-intervention.component.html',
+  styleUrls: ['types-intervention.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class TypesInterventionComponent implements OnInit {
   // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
-  canVoirParamGeneraux: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres 
+  canVoirParamGeneraux: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages Voir Parametres
 
-  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages 
+  hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   // currentDate: NgbDateStruct = inject(NgbCalendar).getToday(); // Rétiré, plus de datepicker direct
   rows: TypeIntervention[] = [];
@@ -41,14 +43,14 @@ export class TypesInterventionComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
-  alertAjoutVisible: boolean = false; 
-  alertModifVisible: boolean = false; 
-  alertSuppVisible: boolean = false; 
+  alertAjoutVisible: boolean = false;
+  alertModifVisible: boolean = false;
+  alertSuppVisible: boolean = false;
 
   // Indicateurs pour gérer les soumissions simultanées et les spinners
-  isAdding: boolean = false; 
-  isEditing: boolean = false; 
-  isDeleting: boolean = false; 
+  isAdding: boolean = false;
+  isEditing: boolean = false;
+  isDeleting: boolean = false;
 
   public addTypeIntervention!: FormGroup;
   public editTypeIntervention!: FormGroup;
@@ -121,10 +123,10 @@ export class TypesInterventionComponent implements OnInit {
       libelle_type_intervention: ["", [Validators.required]],
       // applicable_seul_vehicule sera traité comme un booléen (true/false) pour les checkboxes Angular
       // Le backend (via $casts) convertira correctement true/false en 1/0 ou vice-versa.
-      applicable_seul_vehicule: [false, [Validators.required]], 
+      applicable_seul_vehicule: [false, [Validators.required]],
       observation: ["", []],
       // has_expiration_date sera également traité comme un booléen
-      has_expiration_date: [false], 
+      has_expiration_date: [false],
       date_expiration: [null] // Gardé dans le formGroup, mais toujours nullé à l'envoi
     });
 
@@ -167,7 +169,7 @@ export class TypesInterventionComponent implements OnInit {
       (data: TypeIntervention[]) => {
         // Le `map` n'est plus nécessaire ici car `has_expiration_date` est maintenant un champ direct du backend
         // et son type est déjà `boolean` grâce à l'interface TypeIntervention et aux casts Laravel.
-        this.rows = data; 
+        this.rows = data;
         this.temp = [...this.rows]; // Sauvegarde pour le filtrage local
         this.loadingIndicator = false;
       },
@@ -218,7 +220,7 @@ export class TypesInterventionComponent implements OnInit {
 
     // Strictement selon votre demande : le champ date_expiration est toujours null pour le backend.
     formData.date_expiration = null;
-    
+
     // has_expiration_date est maintenant une propriété du modèle qui sera envoyée.
     // Nous ne la supprimons plus ici, elle sera envoyée telle quelle (true/false) au service.
 
@@ -229,7 +231,7 @@ export class TypesInterventionComponent implements OnInit {
         // Réinitialise les checkboxes à false après l'ajout pour les prochains ajouts
         this.addTypeIntervention.patchValue({
           applicable_seul_vehicule: false,
-          has_expiration_date: false 
+          has_expiration_date: false
         });
 
         const modal = document.getElementById('add_typeIntervention');
@@ -272,7 +274,7 @@ export class TypesInterventionComponent implements OnInit {
 
     // Strictement selon votre demande : le champ date_expiration est toujours null pour le backend.
     formData.date_expiration = null;
-    
+
     // has_expiration_date est une propriété du modèle qui sera envoyée.
     // Nous ne la supprimons plus ici, elle sera envoyée telle quelle (true/false) au service.
 
@@ -349,9 +351,9 @@ export class TypesInterventionComponent implements OnInit {
 
     this.rows = this.temp.filter(typeIntervention =>
       (typeIntervention.libelle_type_intervention?.toLowerCase().includes(val) || false) ||
-      (typeIntervention.observation?.toLowerCase().includes(val) || false) || 
-      (typeIntervention.applicable_seul_vehicule ? 'oui' : 'non').includes(val) || 
-      (typeIntervention.has_expiration_date ? 'oui' : 'non').includes(val) 
+      (typeIntervention.observation?.toLowerCase().includes(val) || false) ||
+      (typeIntervention.applicable_seul_vehicule ? 'oui' : 'non').includes(val) ||
+      (typeIntervention.has_expiration_date ? 'oui' : 'non').includes(val)
     );
 
     if (this.table) {

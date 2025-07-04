@@ -130,7 +130,9 @@
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
             <ngx-datatable-column name="Date" prop="date"></ngx-datatable-column>
-             <ngx-datatable-column name="Actions">
+             <ngx-datatable-column name="Actions" [frozenRight]="true"
+  [width]="130" [headerClass]="'actions-header'"
+                      [cellClass]="'actions-cell'">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -159,7 +161,7 @@
                   </div>
                 </div>
               </ng-template>
-            </ngx-datatable-column> 
+            </ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>
@@ -433,7 +435,7 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid" *ngIf="selectedSortie && selectedSortie.id">
-          
+
           <!-- 🔥 SECTION INFORMATIONS GÉNÉRALES -->
           <div class="card mb-3">
             <div class="card-header bg-primary text-white">
@@ -442,13 +444,13 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Numéro de ticket :</strong> 
+                  <p><strong>Numéro de ticket :</strong>
                     <span class="badge bg-primary fs-6">{{ selectedSortie?.coupon_ticket?.numero_ticket || 'N/A' }}</span>
                   </p>
-                  <p><strong>Quantité attribuée :</strong> 
+                  <p><strong>Quantité attribuée :</strong>
                     <span class="text-success fw-bold fs-5">{{ selectedSortie?.qte_attribue || 0 }} L</span>
                   </p>
-                  <p><strong>Date d'attribution :</strong> 
+                  <p><strong>Date d'attribution :</strong>
                     <span class="text-muted">
                       <i class="feather icon-calendar me-1"></i>
                       {{ selectedSortie?.date_attribution | date:'dd/MM/yyyy' }}
@@ -456,10 +458,10 @@
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Nombre de trajets :</strong> 
+                  <p><strong>Nombre de trajets :</strong>
                     <span class="badge bg-info">{{ selectedSortie?.nbre_trajet || 0 }} trajet(s)</span>
                   </p>
-                  <p><strong>Statut :</strong> 
+                  <p><strong>Statut :</strong>
                     <span class="badge bg-success">
                       <i class="feather icon-check-circle me-1"></i>
                       Attribution effectuée
@@ -478,21 +480,21 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Numéro de ticket :</strong> 
+                  <p><strong>Numéro de ticket :</strong>
                     <span class="badge bg-dark fs-6">{{ selectedSortie?.coupon_ticket?.numero_ticket || 'N/A' }}</span>
                   </p>
-                  <p><strong>Quantité totale du ticket :</strong> 
+                  <p><strong>Quantité totale du ticket :</strong>
                     <span class="text-primary">{{ selectedSortie?.coupon_ticket?.qte || 0 }} L</span>
                   </p>
-                  <p><strong>Type de carburant :</strong> 
+                  <p><strong>Type de carburant :</strong>
                     <span class="badge bg-secondary">{{ selectedSortie?.coupon_ticket?.type_carburant?.libelle || 'N/A' }}</span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Fournisseur :</strong> 
+                  <p><strong>Fournisseur :</strong>
                     <span class="text-muted">{{ selectedSortie?.coupon_ticket?.fournisseur?.nom || 'N/A' }}</span>
                   </p>
-                  <p><strong>Date de création du ticket :</strong> 
+                  <p><strong>Date de création du ticket :</strong>
                     <span class="text-muted">
                       <i class="feather icon-calendar me-1"></i>
                       {{ selectedSortie?.coupon_ticket?.created_at | date:'dd/MM/yyyy' }}
@@ -511,24 +513,24 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Immatriculation :</strong> 
+                  <p><strong>Immatriculation :</strong>
                     <span class="badge bg-dark fs-6">{{ selectedSortie?.vehicule?.immatriculation || 'N/A' }}</span>
                   </p>
-                  <p><strong>Marque :</strong> 
+                  <p><strong>Marque :</strong>
                     <span class="text-muted">{{ selectedSortie?.vehicule?.marque || 'N/A' }}</span>
                   </p>
-                  <p><strong>Modèle :</strong> 
+                  <p><strong>Modèle :</strong>
                     <span class="text-muted">{{ selectedSortie?.vehicule?.modele || 'N/A' }}</span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Type de véhicule :</strong> 
+                  <p><strong>Type de véhicule :</strong>
                     <span class="badge bg-secondary">{{ selectedSortie?.vehicule?.type_vehicule?.libelle || 'N/A' }}</span>
                   </p>
-                  <p><strong>Année :</strong> 
+                  <p><strong>Année :</strong>
                     <span class="text-muted">{{ selectedSortie?.vehicule?.annee || 'N/A' }}</span>
                   </p>
-                  <p><strong>Kilométrage :</strong> 
+                  <p><strong>Kilométrage :</strong>
                     <span class="text-info">{{ (selectedSortie?.vehicule?.kilometrage | number:'1.0-0') || 'N/A' }} km</span>
                   </p>
                 </div>
@@ -629,7 +631,7 @@
                   </div>
                 </div>
               </div>
-              
+
                             <!-- Durée depuis l'attribution -->
               <div class="alert alert-light border-primary">
                 <div class="d-flex align-items-center">
@@ -673,7 +675,7 @@
                       <i class="feather icon-trending-up text-warning" style="font-size: 2rem;"></i>
                     </div>
                     <h4 class="text-warning mb-1">
-                      {{ selectedSortie?.qte_attribue && selectedSortie?.nbre_trajet ? 
+                      {{ selectedSortie?.qte_attribue && selectedSortie?.nbre_trajet ?
                          (selectedSortie.qte_attribue / selectedSortie.nbre_trajet | number:'1.1-1') : '0.0' }}
                     </h4>
                     <small class="text-muted">Litres/trajet</small>
@@ -690,29 +692,29 @@
             </div>
             <div class="card-body">
               <div class="d-flex flex-wrap gap-2">
-                
-                <button type="button" 
+
+                <button type="button"
                         class="btn btn-outline-info"
                         title="Voir l'historique des attributions de ce véhicule">
                   <i class="feather icon-history me-2"></i>
                   Historique véhicule
                 </button>
-                
-                <button type="button" 
+
+                <button type="button"
                         class="btn btn-outline-success"
                         title="Voir les détails du ticket complet">
                   <i class="feather icon-credit-card me-2"></i>
                   Détails ticket
                 </button>
-                
-                <button type="button" 
+
+                <button type="button"
                         *ngIf="canModifyAttribution"
                         class="btn btn-outline-warning"
                         title="Modifier cette attribution">
                   <i class="feather icon-edit me-2"></i>
                   Modifier
                 </button>
-                
+
               </div>
             </div>
           </div> -->
@@ -726,7 +728,7 @@
         </div>
 
       </div>
-      
+
       <!-- 🔥 FOOTER DU MODAL -->
       <div class="modal-footer bg-light">
         <div class="d-flex justify-content-between w-100">

@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ArticleService } from '../../../core/services/articles/articles.service';
@@ -27,7 +27,8 @@ import { Router } from '@angular/router';
 
   ],
   templateUrl: 'articles.component.html',
-  styleUrls: ['articles.component.scss']
+  styleUrls: ['articles.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class ArticlesComponent implements OnInit {
   // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS

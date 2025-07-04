@@ -164,7 +164,7 @@ export interface TypeIntervention {
   observation: string;
   date_expiration: string;
   created_at: string| null;
-  has_expiration_date?: boolean; 
+  has_expiration_date?: boolean;
   updated_at: string;
 }
 export interface TypeMouvement {
@@ -416,6 +416,7 @@ export interface DashboardData {
   total_article: number;
   total_demandes_en_attente: number;
   total_demandes_accorde: number;
+  article_stock_alerte_sans_rupture: number;
 }
 
 export interface ApiResponse<T> {

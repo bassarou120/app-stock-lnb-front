@@ -1,6 +1,6 @@
 // src/app/modules/parametrage/utilisateur/utilisateur.component.ts
 
-import { Component, ViewChild, OnInit, inject, TemplateRef } from '@angular/core';
+import { Component, ViewChild, OnInit, inject, TemplateRef,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { UtilisateurService } from '../../../core/services/utilisateurs/utilisateurs.service';
@@ -30,7 +30,8 @@ declare var bootstrap: any;
     NgSelectModule,
   ],
   templateUrl: './utilisateurs.component.html',
-  styleUrls: ['./utilisateurs.component.scss']
+  styleUrls: ['./utilisateurs.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class UtilisateurComponent implements OnInit {
 
@@ -125,7 +126,7 @@ export class UtilisateurComponent implements OnInit {
       this.canExportUser = allowedFonctionnalites.includes('Exporter utilisateur');
 
       // 🔥 ACCÈS À LA PAGE SIMPLIFIÉ
-      this.hasPageAccess = 
+      this.hasPageAccess =
                         this.canVoirUser;
 
       // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD

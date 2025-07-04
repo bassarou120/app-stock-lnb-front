@@ -74,14 +74,14 @@
         <div class="card">
           <div class="card-body">
             <div class="d-flex justify-content-between align-items-baseline">
-              <h6 class="card-title mb-0">Demande en attente</h6>
+              <h6 class="card-title mb-0">Stock bas mais disponible</h6>
               <div ngbDropdown class="mb-2">
                 <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton">
                   <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
                 </a>
                 <div ngbDropdownMenu aria-labelledby="dropdownMenuButton">
                   <a ngbDropdownItem class="d-flex align-items-center"
-                    [routerLink]="['/mouvement-stock/les-demandes']"><i data-feather="eye" appFeatherIcon
+                    [routerLink]="['/etat-de-stock']"><i data-feather="eye" appFeatherIcon
                       class="icon-sm me-2"></i>
                     <span class="">Voir plus</span></a>
                 </div>
@@ -90,15 +90,15 @@
             <div class="row">
               <div class="">
                 <h3 class="mb-2">
-                  {{ dataTableauBord?.total_demandes_en_attente ?? 0 }}
+                  {{ dataTableauBord?.article_stock_alerte_sans_rupture ?? 0 }}
                 </h3>
-                <div class="d-flex align-items-baseline">
+                <!-- <div class="d-flex align-items-baseline">
                   <p class="text-success" data-bs-placement="top" title="Demandes accordées">
                     <span>{{ dataTableauBord?.total_demandes_accorde }} demandes
                       accordées</span>
                     <i data-feather="check-circle" class="icon-sm text-success mb-1 ms-1"></i>
                   </p>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>

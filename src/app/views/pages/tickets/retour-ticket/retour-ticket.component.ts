@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { RetourTicketService } from '../../../../core/services/retour-ticket/retour-ticket.service';
@@ -26,7 +26,9 @@ declare var bootstrap: any;
     MyNgSelectComponent,
 
   ],
-  templateUrl: 'retour-ticket.component.html'
+  templateUrl: 'retour-ticket.component.html',
+  styleUrls: ['retour-ticket.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class RetourTicketComponent implements OnInit {
     // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS

@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject, TemplateRef } from '@angular/core';
+import { Component, ViewChild, OnInit, inject, TemplateRef,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { VehiculeService } from '../../../core/services/vehicules/vehicules.service';
@@ -26,7 +26,9 @@ import { Router } from '@angular/router';
     MyNgSelectComponent,
     // FeatherIconDirective // Ajoutez ceci si vous l'utilisez dans vehicules.component.html
   ],
-  templateUrl: 'vehicules.component.html'
+  templateUrl: 'vehicules.component.html',
+  styleUrls: ['vehicules.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 
 export class VehiculesComponent implements OnInit {

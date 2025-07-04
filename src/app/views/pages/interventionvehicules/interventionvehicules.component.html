@@ -118,7 +118,9 @@
                 {{ row.date_intervention | date:'dd/MM/yyyy' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column *ngIf="canModifyInterventionVehicule || canDeleteInterventionVehicule" name="Actions">
+            <ngx-datatable-column *ngIf="canModifyInterventionVehicule || canDeleteInterventionVehicule" name="Actions" [frozenRight]="true"
+  [width]="130" [headerClass]="'actions-header'"
+                      [cellClass]="'actions-cell'">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle
@@ -128,12 +130,12 @@
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
 
                     <!-- 🔥 NOUVEAU BOUTON VOIR PLUS -->
-                    <a ngbDropdownItem 
-                      class="d-flex align-items-center" 
+                    <a ngbDropdownItem
+                      class="d-flex align-items-center"
                       data-bs-toggle="modal"
-                      data-bs-target="#voir_plus_intervention_vehicule" 
+                      data-bs-target="#voir_plus_intervention_vehicule"
                       (click)="getViewForm(row)">
-                      <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> 
+                      <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i>
                       <span>Voir plus</span>
                     </a>
 
@@ -171,7 +173,7 @@
       </div>
       <div class="modal-body">
         <div class="container-fluid" *ngIf="selectedInterventionVehicule">
-          
+
           <!-- 🔥 SECTION INFORMATIONS GÉNÉRALES -->
           <div class="card mb-3">
             <div class="card-header bg-primary text-white">
@@ -180,13 +182,13 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Titre :</strong> 
+                  <p><strong>Titre :</strong>
                     <span class="text-primary fw-bold">{{ selectedInterventionVehicule.titre || 'N/A' }}</span>
                   </p>
-                  <p><strong>Type d'intervention :</strong> 
+                  <p><strong>Type d'intervention :</strong>
                     <span class="badge bg-info">{{ getTypeInterventionLibelle(selectedInterventionVehicule) }}</span>
                   </p>
-                  <p><strong>Date de l'intervention :</strong> 
+                  <p><strong>Date de l'intervention :</strong>
                     <span class="text-muted">
                       <i class="feather icon-calendar me-1"></i>
                       {{ selectedInterventionVehicule.date_intervention | date:'dd/MM/yyyy' }}
@@ -194,13 +196,13 @@
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Coût de l'intervention :</strong> 
+                  <p><strong>Coût de l'intervention :</strong>
                     <span class="text-success fw-bold fs-5">
                       <i class="feather icon-dollar-sign me-1"></i>
                       {{ selectedInterventionVehicule.montant | number:'1.0-0'  }} FCFA
                     </span>
                   </p>
-                  <p><strong>Statut :</strong> 
+                  <p><strong>Statut :</strong>
                     <span class="badge bg-success">
                       <i class="feather icon-check-circle me-1"></i>
                       Intervention réalisée
@@ -219,24 +221,24 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Immatriculation :</strong> 
+                  <p><strong>Immatriculation :</strong>
                     <span class="badge bg-dark fs-6">{{ selectedInterventionVehicule.vehicule?.immatriculation || 'N/A' }}</span>
                   </p>
-                  <p><strong>Marque :</strong> 
+                  <p><strong>Marque :</strong>
                     <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.marque || 'N/A' }}</span>
                   </p>
-                  <p><strong>Modèle :</strong> 
+                  <p><strong>Modèle :</strong>
                     <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.modele || 'N/A' }}</span>
                   </p>
                 </div>
                                 <div class="col-md-6">
-                  <p><strong>Type de véhicule :</strong> 
+                  <p><strong>Type de véhicule :</strong>
                     <span class="badge bg-secondary">{{ selectedInterventionVehicule.vehicule?.type_vehicule?.libelle || 'N/A' }}</span>
                   </p>
-                  <p><strong>Année :</strong> 
+                  <p><strong>Année :</strong>
                     <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.annee || 'N/A' }}</span>
                   </p>
-                  <p><strong>Kilométrage :</strong> 
+                  <p><strong>Kilométrage :</strong>
                     <span class="text-info">{{ selectedInterventionVehicule.vehicule?.kilometrage | number:'1.0-0'  }} km</span>
                   </p>
                 </div>
@@ -259,7 +261,7 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Date d'expiration :</strong> 
+                  <p><strong>Date d'expiration :</strong>
                     <span class="text-muted">
                       <i class="feather icon-calendar me-1"></i>
                       {{ selectedInterventionVehicule.date_expiration | date:'dd/MM/yyyy' }}
@@ -285,7 +287,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Alerte d'expiration -->
               <div class="alert mt-3" [ngClass]="{
                 'alert-success': getDaysUntilExpiration(selectedInterventionVehicule.date_expiration) > 30,
@@ -400,7 +402,7 @@
                   </div>
                 </div>
               </div>
-              
+
               <!-- Durée depuis l'intervention -->
               <div class="alert alert-light border-primary">
                 <div class="d-flex align-items-center">
@@ -527,10 +529,10 @@
                 </div>
                 <div class="col-md-6">
                   <h6 class="text-success mb-3">État et Utilisation</h6>
-                  <p><strong>Kilométrage :</strong> 
+                  <p><strong>Kilométrage :</strong>
                     <span class="badge bg-info">{{ selectedInterventionVehicule.vehicule?.kilometrage | number:'1.0-0' }} km</span>
                   </p>
-                  <p><strong>État général :</strong> 
+                  <p><strong>État général :</strong>
                     <span class="badge" [ngClass]="{
                       'bg-success': selectedInterventionVehicule.vehicule?.etat === 'Bon',
                       'bg-warning text-dark': selectedInterventionVehicule.vehicule?.etat === 'Moyen',
@@ -554,7 +556,7 @@
           <p class="text-muted mt-3">Aucune donnée d'intervention véhicule à afficher</p>
         </div>
       </div>
-      
+
       <!-- 🔥 FOOTER AVEC BOUTONS D'ACTION -->
       <div class="modal-footer bg-light">
         <div class="d-flex justify-content-between w-100">
@@ -565,18 +567,18 @@
               Intervention enregistrée le {{ selectedInterventionVehicule.created_at | date:'dd/MM/yyyy à HH:mm' }}
             </small>
           </div>
-          
+
           <!-- Boutons d'action à droite -->
           <div class="d-flex gap-2">
             <!-- Bouton Imprimer/Exporter (optionnel) -->
-            <button type="button" 
+            <button type="button"
                     class="btn btn-outline-info"
                     (click)="imprimerInterventionVehicule(selectedInterventionVehicule)"
                     title="Imprimer le rapport d'intervention véhicule">
               <i class="feather icon-printer me-2"></i>
               Imprimer
             </button>
-            
+
             <!-- Bouton Programmer Suivi (optionnel) -->
             <button type="button"
                     class="btn btn-outline-warning"
@@ -586,10 +588,10 @@
               Programmer Suivi
             </button>
 
-            
+
             <!-- Bouton Modifier conditionnel -->
-            <button *ngIf="canModifyInterventionVehicule" 
-                    type="button" 
+            <button *ngIf="canModifyInterventionVehicule"
+                    type="button"
                     class="btn btn-primary"
                     data-bs-toggle="modal"
                     data-bs-target="#edit_intervention_vehicule"
@@ -599,10 +601,10 @@
               <i class="feather icon-edit me-2"></i>
               Modifier
             </button>
-            
+
             <!-- Bouton Supprimer conditionnel -->
-<!--             <button *ngIf="canDeleteInterventionVehicule" 
-                    type="button" 
+<!--             <button *ngIf="canDeleteInterventionVehicule"
+                    type="button"
                     class="btn btn-outline-danger"
                     data-bs-toggle="modal"
                     data-bs-target="#delete_intervention_vehicule"
@@ -612,7 +614,7 @@
               <i class="feather icon-trash-2 me-2"></i>
               Supprimer
             </button> -->
-            
+
             <!-- Bouton Fermer -->
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
               <i class="feather icon-x me-2"></i>

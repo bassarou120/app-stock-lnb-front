@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, inject,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/entree.service';
@@ -30,7 +30,9 @@ declare var bootstrap: any;
     NgbDatepickerModule,
     FeatherIconDirective
   ],
-  templateUrl: 'entree.component.html'
+  templateUrl: 'entree.component.html',
+  styleUrls: ['entree.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class EntreeComponent implements OnInit {
 

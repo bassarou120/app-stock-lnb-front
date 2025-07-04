@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit } from '@angular/core';
+import { Component, ViewChild, OnInit,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsService } from '../../../../core/services/intervention/intervention.service'; // This import seems unused based on provided code, consider removing if not needed.
@@ -29,7 +29,9 @@ declare var bootstrap: any;
     FeatherIconDirective
 
   ],
-  templateUrl: 'trajets.component.html'
+  templateUrl: 'trajets.component.html',
+styleUrls: ['trajets.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class TrajetComponent implements OnInit {
     // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS

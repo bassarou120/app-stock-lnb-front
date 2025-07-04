@@ -120,7 +120,9 @@
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column> -->
-            <ngx-datatable-column name="Actions" *ngIf="canModifyEntre || canDeleteEntre">
+            <ngx-datatable-column name="Actions" *ngIf="canModifyEntre || canDeleteEntre" [frozenRight]="true"
+  [width]="130" [headerClass]="'actions-header'"
+                      [cellClass]="'actions-cell'">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">

@@ -75,14 +75,14 @@
             </ngx-datatable-column>
             <!-- Colonne Observations -->
             <ngx-datatable-column name="Observations" prop="observation"></ngx-datatable-column>
-            
+
             <!-- NOUVEAU: Colonne "A une date d'expiration" basée sur la propriété has_expiration_date du modèle -->
             <ngx-datatable-column name="Date d'expiration" prop="has_expiration_date">
               <ng-template ngx-datatable-cell-template let-value="value">
                 {{ value ? 'Oui' : 'Non' }}
               </ng-template>
             </ngx-datatable-column>
-            
+
             <!-- ANCIENNE COLONNE 'Date d'expiration' - SUPPRIMÉE COMME DEMANDÉ -->
             <!-- <ngx-datatable-column name="Date d'expiration" prop="date_expiration"></ngx-datatable-column> -->
 
@@ -92,9 +92,11 @@
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column>
-            
+
             <!-- Colonne Actions -->
-            <ngx-datatable-column name="Actions">
+            <ngx-datatable-column name="Actions" [frozenRight]="true"
+  [width]="130" [headerClass]="'actions-header'"
+                      [cellClass]="'actions-cell'">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -192,7 +194,7 @@
           </div>
 
           <!-- LE CHAMP date_expiration EST COMPLÈTEMENT RETIRÉ DU HTML -->
-          
+
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary" [disabled]="isAdding || addTypeIntervention.invalid">
@@ -282,7 +284,7 @@
           </div>
 
           <!-- LE CHAMP date_expiration EST COMPLÈTEMENT RETIRÉ DU HTML -->
-          
+
           <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary" [disabled]="isEditing || editTypeIntervention.invalid">

@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, inject,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
@@ -29,7 +29,9 @@ declare var bootstrap: any;
     FeatherIconDirective
 
   ],
-  templateUrl: 'enregistrement-immos.component.html'
+  templateUrl: 'enregistrement-immos.component.html',
+  styleUrls: ['enregistrement-immos.component.scss'],
+    encapsulation: ViewEncapsulation.None
 })
 export class ImmobilisationComponent implements OnInit {
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();

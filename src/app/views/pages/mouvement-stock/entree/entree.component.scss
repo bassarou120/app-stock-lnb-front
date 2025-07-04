@@ -1,6 +1,10 @@
-.datatable-scroll .datatable-body-cell.frozen,
-.datatable-scroll .datatable-header-cell.frozen {
+/* Styles simplifiés */
+.actions-header,
+.actions-cell {
   background-color: white !important;
-  z-index: 2 !important;
-  box-shadow: -3px 0 5px rgba(0, 0, 0, 0.08) !important;
+  border-left: 1px solid #dee2e6 !important;
 }
+
+// .actions-cell {
+//   box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1) !important;
+// }

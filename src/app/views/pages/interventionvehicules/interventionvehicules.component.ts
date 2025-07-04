@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject } from '@angular/core';
+import { Component, ViewChild, OnInit, inject,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { InterventionsVehiculeService } from '../../../core/services/interventionvehicules/interventionvehicules.service';
@@ -32,7 +32,9 @@ declare var bootstrap: any;
     FeatherIconDirective,
     DatePipe // Ajout de DatePipe pour le formatage dans le template
   ],
-  templateUrl: 'interventionvehicules.component.html'
+  templateUrl: 'interventionvehicules.component.html',
+  styleUrls: ['interventionvehicules.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 
 export class InterventionVehiculeComponent implements OnInit {
@@ -501,24 +503,24 @@ export class InterventionVehiculeComponent implements OnInit {
     // 🔥 MÉTHODE pour calculer les jours depuis l'intervention
   getDaysSinceIntervention(dateIntervention: string): number {
     if (!dateIntervention) return 0;
-    
+
     const interventionDate = new Date(dateIntervention);
     const today = new Date();
     const diffTime = Math.abs(today.getTime() - interventionDate.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
   }
 
     // 🔥 MÉTHODE pour calculer les jours jusqu'à expiration
   getDaysUntilExpiration(dateExpiration: string): number {
     if (!dateExpiration) return 0;
-    
+
     const expirationDate = new Date(dateExpiration);
     const today = new Date();
     const diffTime = expirationDate.getTime() - today.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
+
     return diffDays;
   }
 
@@ -550,17 +552,17 @@ export class InterventionVehiculeComponent implements OnInit {
     }
   }
 
-  
+
   // 🔥 MÉTHODE pour obtenir l'icône selon le type d'intervention
   getInterventionTypeIcon(typeIntervention: string): string {
     const type = typeIntervention?.toLowerCase() || '';
-    
+
     if (type.includes('maintenance')) return 'icon-settings';
     if (type.includes('réparation')) return 'icon-tool';
     if (type.includes('contrôle') || type.includes('visite')) return 'icon-check-circle';
     if (type.includes('assurance')) return 'icon-shield';
     if (type.includes('carburant')) return 'icon-zap';
-    
+
     return 'icon-truck'; // Icône par défaut
   }
 
@@ -573,12 +575,12 @@ export class InterventionVehiculeComponent implements OnInit {
   // 🔥 MÉTHODES UTILITAIRES À AJOUTER
 getDaysExpiredSince(dateExpiration: string): number {
   if (!dateExpiration) return 0;
-  
+
   const expirationDate = new Date(dateExpiration);
   const today = new Date();
   const diffTime = today.getTime() - expirationDate.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   return diffDays > 0 ? diffDays : 0;
 }
 
