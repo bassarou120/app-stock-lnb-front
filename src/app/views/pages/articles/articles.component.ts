@@ -410,15 +410,27 @@ loadArticles(): void {
     );
   }
 
-  updateFilter(event: KeyboardEvent): void {
-    const val = (event.target as HTMLInputElement).value.toLowerCase();
+//   updateFilter(event: KeyboardEvent): void {
+//     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(article =>
-      article.libelle.toLowerCase().includes(val)
-    );
+//     this.rows = this.temp.filter(article =>
+//       article.libelle.toLowerCase().includes(val)
+//     );
 
-    this.table.offset = 0;
-  }
+//     this.table.offset = 0;
+//   }
+updateFilter(event: KeyboardEvent): void {
+  const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  this.rows = this.temp.filter(article =>
+    (article.code_article && article.code_article.toLowerCase().includes(val)) ||
+    (article.libelle && article.libelle.toLowerCase().includes(val)) ||
+    (article.cat && article.cat.libelle_categorie_article && article.cat.libelle_categorie_article.toLowerCase().includes(val)) ||
+    (article.description && String(article.description).toLowerCase().includes(val)) ||
+    (article.seuil_alerte && String(article.seuil_alerte).toLowerCase().includes(val)) 
+  );
+  this.table.offset = 0;
+}
 
   getEditForm(row: any){
     this.editArticle.patchValue({

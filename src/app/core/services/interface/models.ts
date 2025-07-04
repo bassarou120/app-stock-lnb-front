@@ -25,6 +25,7 @@ export interface RetourTicket {
 export interface AnnulationTicket {
   id: number;
   mouvementTicket_id: number;
+  mouvementTicket? : MouvementTicket;
   coupon_ticket_id: number;
   coupon_ticket? : CouponTicket;
   compagnie_petrolier_id: number;
@@ -60,6 +61,7 @@ export interface StockTicket {
     id: number;
     libelle: string;
     adresse: string;
+    qte_actuel: number;
   };
 }
 
@@ -186,6 +188,7 @@ export interface Categorie {
 export interface Article {
   id: number;
   id_cat: number;
+  cat?: Categorie;
   libelle: string;
   description: number;
   created_at: string;
@@ -226,6 +229,7 @@ export interface MouvementStock {
   created_at: string;
   updated_at: string;
   statut?: string;
+  unite_de_mesure:number;
   piece_jointe_mouvement?: string;
 
   // Champs supplémentaires fournis par l’API
@@ -265,8 +269,12 @@ export interface MouvementTicket {
   coupon_ticket? : CouponTicket;
   employe_id: number;
   employe? : Employe;
-  commune_depart: number;
-  commune_arriver: number;
+  // CORRECTION MAJEURE : Ces propriétés doivent être des objets Commune, pas des nombres
+  commune_depart_id: number; // Gardez l'ID si nécessaire pour l'envoi au backend
+  depart?: Commune; // L'objet Commune lié pour la recherche et l'affichage
+
+  commune_arriver_id: number; // Gardez l'ID si nécessaire pour l'envoi au backend
+  arriver?: Commune; // L'objet Commune lié pour la recherche et l'affichage
   description: string;
   objet: string;
   id_type_mouvement: number;
@@ -281,7 +289,9 @@ export interface MouvementTicket {
 export interface Intervention {
   id: number;
   immo_id: number;
+  immo?: Immobilisation;
   type_intervention_id: number;
+  type_intervention?: TypeIntervention;
   date_intervention: string;
   titre: string;
   cout: number;
@@ -445,6 +455,7 @@ export interface PaginatedResponse<T> {
 export interface ArticleStockInfo {
   id?: number; // ID de l'entrée de stock
   Qte_actuel: number; // Quantité actuelle de l'article en stock
+  CMP: number;
   // Ajoute ici d'autres propriétés si ton objet 'stock' de l'API en contient
   // Exemple: id_article?: number;
 }

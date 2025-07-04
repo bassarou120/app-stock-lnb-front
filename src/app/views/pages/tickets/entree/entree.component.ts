@@ -384,11 +384,24 @@ export class EntreeComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(entre =>
+  //     entre.description.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(entre =>
-      entre.description.toLowerCase().includes(val)
+      (entre.description && entre.description.toLowerCase().includes(val)) ||
+      (entre.coupon_ticket && entre.coupon_ticket.libelle && entre.coupon_ticket.libelle.toLowerCase().includes(val)) ||
+      (entre.compagnie_petrolier && entre.compagnie_petrolier.libelle && entre.compagnie_petrolier.libelle.toLowerCase().includes(val)) ||
+      (entre.objet && entre.objet.toLowerCase().includes(val)) ||
+      (entre.qte && String(entre.qte).toLowerCase().includes(val))
     );
 
     this.table.offset = 0;

@@ -560,7 +560,10 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
                 case 'entree ticket':
                     const entree = item as MouvementTicket;
                     match = (entree.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
-                            (entree.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false);
+                            (entree.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
+                            (String(entree.qte).toLowerCase().includes(val) || false)||
+                            (entree.objet.toLowerCase().includes(val) || false)||
+                            (entree.description.toLowerCase().includes(val) || false);
                     break;
                 case 'sortie ticket':
                     const sortie = item as MouvementTicket;
@@ -568,25 +571,26 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
                             (sortie.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
                             (sortie.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false) ||
                             (sortie.employe?.nom?.toLowerCase().includes(val) || false) ||
-                            (sortie.vehicule?.immatriculation?.toLowerCase().includes(val) || false)
-                            ;
-                            // (sortie.depart?.libelle_depart?.toLowerCase().includes(val) || false) ||
-                            // (sortie.arriver?.libelle_arriver?.toLowerCase().includes(val) || false)
+                            (sortie.vehicule?.immatriculation?.toLowerCase().includes(val) || false)||
+                            (sortie.objet.toLowerCase().includes(val) || false)||
+                            (sortie.description.toLowerCase().includes(val) || false)||
+                            (String(sortie.kilometrage).toLowerCase().includes(val) || false)||
+                            (String(sortie.qte).toLowerCase().includes(val) || false);
+                            
                     break;
                 case 'retour ticket':
                     const retour = item as RetourTicket;
                     match =
                             (retour.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
-                            (retour.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false);
-                            // (retour.mouvementTicket?.vehicule?.immatriculation?.toLowerCase().includes(val) || false)
+                            (retour.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
+                            (String(retour.qte).toLowerCase().includes(val) || false);
                     break;
                 case 'annulation ticket':
                     const annulation = item as AnnulationTicket;
                     match =
                             (annulation.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
-                            (annulation.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false);
-                            // (annulation.mouvement?.employe?.nom?.toLowerCase().includes(val) || annulation.mouvement?.employe?.prenom?.toLowerCase().includes(val) || false) ||
-                            // (annulation.mouvement?.vehicule?.immatriculation?.toLowerCase().includes(val) || false)
+                            (annulation.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
+                            (String(annulation.qte).toLowerCase().includes(val) || false);
                     break;
             }
             return match;

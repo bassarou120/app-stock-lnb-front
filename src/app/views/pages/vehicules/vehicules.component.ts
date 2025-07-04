@@ -393,8 +393,11 @@ export class VehiculesComponent implements OnInit {
     this.rows = this.temp.filter(vehicule =>
       vehicule.immatriculation.toLowerCase().includes(val) ||
       (vehicule.numero_chassis && vehicule.numero_chassis.toLowerCase().includes(val)) ||
-      (vehicule.date_mise_en_service && vehicule.date_mise_en_service.toLowerCase().includes(val)) ||
+      // (vehicule.date_mise_en_service && String(vehicule.date_mise_en_service).toLowerCase().includes(val)) ||
+      (vehicule.date_mise_en_service && String(vehicule.date_mise_en_service).toLowerCase().includes(val)) ||
       (vehicule.marque && vehicule.marque.libelle && vehicule.marque.libelle.toLowerCase().includes(val)) ||
+      // (vehicule.kilometrage && vehicule.kilometrage && vehicule.kilometrage) ||
+      (vehicule.kilometrage && String(vehicule.kilometrage).toLowerCase().includes(val)) ||
       (vehicule.modele && vehicule.modele.libelle_modele && vehicule.modele.libelle_modele.toLowerCase().includes(val))
     );
 

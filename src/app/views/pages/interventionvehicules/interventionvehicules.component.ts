@@ -446,6 +446,7 @@ export class InterventionVehiculeComponent implements OnInit {
       (interventionVehicule.titre?.toLowerCase().includes(val) || false) ||
       (interventionVehicule.observation?.toLowerCase().includes(val) || false) ||
       (interventionVehicule.vehicule?.immatriculation?.toLowerCase().includes(val) || false) ||
+      (String(interventionVehicule.montant).toLowerCase().includes(val) || false) ||
       (interventionVehicule.typeIntervention?.libelle_type_intervention?.toLowerCase().includes(val) || false) ||
       // Filtrer aussi par la date d'expiration si elle est présente et le type d'intervention a has_expiration_date
       (interventionVehicule.typeIntervention?.has_expiration_date && interventionVehicule.date_expiration ?
