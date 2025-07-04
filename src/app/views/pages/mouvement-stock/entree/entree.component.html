@@ -55,7 +55,7 @@
           </div>
           <div class="d-flex gap-2">
             <!-- 🔥 LES DEUX BOUTONS LIÉS À LA MÊME FONCTIONNALITÉ "Ajout du Stock" -->
-            <button *ngIf="canAddStock"
+            <!-- <button *ngIf="canAddStock"
                     type="button"
                     class="btn btn-primary align-self-center"
                     data-bs-toggle="modal"
@@ -63,7 +63,7 @@
                     title="Ajouter un mouvement d'entrée">
               <i class="feather icon-plus me-1"></i>
               Ajouter un
-            </button>
+            </button> -->
 
             <button *ngIf="canAddStockMultiple"
                     type="button"
@@ -126,11 +126,11 @@
             <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
               [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
 
-              <ngx-datatable-column name="N°">
+              <!-- <ngx-datatable-column name="N°">
                 <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                   {{ rowIndex + 1 }}
                 </ng-template>
-              </ngx-datatable-column>
+              </ngx-datatable-column> -->
 
               <ngx-datatable-column name="Code Article">
                 <ng-template let-row="row" ngx-datatable-cell-template>
@@ -153,8 +153,8 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Prix Unitaire(en FCFA)" prop="prixUnitaire"></ngx-datatable-column>
-              <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column>
+              <!-- <ngx-datatable-column name="Prix Unitaire(en FCFA)" prop="prixUnitaire"></ngx-datatable-column> -->
+              <!-- <ngx-datatable-column name="CMP" prop="cout_moyen_pondere"></ngx-datatable-column> -->
               <ngx-datatable-column name="Date du mouvement" prop="date_mouvement"></ngx-datatable-column>
 
               <ngx-datatable-column name="Fournisseur">
@@ -163,7 +163,7 @@
                 </ng-template>
               </ngx-datatable-column>
 
-              <ngx-datatable-column name="Documents">
+              <!-- <ngx-datatable-column name="Documents">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <ng-container *ngIf="row.pieces_jointes?.length > 0; else aucunDoc">
                     <ul>
@@ -174,14 +174,15 @@
                   </ng-container>
                   <ng-template #aucunDoc>Non défini</ng-template>
                 </ng-template>
-              </ngx-datatable-column>
+              </ngx-datatable-column> -->
               <!-- <ngx-datatable-column name="Date de création" prop="created_at">
                 <ng-template let-value="value" ngx-datatable-cell-template>
                   {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
                 </ng-template>
               </ngx-datatable-column> -->
               <!-- 🔥 COLONNE ACTIONS CONDITIONNELLE -->
-              <ngx-datatable-column *ngIf="canModifyStock || canDeleteStock" name="Actions">
+              <ngx-datatable-column *ngIf="canModifyStock || canDeleteStock" name="Actions" [frozenRight]="true"
+  [width]="130">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                     <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -395,7 +396,7 @@
         </div>
         <div class="modal-body">
           <div class="container-fluid" *ngIf="selectedEntree">
-            
+
             <!-- 🔥 SECTION ARTICLE -->
             <div class="card mb-3">
               <div class="card-header bg-primary text-white">
@@ -404,18 +405,18 @@
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-6">
-                    <p><strong>Code Article :</strong> 
+                    <p><strong>Code Article :</strong>
                       <span class="text-muted"> {{ selectedEntree.article?.code_article || 'N/A' }}</span>
                     </p>
-                    <p><strong>Article :</strong> 
+                    <p><strong>Article :</strong>
                       <span class="text-muted"> {{ selectedEntree.article?.libelle || 'N/A' }}</span>
                     </p>
                   </div>
                   <div class="col-md-6">
-                    <p><strong>Quantité : </strong> 
+                    <p><strong>Quantité : </strong>
                       <span class="badge bg-info"> {{ selectedEntree.qte || 'N/A' }}</span>
                     </p>
-                    <p><strong>Unité de Mesure :</strong> 
+                    <p><strong>Unité de Mesure :</strong>
                       <span class="text-muted"> {{ selectedEntree.unite_de_mesure?.libelle || 'Non défini' }}</span>
                     </p>
                   </div>
@@ -431,18 +432,18 @@
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-6">
-                    <p><strong>Prix Unitaire :</strong> 
+                    <p><strong>Prix Unitaire :</strong>
                       <span class="text-success fw-bold"> {{ selectedEntree.prixUnitaire || 'N/A' }} FCFA</span>
                     </p>
-                    <p><strong>Coût Moyen Pondéré :</strong> 
+                    <p><strong>Coût Moyen Pondéré :</strong>
                       <span class="text-info"> {{ selectedEntree.cout_moyen_pondere || 'N/A' }}</span>
                     </p>
                   </div>
                   <div class="col-md-6">
-                    <p><strong>Fournisseur :</strong> 
+                    <p><strong>Fournisseur :</strong>
                       <span class="text-muted"> {{ selectedEntree.fournisseur?.nom || 'Non défini' }}</span>
                     </p>
-                    <p><strong>Date du mouvement :</strong> 
+                    <p><strong>Date du mouvement :</strong>
                       <span class="text-muted"> {{ selectedEntree.date_mouvement | date:'dd/MM/yyyy' }}</span>
                     </p>
                   </div>
@@ -470,8 +471,8 @@
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-6" *ngFor="let piece of selectedEntree.pieces_jointes">
-                    <a [href]="url + '/' + piece.url" 
-                       target="_blank" 
+                    <a [href]="url + '/' + piece.url"
+                       target="_blank"
                        class="btn btn-outline-primary btn-sm mb-2 w-100">
                       <i class="feather icon-download me-2"></i>
                       Télécharger le document
@@ -500,11 +501,11 @@
             <p class="text-muted mt-3">Aucune donnée à afficher</p>
           </div>
         </div>
-        
+
         <!-- 🔥 FOOTER AVEC BOUTONS D'ACTION -->
         <div class="modal-footer">
-          <button *ngIf="canModifyStock" 
-                  type="button" 
+          <button *ngIf="canModifyStock"
+                  type="button"
                   class="btn btn-primary"
                   data-bs-toggle="modal"
                   data-bs-target="#edit_entree"

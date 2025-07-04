@@ -1,6 +1,6 @@
-::ng-deep .datatable-body-cell.frozen,
-::ng-deep .datatable-header-cell.frozen {
-  background-color: white;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1); /* petite ombre à gauche */
-  z-index: 2;
+.datatable-scroll .datatable-body-cell.frozen,
+.datatable-scroll .datatable-header-cell.frozen {
+  background-color: white !important;
+  z-index: 2 !important;
+  box-shadow: -3px 0 5px rgba(0, 0, 0, 0.08) !important;
 }

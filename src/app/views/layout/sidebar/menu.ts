@@ -92,7 +92,7 @@ export const MENU: MenuItem[] = [
     fonctionnalites: ['Voir intervention vehicule']
   },
   {
-    label: 'Tickets',
+    label: 'Ticket Valeur',
     icon: 'credit-card',
     module: 'Gestion de parc',
     subItems: [
