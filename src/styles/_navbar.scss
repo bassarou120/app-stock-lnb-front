@@ -3,7 +3,8 @@
 .navbar {
   width: calc(100% - #{$sidebar-width-lg});
   height: $navbar-height;
-  background: var(--#{$prefix}body-bg);
+  // background: var(--#{$prefix}body-bg);
+  background: #00993E;
   border-bottom: 1px solid var(--#{$prefix}border-color);
   display: flex;
   align-items: center;
@@ -173,13 +174,13 @@
         &.theme-switcher-wrapper {
           $scale: 46px;
           margin: 0 14px;
-        
+
           input {
             &#theme-switcher {
               display: none;
             }
           }
-        
+
           .box {
             width: $scale;
             height: calc($scale/2);
@@ -241,10 +242,10 @@
       color: $secondary;
     }
     @media(max-width: 991px) {
-      display: flex;    
+      display: flex;
     }
   }
-  
+
 }
 
 @if $enable-dark-mode {

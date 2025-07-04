@@ -186,18 +186,19 @@
             <input type="number" class="form-control" id="qteDemande" placeholder="1" autocomplete="off"
               [class.invalid]="editStatutSortie.get('qteDemande')?.invalid && editStatutSortie.get('qteDemande')?.touched"
               formControlName="qteDemande" readonly>
-
           </div>
+          <div class="text-danger mt-2 mb-2">
+              <small>Quantité disponible pour l'article : {{ quantiteDisponible }}</small>
+            </div>
+
           <!-- Qte -->
-          <div class="mb-3">
+          <div class="mb-3" *ngIf="editStatutSortie.get('statut')?.value == 'Accordé'">
             <label for="qte" class="form-label">Confirmez la Quantité <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qte" placeholder="0" autocomplete="off"
               [attr.max]="quantiteDisponible" min="1"
               [class.invalid]="editStatutSortie.get('qte')?.invalid && editStatutSortie.get('qte')?.touched"
               formControlName="qte">
-            <div class="text-danger mt-2">
-              <small>Quantité disponible pour l'article : {{ quantiteDisponible }}</small>
-            </div>
+
             <div *ngIf="editStatutSortie.get('qte')?.invalid && editStatutSortie.get('qte')?.touched">
               <small *ngIf="editStatutSortie.get('qte')?.errors?.['required']" class="text-danger">* La quantité est
                 obligatoire</small>

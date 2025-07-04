@@ -7,10 +7,10 @@
       <button class="btn btn-outline-primary btn-icon calendar" type="button">
         <i data-feather="calendar" appFeatherIcon></i>
       </button>
-      <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
-          name="dp" [(ngModel)]="currentDate" ngbDatepicker #d="ngbDatepicker" [disabled]="true">
+      <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dp"
+        [(ngModel)]="currentDate" ngbDatepicker #d="ngbDatepicker" [disabled]="true" />
     </div>
-     <!-- <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
+    <!-- <button type="button" class="btn btn-outline-primary btn-icon-text me-2 mb-2 mb-md-0">
       <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
       Imprimer
     </button>
@@ -34,7 +34,9 @@
                   <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
                 </a>
                 <div ngbDropdownMenu aria-labelledby="dropdownMenuButton1">
-                  <a ngbDropdownItem class="d-flex align-items-center" [routerLink]="['/etat-de-stock']"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">Voir Plus</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center" [routerLink]="['/etat-de-stock']"><i
+                      data-feather="eye" appFeatherIcon class="icon-sm me-2"></i>
+                    <span class="">Voir Plus</span></a>
                 </div>
               </div>
             </div>
@@ -44,7 +46,11 @@
                 <h3 class="mb-2">{{ dataTableauBord?.total_article }}</h3>
                 <div class="d-flex align-items-baseline">
                   <p class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Articles en Alerte">
-                    <span>{{ dataTableauBord?.total_article_en_alerte }} en rupture de stock</span>
+                    <!-- <a [routerLink]="['/etat-de-stock']"><span>{{ dataTableauBord?.total_article_en_alerte }} en rupture de stock</span></a> -->
+                    <span [routerLink]="['/etat-de-stock']" style="cursor: pointer; text-decoration: underline">
+                      {{ dataTableauBord?.total_article_en_alerte }} en rupture
+                      de stock
+                    </span>
                     <i data-feather="alert-triangle" appFeatherIcon class="icon-sm mb-1 ms-1"></i>
                   </p>
                 </div>
@@ -74,21 +80,27 @@
                   <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
                 </a>
                 <div ngbDropdownMenu aria-labelledby="dropdownMenuButton">
-                  <a ngbDropdownItem class="d-flex align-items-center" [routerLink]="['/mouvement-stock/les-demandes']"><i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i> <span class="">Voir plus</span></a>
+                  <a ngbDropdownItem class="d-flex align-items-center"
+                    [routerLink]="['/mouvement-stock/les-demandes']"><i data-feather="eye" appFeatherIcon
+                      class="icon-sm me-2"></i>
+                    <span class="">Voir plus</span></a>
                 </div>
               </div>
             </div>
             <div class="row">
               <div class="">
-                <h3 class="mb-2">{{ dataTableauBord?.total_demandes_en_attente ?? 0 }}</h3>
+                <h3 class="mb-2">
+                  {{ dataTableauBord?.total_demandes_en_attente ?? 0 }}
+                </h3>
                 <div class="d-flex align-items-baseline">
                   <p class="text-success" data-bs-placement="top" title="Demandes accordées">
-                    <span>{{ dataTableauBord?.total_demandes_accorde }} demandes accordées</span>
+                    <span>{{ dataTableauBord?.total_demandes_accorde }} demandes
+                      accordées</span>
                     <i data-feather="check-circle" class="icon-sm text-success mb-1 ms-1"></i>
                   </p>
                 </div>
               </div>
-              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -182,7 +194,7 @@
   </div>
 </div> -->
 
- <!-- <div class="row">
+<!-- <div class="row">
   <div class="col-lg-5 col-xl-4 grid-margin grid-margin-lg-0 stretch-card">
     <div class="card">
       <div class="card-body">
@@ -262,107 +274,81 @@
       </div>
     </div>
   </div> -->
-  <div class="row">
-    <div class="col-lg-5 col-xl-4 grid-margin grid-margin-lg-0 stretch-card">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-baseline mb-2">
-            <h6 class="card-title mb-0">Utilisateurs du Système</h6>
-            <div ngbDropdown class="mb-2">
-              <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton6">
-                <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
-              </a>
-              <div ngbDropdownMenu aria-labelledby="dropdownMenuButton6">
-                <a ngbDropdownItem class="d-flex align-items-center" routerLink="/utilisateurs"><i data-feather="users" appFeatherIcon class="icon-sm me-2"></i> <span class="">Voir plus</span></a>
-              </div>
+<div class="row">
+  <div class="stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-baseline mb-2">
+          <h6 class="card-title mb-0">État du Stock</h6>
+          <div ngbDropdown class="mb-2">
+            <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton7">
+              <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
+            </a>
+            <div ngbDropdownMenu aria-labelledby="dropdownMenuButton6">
+              <a ngbDropdownItem class="d-flex align-items-center" routerLink="/etat-de-stock"><i data-feather="users"
+                  appFeatherIcon class="icon-sm me-2"></i>
+                <span class="">Voir plus</span></a>
             </div>
           </div>
-          <div class="d-flex flex-column">
-            @for (user of usersWithRoles; track user.id) {
-              <a href="" (click)="false" class="d-flex align-items-center border-bottom pb-3 pt-3">
-                <div class="me-3">
-                  <img src="images/faces/user.png" alt="Avatar par défaut" class="img-fluid rounded-circle" style="max-width: 50px; max-height: 50px;">
-                </div>
-                <div class="w-100">
-                  <div class="d-flex justify-content-between">
-                    <h6 class="text-body mb-2">{{ user.name }} {{ user.surname || '' }}</h6>
-                    <p class="text-secondary fs-12px">{{ user.last_activity | date:'shortDate' }}</p>
-                  </div>
-                  <p class="text-secondary fs-13px">
-                    Rôle : {{ getRoleDisplay(user) }}
-                  </p>
-                </div>
-              </a>
-            } @empty {
-              <div class="p-3 text-center text-muted">
-                Aucun utilisateur trouvé.
-              </div>
-            }
-          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-hover mb-0">
+            <thead>
+              <tr>
+                <th class="pt-0">N°</th>
+                <th class="pt-0">Code Article</th>
+                <th class="pt-0">Article</th>
+                <th class="pt-0">Catégorie</th>
+                <th class="pt-0">Qte Actuelle</th>
+                <th class="pt-0">Statut</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (article of latestArticlesWithStock; track article.id; let i
+              = $index) {
+              <tr>
+                <td>{{ i + 1 }}</td>
+                <td>{{ article.code_article || "N/A" }}</td>
+                <td>{{ article.libelle }}</td>
+                <td>{{ getCategoryName(article.id_cat) }}</td>
+                <td>
+                  <span [class]="
+                      getArticleStockBadgeClass(
+                        article.stock?.Qte_actuel || 0,
+                        article.seuil_alerte
+                      )
+                    " class="text-white p-1 rounded d-inline-block" style="min-width: 50px; text-align: center">
+                    {{ article.stock?.Qte_actuel || 0 }}
+                  </span>
+                </td>
+                <!-- <td>{{ article.seuil_alerte }}</td> -->
+                <td>
+                  <span [class]="
+                      getArticleStockBadgeClass(
+                        article.stock?.Qte_actuel || 0,
+                        article.seuil_alerte
+                      )
+                    ">
+                    {{
+                    getArticleStockStatusText(
+                    article.stock?.Qte_actuel || 0,
+                    article.seuil_alerte
+                    )
+                    }}
+                  </span>
+                </td>
+              </tr>
+              } @empty {
+              <tr>
+                <td colspan="7" class="text-center text-muted py-4">
+                  Aucun article afficher.
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
-    <div class="col-lg-7 col-xl-8 stretch-card">
-      <div class="card">
-        <div class="card-body">
-          <div class="d-flex justify-content-between align-items-baseline mb-2">
-            <h6 class="card-title mb-0">État du Stock</h6>
-            <div ngbDropdown class="mb-2">
-              <a class="no-dropdown-toggle-icon" ngbDropdownToggle id="dropdownMenuButton7">
-                <i class="icon-lg text-secondary pb-3px" data-feather="more-horizontal" appFeatherIcon></i>
-              </a>
-              <div ngbDropdownMenu aria-labelledby="dropdownMenuButton6">
-                <a ngbDropdownItem class="d-flex align-items-center" routerLink="/etat-de-stock"><i data-feather="users" appFeatherIcon class="icon-sm me-2"></i> <span class="">Voir plus</span></a>
-              </div>
-            </div>
-          </div>
-          <div class="table-responsive">
-            <table class="table table-hover mb-0">
-              <thead>
-                <tr>
-                  <th class="pt-0">N°</th>
-                  <th class="pt-0">Code Article</th>
-                  <th class="pt-0">Article</th>
-                  <th class="pt-0">Catégorie</th> 
-                  <th class="pt-0">Qte Actuelle</th>
-                  <th class="pt-0">Statut</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (article of latestArticlesWithStock; track article.id; let i = $index) {
-                  <tr>
-                    <td>{{ i + 1 }}</td>
-                    <td>{{ article.code_article || 'N/A' }}</td>
-                    <td>{{ article.libelle }}</td>
-                    <td>{{ getCategoryName(article.id_cat) }}</td>
-                    <td>
-                      <span
-                        [class]="getArticleStockBadgeClass(article.stock?.Qte_actuel || 0, article.seuil_alerte)"
-                        class="text-white p-1 rounded d-inline-block"
-                        style="min-width: 50px; text-align: center;"
-                      >
-                        {{ article.stock?.Qte_actuel || 0 }}
-                      </span>
-                    </td>
-                    <!-- <td>{{ article.seuil_alerte }}</td> -->
-                    <td>
-                      <span [class]="getArticleStockBadgeClass(article.stock?.Qte_actuel || 0, article.seuil_alerte)">
-                        {{ getArticleStockStatusText(article.stock?.Qte_actuel || 0, article.seuil_alerte) }}
-                      </span>
-                    </td>
-                  </tr>
-                } @empty {
-                  <tr>
-                    <td colspan="7" class="text-center text-muted py-4">
-                      Aucun article afficher.
-                    </td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-    
+  </div>
 </div>
