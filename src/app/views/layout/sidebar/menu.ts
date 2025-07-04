@@ -298,7 +298,7 @@ export const MENU: MenuItem[] = [
     subItems: [
       {
         label: 'Paramètre Entreprise',
-        link: '/parametres-site', // Le lien vers la nouvelle route
+        link: '/site-settings', // Le lien vers la nouvelle route
         module: 'Parametrage',
       },
       {

@@ -1,0 +1,150 @@
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Paramètres du Site</a></li>
+    </ol>
+  </nav>
+
+  <!-- Alerte pour succès -->
+  <ngb-alert *ngIf="successMessage" [dismissible]="false" class="alerte" [type]="'primary'">
+    {{ successMessage }}
+  </ngb-alert>
+  <!-- Alerte pour erreur -->
+  <ngb-alert *ngIf="error" [dismissible]="false" class="alerte" [type]="'danger'">
+    {{ error }}
+  </ngb-alert>
+
+  <div class="row">
+    <div class="col-md-12 grid-margin stretch-card">
+      <div class="card">
+        <div class="card-body d-flex justify-content-between">
+          <div>
+            <h4 class="card-title">Paramètres du Site</h4>
+            <p class="text-secondary">Gérez le nom et le logo de votre site</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12 stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Configuration Générale</h6>
+
+          <!-- Affichage du chargement -->
+          <div *ngIf="loading" class="d-flex justify-content-center align-items-center" style="min-height: 200px;">
+            <div class="text-center">
+              <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="visually-hidden">Chargement des paramètres...</span>
+              </div>
+              <p class="mt-3 text-muted">Chargement des paramètres...</p>
+            </div>
+          </div>
+
+          <!-- Section Aperçu Actuel (visible après chargement) -->
+          <div *ngIf="!loading" class="mb-4 p-3 border rounded bg-light">
+            <h5 class="card-title text-secondary">Aperçu Actuel</h5>
+            <div class="d-flex align-items-center flex-column flex-sm-row">
+              <div class="flex-shrink-0 mb-3 mb-sm-0 me-sm-4">
+                <img
+                  [src]="previewLogoUrl || 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo+Non+Défini'"
+                  alt="Logo du site"
+                  class="img-thumbnail border border-primary"
+                  style="width: 100px; height: 100px; object-fit: contain; border-radius: .5rem;"
+                  (error)="previewLogoUrl = 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo+Error'"
+                />
+              </div>
+              <div class="text-center text-sm-start">
+                <p class="text-secondary">Nom du site actuel :</p>
+                <h4 class="text-primary fw-bold">{{ siteName }}</h4>
+                <p class="text-secondary">Couleur principale actuelle :</p>
+                <div class="d-inline-block border border-dark rounded" [style.backgroundColor]="mainColor" style="width: 30px; height: 30px;"></div>
+                <span class="ms-2 fw-bold" [style.color]="mainColor">{{ mainColor }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Formulaire de Modification (visible après chargement) -->
+          <form *ngIf="!loading" [formGroup]="siteSettingsForm" (ngSubmit)="onSubmit()" class="forms-sample">
+            <h6 class="card-title mb-3">Modifier les Paramètres</h6>
+
+            <!-- Nom du Site -->
+            <div class="mb-3">
+              <label for="siteName" class="form-label">Nom du Site <span class="text-danger">*</span></label>
+              <input
+                type="text"
+                id="siteName"
+                formControlName="siteName"
+                class="form-control"
+                placeholder="Entrez le nom du site"
+                [class.is-invalid]="siteSettingsForm.get('siteName')?.invalid && siteSettingsForm.get('siteName')?.touched"
+              />
+              <div *ngIf="siteSettingsForm.get('siteName')?.invalid && siteSettingsForm.get('siteName')?.touched" class="invalid-feedback">
+                Le nom du site est obligatoire.
+              </div>
+            </div>
+
+            <!-- Logo -->
+            <div class="mb-3">
+              <label for="logoFile" class="form-label">Logo du Site</label>
+              <input
+                type="file"
+                id="logoFile"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                class="form-control"
+              />
+
+              <!-- Aperçu du logo sélectionné ou actuel -->
+              <div *ngIf="previewLogoUrl" class="mt-3 d-flex align-items-center">
+                <img [src]="previewLogoUrl" alt="Aperçu du logo" class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: contain; border-radius: .5rem;" />
+                <button
+                  type="button"
+                  (click)="onClearLogo()"
+                  class="btn btn-outline-danger btn-sm"
+                >
+                  <i data-feather="trash" appFeatherIcon class="icon-sm me-1"></i> Effacer le logo
+                </button>
+              </div>
+              <p *ngIf="!previewLogoUrl && !newLogoFile" class="text-muted mt-2">
+                Aucun logo défini. Cliquez ci-dessus pour en ajouter un.
+              </p>
+            </div>
+
+            <!-- Couleur Principale -->
+            <div class="mb-3">
+              <label for="mainColor" class="form-label">Couleur Principale <span class="text-danger">*</span></label>
+              <div class="d-flex align-items-center">
+                <input
+                  type="color"
+                  id="mainColor"
+                  formControlName="mainColor"
+                  (change)="onMainColorChange($event)"
+                  class="form-control form-control-color me-3"
+                  style="width: 60px; height: 40px; padding: 0; border: none;"
+                  [class.is-invalid]="siteSettingsForm.get('mainColor')?.invalid && siteSettingsForm.get('mainColor')?.touched"
+                />
+                <span class="fw-bold" [style.color]="newMainColor">{{ newMainColor }}</span>
+              </div>
+              <div *ngIf="siteSettingsForm.get('mainColor')?.invalid && siteSettingsForm.get('mainColor')?.touched" class="invalid-feedback d-block">
+                La couleur principale est obligatoire.
+              </div>
+            </div>
+
+            <!-- Bouton de sauvegarde -->
+            <div class="d-flex justify-content-end mt-4">
+              <button
+                type="submit"
+                class="btn btn-primary"
+                [disabled]="isSaving || siteSettingsForm.invalid"
+              >
+                <span *ngIf="isSaving" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                {{ isSaving ? 'Enregistrement...' : 'Enregistrer les Paramètres' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
