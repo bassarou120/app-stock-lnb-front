@@ -313,13 +313,24 @@ export class AnnulationTicketComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(annulationTicket =>
+  //     annulationTicket.created_at.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(annulationTicket =>
-      annulationTicket.created_at.toLowerCase().includes(val)
+      (annulationTicket.mouvementTicket && annulationTicket.mouvementTicket.reference && annulationTicket.mouvementTicket.reference.toLowerCase().includes(val)) ||
+      (annulationTicket.coupon_ticket && annulationTicket.coupon_ticket.libelle && annulationTicket.coupon_ticket.libelle.toLowerCase().includes(val)) ||
+      (annulationTicket.compagnie_petrolier && annulationTicket.compagnie_petrolier.libelle && annulationTicket.compagnie_petrolier.libelle.toLowerCase().includes(val)) ||
+      (annulationTicket.qte && String(annulationTicket.qte).toLowerCase().includes(val))
     );
-
     this.table.offset = 0;
   }
 

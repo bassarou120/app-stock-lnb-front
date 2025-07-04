@@ -393,30 +393,29 @@ export class InterventionComponent implements OnInit {
     );
   }
 
-  // updateFilter(event: KeyboardEvent): void {
-  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
-
-  //   this.rows = this.temp.filter(intervention =>
-  //     intervention.titre.toLowerCase().includes(val) ||
-  //     intervention.observation.toLowerCase().includes(val) ||
-  //     intervention.date_intervention.toLowerCase().includes(val) ||
-  //     // Vérifier si l'objet imbriqué existe avant d'accéder à ses propriétés
-  //     (intervention.immobilisation && intervention.immobilisation.designation.toLowerCase().includes(val)) ||
-  //     (intervention.type_intervention && intervention.type_intervention.libelle_type_intervention.toLowerCase().includes(val))
-  //   );
-
-  //   this.table.offset = 0;
-  // }
-
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(intervention =>
-      intervention.titre.toLowerCase().includes(val)
+      intervention.titre.toLowerCase().includes(val) ||
+      intervention.observation.toLowerCase().includes(val) ||
+      String(intervention.cout).toLowerCase().includes(val) ||
+      (intervention.immo?.code && intervention.immo?.designation.toLowerCase().includes(val)) ||
+      (intervention.type_intervention && intervention.type_intervention.libelle_type_intervention.toLowerCase().includes(val))
     );
 
     this.table.offset = 0;
   }
+
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(intervention =>
+  //     intervention.titre.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
 
   getEditForm(row: any) {
     this.editIntervention.patchValue({

@@ -365,13 +365,26 @@ export class RetourTicketComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(retourTicket =>
+  //     retourTicket.created_at.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(retourTicket =>
-      retourTicket.created_at.toLowerCase().includes(val)
+      (retourTicket.mouvementTicket && retourTicket.mouvementTicket.reference && retourTicket.mouvementTicket.reference.toLowerCase().includes(val)) ||
+      (retourTicket.coupon_ticket && retourTicket.coupon_ticket.libelle && retourTicket.coupon_ticket.libelle.toLowerCase().includes(val)) ||
+      (retourTicket.compagnie_petrolier && retourTicket.compagnie_petrolier.libelle && retourTicket.compagnie_petrolier.libelle.toLowerCase().includes(val)) ||
+      (retourTicket.qte && String(retourTicket.qte).toLowerCase().includes(val))
     );
 
+    // Important : réinitialiser l'offset de la table pour afficher les résultats filtrés depuis le début
     this.table.offset = 0;
   }
 

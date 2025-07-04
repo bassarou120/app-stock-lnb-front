@@ -366,13 +366,28 @@ export class SortieComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(sortie =>
+  //     sortie.code_mouvement?.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(sortie =>
-      sortie.code_mouvement?.toLowerCase().includes(val)
+    this.rows = this.temp.filter(mouvementSortie =>
+      (mouvementSortie.code_mouvement && mouvementSortie.code_mouvement.toLowerCase().includes(val)) ||
+      (mouvementSortie.article && mouvementSortie.article.libelle && mouvementSortie.article.libelle.toLowerCase().includes(val)) ||
+      (mouvementSortie.description && mouvementSortie.description.toLowerCase().includes(val)) ||
+      (mouvementSortie.qte && String(mouvementSortie.qte).toLowerCase().includes(val)) ||
+      (mouvementSortie.employe && mouvementSortie.employe.fullnameEmploye && mouvementSortie.employe.fullnameEmploye.toLowerCase().includes(val)) ||
+      (mouvementSortie.bureau && mouvementSortie.bureau.libelle_bureau && mouvementSortie.bureau.libelle_bureau.toLowerCase().includes(val))
     );
 
+    // Important : réinitialiser l'offset de la table pour afficher les résultats filtrés depuis le début
     this.table.offset = 0;
   }
 

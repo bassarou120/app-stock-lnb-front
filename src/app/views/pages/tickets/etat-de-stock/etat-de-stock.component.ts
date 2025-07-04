@@ -142,7 +142,8 @@ export class EtatStockComponent implements OnInit {
     this.rows = this.temp.filter(item => {
       return (
         item.coupon_ticket?.libelle.toLowerCase().includes(val) ||
-        item.compagnie?.libelle.toLowerCase().includes(val)
+        item.compagnie?.libelle.toLowerCase().includes(val) ||
+        String(item.compagnie?.qte_actuel).toLowerCase().includes(val)
       );
     });
 

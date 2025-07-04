@@ -412,13 +412,26 @@ export class ImmobilisationComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(immo =>
+  //     immo.designation.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(immo =>
-      immo.designation.toLowerCase().includes(val)
+      (immo.code && immo.code.toLowerCase().includes(val)) ||
+      (immo.designation && immo.designation.toLowerCase().includes(val)) ||
+      (immo.statusImmo && immo.statusImmo.libelle_status_immo && immo.statusImmo.libelle_status_immo.toLowerCase().includes(val)) ||
+      (immo.groupeTypeImmo && immo.groupeTypeImmo.libelle && immo.groupeTypeImmo.libelle.toLowerCase().includes(val))
     );
 
+    // Important : réinitialiser l'offset de la table pour afficher les résultats filtrés depuis le début
     this.table.offset = 0;
   }
 

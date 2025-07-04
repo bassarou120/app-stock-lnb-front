@@ -649,7 +649,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
                     (immoItem.designation?.toLowerCase().includes(val) || false) ||
                     (immoItem.observation?.toLowerCase().includes(val) || false) ||
                     (immoItem.employe?.nom?.toLowerCase().includes(val) || false) ||
-                    (immoItem.fournisseur?.nom?.toLowerCase().includes(val) || false) ||
+                    (String(immoItem.montant_ttc).toLowerCase().includes(val) || false) ||
                     (immoItem.groupeTypeImmo?.libelle?.toLowerCase().includes(val) || false) ||
                     (immoItem.sousTypeImmo?.libelle?.toLowerCase().includes(val) || false) ||
                     (immoItem.statusImmo?.libelle_status_immo?.toLowerCase().includes(val) || false);
@@ -663,21 +663,23 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
                     (transfertItem.bureau?.libelle_bureau?.toLowerCase().includes(val) || false) ||
                     (transfertItem.old_employe?.nom?.toLowerCase().includes(val) || false) ||
                     (transfertItem.employe?.nom?.toLowerCase().includes(val) || false) ||
-                    (transfertItem.motif?.toLowerCase().includes(val) || false);
+                    (transfertItem.observation?.toLowerCase().includes(val) || false);
             break;
 
           case 'intervention':
             const interventionItem = item as Intervention;
             match =
                     (interventionItem.titre?.toLowerCase().includes(val) || false) ||
-                    (interventionItem.observation?.toLowerCase().includes(val) || false);
+                    (interventionItem.observation?.toLowerCase().includes(val) || false)||
+                    (interventionItem.type_intervention?.libelle_type_intervention.toLowerCase().includes(val) || false)||
+                    (String(interventionItem.cout).toLowerCase().includes(val) || false)||
+                    (interventionItem.immo?.code?.toLowerCase().includes(val) || false);
             break;
 
           case 'inventaire':
             const inventaireItem = item as Immobilisation;
             match = (inventaireItem.code?.toLowerCase().includes(val) || false) ||
                     (inventaireItem.designation?.toLowerCase().includes(val) || false) ||
-                    
                     (inventaireItem.observation?.toLowerCase().includes(val) || false) ||
                     (inventaireItem.bureau?.libelle_bureau?.toLowerCase().includes(val) || false) ||
                     (inventaireItem.employe?.nom?.toLowerCase().includes(val) || false) ||

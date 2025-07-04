@@ -435,7 +435,8 @@ export class RapportParcComponent implements OnInit, OnDestroy {
                 match = (vehicule.immatriculation?.toLowerCase().includes(val) || false) ||
                         (vehicule.numero_chassis?.toLowerCase().includes(val) || false) ||
                         (vehicule.marque?.libelle?.toLowerCase().includes(val) || false) ||
-                        (vehicule.modele?.libelle_modele?.toLowerCase().includes(val) || false)
+                        (vehicule.modele?.libelle_modele?.toLowerCase().includes(val) || false)||
+                        (String(vehicule.kilometrage).toLowerCase().includes(val) || false);
                         ;
             } else if (this.selectedReportTypeId === 'intervention_vehicule') {
                 const intervention = item as InterventionVehicule;
@@ -444,7 +445,8 @@ export class RapportParcComponent implements OnInit, OnDestroy {
                         (intervention.vehicule?.immatriculation?.toLowerCase().includes(val) || false) ||
                         (intervention.vehicule?.marque?.libelle?.toLowerCase().includes(val) || false) ||
                         (intervention.vehicule?.modele?.libelle_modele?.toLowerCase().includes(val) || false) ||
-                        (intervention.typeIntervention?.libelle_type_intervention?.toLowerCase().includes(val) || false);
+                        (intervention.typeIntervention?.libelle_type_intervention?.toLowerCase().includes(val) || false)||
+                        (String(intervention.montant).toLowerCase().includes(val) || false);
             }
             return match;
         });

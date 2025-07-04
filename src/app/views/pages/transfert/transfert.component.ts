@@ -463,29 +463,29 @@ export class TransfertComponent implements OnInit {
     );
   }
 
-  // updateFilter(event: KeyboardEvent): void {
-  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
-
-  //   this.rows = this.temp.filter(transfert =>
-  //     transfert.observation.toLowerCase().includes(val) || // Filtrer par observation
-  //     transfert.date_mouvement.toLowerCase().includes(val) || // Filtrer par date
-  //     (transfert.immobilisation && transfert.immobilisation.designation.toLowerCase().includes(val)) || // Filtrer par désignation de l'immo
-  //     (transfert.new_bureau && transfert.new_bureau.libelle_bureau.toLowerCase().includes(val)) || // Filtrer par nouveau bureau
-  //     (transfert.new_employe && (transfert.new_employe.nom_employe + ' ' + transfert.new_employe.prenom_employe).toLowerCase().includes(val))
-  //   );
-
-  //   this.table.offset = 0;
-  // }
-
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(transfert =>
-      transfert.date_mouvement.toLowerCase().includes(val)
+      (transfert.date_mouvement.toLowerCase().includes(val)) || // Filtrer par date
+      (transfert.immobilisation && transfert.immobilisation.designation.toLowerCase().includes(val)) || // Filtrer par désignation de l'immo
+      (transfert.bureau && transfert.bureau.libelle_bureau.toLowerCase().includes(val)) || // Filtrer par nouveau bureau
+      (transfert.observation?.toLowerCase().includes(val)) ||
+      (transfert.employe && (transfert.employe.nom ).toLowerCase().includes(val))
     );
 
     this.table.offset = 0;
   }
+
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(transfert =>
+  //     transfert.date_mouvement.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
 
   getEditForm(row: any) {
     this.editTransfert.patchValue({

@@ -430,13 +430,27 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
   }
 
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(sortie =>
+  //     sortie.description.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(sortie =>
-      sortie.description.toLowerCase().includes(val)
+    this.rows = this.temp.filter(demandeSortie =>
+      (demandeSortie.article && demandeSortie.article.libelle && demandeSortie.article.libelle.toLowerCase().includes(val)) ||
+      (demandeSortie.description && demandeSortie.description.toLowerCase().includes(val)) ||
+      (demandeSortie.qteDemande && String(demandeSortie.qteDemande).toLowerCase().includes(val)) ||
+      (demandeSortie.employe && demandeSortie.employe.fullnameEmploye && demandeSortie.employe.fullnameEmploye.toLowerCase().includes(val)) ||
+      (demandeSortie.bureau && demandeSortie.bureau.libelle_bureau && demandeSortie.bureau.libelle_bureau.toLowerCase().includes(val)) ||
+      (demandeSortie.statut && demandeSortie.statut.toLowerCase().includes(val))
     );
-
+    
     this.table.offset = 0;
   }
 

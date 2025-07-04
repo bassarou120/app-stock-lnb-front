@@ -461,11 +461,30 @@ calculateLitresPerTrajet(qteAttribue: number, nbreTrajet: number): number {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(sortie =>
+  //     sortie.reference.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
     this.rows = this.temp.filter(sortie =>
-      sortie.reference.toLowerCase().includes(val)
+      (sortie.reference && sortie.reference.toLowerCase().includes(val)) ||
+      (sortie.vehicule && sortie.vehicule.immatriculation && sortie.vehicule.immatriculation.toLowerCase().includes(val)) ||
+      (sortie.coupon_ticket && sortie.coupon_ticket.libelle && sortie.coupon_ticket.libelle.toLowerCase().includes(val)) ||
+      (sortie.compagnie_petrolier && sortie.compagnie_petrolier.libelle && sortie.compagnie_petrolier.libelle.toLowerCase().includes(val)) ||
+      (sortie.depart && sortie.depart.libelle_commune && sortie.depart.libelle_commune.toLowerCase().includes(val)) ||
+      (sortie.arriver && sortie.arriver.libelle_commune && sortie.arriver.libelle_commune.toLowerCase().includes(val)) ||
+      (sortie.kilometrage && String(sortie.kilometrage).toLowerCase().includes(val)) ||
+      (sortie.employe && sortie.employe.nom && sortie.employe.nom.toLowerCase().includes(val)) ||
+      (sortie.objet && sortie.objet.toLowerCase().includes(val)) ||
+      (sortie.description && sortie.description.toLowerCase().includes(val)) ||
+      (sortie.qte && String(sortie.qte).toLowerCase().includes(val))
     );
 
     this.table.offset = 0;

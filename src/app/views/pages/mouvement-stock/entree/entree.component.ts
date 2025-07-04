@@ -646,13 +646,26 @@ export class EntreeComponent implements OnInit {
     );
   }
 
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(entre =>
+  //     entre.description.toLowerCase().includes(val)
+  //   );
+
+  //   this.table.offset = 0;
+  // }
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(entre =>
-      entre.description.toLowerCase().includes(val)
+    this.rows = this.temp.filter(stockItem =>
+      (stockItem.article && stockItem.article.code_article && stockItem.article.code_article.toLowerCase().includes(val)) ||
+      (stockItem.article && stockItem.article.libelle && stockItem.article.libelle.toLowerCase().includes(val)) ||
+      (stockItem.description && stockItem.description.toLowerCase().includes(val)) ||
+      (stockItem.qte && String(stockItem.qte).toLowerCase().includes(val)) ||
+      (stockItem.unite_de_mesure && stockItem.unite_de_mesure && String(stockItem.unite_de_mesure).toLowerCase().includes(val)) ||
+      (stockItem.fournisseur && stockItem.fournisseur.nom && stockItem.fournisseur.nom.toLowerCase().includes(val))
     );
-
     this.table.offset = 0;
   }
 
