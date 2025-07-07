@@ -97,28 +97,28 @@ export const MENU: MenuItem[] = [
     module: 'Gestion de parc',
     subItems: [
       {
-        label: 'Entrée de Ticket',
+        label: 'Entrée de Ticket Valeur',
         link: 'tickets/entree',
         fonctionnalites: ['Voir entrée de ticket']
       },
       {
-        label: 'Attribution de Ticket',
+        label: 'Attribution de Ticket Valeur',
         link: 'tickets/attribution',
         fonctionnalites: ['Attribution ticket']
       },
       {
-        label: 'Stock Ticket',
+        label: 'Stock Ticket Valeur',
         link: 'tickets/',
         fonctionnalites: ['Verifier Stock Ticket']
       },
       {
-        label: 'Retour Tickets',
+        label: 'Retour Tickets Valeur',
         link: 'tickets/retour-ticket',
         fonctionnalites: ['Voir Retour Ticket']
       },
 
       {
-        label: 'Annulation de Tickets',
+        label: 'Annulation de Tickets Valeur',
         link: 'tickets/annulation-ticket',
         fonctionnalites: ['Voir Annulation Ticket']
       },
