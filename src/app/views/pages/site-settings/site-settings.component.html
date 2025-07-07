@@ -48,11 +48,11 @@
             <div class="d-flex align-items-center flex-column flex-sm-row">
               <div class="flex-shrink-0 mb-3 mb-sm-0 me-sm-4">
                 <img
-                  [src]="previewLogoUrl || 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo+Non+Défini'"
+                  [src]="previewLogoUrl || 'public/images/logo_bg.png'"
                   alt="Logo du site"
                   class="img-thumbnail border border-primary"
                   style="width: 100px; height: 100px; object-fit: contain; border-radius: .5rem;"
-                  (error)="previewLogoUrl = 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo+Error'"
+                  (error)="previewLogoUrl = 'public/images/logo_bg.png'"
                 />
               </div>
               <div class="text-center text-sm-start">

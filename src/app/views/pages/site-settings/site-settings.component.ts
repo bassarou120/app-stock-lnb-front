@@ -25,7 +25,7 @@ import { ThemeCssVariableService } from '../../../core/services/theme-css-variab
 export class SiteSettingsComponent implements OnInit, OnDestroy {
   siteSettingsForm!: FormGroup;
   siteName: string = 'Nom du Site';
-  logoUrl: string = 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo';
+  logoUrl: string = 'public/images/logo_bg.png';
   previewLogoUrl: string | ArrayBuffer | null = null;
   newLogoFile: File | null = null;
 
@@ -93,7 +93,7 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
 
         // Mettre à jour les états affichés
         this.siteName = companyNameSetting?.value || 'Nom du Site';
-        this.logoUrl = logoUrlSetting?.value ? this.siteSettingsService.getPublicStorageUrl(logoUrlSetting.value) : 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo';
+        this.logoUrl = logoUrlSetting?.value ? this.siteSettingsService.getPublicStorageUrl(logoUrlSetting.value) : 'public/images/logo_bg.png';
         // MODIFIÉ: Utilisation de la couleur verte par défaut si non trouvée
         console.log("site logo url", this.logoUrl);
         this.mainColor = mainColorSetting?.value || '#00993E'; // Mettre à jour la couleur principale
@@ -210,7 +210,7 @@ if (this.siteSettingsForm.valid) {
         const base64Image = await base64Promise;
         await this.siteSettingsService.saveSetting('logo_url', base64Image, 'base64_image').toPromise();
         console.log('Nouveau logo enregistré.');
-      } else if (this.previewLogoUrl === null && this.logoUrl !== 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo') {
+      } else if (this.previewLogoUrl === null && this.logoUrl !== 'public/images/logo_bg.png') {
         await this.siteSettingsService.saveSetting('logo_url', '', 'base64_image').toPromise();
         console.log('Logo supprimé.');
       }
