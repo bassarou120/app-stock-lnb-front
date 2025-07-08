@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
 import { catchError, map, tap } from 'rxjs/operators';
-import { Article, PaginatedResponse, User } from "../interface/models"; // Gardez cette importation si vous utilisez toujours Article
+import { Article, PaginatedResponse, User, InterventionVehicule } from "../interface/models"; // Gardez cette importation si vous utilisez toujours Article
 
 // Importez les interfaces que nous venons de définir
 import { DashboardData, ApiResponse } from '../interface/models'; // Vérifiez que le chemin est correct
@@ -26,6 +26,12 @@ export class DashboardStockService {
   
   getdashInfoStock(): Observable<DashboardData> {
     return this.http.get<ApiResponse<DashboardData>>(`${this.url}/dashboard/dashInfoStock`).pipe(
+      map(response => response.data) 
+    );
+  }
+
+    getVehiculesAssurancesExpirantes(): Observable<InterventionVehicule> {
+    return this.http.get<ApiResponse<InterventionVehicule>>(`${this.url}/assurance-expiresoon`).pipe(
       map(response => response.data) 
     );
   }
