@@ -628,7 +628,7 @@ export class EntreeComponent implements OnInit {
       },
       error: (err) => {
         console.error("Erreur lors du chargement des uniteDeMesures :", err);
-      }
+      } 
     });
   }
 
