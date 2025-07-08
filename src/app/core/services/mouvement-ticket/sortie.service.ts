@@ -19,7 +19,7 @@ export class MouvementTicketService  {
       `${this.url}/mouvement-ticket/sortie`
     ).pipe(
       map((response: { success: boolean; message: string; data: { data: MouvementTicket[] } }) =>
-        response.data.data // On récupère uniquement le tableau de MouvementTicketSortie
+        response.data.data
       )
     );
   }
@@ -45,19 +45,10 @@ export class MouvementTicketService  {
       `${this.url}/vehicules`
     ).pipe(
       map((response: { success: boolean; message: string; data: { data: Vehicule[] } }) =>
-        response.data.data // On récupère uniquement le tableau de Article
+        response.data.data
       )
     );
   }
-  // getAllCouponTickets(): Observable<CouponTicket[]> {
-  //   return this.http.get<{ success: boolean; message: string; data: { data: CouponTicket[] } }>(
-  //     `${this.url}/coupon_tickets`
-  //   ).pipe(
-  //     map((response: { success: boolean; message: string; data: { data: CouponTicket[] } }) =>
-  //       response.data.data // On récupère uniquement le tableau de CouponTicket
-  //     )
-  //   );
-  // }
 
   getCouponTicketsWithCompagnies(): Observable<any> {
     return this.http.get(`${this.url}/stock/coupon-compagnies`);
@@ -69,7 +60,7 @@ export class MouvementTicketService  {
       `${this.url}/coupon_tickets`
     ).pipe(
       map((response: { success: boolean; message: string; data: { data: CouponTicket[] } }) =>
-        response.data.data // On récupère uniquement le tableau de CouponTicket
+        response.data.data
       )
     );
   }
@@ -78,7 +69,7 @@ export class MouvementTicketService  {
       `${this.url}/type_mouvements`
     ).pipe(
       map((response: { success: boolean; message: string; data: { data: TypeMouvement[] } }) =>
-        response.data.data // On récupère uniquement le tableau de Marque
+        response.data.data
       )
     );
   }
@@ -96,7 +87,7 @@ export class MouvementTicketService  {
         `${this.url}/employes`
       ).pipe(
         map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Employe
+          response.data.data
         )
       );
     }
@@ -106,7 +97,7 @@ export class MouvementTicketService  {
         `${this.url}/communes`
       ).pipe(
         map((response: { success: boolean; message: string; data: { data: Commune[] } }) =>
-          response.data.data // On récupère uniquement le tableau de Commune
+          response.data.data
         )
       );
     }
@@ -115,4 +106,8 @@ export class MouvementTicketService  {
       return this.http.post<any>(`${this.url}/get-quantite-ticket-attribution`, data);
     }
 
+    // NOUVELLE MÉTHODE POUR CRÉER UN TRAJET
+    createTrajet(trajetData: any): Observable<any> {
+      return this.http.post<any>(`${this.url}/trajets`, trajetData);
+    }
 }

@@ -312,6 +312,7 @@ export interface InterventionVehicule {
   updated_at: string;
   commune_depart_id: number;
   commune_arrivee_id: number;
+  jours_restants: number;
   type_intervention_id: number;
   typeIntervention?: TypeIntervention;
   date_expiration?: string;

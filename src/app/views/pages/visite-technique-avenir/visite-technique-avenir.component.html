@@ -1,0 +1,156 @@
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" >
+  <nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Visite technique à venir</a></li>
+  </ol>
+</nav>
+
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Visite technique à venir</h4>
+          <p class="text-secondary">Visite technique à venir</p>
+        </div>
+        <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadEtatStock()">
+          <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+          Imprimer
+        </button>
+      </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="row" >
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Visite technique à venir</h6>
+        <div class="row mb-3 d-flex justify-content-between">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+              (keyup)="updateFilter($event)" />
+          </div>
+
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable #table class="bootstrap"
+            [rows]="visitesTechniquesProches"
+            [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force"
+            [footerHeight]="50"
+            [limit]="10"
+            rowHeight="auto"
+            [scrollbarH]="true">
+
+            <!-- Numéro de ligne -->
+            <ngx-datatable-column name="N°" [width]="50" [sortable]="false">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Véhicule (Marque + Modèle) -->
+            <ngx-datatable-column name="Véhicule" [width]="150">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div>
+                  <strong class="text-primary">{{ row.vehicule?.marque }}</strong>
+<!--                   <br>
+                  <small class="text-muted">{{ row.vehicule?.modele || 'N/A' }}</small> -->
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Immatriculation -->
+            <ngx-datatable-column name="Immatriculation" [width]="130">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <span class="badge bg-dark fs-6">{{ row.vehicule?.immatriculation }}</span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Année du véhicule -->
+            <ngx-datatable-column name="Année" [width]="80">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <span class="text-muted">{{ row.vehicule?.annee || 'N/A' }}</span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Type de visite technique -->
+            <ngx-datatable-column name="Type Visite" [width]="140">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <!-- <span class="badge bg-secondary"> -->{{ row.type_intervention || row.titre }}<!-- </span> -->
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Dernière visite -->
+            <ngx-datatable-column name="Dernière Visite" [width]="120">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <small>{{ row.date_intervention | date:'dd/MM/yyyy' }}</small>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Date d'expiration -->
+            <ngx-datatable-column name="Expiration" [width]="120">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <strong [ngClass]="{
+                    'text-danger': row.jours_restants < 0,
+                    'text-warning': row.jours_restants >= 0 && row.jours_restants <= 15,
+                    'text-info': row.jours_restants > 15 && row.jours_restants <= 45,
+                    'text-success': row.jours_restants > 45
+                  }">
+                    {{ row.date_expiration | date:'dd/MM/yyyy' }}
+                  </strong>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Statut avec jours restants -->
+            <ngx-datatable-column name="Statut" [width]="120">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div class="text-center">
+                  <span class="badge" [ngClass]="getBadgeClass(row.jours_restants)">
+                    {{ getStatutText(row.jours_restants) }}
+                  </span>
+                  <br>
+                  <small class="text-muted">
+                    <ng-container *ngIf="row.jours_restants >= 0">
+                      {{ row.jours_restants }} jour(s)
+                    </ng-container>
+                    <ng-container *ngIf="row.jours_restants < 0">
+                      {{ Math.abs(row.jours_restants) }} jour(s) de retard
+                    </ng-container>
+                  </small>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Montant de la dernière visite -->
+            <ngx-datatable-column name="Montant" [width]="100">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <span class="fw-bold text-success">
+                  {{ row.montant | currency:'XOF':'symbol':'1.0-0' }}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+            <!-- Observation -->
+            <ngx-datatable-column name="Observation" [width]="150">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <span class="text-muted" [title]="row.observation">
+                  {{ row.observation?.length > 25 ? (row.observation | slice:0:25) + '...' : (row.observation || 'Aucune') }}
+                </span>
+              </ng-template>
+            </ngx-datatable-column>
+
+
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
