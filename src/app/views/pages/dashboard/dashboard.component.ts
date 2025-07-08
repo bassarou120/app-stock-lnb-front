@@ -50,6 +50,12 @@ export class DashboardComponent implements OnInit {
   themeCssVariables = inject(ThemeCssVariableService).getThemeCssVariables();
   usersWithRoles: User[] = [];
   dataAssurance: InterventionVehicule[] = [];
+  nombre_vehicules_assurance_expirante: number = 0;
+  nombre_reparations_recentes: number = 0;
+  nombre_vehicules_repares_recemment: number = 0;
+
+  visitesTechniquesProches: any[] = [];
+  nombre_vehicules_visite_technique_proche: number = 0;
 
   // Correct service injection
   constructor(private dashboardStockService: DashboardStockService, private articleService: ArticleService) {
@@ -61,7 +67,8 @@ export class DashboardComponent implements OnInit {
     this.getUsersWithRolesData(); // This correctly calls the method that subscribes to the service
     this.loadCategories(); // Charge les catégories
     this.loadLatestArticlesWithStock(); // Charge les derniers articles avec stock
-    
+    this.loadAssuranceATermes();
+    this.loadAssuranceATermes_Nombre();
 
     // Initialize chart options
     this.customersChartOptions = this.getCustomersChartOptions(this.themeCssVariables);
@@ -109,12 +116,48 @@ export class DashboardComponent implements OnInit {
       (articles: Article[]) => {
         this.latestArticlesWithStock = articles;
         console.log('Derniers articles avec stock chargés pour le dashboard:', this.latestArticlesWithStock);
+
       },
       error => {
         console.error('Erreur lors du chargement des derniers articles avec stock :', error);
       }
     );
   }
+
+ loadAssuranceATermes(): void {
+  this.dashboardStockService.getVehiculesAssurancesExpirantes().subscribe(
+    (data: any[]) => {
+      this.dataAssurance = data;
+      console.log('Assurances à terme:', this.dataAssurance);
+    },
+    error => {
+      console.error('Erreur lors du chargement des assurances à terme:', error);
+    }
+  );
+}
+
+loadAssuranceATermes_Nombre(): void {
+  this.dashboardStockService.CountVehiculesAssurancesExpirantes().subscribe(
+    (response: any) => {
+      // NOMBRES ASSURANCES EXPIRANTES
+      this.nombre_vehicules_assurance_expirante = response.nombre_vehicules_assurance_expirante;
+
+      // NOMBRES RÉPARATIONS RÉCENTES
+      this.nombre_reparations_recentes = response.nombre_reparations_recentes;
+      this.nombre_vehicules_repares_recemment = response.nombre_vehicules_repares_recemment;
+
+      this.nombre_vehicules_visite_technique_proche = response.nombre_vehicules_visite_technique_proche;
+
+      console.log('Nombre véhicules assurance expirante:', this.nombre_vehicules_assurance_expirante);
+      console.log('Nombre réparations récentes:', this.nombre_reparations_recentes);
+      console.log('Nombre véhicules réparés récemment:', this.nombre_vehicules_repares_recemment);
+    },
+    error => {
+      console.error('Erreur lors du chargement des statistiques:', error);
+    }
+  );
+}
+
 
   // Méthode pour obtenir le nom de la catégorie
   getCategoryName(categoryId: number | undefined): string {
