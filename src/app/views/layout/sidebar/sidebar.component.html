@@ -1,15 +1,17 @@
 <nav class="sidebar">
-  <div class="sidebar-header">
+  <div class="sidebar-header" style="background-color:white;">
 
     <!-- LOGO ET NOM DU SITE DYNAMIQUES -->
     <!-- Cette section a été modifiée pour afficher le logo et le nom du site depuis le service -->
     <a routerLink="/" class="sidebar-brand d-flex align-items-center">
-      <img
-        [src]="logoUrl"
+<!--       <img
+        src="logoUrl"
         alt="logo du site"
         style="height: 40px; width: auto; object-fit: contain; margin-right: 8px;"
-        (error)="logoUrl = 'images/logo2.png'"
-      />
+        (error)="logoUrl = 'public/images/logo_bg.png'"
+      /> -->
+      <img src="/images/logo_bg.png" alt="Logo" >
+
       <!-- <span class="fw-bold">{{ siteName }}</span> Affichage du nom du site -->
     </a>
 
@@ -17,12 +19,13 @@
 
     <!--- Toggler -->
     <div class="sidebar-toggler" #sidebarToggler (click)="toggleSidebar($event)">
-      <span></span>
-      <span></span>
-      <span></span>
+      <span style="background-color:green !important"></span>
+      <span style="background-color:green !important"></span>
+      <span style="background-color:green !important"></span>
     </div>
-
+    
   </div>
+  <hr style="border: solide; height: 3px; background-color: #00993E;" class="mt-0">
   <div class="sidebar-body" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()">
 
     <!--- Sidemenu start -->

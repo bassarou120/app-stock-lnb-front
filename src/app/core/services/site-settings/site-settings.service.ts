@@ -29,7 +29,7 @@ export class SiteSettingsService {
   // BehaviorSubject pour stocker et diffuser les paramètres du site
   private _siteSettings = new BehaviorSubject<SiteSettings>({
     companyName: 'Nom du Site',
-    logoUrl: 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo',
+    logoUrl: 'public/images/logo_bg',
     mainColor: '#00993E' // Vert par défaut
   });
 
@@ -69,7 +69,7 @@ export class SiteSettingsService {
           fullLogoUrl = this.getPublicStorageUrl(currentLogoPath);
           console.log('SiteSettingsService: URL du logo générée:', fullLogoUrl);
         } else {
-          fullLogoUrl = 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Logo';
+          fullLogoUrl = 'public/images/logo_bg';
           console.log('SiteSettingsService: Utilisation du logo par défaut');
         }
 
@@ -94,7 +94,7 @@ export class SiteSettingsService {
         // En cas d'erreur, utiliser les valeurs par défaut
         const defaultSettings = {
           companyName: 'Nom du Site (Erreur de chargement)',
-          logoUrl: 'https://placehold.co/100x100/A0B3C8/FFFFFF?text=Erreur',
+          logoUrl: 'public/images/logo_bg',
           mainColor: '#00993E'
         };
 

@@ -260,20 +260,6 @@
             </ng-template>
           </div>
 
-          <!-- duree_amorti de l' Immobilisation -->
-          <div class="mb-3">
-            <label for="duree_amorti" class="form-label">Duree amortie (en ans) <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="duree_amorti" placeholder="5" autocomplete="off"
-              [class.invalid]="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
-              formControlName="duree_amorti">
-            <div
-              *ngIf="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched">
-              <small
-                *ngIf="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
-                class="text-danger"> *la duree amortie de l'immobilisation est obligatoire</small>
-            </div>
-          </div>
-
           <!-- taux_ammortissement de l' Immobilisation -->
           <div class="mb-3">
             <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
@@ -325,14 +311,29 @@
               <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="addAcquisition.toggle()">
                 <i data-feather="calendar"></i>
               </button>
+              <!-- MODIFIÉ : Suppression de [(ngModel)]="currentDate" -->
               <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAcquisition"
-                [(ngModel)]="currentDate" ngbDatepicker #addAcquisition="ngbDatepicker"
+                ngbDatepicker #addAcquisition="ngbDatepicker"
                 formControlName="date_acquisition">
             </div>
 
             <div *ngIf="addImmobilisation.get('date_acquisition')?.invalid && addImmobilisation.get('date_acquisition')?.touched">
               <small class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
             </div>
+          </div>
+
+          <!-- duree_amorti de l' Immobilisation -->
+          <div class="mb-3">
+            <!-- MODIFIÉ : Retrait du span class="text-danger">*</span -->
+            <label for="duree_amorti" class="form-label">Duree amortie (en mois)</label>
+            <input type="text" class="form-control" id="duree_amorti" placeholder="Calculé automatiquement" autocomplete="off"
+              [class.invalid]="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
+              formControlName="duree_amorti">
+            <!-- MODIFIÉ : Suppression du bloc *ngIf pour la validation "obligatoire" -->
+            <!-- <div *ngIf="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched">
+              <small *ngIf="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
+                class="text-danger"> *la duree amortie de l'immobilisation est obligatoire</small>
+            </div> -->
           </div>
 
           <!-- observation -->
@@ -657,6 +658,10 @@
           </ng-template>
         </ngx-datatable-column>
         <!-- /voir IMMO Modal -->
+      </div>
+    </div>
+    </div>
+  </div>
 
 
 
@@ -786,20 +791,6 @@
             </ng-template>
           </div>
 
-          <!-- duree_amorti de l' Immobilisation -->
-          <div class="mb-3">
-            <label for="duree_amorti" class="form-label">Duree amortie (en ans) <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="duree_amorti" placeholder="5" autocomplete="off"
-              [class.invalid]="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched"
-              formControlName="duree_amorti">
-            <div
-              *ngIf="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched">
-              <small
-                *ngIf="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched"
-                class="text-danger"> *la duree amortie de l'immobilisation est obligatoire</small>
-            </div>
-          </div>
-
           <!-- taux_ammortissement de l' Immobilisation -->
           <div class="mb-3">
             <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
@@ -847,7 +838,21 @@
             </div>
           </div>
 
-           <!-- date_mouvement
+          <!-- duree_amorti de l' Immobilisation -->
+          <div class="mb-3">
+            <label for="duree_amorti" class="form-label">Duree amortie (en ans) <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" id="duree_amorti" placeholder="5" autocomplete="off"
+              [class.invalid]="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched"
+              formControlName="duree_amorti">
+            <div
+              *ngIf="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched">
+              <small
+                *ngIf="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched"
+                class="text-danger"> *la duree amortie de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- date_mouvement
           <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dEdit.toggle()">
