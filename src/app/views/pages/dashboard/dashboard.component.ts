@@ -14,7 +14,7 @@ import { CommonModule } from '@angular/common';
 // import { map } from 'rxjs/operators';
 
 // Import your interfaces
-import { Article, Categorie, DashboardData, User } from '../../../core/services/interface/models';
+import { Article, Categorie, DashboardData, User, InterventionVehicule } from '../../../core/services/interface/models';
 import { ArticleService } from '../../../core/services/articles/articles.service';
 
 
@@ -49,6 +49,7 @@ export class DashboardComponent implements OnInit {
 
   themeCssVariables = inject(ThemeCssVariableService).getThemeCssVariables();
   usersWithRoles: User[] = [];
+  dataAssurance: InterventionVehicule[] = [];
 
   // Correct service injection
   constructor(private dashboardStockService: DashboardStockService, private articleService: ArticleService) {
@@ -60,7 +61,7 @@ export class DashboardComponent implements OnInit {
     this.getUsersWithRolesData(); // This correctly calls the method that subscribes to the service
     this.loadCategories(); // Charge les catégories
     this.loadLatestArticlesWithStock(); // Charge les derniers articles avec stock
-
+    
 
     // Initialize chart options
     this.customersChartOptions = this.getCustomersChartOptions(this.themeCssVariables);
@@ -82,6 +83,8 @@ export class DashboardComponent implements OnInit {
       }
     );
   }
+
+
 
   /**
    * Charge la liste des catégories.

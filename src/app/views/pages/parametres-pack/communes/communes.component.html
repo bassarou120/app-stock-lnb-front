@@ -66,6 +66,7 @@
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Nom" prop="libelle_commune"></ngx-datatable-column>
+            <ngx-datatable-column name="Departement" prop="departement"></ngx-datatable-column>
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}

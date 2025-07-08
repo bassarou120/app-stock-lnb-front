@@ -22,7 +22,6 @@
 </ngb-alert>
 <!-- Alerte pour supprimer avec succès -->
 
-<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
 <div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
@@ -33,13 +32,13 @@
         </div>
         <div class="d-flex gap-2">
           <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-          data-bs-target="#add_transfert">
-          Ajouter
-        </button>
-        <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadTransfertsPDF()">
-          <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
-          Imprimer
-        </button>
+            data-bs-target="#add_transfert" *ngIf="canAddTransfert">
+            Ajouter
+          </button>
+          <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadTransfertsPDF()" *ngIf="canExportTransfert">
+            <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
+            Imprimer
+          </button>
         </div>
 
       </div>
@@ -48,8 +47,6 @@
 </div>
 
 
-
-<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
 <div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
@@ -57,14 +54,13 @@
         <h6 class="card-title">Liste des Affectations/Transferts</h6>
         <div class="row">
           <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Titre..."
+            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
               (keyup)="updateFilter($event)" />
           </div>
         </div>
         <div class="table-responsive">
           <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
-            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
             <ngx-datatable-column name="N°">
               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                 {{ rowIndex + 1 }}
@@ -106,7 +102,7 @@
                 {{ value | date:'dd/MM/yyyy' }}
               </ng-template>
             </ngx-datatable-column>
-            <!-- <ngx-datatable-column name="Actions">
+            <ngx-datatable-column name="Actions" *ngIf="canModifyTransfert || canDeleteTransfert">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -114,25 +110,23 @@
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#edit_transfert" (click)="getEditForm(row)">
+                      data-bs-target="#edit_transfert" (click)="getEditForm(row)" *ngIf="canModifyTransfert">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
                     </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                       data-bs-target="#delete_transfert" (click)="getDeleteForm(row)">
+                      data-bs-target="#delete_transfert" (click)="getDeleteForm(row)" *ngIf="canDeleteTransfert">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
                   </div>
                 </div>
               </ng-template>
-            </ngx-datatable-column> -->
+            </ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>
     </div>
   </div>
 </div>
-
-
 
 <!-- Add Transfert Modal -->
 <div id="add_transfert" class="modal fade" tabindex="-1" aria-labelledby="addTransfertLabel"
@@ -162,10 +156,6 @@
               <div *ngIf="addTransfert.get('immo_id')?.invalid && addTransfert.get('immo_id')?.touched">
                 <small class="text-danger"> *L'immobilisation est obligatoire</small>
               </div>
-
-              <div *ngIf="addTransfert.get('old_employe_id')?.value == null && addTransfert.get('old_bureau_id')?.value == null && addTransfert.get('immo_id')?.value">
-                <small class="text-danger"> {{messageEnMagazin}} </small>
-              </div>
             </ng-container>
 
             <!-- Message si aucun Immo n'existe -->
@@ -177,9 +167,9 @@
             </ng-template>
           </div>
 
-          <!-- old_bureau_id -->
-          <div class="mb-3" *ngIf="addTransfert.get('old_bureau_id')?.value !== null" >
-            <label for="old_bureau_id" class="form-label">Ancien Bureau/Localisation <span class="text-danger"></span></label>
+          <!-- old_bureau_id - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label for="old_bureau_id" class="form-label">Ancien Bureau/Localisation</label>
             <input type="text" class="form-control" id="old_bureau_id" placeholder="" autocomplete="off"
               [class.invalid]="addTransfert.get('old_bureau_id')?.invalid && addTransfert.get('old_bureau_id')?.touched"
               formControlName="old_bureau_id" readonly>
@@ -189,9 +179,9 @@
             </div>
           </div>
 
-          <!-- old_employe_id -->
-          <div class="mb-3" *ngIf="addTransfert.get('old_employe_id')?.value !== null">
-            <label for="old_employe_id" class="form-label">Ancien Personnel <span class="text-danger"></span></label>
+          <!-- old_employe_id - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label for="old_employe_id" class="form-label">Ancien Personnel</label>
             <input type="text" class="form-control" id="old_employe_id" placeholder="" autocomplete="off"
               [class.invalid]="addTransfert.get('old_employe_id')?.invalid && addTransfert.get('old_employe_id')?.touched"
               formControlName="old_employe_id" readonly>
@@ -225,8 +215,9 @@
             </ng-template>
           </div>
 
-          <div class="mb-3" *ngIf="addTransfert.get('bureau_id')?.value === magasinId">
-            <label class="form-label">État <span class="text-danger">*</span></label>
+          <!-- État - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label class="form-label">État</label>
             <ng-select [items]="etatOptions" formControlName="etat" [clearable]="true"
               placeholder="Sélectionnez l'état">
             </ng-select>
@@ -236,12 +227,9 @@
             </div>
           </div>
 
-
-
-          <!-- Sélectionner nouveau employe -->
-          <div class="mb-3" *ngIf="addTransfert.get('bureau_id')?.value !== magasinId">
-            <label for="employe_id" class="form-label">Nouveau Personnel <span class="text-danger">*</span></label>
-
+          <!-- Sélectionner nouveau employe - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label for="employe_id" class="form-label">Nouveau Personnel</label>
             <ng-container *ngIf="employes && employes.length > 0; else noemployes">
               <ng-select [items]="employes" bindLabel="fullnameEmploye" bindValue="id" formControlName="employe_id"
                 [clearable]="true" placeholder="Sélectionnez le nouveau Personnel">
@@ -253,7 +241,7 @@
               </div>
             </ng-container>
 
-            <!-- Message si aucun bureaux n'existe -->
+            <!-- Message si aucun employés n'existe -->
             <ng-template #noemployes>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
@@ -262,17 +250,17 @@
             </ng-template>
           </div>
 
-          <!-- date_mise_en_service -->
-          <div class="mb-3" *ngIf="!addTransfert.get('old_bureau_id')?.value && !addTransfert.get('old_employe_id')?.value">
+          <!-- date_mise_en_service - MODIFIÉ : *ngIf REMOVED, [(ngModel)] REMOVED -->
+          <div class="mb-3">
             <label for="date_mise_en_service" class="form-label">
-              Date de Mise en Service <span class="text-danger">*</span>
+              Date de Mise en Service
             </label>
             <div class="input-group mb-5">
               <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="mTransfert.toggle()">
                 <i data-feather="calendar"></i>
               </button>
               <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpTransfert"
-                [(ngModel)]="currentDate" ngbDatepicker #mTransfert="ngbDatepicker"
+                ngbDatepicker #mTransfert="ngbDatepicker"
                 formControlName="date_mise_en_service">
             </div>
 
@@ -281,7 +269,7 @@
             </div>
           </div>
 
-          <!-- date_mouvement -->
+          <!-- date_mouvement - MODIFIÉ : [(ngModel)] REMOVED -->
           <div class="mb-3">
             <label for="date_mouvement" class="form-label">
               Date du Transfert/Affectation <span class="text-danger">*</span>
@@ -291,7 +279,7 @@
                 <i data-feather="calendar"></i>
               </button>
               <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpTransfert"
-                [(ngModel)]="currentDate" ngbDatepicker #dTransfert="ngbDatepicker"
+                ngbDatepicker #dTransfert="ngbDatepicker"
                 formControlName="date_mouvement">
             </div>
 
@@ -303,7 +291,7 @@
 
           <!-- observation -->
           <div class="mb-3">
-            <label for="observation" class="form-label">Observation <span class="text-danger"></span></label>
+            <label for="observation" class="form-label">Observation</label> <span class="text-danger"></span>
             <textarea class="form-control" id="observation" rows="5"
               [class.invalid]="addTransfert.get('observation')?.invalid && addTransfert.get('observation')?.touched"
               placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
@@ -332,5 +320,190 @@
     </div>
   </div>
 </div>
-<!-- /Add intervention Modal -->
+<!-- /Add Transfert Modal -->
 
+<!-- Edit Transfert Modal -->
+<div id="edit_transfert" class="modal fade" tabindex="-1" aria-labelledby="editTransfertLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editTransfertLabel">Modifier un Transfert / Affectation</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editTransfert" (ngSubmit)="onClickSubmitEditTransfert()"
+          novalidate>
+          <!-- Champ ID caché pour la modification -->
+          <input type="hidden" formControlName="id">
+
+          <!-- Sélectionner immo -->
+          <div class="mb-3">
+            <label for="edit_immo_id" class="form-label">Immobilisation <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="immobilisations && immobilisations.length > 0; else noimmobilisationEdit">
+              <ng-select [items]="immobilisations" bindLabel="code" bindValue="id" formControlName="immo_id"
+                [clearable]="true" placeholder="Sélectionnez l'immobilisation" (change)="updateOldInfo()">
+              </ng-select>
+
+              <div *ngIf="editTransfert.get('immo_id')?.invalid && editTransfert.get('immo_id')?.touched">
+                <small class="text-danger"> *L'immobilisation est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <ng-template #noimmobilisationEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucune Immobilisation. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- old_bureau_id - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label for="edit_old_bureau_id" class="form-label">Ancien Bureau/Localisation</label>
+            <input type="text" class="form-control" id="edit_old_bureau_id" placeholder="" autocomplete="off"
+              [class.invalid]="editTransfert.get('old_bureau_id')?.invalid && editTransfert.get('old_bureau_id')?.touched"
+              formControlName="old_bureau_id" readonly>
+            <div *ngIf="editTransfert.get('old_bureau_id')?.invalid && editTransfert.get('old_bureau_id')?.touched">
+              <small *ngIf="editTransfert.get('old_bureau_id')?.invalid && editTransfert.get('old_bureau_id')?.touched"
+                class="text-danger"> </small>
+            </div>
+          </div>
+
+          <!-- old_employe_id - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label for="edit_old_employe_id" class="form-label">Ancien Personnel</label>
+            <input type="text" class="form-control" id="edit_old_employe_id" placeholder="" autocomplete="off"
+              [class.invalid]="editTransfert.get('old_employe_id')?.invalid && editTransfert.get('old_employe_id')?.touched"
+              formControlName="old_employe_id" readonly>
+            <div *ngIf="editTransfert.get('old_employe_id')?.invalid && editTransfert.get('old_employe_id')?.touched">
+              <small *ngIf="editTransfert.get('old_employe_id')?.invalid && editTransfert.get('old_employe_id')?.touched"
+                class="text-danger"> </small>
+            </div>
+          </div>
+
+          <!-- Sélectionner nouveau bureau -->
+          <div class="mb-3">
+            <label for="edit_bureau_id" class="form-label">Nouveau Bureau/Localisation <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="bureaux && bureaux.length > 0; else nobureauxEdit">
+              <ng-select [items]="bureaux" bindLabel="libelle_bureau" bindValue="id" formControlName="bureau_id"
+                [clearable]="true" placeholder="Sélectionnez le nouveau bureau">
+              </ng-select>
+
+              <div
+                *ngIf="editTransfert.get('bureau_id')?.invalid && editTransfert.get('bureau_id')?.touched">
+                <small class="text-danger"> *Le nouveau bureau est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <ng-template #nobureauxEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- État - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label class="form-label">État</label>
+            <ng-select [items]="etatOptions" formControlName="etat" [clearable]="true"
+              placeholder="Sélectionnez l'état">
+            </ng-select>
+
+            <div *ngIf="editTransfert.get('etat')?.invalid && editTransfert.get('etat')?.touched">
+              <small class="text-danger"> *L'état est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- Sélectionner nouveau employe - MODIFIÉ : *ngIf REMOVED -->
+          <div class="mb-3">
+            <label for="edit_employe_id" class="form-label">Nouveau Personnel</label>
+            <ng-container *ngIf="employes && employes.length > 0; else noemployesEdit">
+              <ng-select [items]="employes" bindLabel="fullnameEmploye" bindValue="id" formControlName="employe_id"
+                [clearable]="true" placeholder="Sélectionnez le nouveau Personnel">
+              </ng-select>
+
+              <div
+                *ngIf="editTransfert.get('employe_id')?.invalid && editTransfert.get('employe_id')?.touched">
+                <small class="text-danger"> *Le nouveau personnel est obligatoire</small>
+              </div>
+            </ng-container>
+
+            <ng-template #noemployesEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Personnel. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- date_mise_en_service - MODIFIÉ : *ngIf REMOVED, [(ngModel)] REMOVED -->
+          <div class="mb-3">
+            <label for="edit_date_mise_en_service" class="form-label">
+              Date de Mise en Service
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="editMTransfert.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpMTransfertEdit"
+                ngbDatepicker #editMTransfert="ngbDatepicker"
+                formControlName="date_mise_en_service">
+            </div>
+
+            <div *ngIf="editTransfert.get('date_mise_en_service')?.invalid && editTransfert.get('date_mise_en_service')?.touched">
+              <small class="text-danger"> *la date de mise en service est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- date_mouvement - MODIFIÉ : [(ngModel)] REMOVED -->
+          <div class="mb-3">
+            <label for="edit_date_mouvement" class="form-label">
+              Date du Transfert/Affectation <span class="text-danger">*</span>
+            </label>
+            <div class="input-group mb-5">
+              <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="editDTransfert.toggle()">
+                <i data-feather="calendar"></i>
+              </button>
+              <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpDTransfertEdit"
+                ngbDatepicker #editDTransfert="ngbDatepicker"
+                formControlName="date_mouvement">
+            </div>
+
+            <div *ngIf="editTransfert.get('date_mouvement')?.invalid && editTransfert.get('date_mouvement')?.touched">
+              <small class="text-danger"> *la date du transfert est obligatoire</small>
+            </div>
+          </div>
+
+
+          <!-- observation -->
+          <div class="mb-3">
+            <label for="edit_observation" class="form-label">Observation</label> <span class="text-danger"></span>
+            <textarea class="form-control" id="edit_observation" rows="5"
+              [class.invalid]="editTransfert.get('observation')?.invalid && editTransfert.get('observation')?.touched"
+              placeholder="Entrez votre observation ici..." formControlName="observation"></textarea>
+            <div *ngIf="editTransfert.get('observation')?.invalid && editTransfert.get('observation')?.touched">
+              <small
+                *ngIf="editTransfert.get('observation')?.invalid && editTransfert.get('observation')?.touched"
+                class="text-danger"> *l'observation est obligatoire</small>
+            </div>
+          </div>
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button
+              type="submit"
+              class="btn btn-primary"
+              (click)="onClickSubmitEditTransfert()"
+              [disabled]="editTransfert.invalid" >
+              Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
