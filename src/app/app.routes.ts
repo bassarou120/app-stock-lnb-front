@@ -83,6 +83,18 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/parametres-immo/parametres-immo.routes')
       },
       {
+        path: 'assurance-a-terme',
+        loadChildren: () => import('./views/pages/assurance-a-terme/assurance-a-terme.routes')
+      },
+      {
+        path: 'vehicule-repare-soon',
+        loadChildren: () => import('./views/pages/vehicule-repare-soon/vehicule-repare-soon.routes')
+      },
+      {
+        path: 'visite-technique-avenir',
+        loadChildren: () => import('./views/pages/visite-technique-avenir/visite-technique-avenir.routes')
+      },
+      {
         path: 'apps',
         loadChildren: () => import('./views/pages/apps/apps.routes')
       },
@@ -124,5 +136,6 @@ export const routes: Routes = [
     path: 'error/:type',
     loadComponent: () => import('./views/pages/error/error.component').then(c => c.ErrorComponent)
   },
+
   { path: '**', redirectTo: 'error/404', pathMatch: 'full' }
 ];

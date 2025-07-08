@@ -1,0 +1,18 @@
+/* Style du select */
+.form-select {
+  background-color: white;
+  color: black;
+}
+
+/* Style des options */
+.form-select option {
+  background-color: white;
+  color: black;
+}
+
+/* Appliquer la couleur verte à l'option sélectionnée et survolée */
+.form-select option:checked,
+.form-select option:hover {
+  background-color: #00993E !important;
+  color: white !important;
+}

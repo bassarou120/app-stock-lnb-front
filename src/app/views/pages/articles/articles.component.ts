@@ -427,7 +427,7 @@ updateFilter(event: KeyboardEvent): void {
     (article.libelle && article.libelle.toLowerCase().includes(val)) ||
     (article.cat && article.cat.libelle_categorie_article && article.cat.libelle_categorie_article.toLowerCase().includes(val)) ||
     (article.description && String(article.description).toLowerCase().includes(val)) ||
-    (article.seuil_alerte && String(article.seuil_alerte).toLowerCase().includes(val)) 
+    (article.seuil_alerte && String(article.seuil_alerte).toLowerCase().includes(val))
   );
   this.table.offset = 0;
 }
