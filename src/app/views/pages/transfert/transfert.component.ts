@@ -67,23 +67,24 @@ export class TransfertComponent implements OnInit, OnDestroy {
   immobilisations: Immobilisation[] = [];
   bureaux: Bureau[] = [];
   employes: Employe[] = [];
-  magasinId: number | null = null;
+  magasinId: number | null = null; // ID du bureau 'Magasin'
 
   isAddingTransfert: boolean = false;
+
+  // Nouvelle propriété pour contrôler l'affichage du champ État
+  showEtatField: boolean = false;
 
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(private transfertService: TransfertsService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
-    // 🔥 INITIALISER LES PERMISSIONS EN PREMIER (LAISSÉ INTACT COMME VOTRE CODE)
     this.initializePermissions();
 
-    // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
       this.loadImmobilisations();
       this.loadEmployes();
-      this.loadBureaux();
+      this.loadBureaux(); // Cette méthode doit charger l'ID du magasin
       this.loadTransferts();
     }
 
@@ -91,11 +92,11 @@ export class TransfertComponent implements OnInit, OnDestroy {
       immo_id: [null, [Validators.required]],
       old_bureau_id: [null, []],
       old_employe_id: [null, []],
-      bureau_id: [null, [Validators.required]],
+      bureau_id: [null, [Validators.required]], // Doit être null initialement pour sélection manuelle
       employe_id: [null, []],
       date_mouvement: [null, [Validators.required]],
       observation: ["", []],
-      etat: [null, []],
+      etat: [null, []], // 'etat' est initialement non requis, sa validation sera dynamique
       date_mise_en_service: [null, []]
     });
 
@@ -121,25 +122,26 @@ export class TransfertComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // 🔥 initializePermissions : LAISSÉ EXACTEMENT COMME VOTRE CODE FOURNI
   private initializePermissions(): void {
     try {
       const allowedFonctionnalitesStr = localStorage.getItem('allowedFonctionnalites');
 
       if (!allowedFonctionnalitesStr) {
         console.log('⚠️ Aucune fonctionnalité trouvée - Permissions par défaut');
-        return; // Garder les permissions par défaut (true)
+        return;
       }
 
       const allowedFonctionnalites: string[] = JSON.parse(allowedFonctionnalitesStr);
       console.log('📋 Fonctionnalités autorisées:', allowedFonctionnalites);
 
-      // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES (LAISSÉES COMME VOTRE CODE)
       this.canAddTransfert = allowedFonctionnalites.includes('Ajout immobilisation');
       this.canExportTransfert = allowedFonctionnalites.includes('Exporter immobilisation');
       this.canViewTransfert = allowedFonctionnalites.includes('Voir les Transferts');
+      // Assurez-vous que canModifyTransfert et canDeleteTransfert sont également définis si nécessaire
+      this.canModifyTransfert = allowedFonctionnalites.includes('Modification immobilisation'); // Exemple
+      this.canDeleteTransfert = allowedFonctionnalites.includes('Suppression immobilisation'); // Exemple
 
-      // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée (LAISSÉ COMME VOTRE CODE)
+
       this.hasPageAccess = this.canViewTransfert;
 
       console.log('🔐 Permissions calculées:', {
@@ -150,7 +152,6 @@ export class TransfertComponent implements OnInit, OnDestroy {
         hasPageAccess: this.hasPageAccess
       });
 
-      // 🔥 SI AUCUN ACCÈS, REDIRIGER VERS LE DASHBOARD (LAISSÉ COMME VOTRE CODE)
       if (!this.hasPageAccess) {
         console.warn('❌ Accès refusé à la gestion des immobilisations');
         this.router.navigate(['/error/403']);
@@ -159,7 +160,6 @@ export class TransfertComponent implements OnInit, OnDestroy {
 
     } catch (error) {
       console.error('❌ Erreur lors de l\'initialisation des permissions:', error);
-      // En cas d'erreur, garder les permissions par défaut (true)
     }
   }
 
@@ -189,6 +189,11 @@ export class TransfertComponent implements OnInit, OnDestroy {
           if (spinner) spinner.classList.add('d-none');
           this.addTransfert.reset();
           this.isAddingTransfert = false;
+          this.showEtatField = false; // Réinitialiser l'affichage du champ État après soumission
+          // S'assurer que le validateur de 'etat' est retiré après reset si le champ est caché
+          this.addTransfert.get('etat')?.clearValidators();
+          this.addTransfert.get('etat')?.updateValueAndValidity();
+
 
           // Fermer le modal manuellement
           const modal = document.getElementById('add_transfert');
@@ -206,13 +211,13 @@ export class TransfertComponent implements OnInit, OnDestroy {
         (error: any) => {
           if (spinner) spinner.classList.add('d-none');
           this.isAddingTransfert = false;
-          alert("Erreur lors de l'enregistrement.");
+          alert("Erreur lors de l'enregistrement: " + (error.error?.message || error.message));
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addTransfert);
-      alert("Formulaire invalide.");
+      alert("Désolé, le formulaire n'est pas bien renseigné.");
     }
   }
 
@@ -333,7 +338,6 @@ export class TransfertComponent implements OnInit, OnDestroy {
     );
   }
 
-  // 🔥 updateFilter : LAISSÉ EXACTEMENT COMME VOTRE CODE FOURNI
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
@@ -396,6 +400,7 @@ export class TransfertComponent implements OnInit, OnDestroy {
         this.bureaux = data;
         const magasin = this.bureaux.find(b => b.libelle_bureau?.toLowerCase() === 'magasin');
         this.magasinId = magasin?.id ?? null;
+        console.log('DEBUG: Magasin ID loaded:', this.magasinId);
       },
       error: (err) => {
         console.error("Erreur lors du chargement des bureaux :", err);
@@ -403,7 +408,6 @@ export class TransfertComponent implements OnInit, OnDestroy {
     });
   }
 
-  // 🔥 MÉTHODE MODIFIÉE : updateOldInfo (pour implémenter la logique "Magasin" et corriger l'accès aux données de réponse)
   updateOldInfo() {
     const idImmo = this.addTransfert.get('immo_id')?.value;
     console.log('DEBUG updateOldInfo: ID de l\'IMMO sélectionné:', idImmo);
@@ -417,6 +421,7 @@ export class TransfertComponent implements OnInit, OnDestroy {
         employe_id: null,
         date_mise_en_service: null
       });
+      this.onBureauChange(null);
       return;
     }
 
@@ -428,19 +433,17 @@ export class TransfertComponent implements OnInit, OnDestroy {
         console.log('DEBUG updateOldInfo: response.bureau:', response.bureau);
         console.log('DEBUG updateOldInfo: response.employe:', response.employe);
 
-        // 🔥 CORRECTION ICI : Accéder directement aux propriétés si elles sont des chaînes de caractères
         if (response.bureau === null && response.employe === null) {
           console.log('DEBUG updateOldInfo: Immobilisation en magasin. Patching "Ancien Bureau" avec "Magasin" et "Ancien Personnel" avec null.');
           this.addTransfert.patchValue({
-            old_bureau_id: 'Magasin', // Afficher "Magasin"
-            old_employe_id: null // Laisser vide
+            old_bureau_id: 'Magasin',
+            old_employe_id: null
           });
         } else {
           console.log('DEBUG updateOldInfo: Immobilisation déjà affectée. Patching avec les données récupérées.');
-          // Si l'immo a un bureau ou un employé précédent
           this.addTransfert.patchValue({
-            old_bureau_id: response.bureau || null, // CORRIGÉ : Accès direct à response.bureau
-            old_employe_id: response.employe || null // CORRIGÉ : Accès direct à response.employe
+            old_bureau_id: response.bureau || null,
+            old_employe_id: response.employe || null
           });
         }
       },
@@ -453,18 +456,43 @@ export class TransfertComponent implements OnInit, OnDestroy {
           employe_id: null,
           date_mise_en_service: null
         });
+        this.onBureauChange(null);
         alert("Impossible de récupérer les anciennes informations pour cette immobilisation.");
       }
     );
   }
 
-  // J'ai gardé votre fonction formatDate car elle était appelée dans onClickSubmitAddTransfert
-  // Pour ne pas introduire de régression, je la laisse telle quelle.
+  onBureauChange(event: any): void {
+    const bureauId = event?.id || null;
+    const etatControl = this.addTransfert.get('etat');
+    if (!etatControl) {
+      console.warn('Le contrôle "etat" est introuvable dans le groupe de formulaire addTransfert.');
+      return;
+    }
+
+    console.log('DEBUG: onBureauChange triggered.');
+    console.log('DEBUG: Selected bureauId:', bureauId);
+    console.log('DEBUG: Stored Magasin ID:', this.magasinId);
+    console.log('DEBUG: Is selected bureau Magasin?', bureauId === this.magasinId);
+
+
+    if (bureauId === this.magasinId) {
+      this.showEtatField = true;
+      etatControl.setValidators([Validators.required]);
+    } else {
+      this.showEtatField = false;
+      etatControl.clearValidators();
+      etatControl.setValue(null);
+    }
+    etatControl.updateValueAndValidity();
+  }
+
+
   formatDate(date: NgbDateStruct): string {
     const year = date.year;
-    const month = date.month.toString().padStart(2, '0'); // Ajoute un zéro devant si nécessaire
+    const month = date.month.toString().padStart(2, '0');
     const day = date.day.toString().padStart(2, '0');
-    return `${year}-${month}-${day}`; // Format CCYY-MM-DD
+    return `${year}-${month}-${day}`;
   }
 
   formatNgbDateToYYYYMMDD(date: NgbDateStruct | null): string | null {
@@ -474,35 +502,6 @@ export class TransfertComponent implements OnInit, OnDestroy {
     const day = date.day.toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
   }
-
-  // 🔥 formatDateForSearch : SUPPRIMÉE car non présente dans votre code initial et non utilisée par votre updateFilter
-  // J'ai vérifié votre `updateFilter` et il n'appelle pas cette fonction.
-  // Je la supprime donc pour respecter votre demande de ne rien modifier d'autre.
-  // private formatDateForSearch(dateInput: any): string {
-  //   if (!dateInput) {
-  //     return '';
-  //   }
-  //   let date: Date;
-  //   if (dateInput instanceof Date) {
-  //     date = dateInput;
-  //   } else if (typeof dateInput === 'string') {
-  //     const parts = dateInput.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
-  //     if (parts) {
-  //       date = new Date(parseInt(parts[3]), parseInt(parts[2]) - 1, parseInt(parts[1]));
-  //     } else {
-  //       date = new Date(dateInput);
-  //     }
-  //   } else {
-  //     date = new Date(String(dateInput));
-  //   }
-  //   if (isNaN(date.getTime())) {
-  //     return '';
-  //   }
-  //   const day = String(date.getDate()).padStart(2, '0');
-  //   const month = String(date.getMonth() + 1).padStart(2, '0');
-  //   const year = date.getFullYear();
-  //   return `${day}/${month}/${year}`;
-  // }
 
   convertToNgbDate(dateString: string): NgbDateStruct | null {
     if (!dateString) return null;
@@ -537,6 +536,37 @@ export class TransfertComponent implements OnInit, OnDestroy {
       error => {
         console.error('Erreur lors du téléchargement du PDF des transferts:', error);
         alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+      }
+    );
+  }
+
+  // Nouvelle méthode pour télécharger le PDF d'un seul transfert
+  downloadSingleTransfertPDF(transfertId: number): void {
+    if (!this.canExportTransfert) {
+      alert('Vous n\'avez pas l\'autorisation d\'imprimer un transfert.');
+      return;
+    }
+
+    // Assurez-vous que votre service `TransfertsService` a une méthode `imprimerSingleTransfert`
+    // qui prend l'ID du transfert et retourne un Observable<Blob>.
+    // Exemple d'implémentation dans TransfertsService:
+    // imprimerSingleTransfert(id: number): Observable<Blob> {
+    //   return this.http.get(`${this.apiUrl}/transferts/print/${id}`, { responseType: 'blob' });
+    // }
+    this.transfertService.imprimerSingleTransfert(transfertId).subscribe(
+      (response: Blob) => {
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = `transfert_${transfertId}.pdf`; // Nom du fichier PDF
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+      },
+      error => {
+        console.error(`Erreur lors du téléchargement du PDF pour le transfert ${transfertId}:`, error);
+        alert(`Impossible de télécharger le PDF pour le transfert ${transfertId}. Veuillez vérifier votre connexion ou contacter l'administrateur.`);
       }
     );
   }
