@@ -67,7 +67,7 @@ export class TransfertComponent implements OnInit, OnDestroy {
   immobilisations: Immobilisation[] = [];
   bureaux: Bureau[] = [];
   employes: Employe[] = [];
-  magasinId: number | null = null;
+  magasinId: number | null = null; // ID du bureau 'Magasin'
 
   isAddingTransfert: boolean = false;
 
@@ -84,7 +84,7 @@ export class TransfertComponent implements OnInit, OnDestroy {
     if (this.hasPageAccess) {
       this.loadImmobilisations();
       this.loadEmployes();
-      this.loadBureaux(); 
+      this.loadBureaux(); // Cette méthode doit charger l'ID du magasin
       this.loadTransferts();
     }
 
@@ -92,11 +92,11 @@ export class TransfertComponent implements OnInit, OnDestroy {
       immo_id: [null, [Validators.required]],
       old_bureau_id: [null, []],
       old_employe_id: [null, []],
-      bureau_id: [null, [Validators.required]],
+      bureau_id: [null, [Validators.required]], // Doit être null initialement pour sélection manuelle
       employe_id: [null, []],
       date_mouvement: [null, [Validators.required]],
       observation: ["", []],
-      etat: [null, []], 
+      etat: [null, []], // 'etat' est initialement non requis, sa validation sera dynamique
       date_mise_en_service: [null, []]
     });
 
@@ -137,8 +137,9 @@ export class TransfertComponent implements OnInit, OnDestroy {
       this.canAddTransfert = allowedFonctionnalites.includes('Ajout immobilisation');
       this.canExportTransfert = allowedFonctionnalites.includes('Exporter immobilisation');
       this.canViewTransfert = allowedFonctionnalites.includes('Voir les Transferts');
-      this.canModifyTransfert = allowedFonctionnalites.includes('Modification immobilisation');
-      this.canDeleteTransfert = allowedFonctionnalites.includes('Suppression immobilisation');
+      // Assurez-vous que canModifyTransfert et canDeleteTransfert sont également définis si nécessaire
+      this.canModifyTransfert = allowedFonctionnalites.includes('Modification immobilisation'); // Exemple
+      this.canDeleteTransfert = allowedFonctionnalites.includes('Suppression immobilisation'); // Exemple
 
 
       this.hasPageAccess = this.canViewTransfert;
@@ -188,7 +189,8 @@ export class TransfertComponent implements OnInit, OnDestroy {
           if (spinner) spinner.classList.add('d-none');
           this.addTransfert.reset();
           this.isAddingTransfert = false;
-          this.showEtatField = false;
+          this.showEtatField = false; // Réinitialiser l'affichage du champ État après soumission
+          // S'assurer que le validateur de 'etat' est retiré après reset si le champ est caché
           this.addTransfert.get('etat')?.clearValidators();
           this.addTransfert.get('etat')?.updateValueAndValidity();
 
@@ -415,11 +417,11 @@ export class TransfertComponent implements OnInit, OnDestroy {
       this.addTransfert.patchValue({
         old_bureau_id: null,
         old_employe_id: null,
-        etat: null, // Réinitialiser l'état
+        etat: null,
         employe_id: null,
         date_mise_en_service: null
       });
-      this.onBureauChange(null); // Assurez-vous que le champ État est caché et ses validateurs retirés
+      this.onBureauChange(null);
       return;
     }
 
@@ -434,8 +436,8 @@ export class TransfertComponent implements OnInit, OnDestroy {
         if (response.bureau === null && response.employe === null) {
           console.log('DEBUG updateOldInfo: Immobilisation en magasin. Patching "Ancien Bureau" avec "Magasin" et "Ancien Personnel" avec null.');
           this.addTransfert.patchValue({
-            old_bureau_id: 'Magasin', // Afficher "Magasin"
-            old_employe_id: null // Laisser vide
+            old_bureau_id: 'Magasin',
+            old_employe_id: null
           });
         } else {
           console.log('DEBUG updateOldInfo: Immobilisation déjà affectée. Patching avec les données récupérées.');
@@ -460,9 +462,8 @@ export class TransfertComponent implements OnInit, OnDestroy {
     );
   }
 
-  // Nouvelle méthode pour gérer les changements du champ bureau_id et mettre à jour l'affichage de 'etat'
   onBureauChange(event: any): void {
-    const bureauId = event?.id || null; // ng-select émet l'objet entier ou null si désélectionné
+    const bureauId = event?.id || null;
     const etatControl = this.addTransfert.get('etat');
     if (!etatControl) {
       console.warn('Le contrôle "etat" est introuvable dans le groupe de formulaire addTransfert.');
@@ -475,16 +476,15 @@ export class TransfertComponent implements OnInit, OnDestroy {
     console.log('DEBUG: Is selected bureau Magasin?', bureauId === this.magasinId);
 
 
-    // Si le bureau sélectionné est l'ID du Magasin
     if (bureauId === this.magasinId) {
       this.showEtatField = true;
-      etatControl.setValidators([Validators.required]); // Rendre le champ 'etat' obligatoire
+      etatControl.setValidators([Validators.required]);
     } else {
       this.showEtatField = false;
-      etatControl.clearValidators(); // Retirer les validateurs
-      etatControl.setValue(null); // Vider la valeur du champ
+      etatControl.clearValidators();
+      etatControl.setValue(null);
     }
-    etatControl.updateValueAndValidity(); // Mettre à jour l'état de validation du champ
+    etatControl.updateValueAndValidity();
   }
 
 
@@ -536,6 +536,37 @@ export class TransfertComponent implements OnInit, OnDestroy {
       error => {
         console.error('Erreur lors du téléchargement du PDF des transferts:', error);
         alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+      }
+    );
+  }
+
+  // Nouvelle méthode pour télécharger le PDF d'un seul transfert
+  downloadSingleTransfertPDF(transfertId: number): void {
+    if (!this.canExportTransfert) {
+      alert('Vous n\'avez pas l\'autorisation d\'imprimer un transfert.');
+      return;
+    }
+
+    // Assurez-vous que votre service `TransfertsService` a une méthode `imprimerSingleTransfert`
+    // qui prend l'ID du transfert et retourne un Observable<Blob>.
+    // Exemple d'implémentation dans TransfertsService:
+    // imprimerSingleTransfert(id: number): Observable<Blob> {
+    //   return this.http.get(`${this.apiUrl}/transferts/print/${id}`, { responseType: 'blob' });
+    // }
+    this.transfertService.imprimerSingleTransfert(transfertId).subscribe(
+      (response: Blob) => {
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = `transfert_${transfertId}.pdf`; // Nom du fichier PDF
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+      },
+      error => {
+        console.error(`Erreur lors du téléchargement du PDF pour le transfert ${transfertId}:`, error);
+        alert(`Impossible de télécharger le PDF pour le transfert ${transfertId}. Veuillez vérifier votre connexion ou contacter l'administrateur.`);
       }
     );
   }

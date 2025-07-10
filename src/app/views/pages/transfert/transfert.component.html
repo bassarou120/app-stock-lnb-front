@@ -102,20 +102,23 @@
                 {{ value | date:'dd/MM/yyyy' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Actions" *ngIf="canModifyTransfert || canDeleteTransfert">
+            <ngx-datatable-column name="Actions" *ngIf="canModifyTransfert || canDeleteTransfert || canExportTransfert">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                   <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <!-- <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                       data-bs-target="#edit_transfert" (click)="getEditForm(row)" *ngIf="canModifyTransfert">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
-                    </a>
-                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
-                      data-bs-target="#delete_transfert" (click)="getDeleteForm(row)" *ngIf="canDeleteTransfert">
+                    </a> -->
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-target="#delete_transfert" (click)="getDeleteForm(row)" *ngIf="canDeleteTransfert">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
+                    <!-- Nouvelle action Imprimer -->
+                    <a ngbDropdownItem class="d-flex align-items-center" (click)="downloadSingleTransfertPDF(row.id)" *ngIf="canExportTransfert">
+                      <i data-feather="printer" appFeatherIcon class="icon-sm me-2"></i> <span>Imprimer</span>
                     </a>
                   </div>
                 </div>
@@ -423,7 +426,7 @@
             <label for="edit_employe_id" class="form-label">Nouveau Personnel</label>
             <ng-container *ngIf="employes && employes.length > 0; else noemployesEdit">
               <ng-select [items]="employes" bindLabel="fullnameEmploye" bindValue="id" formControlName="employe_id"
-                [clearable]="true" placeholder="Sélectionnez le nouveau Personnel">
+                [clearable]="true" placeholder="Sélectionnez le Personnel">
               </ng-select>
 
               <div

@@ -74,6 +74,15 @@ export class TransfertsService {
           );
         }
 
+        imprimerSingleTransfert(id: number): Observable<Blob> {
+          const printUrl = `${this.url}/transferts/print/${id}`; // L'URL de ton endpoint Laravel pour l'impression d'un seul transfert
+          console.log(`Requête PDF pour le transfert ${id} vers:`, printUrl);
+          return this.http.get(printUrl, { responseType: 'blob' }).pipe(
+            tap(() => console.log(`PDF du transfert ${id} reçu.`)),
+            catchError(this.handleError<Blob>(`imprimerSingleTransfert ${id}`))
+          );
+        }
+
         private handleError<T>(operation = 'operation', result?: T) {
           return (error: HttpErrorResponse): Observable<T> => {
             console.error(`${operation} failed:`, error);
