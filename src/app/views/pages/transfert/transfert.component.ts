@@ -99,7 +99,8 @@ export class TransfertComponent implements OnInit, OnDestroy {
       etat: [null, []], // 'etat' est initialement non requis, sa validation sera dynamique
       date_mise_en_service: [null, []]
     });
-
+ 
+    
     this.editTransfert = this.formBuilder.group({
       id: [0, [Validators.required]],
       immo_id: [null, [Validators.required]],
