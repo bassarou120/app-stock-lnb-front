@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject, OnDestroy } from '@angular/core';
+import { Component, ViewChild, OnInit, inject, OnDestroy, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { TransfertsService } from '../../../core/services/transfert/transfert.service';
@@ -30,7 +30,9 @@ declare var bootstrap: any;
     MyNgSelectComponent,
     FeatherIconDirective
   ],
-  templateUrl: 'transfert.component.html'
+  templateUrl: 'transfert.component.html',
+  styleUrls: ['transfert.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class TransfertComponent implements OnInit, OnDestroy {
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
