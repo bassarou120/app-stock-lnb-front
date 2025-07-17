@@ -198,7 +198,7 @@
                 <div class="col-md-6">
                   <p><strong>Coût de l'intervention :</strong>
                     <span class="text-success fw-bold fs-5">
-                      <i class="feather icon-dollar-sign me-1"></i>
+                      <!-- <i class="feather icon-dollar-sign me-1"></i> -->
                       {{ selectedInterventionVehicule.montant | number:'1.0-0'  }} FCFA
                     </span>
                   </p>
@@ -224,20 +224,20 @@
                   <p><strong>Immatriculation :</strong>
                     <span class="badge bg-dark fs-6">{{ selectedInterventionVehicule.vehicule?.immatriculation || 'N/A' }}</span>
                   </p>
-                  <p><strong>Marque :</strong>
+                  <!-- <p><strong>Marque :</strong>
                     <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.marque || 'N/A' }}</span>
                   </p>
                   <p><strong>Modèle :</strong>
                     <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.modele || 'N/A' }}</span>
-                  </p>
+                  </p> -->
                 </div>
-                                <div class="col-md-6">
-                  <p><strong>Type de véhicule :</strong>
+                <div class="col-md-6">
+                  <!-- <p><strong>Type de véhicule :</strong>
                     <span class="badge bg-secondary">{{ selectedInterventionVehicule.vehicule?.type_vehicule?.libelle || 'N/A' }}</span>
-                  </p>
-                  <p><strong>Année :</strong>
+                  </p> -->
+                  <!-- <p><strong>Année :</strong>
                     <span class="text-muted">{{ selectedInterventionVehicule.vehicule?.annee || 'N/A' }}</span>
-                  </p>
+                  </p> -->
                   <p><strong>Kilométrage :</strong>
                     <span class="text-info">{{ selectedInterventionVehicule.vehicule?.kilometrage | number:'1.0-0'  }} km</span>
                   </p>
@@ -327,7 +327,7 @@
                   <i class="feather icon-message-square me-2"></i>
                   Rapport d'intervention
                 </h6>
-                <p class="text-muted mb-0" style="white-space: pre-wrap; line-height: 1.6;">
+                <p class="text-dark mb-0" style="white-space: pre-wrap; line-height: 1.6;">
                   {{ selectedInterventionVehicule.observation || 'Aucune observation disponible pour cette intervention véhicule.' }}
                 </p>
               </div>
@@ -422,7 +422,7 @@
           </div>
 
           <!-- 🔥 SECTION CLASSIFICATION ET CATÉGORIE -->
-          <div class="card mb-3">
+          <!-- <div class="card mb-3">
             <div class="card-header bg-dark text-white">
               <h6 class="mb-0"><i class="feather icon-layers me-2"></i>Classification de l'Intervention</h6>
             </div>
@@ -468,7 +468,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <!-- 🔥 SECTION ACTIONS RECOMMANDÉES -->
           <div class="card mb-3 border-warning">
@@ -514,7 +514,7 @@
           </div>
 
           <!-- 🔥 SECTION INFORMATIONS VÉHICULE DÉTAILLÉES -->
-          <div class="card mb-3">
+          <!-- <div class="card mb-3">
             <div class="card-header bg-success text-white">
               <h6 class="mb-0"><i class="feather icon-info me-2"></i>Informations Complémentaires du Véhicule</h6>
             </div>
@@ -546,7 +546,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
         </div>
 
@@ -562,7 +562,7 @@
         <div class="d-flex justify-content-between w-100">
           <!-- Informations supplémentaires à gauche -->
           <div class="d-flex align-items-center" *ngIf="selectedInterventionVehicule">
-            <small class="text-muted">
+            <small class="text-dark">
               <i class="feather icon-user me-1"></i>
               Intervention enregistrée le {{ selectedInterventionVehicule.created_at | date:'dd/MM/yyyy à HH:mm' }}
             </small>
