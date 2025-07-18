@@ -44,7 +44,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
   canRefuseDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
   canAccordDemande: boolean = true;    // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
-  hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
+  hasPageAccess: boolean = true;   // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
 
   mouvementsGrouped: MouvementStockGrouped[] = [];
@@ -101,9 +101,13 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
           Validators.min(1),
           Validators.max(this.quantiteDisponible)
         ]);
+      } else { // Si le statut n'est pas "Accordé", "APPROUVEE" ou "TERMINER", la quantité n'est pas requise
+        qteControl?.clearValidators();
+      }
+      // La validation de la date de mouvement reste la même
+      if (statut === 'Accordé' || statut === 'APPROUVEE' || statut === 'TERMINER') {
         dateMouvementControl?.setValidators([Validators.required]);
       } else {
-        qteControl?.clearValidators();
         dateMouvementControl?.clearValidators();
       }
       qteControl?.updateValueAndValidity();
@@ -321,7 +325,14 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
           console.error(`Le contrôle '${key}' est invalide. Erreurs :`, control.errors);
         }
       });
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+
+      // 🔥 NOUVEAU : Vérifier spécifiquement l'erreur de quantité insuffisante
+      const qteControl = this.editStatutSortie.get('qte');
+      if (qteControl && qteControl.hasError('max')) {
+        alert(`La quantité demandée (${qteControl.value}) dépasse la quantité disponible (${this.quantiteDisponible}).`);
+      } else {
+        alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      }
       return;
     }
 

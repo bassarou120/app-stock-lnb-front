@@ -421,7 +421,7 @@
       <div class="modal-header">
         <h5 class="modal-title" id="voirSortieLabel">
           <i class="feather icon-eye me-2"></i>
-          Détails de l'Attribution de Ticket (Sortie)
+          Détails de l'Attribution de Ticket <span class="badge bg-dark fs-6"> {{ selectedSortie?.reference }}</span>
         </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
@@ -436,66 +436,38 @@
             <div class="card-body">
               <div class="row">
                 <div class="col-md-6">
-                  <p><strong>Numéro de ticket :</strong>
-                    <span class="badge bg-primary fs-6">{{ selectedSortie?.coupon_ticket?.numero_ticket || 'N/A' }}</span>
+                  <p><strong>Coupon ticket :</strong>
+                    <span class="badge bg-primary fs-6">{{ selectedSortie?.coupon_ticket?.libelle || 'N/A' }}</span>
                   </p>
                   <p><strong>Quantité attribuée :</strong>
-                    <span class="text-success fw-bold fs-5">{{ selectedSortie?.qte_attribue || 0 }} L</span>
+                    <span class="text-success fw-bold fs-5"> {{ " " + selectedSortie?.qte || 0 }} </span>
                   </p>
                   <p><strong>Date d'attribution :</strong>
                     <span class="text-muted">
-                      <i class="feather icon-calendar me-1"></i>
-                      {{ selectedSortie?.date_attribution | date:'dd/MM/yyyy' }}
+                      <!-- <i class="feather icon-calendar me-1"></i> -->
+                      {{ selectedSortie?.date | date:'dd/MM/yyyy' }}
                     </span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Nombre de trajets :</strong>
-                    <span class="badge bg-info">{{ selectedSortie?.nbre_trajet || 0 }} trajet(s)</span>
+                  <p><strong>Compagnie Pétrolière :</strong>
+                    <span>{{ " "+selectedSortie?.compagnie_petrolier?.libelle || " " }} </span>
                   </p>
-                  <p><strong>Statut :</strong>
-                    <span class="badge bg-success">
-                      <i class="feather icon-check-circle me-1"></i>
-                      Attribution effectuée
-                    </span>
+                  <p><strong>Commune de Départ :</strong>
+                    <span>{{ " "+selectedSortie?.depart?.libelle_commune || " " }} </span>
                   </p>
+                  <p><strong>Commune d'arrivée :</strong>
+                    <span>{{ " "+selectedSortie?.arriver?.libelle_commune || " " }} </span>
+                  </p>
+                  <p><strong>Kilometrage :</strong>
+                    <span>{{ " "+selectedSortie?.kilometrage|| " " }} </span>
+                  </p>
+
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 🔥 SECTION TICKET CONCERNÉ -->
-          <div class="card mb-3">
-            <div class="card-header bg-warning text-dark">
-              <h6 class="mb-0"><i class="feather icon-credit-card me-2"></i>Détails du Ticket</h6>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <p><strong>Numéro de ticket :</strong>
-                    <span class="badge bg-dark fs-6">{{ selectedSortie?.coupon_ticket?.numero_ticket || 'N/A' }}</span>
-                  </p>
-                  <p><strong>Quantité totale du ticket :</strong>
-                    <span class="text-primary">{{ selectedSortie?.coupon_ticket?.qte || 0 }} L</span>
-                  </p>
-                  <p><strong>Type de carburant :</strong>
-                    <span class="badge bg-secondary">{{ selectedSortie?.coupon_ticket?.type_carburant?.libelle || 'N/A' }}</span>
-                  </p>
-                </div>
-                <div class="col-md-6">
-                  <p><strong>Fournisseur :</strong>
-                    <span class="text-muted">{{ selectedSortie?.coupon_ticket?.fournisseur?.nom || 'N/A' }}</span>
-                  </p>
-                  <p><strong>Date de création du ticket :</strong>
-                    <span class="text-muted">
-                      <i class="feather icon-calendar me-1"></i>
-                      {{ selectedSortie?.coupon_ticket?.created_at | date:'dd/MM/yyyy' }}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
 
           <!-- 🔥 SECTION VÉHICULE BÉNÉFICIAIRE -->
           <div class="card mb-3">
@@ -509,71 +481,55 @@
                     <span class="badge bg-dark fs-6">{{ selectedSortie?.vehicule?.immatriculation || 'N/A' }}</span>
                   </p>
                   <p><strong>Marque :</strong>
-                    <span class="text-muted">{{ selectedSortie?.vehicule?.marque || 'N/A' }}</span>
+                    <span class="text-muted">{{ selectedSortie?.vehicule?.marque.libelle || 'N/A' }}</span>
                   </p>
                   <p><strong>Modèle :</strong>
-                    <span class="text-muted">{{ selectedSortie?.vehicule?.modele || 'N/A' }}</span>
+                    <span class="text-muted">{{ selectedSortie?.vehicule?.modele.libelle_modele || 'N/A' }}</span>
                   </p>
                 </div>
                 <div class="col-md-6">
-                  <p><strong>Type de véhicule :</strong>
-                    <span class="badge bg-secondary">{{ selectedSortie?.vehicule?.type_vehicule?.libelle || 'N/A' }}</span>
+                  <p><strong>Numéro Chassis véhicule :</strong>
+                    {{ selectedSortie?.vehicule?.numero_chassis || 'N/A' }}
                   </p>
-                  <p><strong>Année :</strong>
-                    <span class="text-muted">{{ selectedSortie?.vehicule?.annee || 'N/A' }}</span>
+                  <p><strong>Date de Mise en Service :</strong>
+                    <span class="text-muted">{{ selectedSortie?.vehicule?.date_mise_en_service || 'N/A' }}</span>
                   </p>
-                  <p><strong>Kilométrage :</strong>
-                    <span class="text-info">{{ (selectedSortie?.vehicule?.kilometrage | number:'1.0-0') || 'N/A' }} km</span>
+                  <p><strong>Kilométrage Véhicule :</strong>
+                    {{ (selectedSortie?.vehicule?.kilometrage | number:'1.0-0') || 'N/A' }} km
                   </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- 🔥 SECTION CALCULS ET CONSOMMATION -->
+          <!-- 🔥 SECTION Personnel BÉNÉFICIAIRE -->
           <div class="card mb-3">
-            <div class="card-header bg-info text-white">
-              <h6 class="mb-0"><i class="feather icon-activity me-2"></i>Calculs de Consommation</h6>
+            <div class="card-header bg-success text-white">
+              <h6 class="mb-0"><i class="feather icon-truck me-2"></i>Personnel Bénéficiaire</h6>
             </div>
             <div class="card-body">
-              <div class="row text-center">
-                <div class="col-md-3">
-                  <div class="border-end border-info">
-                    <h4 class="text-success mb-1">
-                      <i class="feather icon-droplet"></i>
-                      {{ selectedSortie?.qte_attribue || 0 }}
-                    </h4>
-                    <small class="text-muted">Litres attribués</small>
-                  </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <p><strong>Nom :</strong>
+                    <span class="">{{ selectedSortie?.employe?.nom || 'N/A' }}</span>
+                  </p>
+                  <p><strong>Prenom :</strong>
+                    <span class="text-muted">{{ selectedSortie?.employe?.prenom || 'N/A' }}</span>
+                  </p>
                 </div>
-                <div class="col-md-3">
-                  <div class="border-end border-info">
-                    <h4 class="text-primary mb-1">
-                      <i class="feather icon-navigation"></i>
-                      {{ selectedSortie?.nbre_trajet || 0 }}
-                    </h4>
-                    <small class="text-muted">Nombre de trajets</small>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <div class="border-end border-info">
-                    <h4 class="text-warning mb-1">
-                      <i class="feather icon-trending-up"></i>
-                      {{ selectedSortie?.qte_attribue && selectedSortie?.nbre_trajet ? (selectedSortie.qte_attribue / selectedSortie.nbre_trajet | number:'1.1-1') : 0 }}
-                    </h4>
-                    <small class="text-muted">L/trajet</small>
-                  </div>
-                </div>
-                <div class="col-md-3">
-                  <h4 class="text-info mb-1">
-                    <i class="feather icon-calendar"></i>
-                    {{ selectedSortie?.date_attribution | date:'MMM yyyy' }}
-                  </h4>
-                  <small class="text-muted">Période</small>
+                <div class="col-md-6">
+                  <p><strong>Téléphone :</strong>
+                    {{ selectedSortie?.employe?.telephone  || 'N/A' }}
+                  </p>
+                  <p><strong>Email :</strong>
+                    <span class="text-muted">{{ selectedSortie?.employe?.email  || 'N/A' }}</span>
+                  </p>
                 </div>
               </div>
             </div>
           </div>
+
+
 
           <!-- 🔥 SECTION OBSERVATIONS -->
           <div class="card mb-3">
@@ -584,132 +540,14 @@
               <div class="bg-light p-4 rounded">
                 <h6 class="text-primary mb-3">
                   <i class="feather icon-message-square me-2"></i>
-                  Notes sur l'attribution
+                  {{ selectedSortie?.objet || 'Notes sur l\'attribution' }}
                 </h6>
                 <p class="text-muted mb-0" style="white-space: pre-wrap; line-height: 1.6;">
-                  {{ selectedSortie?.observation || 'Aucune observation disponible pour cette attribution.' }}
+                  {{ selectedSortie?.description || 'Aucune observation disponible pour cette attribution.' }}
                 </p>
               </div>
             </div>
           </div>
-
-          <!-- 🔥 SECTION TIMELINE -->
-          <div class="card mb-3">
-            <div class="card-header bg-dark text-white">
-              <h6 class="mb-0"><i class="feather icon-clock me-2"></i>Informations Temporelles</h6>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-6">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="bg-primary rounded-circle p-2 me-3">
-                      <i class="feather icon-calendar text-white"></i>
-                    </div>
-                    <div>
-                      <h6 class="mb-1">Date d'attribution</h6>
-                      <p class="text-muted mb-0">{{ selectedSortie?.date_attribution | date:'EEEE dd MMMM yyyy' }}</p>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-md-6">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="bg-info rounded-circle p-2 me-3">
-                      <i class="feather icon-plus-circle text-white"></i>
-                    </div>
-                    <div>
-                      <h6 class="mb-1">Date de création</h6>
-                      <p class="text-muted mb-0">{{ selectedSortie?.created_at | date:'dd/MM/yyyy à HH:mm' }}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-                            <!-- Durée depuis l'attribution -->
-              <div class="alert alert-light border-primary">
-                <div class="d-flex align-items-center">
-                  <i class="feather icon-clock text-primary me-2"></i>
-                  <span class="text-primary fw-bold">
-                    Attribution effectuée il y a {{ getDaysSinceAttribution(selectedSortie?.date_attribution) }} jour(s)
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 🔥 SECTION RÉSUMÉ STATISTIQUES -->
-          <div class="card mb-3">
-            <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="feather icon-bar-chart-2 me-2"></i>Résumé de l'Attribution</h6>
-            </div>
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="text-center p-3 border-end">
-                    <div class="mb-2">
-                      <i class="feather icon-droplet text-primary" style="font-size: 2rem;"></i>
-                    </div>
-                    <h4 class="text-primary mb-1">{{ selectedSortie?.qte_attribue || 0 }}</h4>
-                    <small class="text-muted">Litres attribués</small>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="text-center p-3 border-end">
-                    <div class="mb-2">
-                      <i class="feather icon-navigation text-success" style="font-size: 2rem;"></i>
-                    </div>
-                    <h4 class="text-success mb-1">{{ selectedSortie?.nbre_trajet || 0 }}</h4>
-                    <small class="text-muted">Trajets prévus</small>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="text-center p-3">
-                    <div class="mb-2">
-                      <i class="feather icon-trending-up text-warning" style="font-size: 2rem;"></i>
-                    </div>
-                    <h4 class="text-warning mb-1">
-                      {{ selectedSortie?.qte_attribue && selectedSortie?.nbre_trajet ?
-                         (selectedSortie.qte_attribue / selectedSortie.nbre_trajet | number:'1.1-1') : '0.0' }}
-                    </h4>
-                    <small class="text-muted">Litres/trajet</small>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 🔥 SECTION ACTIONS RAPIDES -->
-<!--           <div class="card">
-            <div class="card-header bg-light">
-              <h6 class="mb-0"><i class="feather icon-settings me-2"></i>Actions Rapides</h6>
-            </div>
-            <div class="card-body">
-              <div class="d-flex flex-wrap gap-2">
-
-                <button type="button"
-                        class="btn btn-outline-info"
-                        title="Voir l'historique des attributions de ce véhicule">
-                  <i class="feather icon-history me-2"></i>
-                  Historique véhicule
-                </button>
-
-                <button type="button"
-                        class="btn btn-outline-success"
-                        title="Voir les détails du ticket complet">
-                  <i class="feather icon-credit-card me-2"></i>
-                  Détails ticket
-                </button>
-
-                <button type="button"
-                        *ngIf="canModifyAttribution"
-                        class="btn btn-outline-warning"
-                        title="Modifier cette attribution">
-                  <i class="feather icon-edit me-2"></i>
-                  Modifier
-                </button>
-
-              </div>
-            </div>
-          </div> -->
 
         </div>
 

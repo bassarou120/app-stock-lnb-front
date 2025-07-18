@@ -11,7 +11,7 @@ export const MENU: MenuItem[] = [
     link: '/dashboard'
   },
   {
-    label: 'Gestion de Stock',
+    label: 'Gestion des Stocks',
     isTitle: true,
      module: 'Gestion de Stock',
   },
@@ -27,7 +27,7 @@ export const MENU: MenuItem[] = [
         fonctionnalites: ['Voir les entrées']
       },
       {
-        label: 'Les demandes',
+        label: 'Les demandes de fourn',
         link: '/mouvement-stock/les-demandes',
         fonctionnalites: ['Voir Les demandes']
       },
@@ -46,7 +46,7 @@ export const MENU: MenuItem[] = [
     fonctionnalites: ['Voir Etat de Stock']
   },
   {
-    label: 'Gestion de Immobilisation',
+    label: 'Gestion des Immobilisations',
     isTitle: true,
     module: 'Gestion de immobilisation',
 
@@ -73,7 +73,7 @@ export const MENU: MenuItem[] = [
     fonctionnalites: ['Voir les Interventions Immo']
   },
   {
-    label: 'Gestion de Parc',
+    label: 'Gestion du Parc-Auto',
     isTitle: true,
     module: 'Gestion de parc',
   },

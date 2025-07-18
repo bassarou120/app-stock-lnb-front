@@ -319,7 +319,7 @@
                 <div class="col-md-6">
                   <p><strong>Coût de l'intervention : </strong>
                     <span class="text-success fw-bold fs-5">
-*                      {{ selectedIntervention.cout | number:'1.0-0'}} FCFA
+                      {{ selectedIntervention.cout | number:'1.0-0'}} FCFA
                     </span>
                   </p>
                   <p class="mt-3"><strong>Statut : </strong>
@@ -378,7 +378,7 @@
                   <i class="feather icon-message-square me-2"></i>
                   Rapport d'intervention
                 </h6>
-                <p class="text-muted mb-0" style="white-space: pre-wrap; line-height: 1.6;">
+                <p class="text-dark mb-0" style="white-space: pre-wrap; line-height: 1.6;">
                     {{ selectedIntervention.observation || 'Aucune observation disponible pour cette intervention.' }}
                 </p>
               </div>
@@ -439,7 +439,7 @@
         <div class="d-flex justify-content-between w-100">
           <!-- Informations supplémentaires à gauche -->
           <div class="d-flex align-items-center" *ngIf="selectedIntervention">
-            <small class="text-muted">
+            <small class="text-dark">
               <i class="feather icon-user me-1"></i>
               Intervention enregistrée le {{ selectedIntervention.created_at | date:'dd/MM/yyyy à HH:mm' }}
             </small>
