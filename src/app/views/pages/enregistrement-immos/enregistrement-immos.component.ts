@@ -112,6 +112,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       observation: [""],
       id_status_immo: [null, [Validators.required]],
       montant_ttc: ["", [Validators.required]],
+      reference_estampillonnage: [null, []],
     });
 
     this.editImmobilisation = this.formBuilder.group({
@@ -135,6 +136,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       observation: [""],
       id_status_immo: [null, [Validators.required]],
       montant_ttc: ["", [Validators.required]],
+      reference_estampillonnage: [null, []],
     });
 
     this.deleteImmobilisation = this.formBuilder.group({
@@ -433,7 +435,8 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       (immo.code && immo.code.toLowerCase().includes(val)) ||
       (immo.designation && immo.designation.toLowerCase().includes(val)) ||
       (immo.statusImmo && immo.statusImmo.libelle_status_immo && immo.statusImmo.libelle_status_immo.toLowerCase().includes(val)) ||
-      (immo.groupeTypeImmo && immo.groupeTypeImmo.libelle && immo.groupeTypeImmo.libelle.toLowerCase().includes(val))
+      (immo.groupeTypeImmo && immo.groupeTypeImmo.libelle && immo.groupeTypeImmo.libelle.toLowerCase().includes(val)) ||
+      (immo.reference_estampillonnage && immo.reference_estampillonnage.toLowerCase().includes(val))
     );
 
     // Important : réinitialiser l'offset de la table pour afficher les résultats filtrés depuis le début
@@ -464,6 +467,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       observation: row.observation,
       id_status_immo: row.id_status_immo,
       montant_ttc: row.montant_ttc,
+      reference_estampillonnage: row.reference_estampillonnage,
     });
     // NOUVEAU: Déclenchez le calcul de la durée amortie lors de l'ouverture du formulaire d'édition
     // C'est important si la date d'acquisition est déjà remplie à l'ouverture du modal

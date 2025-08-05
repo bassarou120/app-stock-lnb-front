@@ -164,6 +164,12 @@
                 class="text-danger"> *le code de l'immobilisation est obligatoire</small>
             </div>
           </div>
+          <!-- champ Référence d'estampillonnage -->
+          <div class="mb-3">
+            <label for="reference_estampillonnage" class="form-label">Référence d'estampillonnage</label>
+            <input type="text" class="form-control" id="reference_estampillonnage" placeholder="REF-EST-001" autocomplete="off"
+              formControlName="reference_estampillonnage">
+          </div>
           <!-- designation de l' Immobilisation -->
           <div class="mb-3">
             <label for="designation" class="form-label">Designation <span class="text-danger">*</span></label>
@@ -463,6 +469,9 @@
                   <p><strong>Code : </strong>
                     <span class="">  {{ selectedImmobilisation.code || 'N/A' }}</span>
                   </p>
+                  <p><strong>Référence d'estampillonnage : </strong>
+                    <span class="">  {{ selectedImmobilisation.reference_estampillonnage || 'N/A' }}</span>
+                  </p>
                   <p class="mt-3"><strong>Désignation : </strong>
                     <span class="text-muted">  {{ selectedImmobilisation.designation || 'N/A' }}</span>
                   </p>
@@ -693,6 +702,16 @@
             <div *ngIf="editImmobilisation.get('code')?.invalid && editImmobilisation.get('code')?.touched">
               <small *ngIf="editImmobilisation.get('code')?.invalid && editImmobilisation.get('code')?.touched"
                 class="text-danger"> *le code de l'immobilisation est obligatoire</small>
+            </div>
+          </div>
+          <!-- champ Référence d'estampillonnage -->
+          <div class="mb-3">
+            <label for="edit_reference_estampillonnage" class="form-label">Référence d'estampillonnage</label>
+            <input type="text" class="form-control" id="edit_reference_estampillonnage" placeholder="REF-EST-001" autocomplete="off"
+              [class.invalid]="editImmobilisation.get('reference_estampillonnage')?.invalid && editImmobilisation.get('reference_estampillonnage')?.touched"
+              formControlName="reference_estampillonnage">
+            <div *ngIf="editImmobilisation.get('reference_estampillonnage')?.invalid && editImmobilisation.get('reference_estampillonnage')?.touched">
+              <small class="text-danger"> *la référence d'estampillonnage est invalide</small>
             </div>
           </div>
           <!-- designation de l' Immobilisation -->
