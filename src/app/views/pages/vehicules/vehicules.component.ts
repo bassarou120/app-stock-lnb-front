@@ -33,6 +33,8 @@ import { Router } from '@angular/router';
 
 export class VehiculesComponent implements OnInit {
 
+  typeEnergies: string[] = ['Essence', 'Gas-Oil'];
+
     // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canAddVehicule: boolean = true;
@@ -153,7 +155,7 @@ export class VehiculesComponent implements OnInit {
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
       immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
-      numero_chassis: ["", [Validators.required]],
+      numero_chassis: [""],
       kilometrage: [null, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
       puissance: [""],

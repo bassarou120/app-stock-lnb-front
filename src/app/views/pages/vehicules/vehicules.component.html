@@ -104,7 +104,10 @@
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-column name="kilometrage (en Km)" prop="kilometrage"></ngx-datatable-column>
-              <ngx-datatable-column name="Date de mise en service" prop="date_mise_en_service">
+              <ngx-datatable-column name="Puissance (en CV)" prop="puissance"></ngx-datatable-column>
+              <ngx-datatable-column name="Places assises" prop="places_assises"></ngx-datatable-column>
+              <ngx-datatable-column name="Energie" prop="energie"></ngx-datatable-column>
+              <ngx-datatable-column name="Date de 1ère en service" prop="date_mise_en_service">
                 <ng-template let-value="value" ngx-datatable-cell-template>
                   {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
                 </ng-template>
@@ -155,7 +158,7 @@
         <div class="col text-center">Marque<span class="text-danger">*</span></div>
         <div class="col-2 text-center">Modèle<span class="text-danger">*</span></div>
         <div class="col text-center">Immatriculation<span class="text-danger">*</span></div>
-        <div class="col text-center">Numéro de Châssis<span class="text-danger">*</span></div>
+        <div class="col text-center">Numéro de Châssis<span class="text-danger"></span></div>
         <div class="col text-center">Kilométrage (km)<span class="text-danger">*</span></div>
         <div class="col text-center">Puissance (cv)<span class="text-danger">*</span></div>
         <div class="col text-center">places assises<span class="text-danger">*</span></div>
@@ -256,8 +259,9 @@
           </div>
           <!-- energie -->
           <div class="col">
-            <input type="text" class="form-control form-control-lg text-center" placeholder="Essence" formControlName="energie"
-              [class.is-invalid]="vehiculeForm.get('energie')?.invalid && vehiculeForm.get('energie')?.touched">
+            <ng-select [items]="typeEnergies" formControlName="energie" [clearable]="true"
+              placeholder="Sélectionnez l'énergie">
+            </ng-select>
             <div *ngIf="vehiculeForm.get('energie')?.invalid && vehiculeForm.get('energie')?.touched"
               class="invalid-feedback">
               L'energie est obligatoire
