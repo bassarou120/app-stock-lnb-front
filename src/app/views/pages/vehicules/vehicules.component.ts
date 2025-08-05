@@ -90,7 +90,10 @@ export class VehiculesComponent implements OnInit {
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
       immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
-      numero_chassis: ["", [Validators.required]],
+      numero_chassis: [""],
+      puissance: [""],
+      places_assises: [0],
+      energie: [""],
       kilometrage: [0, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
     });
@@ -153,6 +156,9 @@ export class VehiculesComponent implements OnInit {
       numero_chassis: ["", [Validators.required]],
       kilometrage: [null, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
+      puissance: [""],
+      places_assises: [null],
+      energie: [""],
     });
   }
 
@@ -207,7 +213,11 @@ export class VehiculesComponent implements OnInit {
           this.isAddingVehicules = false;
           console.log('Soumission Véhicules réussie. isAddingVehicules mis à false.');
 
-          this.modalService.dismissAll(); // Utilisation de NgbModal pour fermer
+          // Fermer le modal manuellement
+        const modal = document.getElementById('addVehicule');
+        // @ts-ignore - pour éviter les erreurs TypeScript
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
 
           setTimeout(() => {
             this.alertAjoutVisible = true;

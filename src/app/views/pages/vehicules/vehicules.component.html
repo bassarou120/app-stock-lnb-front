@@ -58,7 +58,8 @@
           </div>
           <div class="d-flex gap-2">
             <!-- MODIFICATION: Appel de la méthode openAddVehiculeModal() -->
-            <button *ngIf="canAddVehicule" type="button" class="btn btn-primary align-self-center" (click)="openAddVehiculeModal()">
+            <button *ngIf="canAddVehicule" type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#addVehicule">
               Ajouter
             </button>
             <button type="button" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadListeVehiculesPDF()">
@@ -138,10 +139,12 @@
 </div>
 
 <!-- --- MODAL D'AJOUT DE VÉHICULE (ng-template) --- -->
-<ng-template #addVehiculeContent let-modal>
+<div id="addVehicule" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+    <div class="modal-content">
   <div class="modal-header">
     <h5 class="modal-title" id="addVehiculeLabel">Ajouter plusieurs véhicules</h5>
-    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
 
   <div class="modal-body p-4">
@@ -149,13 +152,16 @@
 
       <!-- En-têtes du tableau avec meilleur espacement -->
       <div class="row mb-3 fw-bold border-bottom pb-2">
-        <div class="col-2 text-center">Marque<span class="text-danger">*</span></div>
+        <div class="col text-center">Marque<span class="text-danger">*</span></div>
         <div class="col-2 text-center">Modèle<span class="text-danger">*</span></div>
-        <div class="col-2 text-center">Immatriculation<span class="text-danger">*</span></div>
-        <div class="col-2 text-center">Numéro de Châssis<span class="text-danger">*</span></div>
-        <div class="col-1 text-center">Kilométrage (km)<span class="text-danger">*</span></div>
-        <div class="col-2 text-center">Date de Mise en Service<span class="text-danger">*</span></div>
-        <div class="col-1 text-center">Action</div>
+        <div class="col text-center">Immatriculation<span class="text-danger">*</span></div>
+        <div class="col text-center">Numéro de Châssis<span class="text-danger">*</span></div>
+        <div class="col text-center">Kilométrage (km)<span class="text-danger">*</span></div>
+        <div class="col text-center">Puissance (cv)<span class="text-danger">*</span></div>
+        <div class="col text-center">places assises<span class="text-danger">*</span></div>
+        <div class="col text-center">Energie<span class="text-danger">*</span></div>
+        <div class="col-2 text-center">Date de 1ère Mise en Service<span class="text-danger">*</span></div>
+        <div class="col text-center">Action</div>
       </div>
 
       <!-- Formulaire dynamique pour les vehicules -->
@@ -164,7 +170,7 @@
           class="row mb-4 align-items-start border-bottom pb-3">
 
           <!-- Sélection de Marque -->
-          <div class="col-2">
+          <div class="col">
             <ng-container *ngIf="marques && marques.length > 0; else noMarque">
               <ng-select [items]="marques" bindLabel="libelle" bindValue="id"
                 formControlName="marque_id" [clearable]="true" placeholder="Marque"
@@ -202,7 +208,7 @@
           </div>
 
           <!-- Immatriculation -->
-          <div class="col-2">
+          <div class="col">
             <input type="text" class="form-control form-control-lg" placeholder="BJ1234AA" formControlName="immatriculation"
               [class.is-invalid]="vehiculeForm.get('immatriculation')?.invalid && vehiculeForm.get('immatriculation')?.touched">
             <div *ngIf="vehiculeForm.get('immatriculation')?.invalid && vehiculeForm.get('immatriculation')?.touched"
@@ -212,7 +218,7 @@
           </div>
 
           <!-- Numéro de châssis -->
-          <div class="col-2">
+          <div class="col">
             <input type="text" class="form-control form-control-lg" placeholder="VF1AB1234567890123" formControlName="numero_chassis"
               [class.is-invalid]="vehiculeForm.get('numero_chassis')?.invalid && vehiculeForm.get('numero_chassis')?.touched">
             <div *ngIf="vehiculeForm.get('numero_chassis')?.invalid && vehiculeForm.get('numero_chassis')?.touched"
@@ -222,12 +228,39 @@
           </div>
 
           <!-- Kilométrage -->
-          <div class="col-1">
+          <div class="col">
             <input type="text" class="form-control form-control-lg text-center" placeholder="120000" formControlName="kilometrage"
               [class.is-invalid]="vehiculeForm.get('kilometrage')?.invalid && vehiculeForm.get('kilometrage')?.touched">
             <div *ngIf="vehiculeForm.get('kilometrage')?.invalid && vehiculeForm.get('kilometrage')?.touched"
               class="invalid-feedback">
               Le kilométrage est obligatoire
+            </div>
+          </div>
+          <!-- puissance -->
+          <div class="col">
+            <input type="text" class="form-control form-control-lg text-center" placeholder="11 CV" formControlName="puissance"
+              [class.is-invalid]="vehiculeForm.get('puissance')?.invalid && vehiculeForm.get('puissance')?.touched">
+            <div *ngIf="vehiculeForm.get('puissance')?.invalid && vehiculeForm.get('puissance')?.touched"
+              class="invalid-feedback">
+              La puissance est obligatoire
+            </div>
+          </div>
+          <!-- places_assises -->
+          <div class="col">
+            <input type="text" class="form-control form-control-lg text-center" placeholder="4" formControlName="places_assises"
+              [class.is-invalid]="vehiculeForm.get('places_assises')?.invalid && vehiculeForm.get('places_assises')?.touched">
+            <div *ngIf="vehiculeForm.get('places_assises')?.invalid && vehiculeForm.get('places_assises')?.touched"
+              class="invalid-feedback">
+              La place assise est obligatoire
+            </div>
+          </div>
+          <!-- energie -->
+          <div class="col">
+            <input type="text" class="form-control form-control-lg text-center" placeholder="Essence" formControlName="energie"
+              [class.is-invalid]="vehiculeForm.get('energie')?.invalid && vehiculeForm.get('energie')?.touched">
+            <div *ngIf="vehiculeForm.get('energie')?.invalid && vehiculeForm.get('energie')?.touched"
+              class="invalid-feedback">
+              L'energie est obligatoire
             </div>
           </div>
 
@@ -249,7 +282,7 @@
           </div>
 
           <!-- Bouton de suppression -->
-          <div class="col-1 text-center">
+          <div class="col text-center">
             <button type="button" class="btn btn-outline-danger btn-lg" (click)="removeVehicule(i)"
               [disabled]="vehiculesArray.length === 1">
               <i class="feather icon-trash-2"></i>
@@ -276,14 +309,16 @@
           </span>
           {{ isAddingVehicules ? 'Ajout en cours...' : 'Ajouter les véhicules' }}
         </button>
-        <!-- MODIFICATION: Utilisation de (click)="modal.dismiss('cancel')" -->
-        <button type="button" class="btn btn-secondary btn-lg px-4" (click)="modal.dismiss('cancel')">
-          <i class="feather icon-x me-2"></i>Annuler
+        <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">
+              <i class="feather icon-x me-2"></i>Annuler
         </button>
       </div>
     </form>
   </div>
-</ng-template>
+  </div>
+  </div>
+  </div>
+
 
 <!-- --- MODAL DE MODIFICATION DE VÉHICULE (ng-template) --- -->
 <ng-template #editVehiculeContent let-modal>
