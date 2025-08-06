@@ -392,6 +392,7 @@ export interface Immobilisation {
   bureau?: Bureau;
   fournisseur?: Fournisseur;
   vehicule?: Vehicule;
+  reference_estampillonnage: string;
 
   // Ajoutez ici d'autres propriétés de l'immobilisation si nécessaire
   // ...

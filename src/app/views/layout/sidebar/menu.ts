@@ -27,7 +27,7 @@ export const MENU: MenuItem[] = [
         fonctionnalites: ['Voir les entrées']
       },
       {
-        label: 'Les demandes de fourn',
+        label: 'Les demandes de fourn...',
         link: '/mouvement-stock/les-demandes',
         fonctionnalites: ['Voir Les demandes']
       },

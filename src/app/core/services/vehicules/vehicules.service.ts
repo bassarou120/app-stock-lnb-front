@@ -73,6 +73,11 @@ export class VehiculeService  {
     );
   }
 
+  importVehicules(formData: FormData): Observable<any> {
+    // L'URL complète de l'endpoint d'importation
+    return this.http.post(`${this.apiUrl}/vehicules/import`, formData);
+  }
+
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: HttpErrorResponse): Observable<T> => {
       console.error(`${operation} failed:`, error);

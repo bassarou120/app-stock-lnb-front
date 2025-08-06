@@ -10,6 +10,9 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
+import { HttpEventType, HttpClient } from '@angular/common/http'; // Import HttpClient pour l'upload de fichier
+
+declare var bootstrap: any; // Déclaration pour accéder à bootstrap globalement
 
 @Component({
   selector: 'app-vehicules',
@@ -33,6 +36,8 @@ import { Router } from '@angular/router';
 
 export class VehiculesComponent implements OnInit {
 
+  typeEnergies: string[] = ['Essence', 'Gas-Oil'];
+
     // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canAddVehicule: boolean = true;
@@ -55,6 +60,7 @@ export class VehiculesComponent implements OnInit {
   alertAjoutVisible: boolean = false;
   alertModifVisible: boolean = false;
   alertSuppVisible: boolean = false;
+  alertImportVisible: boolean = false; // Nouvelle alerte pour l'import
 
   public addVehicule!: FormGroup;
   public editVehicule!: FormGroup;
@@ -63,6 +69,8 @@ export class VehiculesComponent implements OnInit {
   isAddingVehicules: boolean = false;
   isDeletingVehicule: boolean = false;
   isEditingVehicule: boolean = false;
+  isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
+  selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
   @ViewChild('table') table!: DatatableComponent;
   @ViewChild('addVehiculeContent') addVehiculeContent!: TemplateRef<any>;
@@ -73,7 +81,8 @@ export class VehiculesComponent implements OnInit {
     private vehiculeService: VehiculeService,
     private formBuilder: FormBuilder,
     private router: Router,
-    public modalService: NgbModal
+    public modalService: NgbModal,
+    private http: HttpClient // Injecter HttpClient
   ) { }
 
   ngOnInit(): void {
@@ -90,7 +99,10 @@ export class VehiculesComponent implements OnInit {
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
       immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
-      numero_chassis: ["", [Validators.required]],
+      numero_chassis: [""],
+      puissance: [""],
+      places_assises: [0],
+      energie: [""],
       kilometrage: [0, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
     });
@@ -150,9 +162,12 @@ export class VehiculesComponent implements OnInit {
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
       immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
-      numero_chassis: ["", [Validators.required]],
+      numero_chassis: [""],
       kilometrage: [null, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
+      puissance: [""],
+      places_assises: [null],
+      energie: [""],
     });
   }
 
@@ -207,7 +222,11 @@ export class VehiculesComponent implements OnInit {
           this.isAddingVehicules = false;
           console.log('Soumission Véhicules réussie. isAddingVehicules mis à false.');
 
-          this.modalService.dismissAll(); // Utilisation de NgbModal pour fermer
+          // Fermer le modal manuellement
+        const modal = document.getElementById('addVehicule');
+        // @ts-ignore - pour éviter les erreurs TypeScript
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
 
           setTimeout(() => {
             this.alertAjoutVisible = true;
@@ -413,6 +432,9 @@ export class VehiculesComponent implements OnInit {
       numero_chassis: row.numero_chassis,
       kilometrage: row.kilometrage,
       date_mise_en_service: this.convertToNgbDate(row.date_mise_en_service),
+      puissance: row.puissance, // Ajouté
+      places_assises: row.places_assises, // Ajouté
+      energie: row.energie, // Ajouté
     });
     this.modalService.open(this.editVehiculeContent, { centered: true });
   }
@@ -467,4 +489,83 @@ export class VehiculesComponent implements OnInit {
     );
   }
 
+  /**
+   * Gère la sélection du fichier Excel par l'utilisateur.
+   * @param event L'événement de changement du champ input de type 'file'.
+   */
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      console.log('Fichier sélectionné:', this.selectedFile.name);
+    } else {
+      this.selectedFile = null;
+    }
+  }
+
+  /**
+   * Envoie le fichier Excel sélectionné au backend pour importation.
+   */
+  uploadExcelFile(): void {
+    if (!this.selectedFile) {
+      alert('Veuillez sélectionner un fichier Excel à importer.');
+      return;
+    }
+
+    this.isImporting = true;
+    const spinner = document.querySelector('.spinner-import-vehicule'); // Assurez-vous d'avoir un spinner dans votre HTML pour l'import
+    if (spinner) {
+      spinner.classList.remove('d-none');
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile, this.selectedFile.name);
+
+    // Assurez-vous que l'URL correspond à votre route d'importation dans Laravel
+    // Ex: 'http://localhost:8000/api/vehicules/import'
+    this.vehiculeService.importVehicules(formData).subscribe({
+      next: (response) => {
+        console.log('Importation réussie:', response);
+        this.loadVehicules(); // Recharger la liste des véhicules après l'import
+        this.isImporting = false;
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+        // Fermer le modal d'importation
+        const modal = document.getElementById('importVehiculesExcel');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertImportVisible = true;
+          setTimeout(() => {
+            this.alertImportVisible = false;
+          }, 2000);
+        }, 200);
+        alert('Véhicules importés avec succès !');
+        this.selectedFile = null; // Réinitialiser le fichier sélectionné
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'importation des véhicules:', error);
+        this.isImporting = false;
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+        let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+        if (error.error && error.error.errors) {
+          // Si Laravel renvoie des erreurs de validation
+          errorMessage += '\nErreurs de validation:';
+          for (const key in error.error.errors) {
+            if (error.error.errors.hasOwnProperty(key)) {
+              errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
+            }
+          }
+        } else if (error.error && error.error.error) {
+          // Si Laravel renvoie un message d'erreur général (comme dans votre try-catch du contrôleur)
+          errorMessage = error.error.error;
+        }
+        alert(errorMessage);
+      }
+    });
+  }
 }
