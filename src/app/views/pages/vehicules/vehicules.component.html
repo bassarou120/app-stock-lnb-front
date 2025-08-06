@@ -260,7 +260,7 @@
           <!-- energie -->
           <div class="col">
             <ng-select [items]="typeEnergies" formControlName="energie" [clearable]="true"
-              placeholder="Sélectionnez l'énergie">
+              placeholder="Energie">
             </ng-select>
             <div *ngIf="vehiculeForm.get('energie')?.invalid && vehiculeForm.get('energie')?.touched"
               class="invalid-feedback">
