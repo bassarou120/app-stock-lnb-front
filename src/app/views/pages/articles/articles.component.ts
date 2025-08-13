@@ -49,6 +49,7 @@ export class ArticlesComponent implements OnInit {
   alertAjoutVisible: boolean = false;  // Pour gérer la visibilité de l'alerte ajout
   alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
   alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
+  alertImportVisible: boolean = false; // Nouvelle alerte pour l'import
 
   // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
   isAdding: boolean = false;    // Indicateur pour l'opération d'ajout
@@ -59,6 +60,8 @@ export class ArticlesComponent implements OnInit {
   public addArticle!: FormGroup ;
   public editArticle!: FormGroup ;
   public deleteArticle!: FormGroup ;
+  isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
+  selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -448,4 +451,95 @@ updateFilter(event: KeyboardEvent): void {
      id:row.id,
     })
   }
+
+/**
+   * Gère la sélection du fichier Excel par l'utilisateur.
+   * @param event L'événement de changement du champ input de type 'file'.
+   */
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      console.log('Fichier sélectionné:', this.selectedFile.name);
+    } else {
+      this.selectedFile = null;
+    }
+  }
+
+  /**
+   * Envoie le fichier Excel sélectionné au backend pour importation.
+   */
+uploadExcelFile(): void {
+  if (!this.selectedFile) {
+    alert('Veuillez sélectionner un fichier Excel à importer.');
+    return;
+  }
+
+  this.isImporting = true;
+  const spinner = document.querySelector('.spinner-import-article');
+  if (spinner) {
+    spinner.classList.remove('d-none');
+  }
+
+  const formData = new FormData();
+  formData.append('file', this.selectedFile, this.selectedFile.name);
+
+  this.articleService.importArticles(formData).subscribe({
+    next: (response: any) => {
+      console.log('Importation réussie:', response);
+      this.loadArticles();
+      this.isImporting = false;
+      if (spinner) {
+        spinner.classList.add('d-none');
+      }
+
+      // Fermer le modal d'importation
+      const modal = document.getElementById('importArticlesExcel');
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      bsModal?.hide();
+
+      setTimeout(() => {
+        this.alertImportVisible = true;
+        setTimeout(() => {
+          this.alertImportVisible = false;
+        }, 2000);
+      }, 200);
+
+      // Affiche les lignes ignorées si elles existent
+      if (response.ignored && response.ignored.length > 0) {
+        alert(
+          'Import partiel avec certaines lignes ignorées :\n' +
+          response.ignored.join('\n') +
+          '\n\n' +
+          response.message
+        );
+      } else {
+        alert(response.message);
+      }
+
+      this.selectedFile = null; // Réinitialiser le fichier sélectionné
+    },
+    error: (error) => {
+      console.error('Erreur lors de l\'importation des articles:', error);
+      this.isImporting = false;
+      if (spinner) {
+        spinner.classList.add('d-none');
+      }
+      let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+      if (error.error && error.error.errors) {
+        errorMessage += '\nErreurs de validation:';
+        for (const key in error.error.errors) {
+          if (error.error.errors.hasOwnProperty(key)) {
+            errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
+          }
+        }
+      } else if (error.error && error.error.error) {
+        errorMessage = error.error.error;
+      }
+      alert(errorMessage);
+    }
+  });
+}
+
+
  }
