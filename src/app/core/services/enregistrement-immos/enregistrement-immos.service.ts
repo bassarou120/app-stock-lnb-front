@@ -87,6 +87,11 @@ export class ImmobilisationsService {
     );
   }
 
+  importImmobilisations(formData: FormData): Observable<any> {
+    // L'URL complète de l'endpoint d'importation
+    return this.http.post(`${this.url}/immobilisations/import`, formData);
+  }
+
   // getAllTypeInterventions(): Observable<TypeIntervention[]> {
   //   return this.http.get<any>(this.apiUrl).pipe( // Assurez-vous que votre API retourne une PostResource ou PaginatedResponse
   //     map(response => response.data.data), // Adaptez si la structure de réponse est différente

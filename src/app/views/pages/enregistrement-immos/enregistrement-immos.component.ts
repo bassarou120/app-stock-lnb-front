@@ -58,6 +58,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   alertAjoutVisible: boolean = false;
   alertModifVisible: boolean = false;
   alertSuppVisible: boolean = false;
+  alertImportVisible: boolean = false; // Nouvelle alerte pour l'import
 
   public addImmobilisation!: FormGroup;
   public editImmobilisation!: FormGroup;
@@ -72,6 +73,8 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   etatOptions: string[] = ['Bon', 'Usé', 'Défectueux / En panne', 'Irréparable'];
 
   isAddingImmobilisation: boolean = false;
+  isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
+  selectedFile: File | null = null; // Pour stocker le fichier sélectionné
   public selectedImmobilisation: any = null;
 
   @ViewChild('table') table!: DatatableComponent;
@@ -681,5 +684,85 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
         alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
       }
     );
+  }
+
+  /**
+   * Gère la sélection du fichier Excel par l'utilisateur.
+   * @param event L'événement de changement du champ input de type 'file'.
+   */
+  onFileSelected(event: any): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      console.log('Fichier sélectionné:', this.selectedFile.name);
+    } else {
+      this.selectedFile = null;
+    }
+  }
+
+  /**
+   * Envoie le fichier Excel sélectionné au backend pour importation.
+   */
+  uploadExcelFile(): void {
+    if (!this.selectedFile) {
+      alert('Veuillez sélectionner un fichier Excel à importer.');
+      return;
+    }
+
+    this.isImporting = true;
+    const spinner = document.querySelector('.spinner-import-immobilisation'); // Assurez-vous d'avoir un spinner dans votre HTML pour l'import
+    if (spinner) {
+      spinner.classList.remove('d-none');
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.selectedFile, this.selectedFile.name);
+
+    // Assurez-vous que l'URL correspond à votre route d'importation dans Laravel
+    // Ex: 'http://localhost:8000/api/vehicules/import'
+    this.immobilisationService.importImmobilisations(formData).subscribe({
+      next: (response) => {
+        console.log('Importation réussie:', response);
+        this.loadImmobilisations(); // Recharger la liste des véhicules après l'import
+        this.isImporting = false;
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+        // Fermer le modal d'importation
+        const modal = document.getElementById('importImmobilisationsExcel');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        setTimeout(() => {
+          this.alertImportVisible = true;
+          setTimeout(() => {
+            this.alertImportVisible = false;
+          }, 2000);
+        }, 200);
+        alert('Immobilisations importés avec succès !');
+        this.selectedFile = null; // Réinitialiser le fichier sélectionné
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'importation des Immobilisations:', error);
+        this.isImporting = false;
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+        let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+        if (error.error && error.error.errors) {
+          // Si Laravel renvoie des erreurs de validation
+          errorMessage += '\nErreurs de validation:';
+          for (const key in error.error.errors) {
+            if (error.error.errors.hasOwnProperty(key)) {
+              errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
+            }
+          }
+        } else if (error.error && error.error.error) {
+          // Si Laravel renvoie un message d'erreur général (comme dans votre try-catch du contrôleur)
+          errorMessage = error.error.error;
+        }
+        alert(errorMessage);
+      }
+    });
   }
 }

@@ -90,6 +90,10 @@ export class ArticleService {
     });
   }
 
+    importArticles(formData: FormData): Observable<any> {
+      // L'URL complète de l'endpoint d'importation
+      return this.http.post(`${this.url}/articles/import`, formData);
+    }
 
   private handleError<T>(operation = 'operation', result?: T) {
     return (error: HttpErrorResponse): Observable<T> => {
