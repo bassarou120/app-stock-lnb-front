@@ -25,7 +25,11 @@
   </ngb-alert>
   <!-- Alerte pour supprimer avec succès -->
 
-
+  <!-- Alerte pour import avec succès -->
+  <ngb-alert *ngIf="alertImportVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Aarticles importés avec succès
+  </ngb-alert>
+  <!-- Alerte pour import avec succès -->
 
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
@@ -230,8 +234,12 @@
               </div>
               {{ isAdding ? 'Ajout en cours...' : 'Enregistrer les articles' }}
             </button>
+            <!-- NOUVEAU BOUTON : Importer Excel -->
+            <button type="button" class="btn btn-outline-success btn-lg px-4" data-bs-toggle="modal" data-bs-target="#importArticlesExcel">
+              <i class="feather icon-upload me-2"></i>Importer Excel
+            </button>
             <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">
-              <i class="feather icon-x me-2"></i>Annuler
+              <i class="feather icon-x me-2"></i>Annuler mm
             </button>
           </div>
         </form>
@@ -320,7 +328,32 @@
 
 <!-- /Add Article Modal -->
 
-
+<!-- NOUVEAU MODAL : Importation de véhicules par Excel -->
+<div id="importArticlesExcel" class="modal fade" tabindex="-1" aria-labelledby="importArticlesExcelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="importArticlesExcelLabel">Importer des articles par fichier Excel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-secondary mb-3">Veuillez sélectionner un fichier Excel (.xlsx, .xls) contenant les données des articles à importer.</p>
+        <div class="mb-3">
+          <label for="excelFile" class="form-label">Fichier Excel</label>
+          <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls" (change)="onFileSelected($event)">
+        </div>
+        <div class="d-flex justify-content-center gap-2 mt-4">
+          <button type="button" class="btn btn-primary" (click)="uploadExcelFile()" [disabled]="isImporting">
+            <span *ngIf="isImporting" class="spinner-border spinner-border-sm text-light me-2 spinner-import-article" role="status" aria-hidden="true"></span>
+            <i *ngIf="!isImporting" class="btn-icon-prepend" data-feather="upload" appFeatherIcon></i>
+            {{ isImporting ? 'Importation en cours...' : 'Importer' }}
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <!-- Edit Article Immo Modal -->
