@@ -81,7 +81,7 @@ export class ArticlesComponent implements OnInit {
     this.editArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
       libelle: ["", [Validators.required]],
-      code_article: ["", [Validators.required]],
+//       code_article: ["", [Validators.required]],
       id_cat: [null, [Validators.required]],
       stock_alerte: [0, [Validators.required]],
       description: ["" ,[Validators.required]],
@@ -142,7 +142,7 @@ export class ArticlesComponent implements OnInit {
   createArticleFormGroup(): FormGroup {
     return this.formBuilder.group({
       libelle: ['', [Validators.required]],
-      code_article: ['', [Validators.required]],
+//       code_article: ['', [Validators.required]],
       id_cat: [null, [Validators.required]],
       description: ['', [Validators.required]],
       stock_alerte: [0, [Validators.required]]
