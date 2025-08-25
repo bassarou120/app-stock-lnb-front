@@ -128,9 +128,9 @@
                     </a>
                     <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
                       <!-- MODIFICATION: Appel de getEditForm(row) pour ouvrir le modal d'édition -->
-                      <!-- <a ngbDropdownItem *ngIf="canModifyVehicule" class="d-flex align-items-center" (click)="getEditForm(row)">
+                      <a ngbDropdownItem *ngIf="canModifyVehicule" class="d-flex align-items-center" (click)="getEditForm(row)">
                         <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
-                      </a> -->
+                      </a>
                       <!-- MODIFICATION: Appel de getDeleteForm(row) pour ouvrir le modal de suppression -->
                       <a ngbDropdownItem *ngIf="canDeleteVehicule" class="d-flex align-items-center" (click)="getDeleteForm(row)">
                         <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
@@ -411,6 +411,33 @@
         <div *ngIf="editVehicule.get('kilometrage')?.invalid && editVehicule.get('kilometrage')?.touched" class="text-danger">
           Le kilométrage est obligatoire et doit être un nombre positif.
         </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="edit_places_assises" class="form-label">Places assises <span class="text-danger">*</span></label>
+        <input type="number" class="form-control" id="edit_places_assises" formControlName="places_assises">
+        <div *ngIf="editVehicule.get('places_assises')?.invalid && editVehicule.get('places_assises')?.touched" class="text-danger">
+          places assises est obligatoire et doit être un nombre positif.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="edit_puissance" class="form-label">puissance (CV) <span class="text-danger">*</span></label>
+        <input type="text" class="form-control" id="edit_puissance" formControlName="puissance">
+        <div *ngIf="editVehicule.get('puissance')?.invalid && editVehicule.get('puissance')?.touched" class="text-danger">
+          La puissance est obligatoire.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="edit_puissance" class="form-label">Energie<span class="text-danger">*</span></label>
+        <ng-select [items]="typeEnergies" formControlName="energie" [clearable]="true"
+              placeholder="Energie">
+            </ng-select>
+            <div *ngIf="editVehicule.get('energie')?.invalid && editVehicule.get('energie')?.touched"
+              class="invalid-feedback">
+              L'energie est obligatoire
+            </div>
       </div>
 
       <div class="mb-3">
