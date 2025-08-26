@@ -212,6 +212,8 @@ export interface Vehicule {
   date_mise_en_service: string;
   created_at: string;
   updated_at: string;
+  nbreannee_amortissement?: number;
+  date_amortissement?: string;
 }
 
 export interface MouvementStock {

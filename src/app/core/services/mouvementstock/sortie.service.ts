@@ -100,8 +100,14 @@ export class MouvementStockService  {
     return this.http.post<any>(`${this.url}/mouvement-stock/demande-sortie/tout-valider`, data);
   }
 
+  genererFichePDF(id: number): Observable<Blob> {
+    const url = `${this.url}/mouvements/fiche/${id}`;
+    // L'option { responseType: 'blob' } est cruciale pour que le navigateur gère la réponse comme un fichier binaire.
+    return this.http.get(url, { responseType: 'blob' });
+  }
 
-
-
+uploadSignedFile(formData: FormData): Observable<any> {
+    return this.http.post<any>(`${this.url}/demande/valid-upload-signe`, formData);
+  }
 
 }
