@@ -128,7 +128,7 @@
 
           <!-- En-têtes du tableau avec meilleur espacement -->
           <div class="row mb-3 fw-bold border-bottom pb-2">
-            <div class="col-2 text-center">Code<span class="text-danger">*</span></div>
+            <!-- <div class="col-2 text-center">Code<span class="text-danger">*</span></div> -->
             <div class="col-3 text-center">Article<span class="text-danger">*</span></div>
             <div class="col-2 text-center">Catégorie<span class="text-danger">*</span></div>
             <div class="col-3 text-center">Description<span class="text-danger">*</span></div>
@@ -142,7 +142,7 @@
               class="row mb-4 align-items-start border-bottom pb-3">
 
               <!-- Code article -->
-              <div class="col-2">
+              <!-- <div class="col-2">
                 <input type="text" class="form-control form-control-lg" placeholder="Code Article"
                   formControlName="code_article"
                   [class.is-invalid]="articleForm.get('code_article')?.invalid && articleForm.get('code_article')?.touched">
@@ -150,7 +150,7 @@
                   class="invalid-feedback">
                   Le code de l'Article est obligatoire
                 </div>
-              </div>
+              </div> -->
 
               <!-- Nom de l'article -->
               <div class="col-3">
@@ -371,7 +371,7 @@
         <form class="forms-sample" [formGroup]="editArticle" (ngSubmit)="onClickSubmitEditArticle()" novalidate>
 
           <!-- Code article -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="code_article" class="form-label">Code Article <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="code_article" placeholder="Entrez le code de l'Article"
               autocomplete="off"
@@ -381,7 +381,7 @@
               <small *ngIf="editArticle.get('code_article')?.invalid && editArticle.get('code_article')?.touched"
                 class="text-danger"> *le code de l'article est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
 
           <!-- Nom de l'article -->
