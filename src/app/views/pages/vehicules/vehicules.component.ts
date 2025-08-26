@@ -105,6 +105,8 @@ export class VehiculesComponent implements OnInit {
       energie: [""],
       kilometrage: [0, [Validators.required, Validators.min(0)]],
       date_mise_en_service: ["", [Validators.required]],
+      nbreannee_amortissement: [5, [Validators.min(1)]], // Valeur par défaut à 5 ans
+      date_amortissement: [""],
     });
     this.deleteVehicule = this.formBuilder.group({
       id: [null, [Validators.required]],
@@ -168,6 +170,8 @@ export class VehiculesComponent implements OnInit {
       puissance: [""],
       places_assises: [null],
       energie: [""],
+      nbreannee_amortissement: [5, [Validators.min(1)]], // Valeur par défaut à 5 ans
+      date_amortissement: [""],
     });
   }
 
@@ -435,6 +439,8 @@ export class VehiculesComponent implements OnInit {
       puissance: row.puissance, // Ajouté
       places_assises: row.places_assises, // Ajouté
       energie: row.energie, // Ajouté
+      nbreannee_amortissement: row.nbreannee_amortissement,
+      date_amortissement: this.convertToNgbDate(row.date_amortissement),
     });
     this.modalService.open(this.editVehiculeContent, { centered: true });
   }

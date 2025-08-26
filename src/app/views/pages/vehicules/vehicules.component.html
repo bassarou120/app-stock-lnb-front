@@ -115,7 +115,13 @@
               <ngx-datatable-column name="Energie" prop="energie"></ngx-datatable-column>
               <ngx-datatable-column name="Date de 1ère en service" prop="date_mise_en_service">
                 <ng-template let-value="value" ngx-datatable-cell-template>
-                  {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+                  {{ value | date:'dd/MM/yyyy' }}
+                </ng-template>
+              </ngx-datatable-column>
+              <ngx-datatable-column name="Nombre d'Année Amortissement" prop="nbreannee_amortissement"></ngx-datatable-column>
+              <ngx-datatable-column name="Date d'ammortissement" prop="date_amortissement">
+                <ng-template let-value="value" ngx-datatable-cell-template>
+                  {{ value | date:'dd/MM/yyyy' }}
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-column *ngIf="canDeleteVehicule || canModifyVehicule" name="Actions" [frozenRight]="true"
@@ -170,6 +176,7 @@
         <div class="col text-center">places assises<span class="text-danger">*</span></div>
         <div class="col text-center">Energie<span class="text-danger">*</span></div>
         <div class="col-2 text-center">Date de 1ère Mise en Service<span class="text-danger">*</span></div>
+        <div class="col text-center">Nbre Ans Amortissement</div>
         <div class="col text-center">Action</div>
       </div>
 
@@ -245,6 +252,7 @@
               Le kilométrage est obligatoire
             </div>
           </div>
+
           <!-- puissance -->
           <div class="col">
             <input type="text" class="form-control form-control-lg text-center" placeholder="11 CV" formControlName="puissance"
@@ -290,6 +298,12 @@
               La date de mise en service est obligatoire
             </div>
           </div>
+
+          <div class="col">
+            <input type="text" class="form-control" formControlName="nbreannee_amortissement">
+          </div>
+
+
 
           <!-- Bouton de suppression -->
           <div class="col text-center">

@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { SiteSettingsService } from '../../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
 import { Subject, takeUntil } from 'rxjs'; // NOUVEAUX IMPORTS POUR GÉRER LES OBSERVABLES
 
-
 @Component({
   selector: 'app-login',
   standalone: true,
