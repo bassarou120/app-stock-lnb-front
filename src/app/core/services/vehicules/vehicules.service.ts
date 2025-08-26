@@ -86,4 +86,12 @@ export class VehiculeService  {
     };
   }
 
+
+uploadCarteGrise(vehiculeId: number, formData: FormData): Observable<any> {
+  return this.http.post(`${this.apiUrl}/vehicules/${vehiculeId}/carte-grise`, formData);
+}
+
+
+
+
 }

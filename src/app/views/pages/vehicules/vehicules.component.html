@@ -113,6 +113,27 @@
               <ngx-datatable-column name="Puissance (en CV)" prop="puissance"></ngx-datatable-column>
               <ngx-datatable-column name="Places assises" prop="places_assises"></ngx-datatable-column>
               <ngx-datatable-column name="Energie" prop="energie"></ngx-datatable-column>
+              <!-- Nouvelle colonne Carte grise -->
+<ngx-datatable-column name="Carte grise">
+  <ng-template let-row="row" ngx-datatable-cell-template>
+    <div class="d-flex align-items-center">
+      <!-- Si carte grise existe -->
+      <a *ngIf="row.carte_grise"
+         [href]="url + '/' + row.carte_grise"
+         target="_blank"
+         class="btn btn-sm btn-outline-primary me-2">
+        Voir
+      </a>
+
+      <!-- Si carte grise absente -->
+      <button *ngIf="!row.carte_grise"
+              class="btn btn-sm btn-outline-success"
+              (click)="sendCarteGrise(row)">
+        Uploader
+      </button>
+    </div>
+  </ng-template>
+</ngx-datatable-column>
               <ngx-datatable-column name="Date de 1ère en service" prop="date_mise_en_service">
                 <ng-template let-value="value" ngx-datatable-cell-template>
                   {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -130,6 +151,10 @@
                       <!-- MODIFICATION: Appel de getEditForm(row) pour ouvrir le modal d'édition -->
                       <a ngbDropdownItem *ngIf="canModifyVehicule" class="d-flex align-items-center" (click)="getEditForm(row)">
                         <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                      </a>
+                      <!-- MODIFICATION: Appel de getEditForm(row) pour ouvrir le modal d'édition -->
+                      <a ngbDropdownItem *ngIf="canModifyVehicule" class="d-flex align-items-center" (click)="sendCarteGrise(row)">
+                        <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Ajouter la carte grise</span>
                       </a>
                       <!-- MODIFICATION: Appel de getDeleteForm(row) pour ouvrir le modal de suppression -->
                       <a ngbDropdownItem *ngIf="canDeleteVehicule" class="d-flex align-items-center" (click)="getDeleteForm(row)">
@@ -481,6 +506,31 @@
     <button type="button" class="btn btn-danger" (click)="onClickSubmitDeleteVehicule()" [disabled]="isDeletingVehicule">
       <span *ngIf="isDeletingVehicule" class="spinner-border spinner-border-sm text-light me-2" role="status" aria-hidden="true"></span>
       {{ isDeletingVehicule ? 'Suppression...' : 'Supprimer' }}
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+  </div>
+</ng-template>
+
+
+<ng-template #carteGriseContent let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ajout de la carte grise</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="piece_jointe_intervention" class="form-label">Carte Grise</label>
+      <input type="file" class="form-control" id="piece_jointe_intervention" (change)="onFileSelected($event)">
+      <div *ngIf="selectedFile" class="mt-2 text-success">
+        Fichier sélectionné : {{ selectedFile.name }}
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-footer d-flex justify-content-center gap-2">
+    <button type="button" class="btn btn-primary" (click)="onClickSubmitCarteGrise(modal)">
+      Ajouter
     </button>
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
   </div>
