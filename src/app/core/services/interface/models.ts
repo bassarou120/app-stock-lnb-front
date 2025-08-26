@@ -231,6 +231,7 @@ export interface MouvementStock {
   created_at: string;
   updated_at: string;
   statut?: string;
+  demandevalidesigne?: string;
   unite_de_mesure:number;
   piece_jointe_mouvement?: string;
 

@@ -113,5 +113,14 @@
   },
   "cli": {
     "analytics": "2f6c1ecd-08c3-4049-bfa3-77544f9a00ee"
+  },
+
+
+  "api": {
+    "target": "http://127.0.0.1:8000",
+    "secure": false,
+    "changeOrigin": true
   }
+
+
 }
