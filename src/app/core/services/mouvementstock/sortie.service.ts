@@ -106,8 +106,18 @@ export class MouvementStockService  {
     return this.http.get(url, { responseType: 'blob' });
   }
 
-uploadSignedFile(formData: FormData): Observable<any> {
+  uploadSignedFile(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.url}/demande/valid-upload-signe`, formData);
+  }
+
+   getFile(idfichier: string): void {
+    const fullUrl = `${this.url}/view-file?idfichier=${encodeURIComponent(idfichier)}`;
+    window.open(fullUrl, '_blank');
+  }
+
+  downloadGroupedFile(code_mouvement: string): void {
+    const fullUrl = `${this.url}/download-grouped-file/${encodeURIComponent(code_mouvement)}`;
+    window.open(fullUrl, '_blank');
   }
 
 }

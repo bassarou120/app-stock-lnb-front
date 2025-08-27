@@ -105,6 +105,12 @@
           (click)="selectMouvement(group.code_mouvement)">
           📥
         </button>
+
+<!--         <button
+            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
+            (click)="downloadGroupedFile(group.code_mouvement); $event.stopPropagation()">
+            Télécharger
+        </button> -->
         </td>
       </tr>
       <tr *ngIf="expandedGroupCode === group.code_mouvement">
@@ -147,11 +153,19 @@
                     class="btn btn-sm btn-secondary m-2"
                     data-bs-toggle="modal"
                     data-bs-target="#validerlademande"
-                    [disabled]="detail.statut !== 'Accordé'"
+                    [disabled]="detail.statut == 'En attente'"
                     (click)="selectDetail(detail.id, detail.code_mouvement!)"
                   >
                     📥
                   </button>
+
+                  <!-- Bouton de visualisation, visible seulement si le lien existe -->
+                <button
+                  *ngIf="detail.demandevalidesigne"
+                  class="btn btn-sm btn-info m-2"
+                  (click)="viewFile(detail.demandevalidesigne)">
+                  👁️
+                </button>
                 </td>
               </tr>
             </tbody>
@@ -161,7 +175,6 @@
     </ng-container>
   </tbody>
 </table>
-
 
 <!-- Edit statut Modal -->
 <div id="edit_statut_sortie" class="modal fade" tabindex="-1" aria-labelledby="editStatutSortieLabel"
@@ -322,8 +335,8 @@
 
           <div class="mb-4">
             <label for="code_mouvement" class="form-label">Code Mouvement</label>
-            <input type="text" 
-              class="form-control" 
+            <input type="text"
+              class="form-control"
               [formControlName]="'code_mouvement'"
               [disabled]="true">
           </div>
@@ -351,7 +364,7 @@
     </div>
   </div>
 </div> -->
-<!-- /Upload Modal --> 
+<!-- /Upload Modal -->
 
 
 <div id="validerlademande" class="modal fade" tabindex="-1" aria-labelledby="validerlademande" aria-hidden="true">
@@ -364,16 +377,16 @@
 
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="editvaliderDemande" (ngSubmit)="uploadSignedFile()" novalidate>
-          
+
           <input type="hidden" class="form-control" [formControlName]="'id'">
           <input type="hidden" class="form-control" [formControlName]="'code_mouvement'">
 
           <div class="mb-3">
             <label for="statut" class="form-label">Statut de la demande <span class="text-danger">*</span></label>
-            <ng-select 
-              [items]="['Validé']" 
+            <ng-select
+              [items]="['Validé']"
               [clearable]="false"
-              placeholder="Sélectionnez le statut" 
+              placeholder="Sélectionnez le statut"
               formControlName="statut">
             </ng-select>
             <div *ngIf="editvaliderDemande.get('statut')?.invalid && editvaliderDemande.get('statut')?.touched">
@@ -384,11 +397,11 @@
           <div class="mb-3">
             <label for="demandeSigne" class="form-label">Fichier de validation (PDF) <span class="text-danger">*</span></label>
             <div class="input-group">
-                <input 
-                    type="file" 
-                    class="form-control" 
-                    id="demandeSigne" 
-                    accept=".pdf" 
+                <input
+                    type="file"
+                    class="form-control"
+                    id="demandeSigne"
+                    accept=".pdf"
                     (change)="onFileSelected($event)">
             </div>
             <div *ngIf="editvaliderDemande.get('demandevalidesigne')?.invalid && editvaliderDemande.get('demandevalidesigne')?.touched">
