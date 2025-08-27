@@ -355,42 +355,6 @@ loadGroupedMouvements() {
     );
   }
 
-  // Fonction pour soumettre le formulaire
-/*   uploadSignedFile(): void {
-    if (this.editvaliderDemande.invalid) {
-      this.editvaliderDemande.markAllAsTouched();
-      alert('Veuillez remplir tous les champs obligatoires.');
-      return;
-    }
-
-    this.isProcessingAll = true; // Active le spinner et désactive le bouton
-
-    const formData = new FormData();
-    // Utiliser directement les valeurs du formulaire
-    formData.append('code_mouvement', this.editvaliderDemande.get('code_mouvement')?.value);
-    formData.append('demandevalidesigne', this.editvaliderDemande.get('demandevalidesigne')?.value);
-    formData.append('statut', 'Validé'); // Envoyer la valeur correcte pour le statut
-
-    this.mouvementService.uploadSignedFile(formData).subscribe({
-      next: (response) => {
-        console.log('Upload réussi', response);
-        alert('La demande a été validée avec succès.');
-        this.isProcessingAll = false;
-        // Gérer la fermeture de la modale ici
-        this.editvaliderDemande.reset({
-          statut: 'Valider la demande'
-        });
-
-        this.selectedFile = null; // Clear the selected file on modal open
-      },
-      error: (error: HttpErrorResponse) => {
-        console.error('Erreur d\'upload', error);
-        alert('Une erreur est survenue lors de la validation.');
-        this.isProcessingAll = false;
-      }
-    });
-  } */
-
 onFileSelected(event: any): void {
   const file: File = event.target.files[0];
   if (file) {
@@ -399,8 +363,6 @@ onFileSelected(event: any): void {
     this.editvaliderDemande.get('demandevalidesigne')?.setValue(file);
   }
 }
-
-
 
 // The upload function will now check which ID to use
   uploadSignedFile(): void {
@@ -542,74 +504,6 @@ onFileSelected(event: any): void {
     return null;
   }
 
-  // onClickSubmitEditStatutSortie(): void {
-  //   // EMPÊCHEMENT DE CLICS MULTIPLES (basé sur l'exemple de EntreeComponent)
-  //   if (this.isStatutModifLoading) {
-  //     console.warn('Soumission de modification de statut déjà en cours. Opération annulée.');
-  //     return; // Empêche l'exécution si une soumission est déjà en cours
-  //   }
-
-  //   if (this.editStatutSortie.invalid) {
-  //     this.markFormGroupTouched(this.editStatutSortie);
-  //     console.error("Le formulaire est invalide. Erreurs au niveau du formulaire :", this.editStatutSortie.errors); // Vérifier les erreurs au niveau du formulaire
-  //     Object.keys(this.editStatutSortie.controls).forEach(key => {
-  //       const control = this.editStatutSortie.get(key);
-  //       if (control && control.invalid) {
-  //         console.error(`Le contrôle '${key}' est invalide. Erreurs :`, control.errors);
-  //       }
-  //     });
-
-  //     // 🔥 NOUVEAU : Vérifier spécifiquement l'erreur de quantité insuffisante
-  //     const qteControl = this.editStatutSortie.get('qte');
-  //     if (qteControl && qteControl.hasError('max')) {
-  //       alert(`La quantité demandée (${qteControl.value}) dépasse la quantité disponible (${this.quantiteDisponible}).`);
-  //     } else {
-  //       alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
-  //     }
-  //     return;
-  //   }
-
-  //   this.isStatutModifLoading = true; // Active le spinner et désactive le bouton dans le HTML
-
-  //   const id = this.editStatutSortie.value.id;
-  //   const formData = {
-  //     ...this.editStatutSortie.value,
-  //     date_mouvement: this.editStatutSortie.value.date_mouvement ? this.formatDate(this.editStatutSortie.value.date_mouvement) : null,
-  //   };
-  //   delete formData.id;
-  //   delete formData.qteDemande;
-
-  //   this.mouvementService.updateDemandeStock(id, formData)
-  //     .pipe(takeUntil(this.destroy$))
-  //     .subscribe({
-  //       next: (response: any) => {
-  //         this.loadGroupedMouvements();
-  //         this.editStatutSortie.reset();
-  //         this.isStatutModifLoading = false; // Réactive le bouton
-
-  //         // this.modalService.dismissAll();
-  //         // Fermer le modal
-  //         const modal = document.getElementById('edit_statut_sortie');
-  //         // @ts-ignore
-  //         const bsModal = bootstrap.Modal.getInstance(modal);
-  //         bsModal?.hide();
-
-  //         setTimeout(() => {
-  //           this.alertModifVisible = true;
-  //           setTimeout(() => {
-  //             this.alertModifVisible = false;
-  //           }, 2000);
-  //         }, 200);
-  //       },
-  //       error: (error: any) => {
-  //         console.error('Erreur lors de la modification du statut :', error);
-  //         this.isStatutModifLoading = false; // Réactive le bouton
-  //         alert(error.error?.error || "Une erreur s'est produite. Veuillez réessayer.");
-  //       }
-  //     });
-  // }
-
-
   //POUR LA VALIDATION UNIQUE
   onClickSubmitEditStatutSortie_BON(): void {
     if (this.isStatutModifLoading) {
@@ -736,55 +630,8 @@ onFileSelected(event: any): void {
   }
 
 
-/*   onClickSubmitEditAllSortie_original() {
-    // EMPÊCHEMENT DE CLICS MULTIPLES (basé sur l'exemple de EntreeComponent)
-    if (this.isProcessingAll) {
-      console.warn('Soumission "Tout Traiter" déjà en cours. Opération annulée.');
-      return; // Empêche l'exécution si une soumission est déjà en cours
-    }
-
-    if (this.edit_all.invalid) {
-      this.markFormGroupTouched(this.edit_all);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
-      return; // Bloque la soumission si le formulaire est invalide
-    }
-
-    this.isProcessingAll = true; // Active le spinner et désactive le bouton dans le HTML
-
-    const formData = {
-      ...this.edit_all.value,
-      date_mouvement: this.formatDate(this.edit_all.value.date_mouvement),
-    };
-
-    this.mouvementService.validerDemandeGroupee(formData).pipe(takeUntil(this.destroy$)).subscribe(
-      (data: any) => {
-        this.loadGroupedMouvements();
-        this.edit_all.reset();
-        this.isProcessingAll = false; // Réactive le bouton
-
-        // this.modalService.dismissAll();
-        // Fermer le modal
-          const modal = document.getElementById('tout_traiter');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-        setTimeout(() => {
-          this.alertModifAllVisible = true;
-          setTimeout(() => {
-            this.alertModifAllVisible = false;
-          }, 2000);
-        }, 200);
-      },
-      (error: any) => {
-        this.isProcessingAll = false; // Réactive le bouton
-        alert(error.error?.error || "Une erreur s'est produite lors du traitement groupé. Veuillez réessayer.");
-      }
-    );
-  } */
-
 // POUR LA VALIDATION DU GROUPE COMPLET
-    onClickSubmitEditAllSortie() {
+  onClickSubmitEditAllSortie() {
       // EMPÊCHEMENT DE CLICS MULTIPLES (basé sur l'exemple de EntreeComponent)
       if (this.isProcessingAll) {
         console.warn('Soumission "Tout Traiter" déjà en cours. Opération annulée.');
@@ -835,10 +682,7 @@ onFileSelected(event: any): void {
           alert(error.error?.error || "Une erreur s'est produite lors du traitement groupé. Veuillez réessayer.");
         }
       );
-    }
-
-
-
+  }
 
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
     Object.values(formGroup.controls).forEach(control => {
@@ -850,34 +694,39 @@ onFileSelected(event: any): void {
     });
   }
 
-/*   isGroupTraitable(group: MouvementStockGrouped): boolean {
-    return group.details?.some(detail => detail.statut !== 'Accordé');
-  } */
-
 // Ajoutez cette nouvelle fonction à votre composant
-isGroupInProgress(group: any): boolean {
-  const hasProcessedItems = group.details.some((detail: any) =>
-    detail.statut === 'Accordé' || detail.statut === 'Validé'
-  );
-  const hasUntreatedItems = group.details.some((detail: any) =>
-    detail.statut === 'À traiter'
-  );
+  isGroupInProgress(group: any): boolean {
+    const hasProcessedItems = group.details.some((detail: any) =>
+      detail.statut === 'Accordé' || detail.statut === 'Validé'
+    );
+    const hasUntreatedItems = group.details.some((detail: any) =>
+      detail.statut === 'À traiter'
+    );
+    return hasProcessedItems && hasUntreatedItems;
+  }
+  
+  // Cette fonction est maintenant utilisée pour le bouton "Tout traiter"
+  isGroupPartiallyProcessed(group: any): boolean {
+    return group.details.some((detail: any) => detail.statut === 'Accordé' || detail.statut === 'Validé');
+  }
 
-  return hasProcessedItems && hasUntreatedItems;
-}
+  // Vérifie si TOUS les éléments du groupe sont traités
+  isGroupCompletelyProcessed(group: any): boolean {
+    return group.details.every((detail: any) =>
+      detail.statut === 'Accordé' || detail.statut === 'Validé'
+    );
+  }
 
-// Votre fonction isGroupPartiallyProcessed est toujours utile pour le bouton désactivé
-isGroupPartiallyProcessed(group: any): boolean {
-  return group.details.some((detail: any) =>
-    detail.statut === 'Accordé' || detail.statut === 'Validé'
-  );
-}
+    // Nouvelle fonction pour la logique du bouton d'upload
+  isUploadActive(group: any): boolean {
+    const isCompletelyProcessed = this.isGroupCompletelyProcessed(group);
+    return isCompletelyProcessed;
+  }
 
-// Votre fonction isGroupCompletelyProcessed
-isGroupCompletelyProcessed(group: any): boolean {
-  return group.details.every((detail: any) =>
-    detail.statut === 'Accordé' || detail.statut === 'Validé'
-  );
-}
+
+
+
+
+
 
 }
