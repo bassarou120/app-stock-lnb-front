@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
 import { HttpEventType, HttpClient } from '@angular/common/http'; // Import HttpClient pour l'upload de fichier
+import { environment } from "../../../../environments/environment";
 
 declare var bootstrap: any; // Déclaration pour accéder à bootstrap globalement
 
@@ -45,6 +46,7 @@ export class VehiculesComponent implements OnInit {
   canModifyVehicule: boolean = true;
   canDeleteVehicule: boolean = true;
   hasPageAccess: boolean = true;
+  public url: string = environment.base_url_backend;
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
 
@@ -64,6 +66,7 @@ export class VehiculesComponent implements OnInit {
 
   public addVehicule!: FormGroup;
   public editVehicule!: FormGroup;
+  public carteGrise!: FormGroup;
   public deleteVehicule!: FormGroup;
 
   isAddingVehicules: boolean = false;
@@ -75,6 +78,7 @@ export class VehiculesComponent implements OnInit {
   @ViewChild('table') table!: DatatableComponent;
   @ViewChild('addVehiculeContent') addVehiculeContent!: TemplateRef<any>;
   @ViewChild('editVehiculeContent') editVehiculeContent!: TemplateRef<any>;
+  @ViewChild('carteGriseContent') carteGriseContent!: TemplateRef<any>;
   @ViewChild('deleteVehiculeContent') deleteVehiculeContent!: TemplateRef<any>;
 
   constructor(
@@ -109,6 +113,9 @@ export class VehiculesComponent implements OnInit {
       date_amortissement: [""],
     });
     this.deleteVehicule = this.formBuilder.group({
+      id: [null, [Validators.required]],
+    });
+    this.carteGrise = this.formBuilder.group({
       id: [null, [Validators.required]],
     });
   }
@@ -445,6 +452,13 @@ export class VehiculesComponent implements OnInit {
     this.modalService.open(this.editVehiculeContent, { centered: true });
   }
 
+  sendCarteGrise(row: any) {
+    this.carteGrise.patchValue({
+      id: row.id,
+    });
+    this.modalService.open(this.carteGriseContent, { centered: true });
+  }
+
   getDeleteForm(row: any) {
     console.log('getDeleteForm appelé pour ID:', row.id);
     this.deleteVehicule.patchValue({
@@ -508,6 +522,29 @@ export class VehiculesComponent implements OnInit {
       this.selectedFile = null;
     }
   }
+
+  onClickSubmitCarteGrise(modal: any) {
+  if (!this.selectedFile) {
+    alert("Veuillez sélectionner un fichier avant de valider.");
+    return;
+  }
+
+  const formData = new FormData();
+  // formData.append('id', this.carteGrise.value.id);
+  formData.append('carte_grise', this.selectedFile);
+
+  this.vehiculeService.uploadCarteGrise(this.carteGrise.value.id,formData).subscribe(
+    (res: any) => {
+      console.log("Carte grise ajoutée avec succès :", res);
+      modal.close();
+      this.selectedFile = null;
+    },
+    (err: any) => {
+      console.error("Erreur lors de l'ajout de la carte grise :", err);
+      alert("Erreur lors de l'upload de la carte grise.");
+    }
+  );
+}
 
   /**
    * Envoie le fichier Excel sélectionné au backend pour importation.
