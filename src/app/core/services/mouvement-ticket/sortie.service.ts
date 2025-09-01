@@ -110,4 +110,9 @@ export class MouvementTicketService  {
     createTrajet(trajetData: any): Observable<any> {
       return this.http.post<any>(`${this.url}/trajets`, trajetData);
     }
+
+    updateKilometrageDeFin(mouvementId: number, data: any): Observable<any> {
+  return this.http.put(`${this.url}/mouvement-tickets/${mouvementId}/kilometrage-fin`, data);
+}
+
 }

@@ -112,15 +112,15 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Commune départ">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.depart?.libelle_commune || 'N/A' }}
+                {{ row.depart?.libelle_commune || '-' }}
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Commune arrivée">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.arriver?.libelle_commune || 'N/A' }}
+                {{ row.arriver?.libelle_commune || '-' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Kilometrage" prop="kilometrage"></ngx-datatable-column>
+            <ngx-datatable-column name="Kilometrage de Début" prop="kilometrage"></ngx-datatable-column>
             <ngx-datatable-column name="Employé">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.employe?.fullnameEmploye || 'Non défini' }}
@@ -149,6 +149,9 @@
                       <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i>
                       <span>Voir plus</span>
                     </a>
+                    <a ngbDropdownItem  class="d-flex align-items-center" (click)="addKilometrageDeFin(row)">
+                        <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Ajouter kilometrage de fin</span>
+                      </a>
 
 <!--                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                       data-bs-target="#edit_sortie" (click)="getEditForm(row)">
@@ -212,7 +215,7 @@
               </div>
               <!-- commune_depart -->
               <div class="mb-3">
-                <label for="commune_depart" class="form-label">Commune Départ <span class="text-danger">*</span></label>
+                <label for="commune_depart" class="form-label">Commune Départ <span class="text-danger"></span></label>
                 <ng-container *ngIf="communes && communes.length > 0; else noCommunesDepart">
                   <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id"
                     formControlName="commune_depart" [clearable]="true" placeholder="Sélectionnez la commune de départ">
@@ -232,7 +235,7 @@
               <!-- commune_arriver -->
               <div class="mb-3">
                 <label for="commune_arriver" class="form-label">Commune Arrivée <span
-                    class="text-danger">*</span></label>
+                    class="text-danger"></span></label>
                 <ng-container *ngIf="communes && communes.length > 0; else noCommunesArriver">
                   <ng-select [items]="communes" bindLabel="libelle_commune" bindValue="id"
                     formControlName="commune_arriver" [clearable]="true"
@@ -319,7 +322,7 @@
 
               <!-- kilometre -->
               <div class="mb-3">
-                <label for="kilometrage" class="form-label">Kilometrage <span class="text-danger">*</span></label>
+                <label for="kilometrage" class="form-label">Kilometrage de début <span class="text-danger"></span></label>
                 <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
                   [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched"
                   formControlName="kilometrage">
@@ -349,7 +352,7 @@
                 <ng-template #noEmploye>
                   <div class="alert alert-danger"
                     style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                    <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
+                    <i class="feather icon-alert-circle"></i> Aucun Personnel. Veuillez en créer.
                   </div>
                 </ng-template>
               </div>
@@ -494,7 +497,7 @@
                   <p><strong>Date de Mise en Service :</strong>
                     <span class="text-muted">{{ selectedSortie?.vehicule?.date_mise_en_service || 'N/A' }}</span>
                   </p>
-                  <p><strong>Kilométrage Véhicule :</strong>
+                  <p><strong>Kilométrage De début :</strong>
                     {{ (selectedSortie?.vehicule?.kilometrage | number:'1.0-0') || 'N/A' }} km
                   </p>
                 </div>
@@ -758,10 +761,10 @@
           <div class="mb-3">
             <label for="kilometrage" class="form-label">kilometrage <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
-              [class.invalid]="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched"
+              [class.invalid]="editSortie.get('kilometrage')?.invalid && editSortie.get('kilometrage')?.touched"
               formControlName="kilometrage">
-            <div *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched">
-              <small *ngIf="addSortie.get('kilometrage')?.invalid && addSortie.get('kilometrage')?.touched"
+            <div *ngIf="editSortie.get('kilometrage')?.invalid && editSortie.get('kilometrage')?.touched">
+              <small *ngIf="editSortie.get('kilometrage')?.invalid && editSortie.get('kilometrage')?.touched"
                 class="text-danger"> *le kilometrage
                 est obligatoire</small>
             </div>
@@ -772,10 +775,10 @@
           <div class="mb-3">
             <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
             <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
-              [class.invalid]="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched"
+              [class.invalid]="editSortie.get('objet')?.invalid && editSortie.get('objet')?.touched"
               formControlName="objet">
-            <div *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched">
-              <small *ngIf="addSortie.get('objet')?.invalid && addSortie.get('objet')?.touched" class="text-danger">
+            <div *ngIf="editSortie.get('objet')?.invalid && editSortie.get('objet')?.touched">
+              <small *ngIf="editSortie.get('objet')?.invalid && editSortie.get('objet')?.touched" class="text-danger">
                 *l'objet
                 est obligatoire</small>
             </div>
@@ -791,7 +794,7 @@
               [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
           </div>
 
-          <div *ngIf="addSortie.get('date')?.invalid && addSortie.get('date')?.touched">
+          <div *ngIf="editSortie.get('date')?.invalid && editSortie.get('date')?.touched">
             <small class="text-danger"> *la date du mouvement est obligatoire</small>
           </div>
 
@@ -850,4 +853,34 @@
   </div>
 </div>
 <!-- /delete mouvement Modal -->
- </div>
+
+<ng-template #addKilometrageFinContent let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ajout de kilometrage de Fin</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
+  </div>
+  <form [formGroup]="addKilometrageFin">
+  <div class="modal-body">
+    <!-- kilometre -->
+              <div class="mb-3">
+                <label for="kilometrage_de_fin" class="form-label">Kilometrage de Fin <span class="text-danger"></span></label>
+                <input type="number" class="form-control" id="kilometrage_de_fin" placeholder="1" autocomplete="off"
+                  [class.invalid]="addKilometrageFin.get('kilometrage_de_fin')?.invalid && addKilometrageFin.get('kilometrage_de_fin')?.touched"
+                  formControlName="kilometrage_de_fin">
+                <div *ngIf="addKilometrageFin.get('kilometrage_de_fin')?.invalid && addKilometrageFin.get('kilometrage_de_fin')?.touched">
+                  <small *ngIf="addKilometrageFin.get('kilometrage_de_fin')?.errors?.['required']" class="text-danger"> *Le kilometrage
+                    est obligatoire</small>
+                  <small *ngIf="addKilometrageFin.get('kilometrage_de_fin')?.errors?.['min']" class="text-danger"> *Le kilometrage
+                    doit être au moins 0</small>
+                </div>
+              </div>
+  </div>
+
+  <div class="modal-footer d-flex justify-content-center gap-2">
+    <button type="button" class="btn btn-primary" (click)="onClickSubmitKilometrageFin(modal)">
+      Ajouter
+    </button>
+    <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
+  </div>
+  </form> 
+</ng-template>
