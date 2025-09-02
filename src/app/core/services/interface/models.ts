@@ -9,6 +9,15 @@ export interface Commune {
   created_at: string;
   updated_at: string;
 }
+export interface Exercice {
+  id: number;
+  date_debut: string;
+  date_fin: string;
+  annee: number;
+  statut: string;
+  created_at: string;
+  updated_at: string;
+}
 export interface RetourTicket {
   id: number;
   mouvementTicket_id: number;
