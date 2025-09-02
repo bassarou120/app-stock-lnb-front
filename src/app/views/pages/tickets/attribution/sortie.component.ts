@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject, ViewEncapsulation } from '@angular/core';
+import { Component, ViewChild, OnInit, inject,TemplateRef, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/sortie.service';
@@ -70,6 +70,7 @@ export class SortieComponent implements OnInit {
   public addSortie!: FormGroup;
   public editSortie!: FormGroup;
   public deleteSortie!: FormGroup;
+  public addKilometrageFin!: FormGroup;
 
   // Nouvelle propriété pour le message de trajet non trouvé
   trajetNotFoundMessage: string | null = null;
@@ -79,12 +80,14 @@ export class SortieComponent implements OnInit {
   isAddingSortie: boolean = false;
 
   @ViewChild('table') table!: DatatableComponent;
+  @ViewChild('addKilometrageFinContent') addKilometrageFinContent!: TemplateRef<any>;
 
   constructor(
     private sortieService: MouvementTicketService,
     private formBuilder: FormBuilder,
     private router: Router,
-    private ngbModalService: NgbModal
+    private ngbModalService: NgbModal,
+    public modalService: NgbModal,
   ) { }
 
 
@@ -104,10 +107,10 @@ export class SortieComponent implements OnInit {
       compagnie_petrolier_id: [null, [Validators.required]],
       vehicule_id: [null, [Validators.required]],
       coupon_ticket_id: [null, [Validators.required]],
-      kilometrage: [null, [Validators.required, Validators.min(0)]],
+      kilometrage: [null, [ Validators.min(0)]],
       employe_id: [null, [Validators.required]],
-      commune_depart: [null, [Validators.required]],
-      commune_arriver: [null, [Validators.required]],
+      commune_depart: [null, []],
+      commune_arriver: [null, []],
       description: ["", []],
       objet: ["", []],
       qte: [null, [Validators.required, Validators.min(1)]], // Initialisé à null pour permettre la saisie
@@ -134,6 +137,13 @@ export class SortieComponent implements OnInit {
     this.deleteSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
     });
+
+    this.addKilometrageFin = this.formBuilder.group({
+      id: [0, [Validators.required]],
+      kilometrage_de_fin: [null, [ Validators.min(0)]],
+    });
+
+
   }
 
   private initializePermissions(): void {
@@ -186,6 +196,13 @@ export class SortieComponent implements OnInit {
   calculateLitresPerTrajet(qteAttribue: number, nbreTrajet: number): number {
     if (!qteAttribue || !nbreTrajet || nbreTrajet === 0) return 0;
     return qteAttribue / nbreTrajet;
+  }
+
+  addKilometrageDeFin(row: any) {
+    this.addKilometrageFin.patchValue({
+      id: row.id,
+    });
+    this.modalService.open(this.addKilometrageFinContent, { centered: true });
   }
 
   onClickSubmitAddSortie() {
@@ -452,6 +469,29 @@ export class SortieComponent implements OnInit {
       }
     });
   }
+
+  onClickSubmitKilometrageFin(modal: any) {
+  if (this.addKilometrageFin.invalid) {
+    alert("Veuillez entrer un kilométrage valide.");
+    return;
+  }
+
+  const kilometrage = this.addKilometrageFin.value.kilometrage_de_fin;
+  const mouvementId = this.addKilometrageFin.value.id;
+  console.log(this.addKilometrageFin?.value);
+
+  this.sortieService.updateKilometrageDeFin(mouvementId, { kilometrage_de_fin: kilometrage }).subscribe(
+    (res: any) => {
+      modal.close();
+      console.log("Kilométrage de fin mis à jour avec succès :", res);
+      alert("Mise à jour réussie !");
+    },
+    (err: any) => {
+      console.error("Erreur lors de la mise à jour du kilométrage :", err);
+      alert("Erreur lors de la mise à jour du kilométrage.");
+    }
+  );
+}
 
   loadCouponTicketsWithCompagnies(): void {
     this.sortieService.getCouponTicketsWithCompagnies().subscribe({

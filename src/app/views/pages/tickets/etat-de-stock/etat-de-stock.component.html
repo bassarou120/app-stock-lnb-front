@@ -87,6 +87,11 @@
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Quantité Actuelle" prop="qte_actuel"></ngx-datatable-column>
+            <ngx-datatable-column name="Montant">
+  <ng-template let-row="row" ngx-datatable-cell-template>
+    {{ getCouponPrice(row.coupon_ticket?.libelle) * (row.qte_actuel || 0) | number }}
+  </ng-template>
+</ngx-datatable-column>
           </ngx-datatable>
         </div>
       </div>

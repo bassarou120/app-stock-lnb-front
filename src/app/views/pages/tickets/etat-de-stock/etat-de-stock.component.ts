@@ -151,6 +151,14 @@ export class EtatStockComponent implements OnInit {
     this.table.offset = 0;
   }
 
+  getCouponPrice(libelle: string): number {
+  if (!libelle) return 0;
+  // extrait le nombre avant "F"
+  const match = libelle.match(/(\d+)/);
+  return match ? parseInt(match[0], 10) : 0;
+}
+
+
   downloadEtatStockTicketsPDF(): void {
     this.couponTicketService.imprimerEtatStockTickets().subscribe(
       (response: Blob) => {

@@ -13,6 +13,8 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
 import { Router } from '@angular/router';
+import { environment } from "../../../../environments/environment";
+
 
 
 declare var bootstrap: any;
@@ -47,6 +49,8 @@ export class InterventionVehiculeComponent implements OnInit {
   hasPageAccess: boolean = true;  // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
+  selectedFile: File | null = null;
+  public url: string = environment.base_url_backend;
 
   rows: InterventionVehicule[] = [];
   temp: InterventionVehicule[] = [];
@@ -146,6 +150,13 @@ export class InterventionVehiculeComponent implements OnInit {
   getViewForm(row: any) {
     this.selectedInterventionVehicule = row;
     console.log('Intervention véhicule sélectionnée:', row);
+  }
+
+  onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+    }
   }
 
   // Méthode pour initialiser les formulaires
@@ -286,14 +297,24 @@ export class InterventionVehiculeComponent implements OnInit {
 
     this.isAddingInterventionVehicule = true;
 
-    const formData = {
-      ...this.addInterventionVehicule.value,
-      // Convertir NgbDateStruct en string 'YYYY-MM-DD'
-      date_intervention: this.formatDate(this.addInterventionVehicule.value.date_intervention),
-      // Gérer date_expiration: la convertir si elle est présente et requise, sinon null
-      date_expiration: this.addInterventionVehicule.value.date_expiration ?
-                       this.formatDate(this.addInterventionVehicule.value.date_expiration) : null
-    };
+    // Créer FormData pour inclure la pièce jointe
+  const formData = new FormData();
+
+  // Ajouter tous les champs du formulaire
+  Object.keys(this.addInterventionVehicule.value).forEach(key => {
+    let value = this.addInterventionVehicule.value[key];
+
+    if (key === 'date_intervention' || key === 'date_expiration') {
+      value = value ? this.formatDate(value) : '';
+    }
+
+    formData.append(key, value ?? '');
+  });
+
+  // Ajouter la pièce jointe si présente
+  if (this.selectedFile) {
+    formData.append('piece_jointe', this.selectedFile);
+  }
     console.log('onClickSubmitAddInterventionVehicule: Données à envoyer:', formData);
 
     this.interventionVehiculeService.saveInterventionVehicule(formData).subscribe(

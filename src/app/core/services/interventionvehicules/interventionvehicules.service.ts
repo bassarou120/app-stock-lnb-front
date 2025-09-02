@@ -24,7 +24,7 @@ export class InterventionsVehiculeService {
   }
 
 
-  saveInterventionVehicule(data: InterventionVehicule): Observable<InterventionVehicule> {
+  saveInterventionVehicule(data: FormData): Observable<InterventionVehicule> {
     return this.http.post<InterventionVehicule>(`${this.url}/intervention-vehicules`, data);
   }
 
@@ -66,7 +66,7 @@ export class InterventionsVehiculeService {
       )
     );
   }
-  
+
   getAllInterventions_vehicule(): Observable<InterventionVehicule[]> {
     return this.http.get<{ success: boolean; message: string; data: { data: InterventionVehicule[] } }>(
       `${this.url}/intervention_vehicule`
