@@ -3,7 +3,7 @@ import { Observable, of } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
-import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule, TypeIntervention } from "../interface/models";
+import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule, TypeIntervention, Bureau, Employe } from "../interface/models";
 import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
@@ -43,6 +43,26 @@ export class ImmobilisationsService {
     ).pipe(
       map((response: { success: boolean; message: string; data: { data: Fournisseur[] } }) =>
         response.data.data // On récupère uniquement le tableau de fournisseurs
+      )
+    );
+  }
+
+  getAllEmployes(): Observable<Employe[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Employe[] } }>(
+      `${this.url}/employes`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Employe[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Employe
+      )
+    );
+  }
+
+  getAllBureaux(): Observable<Bureau[]> {
+    return this.http.get<{ success: boolean; message: string; data: { data: Bureau[] } }>(
+      `${this.url}/bureaux`
+    ).pipe(
+      map((response: { success: boolean; message: string; data: { data: Bureau[] } }) =>
+        response.data.data // On récupère uniquement le tableau de Bureau
       )
     );
   }
