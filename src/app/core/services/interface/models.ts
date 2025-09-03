@@ -507,3 +507,18 @@ export interface AppSetting {
 }
 
 export type AppSettingsMap = Map<string, AppSetting>;
+
+export interface Exercice {
+  id: number;
+  date_debut: string;
+  date_fin: string;
+  annee: number;
+  statut: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ExerciceResponse {
+  success: boolean;
+  exercice: Exercice;
+}

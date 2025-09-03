@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { LoginResponse, Permission } from "../interface/models";
+import { ExerciceResponse, LoginResponse, Permission } from "../interface/models";
 import { environment } from '../../../../environments/environment';
+import { Exercice } from "../interface/models";
 
 
 @Injectable({
@@ -111,7 +112,9 @@ private loadUserPermissions(): void {
   });
 }
 
-
+getExercice(): Observable<ExerciceResponse> {
+  return this.http.get<ExerciceResponse>(`${this.url}/exercice/ouvert`);
+}
 
 
   sendOTP(email: string): Observable<any> {

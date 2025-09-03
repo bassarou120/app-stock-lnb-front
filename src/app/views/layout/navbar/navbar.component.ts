@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ThemeModeService } from '../../../core/services/theme-mode.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
+import { Exercice, ExerciceResponse } from '../../../core/services/interface/models';
 
 @Component({
   selector: 'app-navbar',
@@ -14,10 +16,10 @@ import { ThemeModeService } from '../../../core/services/theme-mode.service';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent implements OnInit {
-
+  exerciceEnCours!: Exercice | null;
   currentTheme: string;
   user: any;
-  constructor(private router: Router, private themeModeService: ThemeModeService) {}
+  constructor(private router: Router, private themeModeService: ThemeModeService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.themeModeService.currentTheme.subscribe( (theme) => {
@@ -26,9 +28,10 @@ export class NavbarComponent implements OnInit {
     });
 
     const userData = localStorage.getItem('user');
-  if (userData) {
-    this.user = JSON.parse(userData);
-  }
+    if (userData) {
+      this.user = JSON.parse(userData);
+    }
+    this.loadexerciceEnCours();
   }
 
   showActiveTheme(theme: string) {
@@ -49,6 +52,23 @@ export class NavbarComponent implements OnInit {
       box.classList.remove('dark');
       box.classList.add('light');
     }
+  }
+
+  loadexerciceEnCours(): void {
+    this.authService.getExercice().subscribe(
+      (response: ExerciceResponse) => {
+        if (response.success && response.exercice.statut === 'ouvert') {
+          this.exerciceEnCours = response.exercice;
+          console.log("ewe", this.exerciceEnCours)
+        } else {
+          this.exerciceEnCours = null;
+        }
+      },
+      (error: any) => {
+        console.error('Erreur lors du chargement de l\'exercice ouvert', error);
+        this.exerciceEnCours = null;
+      }
+    );
   }
 
   /**

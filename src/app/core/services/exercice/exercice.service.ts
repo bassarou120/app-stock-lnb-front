@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { Observable} from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
-import {environment} from "../../../../environments/environment";
-import { Exercice } from "../interface/models";
 import { map } from 'rxjs/operators';
+import { ExerciceResponse, LoginResponse, Permission } from "../interface/models";
+import { environment } from '../../../../environments/environment';
+import { Exercice } from "../interface/models";
 
 @Injectable({
   providedIn: 'root',
@@ -23,6 +24,11 @@ export class ExerciceService  {
       )
     );
   }
+
+  getExercice(): Observable<ExerciceResponse> {
+    return this.http.get<ExerciceResponse>(`${this.url}/exercice/ouvert`);
+  }
+
 
   saveExercice(data: Exercice): Observable<Exercice> {
     return this.http.post<Exercice>(`${this.url}/exercices`, data);

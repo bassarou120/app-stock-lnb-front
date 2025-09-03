@@ -179,16 +179,15 @@
           >
             Clôturer
           </button>
-          
+
           <!-- Bouton pour ouvrir l'exercice -->
-          <!-- Bouton pour ouvrir l'exercice -->
-          <button
+<!--           <button
               class="btn btn-success btn-sm"
               [disabled]="row.statut === 'ouvert'"
               (click)="openOuvrirConfirmation(row.id)"
           >
               Ouvrir
-          </button>
+          </button> -->
         </div>
       </ng-template>
     </ngx-datatable-column>
@@ -285,7 +284,7 @@
           >
             <small class="text-danger"> *la date de fin est obligatoire</small>
           </div>
-          
+
           <div *ngIf="addExercice.errors?.['sameYear']" class="text-danger">
             ⚠️ Les dates de début et de fin doivent être dans la même année.
           </div>
@@ -459,7 +458,7 @@
       <!-- En-tête du modal -->
       <div class="modal-header">
         <h5 class="modal-title" id="editBureauLabel">
-          Suppression Exercice
+            Suppression Exercice
         </h5>
         <button
           type="button"
@@ -469,7 +468,7 @@
         ></button>
       </div>
 
-      <!-- Contenu du modal -->
+      <!-- Contenu du     modal -->
       <div class="modal-body">
         <form
           class="forms-sample"

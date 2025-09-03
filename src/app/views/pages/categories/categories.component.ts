@@ -57,7 +57,7 @@ export class CategorieComponent implements OnInit {
   ngOnInit(): void {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
-    
+   
     // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
       this.loadCategories();
