@@ -166,6 +166,33 @@
                 </div>
               </ng-template>
             </ngx-datatable-column>
+
+                <!-- Nouvelle colonne pour les actions d'état -->
+    <ngx-datatable-column name="État">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        <div class="d-flex align-items-center gap-2">
+          <!-- Bouton pour clôturer l'exercice -->
+          <button
+            class="btn btn-warning btn-sm"
+            [disabled]="row.statut === 'cloture'"
+            (click)="openClotureConfirmation(row.id)"
+          >
+            Clôturer
+          </button>
+          
+          <!-- Bouton pour ouvrir l'exercice -->
+          <!-- Bouton pour ouvrir l'exercice -->
+          <button
+              class="btn btn-success btn-sm"
+              [disabled]="row.statut === 'ouvert'"
+              (click)="openOuvrirConfirmation(row.id)"
+          >
+              Ouvrir
+          </button>
+        </div>
+      </ng-template>
+    </ngx-datatable-column>
+
           </ngx-datatable>
         </div>
       </div>
@@ -183,7 +210,6 @@
 >
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
-      <!-- En-tête du modal -->
       <div class="modal-header">
         <h5 class="modal-title" id="addExerciceLabel">Ajouter un Exercice</h5>
         <button
@@ -194,7 +220,6 @@
         ></button>
       </div>
 
-      <!-- Contenu du modal -->
       <div class="modal-body">
         <form
           class="forms-sample"
@@ -202,7 +227,6 @@
           (ngSubmit)="onClickSubmitAddExercice()"
           novalidate
         >
-          <!-- date_debut -->
           <label for="date_debut" class="form-label"
             >Date de début <span class="text-danger">*</span></label
           >
@@ -234,7 +258,6 @@
             >
           </div>
 
-          <!-- date_fin -->
           <label for="date_fin" class="form-label"
             >Date de fin <span class="text-danger">*</span></label
           >
@@ -262,12 +285,11 @@
           >
             <small class="text-danger"> *la date de fin est obligatoire</small>
           </div>
+          
+          <div *ngIf="addExercice.errors?.['sameYear']" class="text-danger">
+            ⚠️ Les dates de début et de fin doivent être dans la même année.
+          </div>
 
-          <div *ngIf="addExercice.errors?.['fullYear']" class="text-danger">
-    ⚠️ Les dates doivent couvrir une année complète (ex: 2025-01-01 → 2025-12-31).
-  </div>
-
-          <!-- Boutons centrés -->
           <div class="d-flex justify-content-center gap-2">
             <button type="submit" class="btn btn-primary" [disabled]="isAdding">
               <div
@@ -456,7 +478,7 @@
         >
           <div class="mb-3">
             <p class="text-secondary">
-              Voulez-vous vraiment supprimer ce Bureau/Localisation ?
+              Voulez-vous vraiment supprimer cet exercice ?
             </p>
           </div>
           <input type="hidden" formControlName="id" />
@@ -485,3 +507,22 @@
   </div>
 </div>
 <!-- /delete Bureau Modal -->
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true"
+    [class.show]="showConfirmationModal" [style.display]="showConfirmationModal ? 'block' : 'none'">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" (click)="closeConfirmationModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ confirmationMessage }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeConfirmationModal()">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="confirmStatusChange()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>

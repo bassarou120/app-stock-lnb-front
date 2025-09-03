@@ -28,8 +28,13 @@ export class ExerciceService  {
     return this.http.post<Exercice>(`${this.url}/exercices`, data);
   }
 
-  editExercice(data: Exercice): Observable<Exercice> {
+  editExercice(data: any): Observable<Exercice> {
     return this.http.put<Exercice>(`${this.url}/exercices/${data.id}`, data);
+  }
+
+  updateExercice(data: any): Observable<Exercice> {
+    // Le chemin est maintenant correct et correspond à la route Laravel.
+    return this.http.put<Exercice>(`${this.url}/exercicestate/${data.id}/status`, data);
   }
 
   deleteExercice(data: Exercice): Observable<void> {

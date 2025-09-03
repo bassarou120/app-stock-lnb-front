@@ -39,6 +39,9 @@ export class ExerciceComponent implements OnInit {
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
 
   today: NgbDateStruct = inject(NgbCalendar).getToday();
+  firstDayOfYear: NgbDateStruct;
+  lastDayOfYear: NgbDateStruct;
+
   rows: Exercice[] = [];
   temp: Exercice[] = [];
   loadingIndicator = true;
@@ -55,13 +58,34 @@ export class ExerciceComponent implements OnInit {
   isDeleting: boolean = false;  // Indicateur pour l'opération de suppression
   // -----------------------------------------------------------
 
+  // Ajoutez ces propriétés pour la gestion du modal de confirmation
+  showConfirmationModal = false;
+  confirmationMessage = '';
+  exerciceToChangeStatusId: number | null = null;
+  newStatus: 'ouvert' | 'cloture' | null = null;
+
+
   public addExercice!: FormGroup;
   public editExercice!: FormGroup;
   public deleteExercice!: FormGroup;
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private exerciceService: ExerciceService, private formBuilder: FormBuilder, private router: Router) { }
+  constructor(private exerciceService: ExerciceService, private formBuilder: FormBuilder, private router: Router) {
+    const currentYear = this.today.year;
+    this.firstDayOfYear = { year: currentYear, month: 1, day: 1 };
+    this.lastDayOfYear = { year: currentYear, month: 12, day: 31 };
+        this.addExercice = this.formBuilder.group({
+            date_debut: [this.firstDayOfYear, Validators.required],
+            date_fin: [this.lastDayOfYear, Validators.required],
+        });
+        this.editExercice = this.formBuilder.group({
+            id: [0, [Validators.required]],
+            date_debut: [this.firstDayOfYear, Validators.required],
+            date_fin: [this.lastDayOfYear, Validators.required],
+            statut: ["", []],
+        });
+  }
 
   ngOnInit(): void {
 
@@ -72,49 +96,122 @@ export class ExerciceComponent implements OnInit {
     if (this.hasPageAccess) {
       this.loadExercice();
     }
-    this.addExercice = this.formBuilder.group({
-      date_debut: [this.today, Validators.required],
-      date_fin: [this.today, Validators.required],
-    }
-  );
 
-    this.editExercice = this.formBuilder.group({
+    this.addExercice = this.formBuilder.group(
+      {
+        date_debut: [this.firstDayOfYear, Validators.required],
+        date_fin: [this.lastDayOfYear, Validators.required],
+      },
+      {
+        validators: [this.sameYearValidator.bind(this)]
+      }
+    );
+
+    // This call needs to be outside the formBuilder.group() method
+    this.setupDateObservers();
+
+  this.editExercice = this.formBuilder.group(
+    {
       id: [0, [Validators.required]],
       date_debut: ["", []],
       date_fin: ["", []],
       statut: ["", []],
-    });
-    this.deleteExercice = this.formBuilder.group({
-      id: [0, [Validators.required]],
-    });
+    },
+    {
+      // Ajoutez le validateur ici
+      validators: [this.sameYearValidator.bind(this)]
+    }
+  );
+    // Appel de la nouvelle fonction pour le formulaire d'édition
+  this.setupEditDateObservers(); 
   }
 
-  fullYearValidator(control: AbstractControl): ValidationErrors | null {
+  // Enforce that start and end dates are in the same year
+  sameYearValidator(control: AbstractControl): ValidationErrors | null {
     const start = control.get('date_debut')?.value;
     const end = control.get('date_fin')?.value;
 
-    if (!start || !end) return null;
-
-    const startDate = new Date(start);
-    const endDate = new Date(end);
-
-    const yearStart = startDate.getFullYear();
-    const yearEnd = endDate.getFullYear();
-
-    // Vérifier si date_debut = 1er Janvier et date_fin = 31 Décembre de la même année
-    if (
-      startDate.getMonth() === 0 &&
-      startDate.getDate() === 1 &&
-      endDate.getMonth() === 11 &&
-      endDate.getDate() === 31 &&
-      yearStart === yearEnd
-    ) {
-      return null; // ✅ valide
+    if (!start || !end) {
+      return null; // Don't validate if dates are not selected yet.
     }
 
-    return { fullYear: true }; // ❌ invalide
+    // NgbDateStruct's year property is already a number
+    const startYear = start.year;
+    const endYear = end.year;
+
+    if (startYear !== endYear) {
+      // Return an error if the years are different
+      return { sameYear: true };
+    }
+
+    // Return null if the years are the same (valid)
+    return null;
   }
 
+  setupDateObservers(): void {
+    // Observe changes on the 'date_debut' field
+    this.addExercice.get('date_debut')?.valueChanges.subscribe(date_debut => {
+      if (date_debut) {
+        // Force the date_debut to the first day of the year selected
+        const firstDayOfYear = { year: date_debut.year, month: 1, day: 1 };
+        this.addExercice.get('date_debut')?.setValue(firstDayOfYear, { emitEvent: false });
+        
+        // Update the 'date_fin' field with the last day of the same year
+        this.addExercice.get('date_fin')?.setValue(
+          { year: date_debut.year, month: 12, day: 31 },
+          { emitEvent: false } // Avoid an infinite update loop
+        );
+      }
+    });
+
+    // Observe changes on the 'date_fin' field
+    this.addExercice.get('date_fin')?.valueChanges.subscribe(date_fin => {
+      if (date_fin) {
+        // Force the date_fin to the last day of the year selected
+        const lastDayOfYear = { year: date_fin.year, month: 12, day: 31 };
+        this.addExercice.get('date_fin')?.setValue(lastDayOfYear, { emitEvent: false });
+
+        // Update the 'date_debut' field with the first day of the same year
+        this.addExercice.get('date_debut')?.setValue(
+          { year: date_fin.year, month: 1, day: 1 },
+          { emitEvent: false } // Avoid an infinite update loop
+        );
+      }
+    });
+  }
+
+  // Créez une nouvelle méthode dans votre classe de composant
+  setupEditDateObservers(): void {
+    // Observez les changements sur le champ `date_debut` du formulaire d'édition
+    this.editExercice.get('date_debut')?.valueChanges.subscribe(date_debut => {
+      if (date_debut) {
+        // Force the date_debut to the first day of the year selected
+        const firstDayOfYear = { year: date_debut.year, month: 1, day: 1 };
+        this.editExercice.get('date_debut')?.setValue(firstDayOfYear, { emitEvent: false });
+        
+        // Update the 'date_fin' field with the last day of the same year
+        this.editExercice.get('date_fin')?.setValue(
+          { year: date_debut.year, month: 12, day: 31 },
+          { emitEvent: false } // Avoid an infinite update loop
+        );
+      }
+    });
+
+    // Observez les changements sur le champ `date_fin` du formulaire d'édition
+    this.editExercice.get('date_fin')?.valueChanges.subscribe(date_fin => {
+      if (date_fin) {
+        // Force the date_fin to the last day of the year selected
+        const lastDayOfYear = { year: date_fin.year, month: 12, day: 31 };
+        this.editExercice.get('date_fin')?.setValue(lastDayOfYear, { emitEvent: false });
+
+        // Update the 'date_debut' field with the first day of the same year
+        this.editExercice.get('date_debut')?.setValue(
+          { year: date_fin.year, month: 1, day: 1 },
+          { emitEvent: false } // Avoid an infinite update loop
+        );
+      }
+    });
+  }
 
   // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
   private initializePermissions(): void {
@@ -397,6 +494,61 @@ export class ExerciceComponent implements OnInit {
     return `${year}-${month}-${day}`; // Format YYYY-MM-DD
   }
 
+  clotureExercice(id: number) {
+  if (confirm("Êtes-vous sûr de vouloir clôturer cet exercice ?")) {
+    this.exerciceService.editExercice({ id: id, statut: 'cloture' }).subscribe({
+      next: () => this.loadExercice(),
+      error: (error) => console.error("Erreur lors de la clôture de l'exercice :", error)
+    });
+  }
+}
+
+ouvrirExercice(id: number) {
+  if (confirm("Êtes-vous sûr de vouloir ouvrir cet exercice ? L'exercice actuel sera clôturé.")) {
+    // Note: La logique pour clôturer les autres exercices est dans le backend
+    this.exerciceService.editExercice({ id: id, statut: 'ouvert' }).subscribe({
+      next: () => this.loadExercice(),
+      error: (error) => console.error("Erreur lors de l'ouverture de l'exercice :", error)
+    });
+  }
+}
+
+  openClotureConfirmation(rowId: number) {
+  this.exerciceToChangeStatusId = rowId;
+  this.newStatus = 'cloture';
+  this.confirmationMessage = "Êtes-vous sûr de vouloir clôturer cet exercice ?";
+  this.showConfirmationModal = true;
+}
+  
+  // Cette méthode remplace l'appel direct à `ouvrirExercice` depuis le template
+  openOuvrirConfirmation(rowId: number) {
+    this.exerciceToChangeStatusId = rowId;
+    this.newStatus = 'ouvert';
+    this.confirmationMessage = "Êtes-vous sûr de vouloir ouvrir cet exercice ? L'exercice actuel sera clôturé.";
+    this.showConfirmationModal = true;
+  }
+
+    // Cette méthode est appelée par le bouton de confirmation du modal
+  confirmStatusChange() {
+    if (this.exerciceToChangeStatusId !== null && this.newStatus !== null) {
+      this.exerciceService.updateExercice({ id: this.exerciceToChangeStatusId, statut: this.newStatus }).subscribe({
+        next: () => {
+          this.loadExercice();
+          this.closeConfirmationModal();
+        },
+        error: (error) => {
+          console.error("Erreur lors de la modification du statut :", error);
+          this.closeConfirmationModal();
+        }
+      });
+    }
+  }
+
+    closeConfirmationModal() {
+    this.showConfirmationModal = false;
+    this.exerciceToChangeStatusId = null;
+    this.newStatus = null;
+  }
 
   // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
   convertToNgbDate(dateString: string): NgbDateStruct | null {
