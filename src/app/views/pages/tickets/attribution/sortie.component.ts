@@ -120,17 +120,19 @@ export class SortieComponent implements OnInit {
 
     this.editSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
-      compagnie_petrolier_id: [null, [Validators.required]],
-      vehicule_id: [null, [Validators.required]],
-      coupon_ticket_id: [null, [Validators.required]],
+      employe_id: [null, [Validators.required]],
+      vehicule_id: [null, []], // Rendu optionnel car il n'est pas toujours requis
       kilometrage: [null, [Validators.required, Validators.min(0)]],
-      employe_id: [null, []],
+      kilometrage_de_fin: [null, [Validators.min(0)]],
       commune_depart: [null, [Validators.required]],
       commune_arriver: [null, [Validators.required]],
+      // Les autres champs ne sont pas pertinents pour cette édition
+      compagnie_petrolier_id: [null, []],
+      coupon_ticket_id: [null, []],
       description: ["", []],
       objet: ["", []],
-      qte: [1, [Validators.required, Validators.min(1)]],
-      date: ["", [Validators.required]],
+      qte: [1, []],
+      date: ["", []],
       trajet_aller_retour: [false, []],
     });
 
@@ -303,73 +305,84 @@ export class SortieComponent implements OnInit {
 
   onClickSubmitEditSortie() {
     const spinner = document.querySelector('.spinnerModif');
+    console.log("Début de l'opération de soumission pour la modification de la sortie.");
 
     if (this.editSortie.valid) {
-      if (spinner) {
-        spinner.classList.remove('d-none');
-      }
-
-      const compositeCouponId = this.editSortie.get('coupon_ticket_id')?.value;
-      let actualCouponId: number | null = null;
-      let actualCompagnieId: number | null = null;
-
-      if (compositeCouponId) {
-        const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === compositeCouponId);
-        if (selectedItem) {
-          actualCouponId = selectedItem.coupon_ticket_actual_id;
-          actualCompagnieId = selectedItem.compagnie_petrolier_actual_id;
-        } else {
-          console.error("Erreur: L'élément sélectionné pour l'édition n'a pas été trouvé dans la liste des coupons.");
-          alert("Erreur lors de la soumission: Coupon sélectionné invalide pour l'édition.");
-          if (spinner) {
-            spinner.classList.add('d-none');
-          }
-          return;
+        console.log("Le formulaire d'édition est valide.");
+        if (spinner) {
+            spinner.classList.remove('d-none');
         }
-      }
 
-      const formData = {
-        ...this.editSortie.value,
-        coupon_ticket_id: actualCouponId,
-        compagnie_petrolier_id: actualCompagnieId,
-        date: this.formatDate(this.editSortie.value.date),
-      };
+        const compositeCouponId = this.editSortie.get('coupon_ticket_id')?.value;
+        console.log("Valeur composite du coupon récupérée :", compositeCouponId);
 
-      this.sortieService.editMouvementTicketSortie(formData).subscribe(
-        (data: any) => {
-          this.loadSorties();
-          if (spinner) {
-            spinner.classList.add('d-none');
-          }
-          this.editSortie.reset();
+        let actualCouponId: number | null = null;
+        let actualCompagnieId: number | null = null;
 
-          const modal = document.getElementById('edit_sortie');
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertModifVisible = true;
-            setTimeout(() => {
-              this.alertModifVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de la modification de la sortie :', error);
-          if (spinner) {
-            spinner.classList.add('d-none');
-          }
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+        if (compositeCouponId) {
+            const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === compositeCouponId);
+            console.log("Élément trouvé dans la liste pour l'édition :", selectedItem);
+            
+            if (selectedItem) {
+                actualCouponId = selectedItem.coupon_ticket_actual_id;
+                actualCompagnieId = selectedItem.compagnie_petrolier_actual_id;
+                console.log("IDs actuels extraits - Coupon ID :", actualCouponId, ", Compagnie ID :", actualCompagnieId);
+            } else {
+                console.error("Erreur: L'élément sélectionné pour l'édition n'a pas été trouvé dans la liste des coupons.");
+                console.error("Erreur lors de la soumission: Coupon sélectionné invalide pour l'édition.");
+                if (spinner) {
+                    spinner.classList.add('d-none');
+                }
+                return;
+            }
         }
-      );
+
+        const formData = {
+            ...this.editSortie.value,
+            coupon_ticket_id: actualCouponId,
+            compagnie_petrolier_id: actualCompagnieId,
+            date: this.formatDate(this.editSortie.value.date),
+        };
+
+        console.log("Données du formulaire final prêtes à être envoyées :", formData);
+
+        this.sortieService.editMouvementTicketSortie(formData).subscribe(
+            (data: any) => {
+                console.log("Modification de la sortie réussie. Données reçues :", data);
+                this.loadSorties();
+                if (spinner) {
+                    spinner.classList.add('d-none');
+                }
+                this.editSortie.reset();
+
+                const modal = document.getElementById('edit_sortie');
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                bsModal?.hide();
+
+                setTimeout(() => {
+                    this.alertModifVisible = true;
+                    setTimeout(() => {
+                        this.alertModifVisible = false;
+                    }, 2000);
+                }, 200);
+            },
+            (error: any) => {
+                console.error('Erreur lors de la modification de la sortie :', error);
+                if (spinner) {
+                    spinner.classList.add('d-none');
+                }
+                console.error('Une erreur s\'est produite. Veuillez réessayer.');
+            }
+        );
     } else {
-      if (spinner) {
-        spinner.classList.add('d-none');
-      }
-      this.markFormGroupTouched(this.editSortie);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+        console.log("Le formulaire d'édition n'est pas valide.");
+        if (spinner) {
+            spinner.classList.add('d-none');
+        }
+        this.markFormGroupTouched(this.editSortie);
+        console.error("Désolé, le formulaire n'est pas bien renseigné");
     }
-  }
+}
 
   onClickSubmitDeleteSortie() {
     const spinner = document.querySelector('.spinnerDelete');
@@ -566,6 +579,7 @@ export class SortieComponent implements OnInit {
       vehicule_id: row.vehicule_id,
       coupon_ticket_id: selectedCompositeId,
       kilometrage: row.kilometrage,
+      kilometrage_de_fin: row.kilometrage_de_fin,
       employe_id: row.employe_id,
       commune_depart: row.commune_depart,
       commune_arriver: row.commune_arriver,

@@ -132,7 +132,7 @@
             <ngx-datatable-column name="Qte" prop="qte"></ngx-datatable-column>
             <ngx-datatable-column name="Date" prop="date"></ngx-datatable-column>
              <ngx-datatable-column name="Actions" [frozenRight]="true"
-  [width]="130" [headerClass]="'actions-header'"
+                      [width]="130" [headerClass]="'actions-header'"
                       [cellClass]="'actions-cell'">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
@@ -152,12 +152,12 @@
                     </a>
                     <a ngbDropdownItem  class="d-flex align-items-center" (click)="addKilometrageDeFin(row)">
                         <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Ajouter kilometrage de fin</span>
-                      </a>
+                    </a>
 
-<!--                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                       data-bs-target="#edit_sortie" (click)="getEditForm(row)">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
-                    </a> -->
+                    </a> 
 <!--                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                       data-bs-target="#delete_sortie" (click)="getDeleteForm(row)">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
@@ -601,7 +601,7 @@
         <form class="forms-sample" [formGroup]="editSortie" (ngSubmit)="onClickSubmitEditSortie()" novalidate>
 
           <!-- Sélectionner un coupon -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="coupon" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="couponTickets && couponTickets.length > 0; else noCouponTickets">
@@ -612,19 +612,19 @@
               <div *ngIf="addSortie.get('coupon_ticket_id')?.invalid && addSortie.get('coupon_ticket_id')?.touched">
                 <small class="text-danger"> *Le coupon est obligatoire</small>
               </div>
-            </ng-container>
+            </ng-container> -->
 
             <!-- Message si aucun CouponTicket n'existe -->
-            <ng-template #noCouponTickets>
+            <!-- <ng-template #noCouponTickets>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
               </div>
             </ng-template>
-          </div>
+          </div> -->
 
           <!-- Qte -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
               [class.invalid]="editSortie.get('qte')?.invalid && editSortie.get('qte')?.touched" formControlName="qte">
@@ -632,11 +632,11 @@
               <small *ngIf="editSortie.get('qte')?.invalid && editSortie.get('qte')?.touched" class="text-danger"> *la
                 qte est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
 
           <!-- description -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="description" class="form-label">Description du mouvement <span
                 class="text-danger">*</span></label>
             <textarea class="form-control" id="description" rows="5"
@@ -646,7 +646,7 @@
               <small *ngIf="editSortie.get('description')?.invalid && editSortie.get('description')?.touched"
                 class="text-danger"> *la description est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
           <!-- Sélectionner un employe -->
           <div class="mb-3">
@@ -672,7 +672,7 @@
           </div>
 
           <!-- Sélectionner un vehicule -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="vehicule" class="form-label">Vehicule<span class="text-danger">*</span></label>
 
             <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehicule">
@@ -683,16 +683,16 @@
               <div *ngIf="addSortie.get('vehicule_id')?.invalid && addSortie.get('vehicule_id')?.touched">
                 <small class="text-danger"> *Le vehicule est obligatoire</small>
               </div>
-            </ng-container>
+            </ng-container> -->
 
             <!-- Message si aucun vehicule n'existe -->
-            <ng-template #noVehicule>
+            <!-- <ng-template #noVehicule>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Vehicule. Veuillez en créer.
               </div>
             </ng-template>
-          </div>
+          </div> -->
 
           <div class="mb-3">
             <label for="edit_commune_depart" class="form-label">Commune Départ <span
@@ -733,7 +733,7 @@
           </div>
 
           <!-- Sélectionner une compagnie_petrolier -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="fournisseur" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolierE">
@@ -746,34 +746,47 @@
                 *ngIf="editSortie.get('compagnie_petrolier_id')?.invalid && editSortie.get('compagnie_petrolier_id')?.touched">
                 <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
               </div>
-            </ng-container>
+            </ng-container> -->
 
             <!-- Message si aucune Compagnie_petrolier n'existe -->
-            <ng-template #noCompagnie_petrolierE>
+            <!-- <ng-template #noCompagnie_petrolierE>
               <div class="alert alert-danger"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolier. Veuillez en créer.
               </div>
             </ng-template>
-          </div>
+          </div> -->
 
 
-          <!-- kilometre -->
+          <!-- kilometre de Début -->
           <div class="mb-3">
-            <label for="kilometrage" class="form-label">kilometrage <span class="text-danger">*</span></label>
+            <label for="kilometrage" class="form-label">kilometrage de Début <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="kilometrage" placeholder="1" autocomplete="off"
               [class.invalid]="editSortie.get('kilometrage')?.invalid && editSortie.get('kilometrage')?.touched"
               formControlName="kilometrage">
             <div *ngIf="editSortie.get('kilometrage')?.invalid && editSortie.get('kilometrage')?.touched">
               <small *ngIf="editSortie.get('kilometrage')?.invalid && editSortie.get('kilometrage')?.touched"
-                class="text-danger"> *le kilometrage
+                class="text-danger"> *le kilometrage de Début
                 est obligatoire</small>
+            </div>
+          </div>
+
+          <!-- kilometre de Fin -->
+          <div class="mb-3">
+            <label for="kilometrage_de_fin" class="form-label">kilometrage de Fin <span class="text-danger"></span></label>
+            <input type="number" class="form-control" id="kilometrage_de_fin" placeholder="1" autocomplete="off"
+              [class.invalid]="editSortie.get('kilometrage_de_fin')?.invalid && editSortie.get('kilometrage_de_fin')?.touched"
+              formControlName="kilometrage_de_fin">
+            <div *ngIf="editSortie.get('kilometrage_de_fin')?.invalid && editSortie.get('kilometrage_de_fin')?.touched">
+              <small *ngIf="editSortie.get('kilometrage_de_fin')?.invalid && editSortie.get('kilometrage')?.touched"
+               class="text-danger"> *le kilometrage
+                de Fin est obligatoire</small>
             </div>
           </div>
 
 
           <!-- Objet -->
-          <div class="mb-3">
+          <!-- <div class="mb-3">
             <label for="objet" class="form-label">Objet <span class="text-danger"></span></label>
             <input type="text" class="form-control" id="objet" placeholder="Objet" autocomplete="off"
               [class.invalid]="editSortie.get('objet')?.invalid && editSortie.get('objet')?.touched"
@@ -783,10 +796,10 @@
                 *l'objet
                 est obligatoire</small>
             </div>
-          </div>
+          </div> -->
 
           <!--  date_mouvement -->
-          <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+          <!-- <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
           <div class="input-group mb-5">
             <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
               <i data-feather="calendar"></i>
@@ -797,7 +810,7 @@
 
           <div *ngIf="editSortie.get('date')?.invalid && editSortie.get('date')?.touched">
             <small class="text-danger"> *la date du mouvement est obligatoire</small>
-          </div>
+          </div> -->
 
 
           <!-- Boutons centrés -->
