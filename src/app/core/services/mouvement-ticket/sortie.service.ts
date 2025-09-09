@@ -3,7 +3,7 @@ import { Observable} from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
-import { Employe, Vehicule, CouponTicket, TypeMouvement, MouvementTicket, CompagniePetroliere, Commune } from "../interface/models";
+import { Employe, Vehicule, CouponTicket, TypeMouvement, MouvementTicket, CompagniePetroliere, Commune , TransactionSortie} from "../interface/models";
 import { map } from 'rxjs/operators';
 
 @Injectable({
@@ -14,15 +14,34 @@ export class MouvementTicketService  {
 
   constructor(private http: HttpClient) {}
 
-  getAllMouvementTicketSortie(): Observable<MouvementTicket[]> {
-    return this.http.get<{ success: boolean; message: string; data: { data: MouvementTicket[] } }>(
+  // getAllMouvementTicketSortie(): Observable<MouvementTicket[]> {
+  //   return this.http.get<{ success: boolean; message: string; data: { data: MouvementTicket[] } }>(
+  //     `${this.url}/mouvement-ticket/sortie`
+  //   ).pipe(
+  //     map((response: { success: boolean; message: string; data: { data: MouvementTicket[] } }) =>
+  //       response.data.data
+  //     )
+  //   );
+  // }
+  // getAllMouvementTicketSortie(): Observable<TransactionSortie[]> {
+  //   return this.http.get<{ success: boolean; message: string; data: { data: TransactionSortie[] } }>(
+  //     `${this.url}/mouvement-ticket/sortie`
+  //   ).pipe(
+  //     map((response: { success: boolean; message: string; data: { data: TransactionSortie[] } }) =>
+  //       response.data.data
+  //     )
+  //   );
+  // }
+  getAllMouvementTicketSortie(): Observable<TransactionSortie[]> {
+  return this.http
+    .get<{ success: boolean; message: string; data: TransactionSortie[] }>(
       `${this.url}/mouvement-ticket/sortie`
-    ).pipe(
-      map((response: { success: boolean; message: string; data: { data: MouvementTicket[] } }) =>
-        response.data.data
-      )
+    )
+    .pipe(
+      map((response) => response.data) // <-- juste response.data
     );
-  }
+}
+
 
   getQuantiteDisponible(idCoupon: number, idCompagnie: number): Observable<any> {
     return this.http.get<any>(`${this.url}/quantite-disponible-ticket/${idCoupon}/${idCompagnie}`);

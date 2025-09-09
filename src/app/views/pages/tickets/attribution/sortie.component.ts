@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject,TemplateRef, ViewEncapsulation } f
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/sortie.service';
-import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket, Commune } from '../../../../core/services/interface/models';
+import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket, Commune,TicketDetail,TransactionSortie } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -13,6 +13,7 @@ import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon
 import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
+import { ChangeDetectorRef } from '@angular/core';
 
 declare var bootstrap: any;
 
@@ -43,8 +44,13 @@ export class SortieComponent implements OnInit {
   hasPageAccess: boolean = true;
 
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
-  rows: MouvementTicket[] = [];
-  temp: MouvementTicket[] = [];
+  // rows: MouvementTicket[] = [];
+  // temp: MouvementTicket[] = [];
+
+  rows: TransactionSortie[] = [];
+  temp: TransactionSortie[] = [];
+  selectedSortie!: TransactionSortie; // Pour le modal
+
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
@@ -57,7 +63,7 @@ export class SortieComponent implements OnInit {
 
   couponTicketsWithCompagnies: any[] = [];
   selectedCouponTicket: any = null;
-  selectedSortie: any = null;
+  selectedSortieb: any = null;
 
   quantiteDisponible: number = 0;
   coupon_ticket_id: number = 0;
@@ -88,6 +94,8 @@ export class SortieComponent implements OnInit {
     private router: Router,
     private ngbModalService: NgbModal,
     public modalService: NgbModal,
+     private fb: FormBuilder,
+  private cdRef: ChangeDetectorRef
   ) { }
 
 
@@ -103,20 +111,35 @@ export class SortieComponent implements OnInit {
       this.loadSorties();
     }
 
+    // this.addSortie = this.formBuilder.group({
+    //   compagnie_petrolier_id: [null, [Validators.required]],
+    //   vehicule_id: [null, [Validators.required]],
+    //   coupon_ticket_id: [null, [Validators.required]],
+    //   kilometrage: [null, [ Validators.min(0)]],
+    //   employe_id: [null, [Validators.required]],
+    //   commune_depart: [null, []],
+    //   commune_arriver: [null, []],
+    //   description: ["", []],
+    //   objet: ["", []],
+    //   qte: [null, [Validators.required, Validators.min(1)]], // Initialisé à null pour permettre la saisie
+    //   date: [this.currentDate, [Validators.required]],
+    //   trajet_aller_retour: [false, []],
+    // });
+
     this.addSortie = this.formBuilder.group({
-      compagnie_petrolier_id: [null, [Validators.required]],
-      vehicule_id: [null, [Validators.required]],
-      coupon_ticket_id: [null, [Validators.required]],
-      kilometrage: [null, [ Validators.min(0)]],
-      employe_id: [null, [Validators.required]],
-      commune_depart: [null, []],
-      commune_arriver: [null, []],
-      description: ["", []],
-      objet: ["", []],
-      qte: [null, [Validators.required, Validators.min(1)]], // Initialisé à null pour permettre la saisie
-      date: [this.currentDate, [Validators.required]],
-      trajet_aller_retour: [false, []],
-    });
+    vehicule_id: [null, [Validators.required]],
+    kilometrage: [null, [Validators.min(0)]],
+    employe_id: [null, [Validators.required]],
+    commune_depart: [null],
+    commune_arriver: [null],
+    description: [""],
+    objet: [""],
+    date: [this.currentDate, [Validators.required]],
+    trajet_aller_retour: [false],
+    tickets: this.formBuilder.array([
+      this.createTicketGroup()
+    ])
+  });
 
     this.editSortie = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -145,6 +168,45 @@ export class SortieComponent implements OnInit {
 
 
   }
+
+    // raccourci
+get tickets(): FormArray {
+  return this.addSortie.get('tickets') as FormArray;
+}
+
+// un ticket
+createTicketGroup(): FormGroup {
+  return this.fb.group({
+    coupon_ticket_id: [null, Validators.required],
+    qte: [1, [Validators.required, Validators.min(1)]]
+  });
+}
+
+addTicket(): void {
+  this.tickets.push(this.createTicketGroup());
+  this.cdRef.detectChanges();
+  setTimeout(() => {
+    this.cdRef.detectChanges(); // ✅ On force la détection de changement
+  }, 0);
+}
+
+removeTicket(index: number): void {
+  this.tickets.removeAt(index);
+}
+
+onQteInput(event: any, index: number) {
+  const value = event.target.value;
+  const ticketFormGroup = this.tickets.at(index) as FormGroup;
+  const qteControl = ticketFormGroup.get('qte');
+
+  if (qteControl) {
+    // S'assurer que la valeur est un nombre entier et qu'elle est valide
+    const qte = parseInt(value, 10);
+    if (!isNaN(qte) && qte >= 1) {
+      qteControl.setValue(qte);
+    }
+  }
+}
 
   private initializePermissions(): void {
     try {
@@ -176,14 +238,14 @@ export class SortieComponent implements OnInit {
     }
   }
 
-  getViewForm(row: any) {
-    if (!row || !row.id) {
-      console.error('Données de sortie invalides:', row);
-      return;
-    }
+  // getViewForm(row: any) {
+  //   if (!row || !row.id) {
+  //     console.error('Données de sortie invalides:', row);
+  //     return;
+  //   }
 
-    this.selectedSortie = row;
-  }
+  //   this.selectedSortie = row;
+  // }
 
   getDaysSinceAttribution(dateAttribution: string): number {
     if (!dateAttribution) return 0;
@@ -206,91 +268,106 @@ export class SortieComponent implements OnInit {
   }
 
   onClickSubmitAddSortie() {
-    console.log('DEBUG: Tentative de soumission du formulaire.');
-    console.log('DEBUG: addSortie.valid:', this.addSortie.valid);
-    console.log('DEBUG: addSortie.errors:', this.addSortie.errors);
-    Object.keys(this.addSortie.controls).forEach(key => {
-      const control = this.addSortie.get(key);
-      if (control?.invalid) {
-        console.log(`DEBUG: Contrôle '${key}' est invalide. Erreurs:`, control.errors);
+  if (this.isAddingSortie) {
+    return;
+  }
+
+
+  // Marquer tous les contrôles comme touchés pour déclencher les validations
+  this.markFormGroupTouched(this.addSortie);
+
+  if (this.addSortie.valid) {
+    this.isAddingSortie = true;
+    const spinner = document.querySelector('.spinner-add-sortie');
+    if (spinner) {
+      spinner.classList.remove('d-none');
+    }
+
+    // Créer un objet de données basé sur les valeurs du formulaire
+    const formData = {
+      ...this.addSortie.value,
+      date: this.formatDate(this.addSortie.value.date),
+    };
+
+    // Transformer le tableau de tickets du formulaire en un format compatible avec le backend
+    const ticketsData = formData.tickets.map((ticket: any) => {
+      // Trouver l'objet complet du coupon pour extraire les IDs réels
+      const selectedItem = this.couponTicketsWithCompagnies.find(
+        (item: any) => item.id === ticket.coupon_ticket_id
+      );
+
+      if (!selectedItem) {
+        console.error("Erreur: Un coupon sélectionné n'a pas été trouvé.");
+        alert("Erreur lors de la soumission: un coupon sélectionné est invalide.");
+        this.isAddingSortie = false;
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+        return null; // Retourne null pour pouvoir filtrer plus tard
       }
-    });
 
+      return {
+        compagnie_petrolier_id: selectedItem.compagnie_petrolier_actual_id,
+        coupon_ticket_id: selectedItem.coupon_ticket_actual_id,
+        qte: ticket.qte,
+      };
+    }).filter((ticket: any) => ticket !== null); // Supprimer les entrées nulles en cas d'erreur
 
-    if (this.isAddingSortie) {
+    // Si une erreur a été détectée dans le tableau, arrêter la soumission
+    if (ticketsData.length !== formData.tickets.length) {
       return;
     }
 
-    const spinner = document.querySelector('.spinner-add-sortie');
+    // Remplacer l'objet de la requête par le tableau formaté
+    formData.tickets = ticketsData;
 
-    if (this.addSortie.valid) {
-      this.isAddingSortie = true;
-      if (spinner) {
-        spinner.classList.remove('d-none');
-      }
+    // Supprimer les propriétés inutiles qui ne sont plus envoyées au backend
+    // Assurez-vous d'avoir un FormArray 'tickets' et non des champs séparés
+    delete formData.coupon_ticket_id;
+    delete formData.compagnie_petrolier_id;
+    delete formData.qte;
 
-      const formData = {
-        ...this.addSortie.value,
-        date: this.formatDate(this.addSortie.value.date),
-      };
+    // Appel du service avec les données formatées
+    this.sortieService.saveMouvementTicketSortie(formData).subscribe(
+      (data: any) => {
+        this.loadSorties();
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+        this.addSortie.reset();
+        this.isAddingSortie = false;
+        // La réactivation des champs se fera automatiquement via la logique onCouponSelected
+        this.trajetNotFoundMessage = null;
 
-      const selectedItem = this.couponTicketsWithCompagnies.find(
-        item => item.id === formData.coupon_ticket_id
-      );
+        const modal = document.getElementById('add_sortie');
+        const bsModal = (window as any).bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
 
-      if (selectedItem) {
-        formData.coupon_ticket_id = selectedItem.coupon_ticket_actual_id;
-        formData.compagnie_petrolier_id = selectedItem.compagnie_petrolier_actual_id;
-      } else {
-        console.error("Erreur: L'élément sélectionné n'a pas été trouvé dans la liste des coupons mappés.");
-        alert("Erreur lors de la soumission: Coupon sélectionné invalide.");
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        console.error('Erreur lors de l\'ajout de la sortie :', error);
         if (spinner) {
           spinner.classList.add('d-none');
         }
         this.isAddingSortie = false;
-        return;
+        alert('Une erreur s\'est produite. Veuillez réessayer. Détails: ' + (error.error?.message || error.message));
       }
-
-      this.sortieService.saveMouvementTicketSortie(formData).subscribe(
-        (data: any) => {
-          this.loadSorties();
-          if (spinner) {
-            spinner.classList.add('d-none');
-          }
-          this.addSortie.reset();
-          this.isAddingSortie = false;
-          this.addSortie.get('qte')?.enable(); // Réactiver le champ qte après reset
-          this.trajetNotFoundMessage = null; // Effacer le message après succès
-
-          const modal = document.getElementById('add_sortie');
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertAjoutVisible = true;
-            setTimeout(() => {
-              this.alertAjoutVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de l\'ajout de la sortie :', error);
-          if (spinner) {
-            spinner.classList.add('d-none');
-          }
-          this.isAddingSortie = false;
-          alert('Une erreur s\'est produite. Veuillez réessayer. Détails: ' + (error.error?.message || error.message));
-        }
-      );
-    } else {
-      if (spinner) {
-        spinner.classList.add('d-none');
-      }
-      this.markFormGroupTouched(this.addSortie);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+    );
+  } else {
+    // Si le formulaire n'est pas valide
+    const spinner = document.querySelector('.spinner-add-sortie');
+    if (spinner) {
+      spinner.classList.add('d-none');
     }
+    alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et les quantités.");
   }
-
+}
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
     Object.values(formGroup.controls).forEach(control => {
       control.markAsTouched();
@@ -522,39 +599,87 @@ export class SortieComponent implements OnInit {
     });
   }
 
+
   loadSorties(): void {
+    // Le type de retour du service doit correspondre
     this.sortieService.getAllMouvementTicketSortie().subscribe(
-      (data: MouvementTicket[]) => {
+      (data: TransactionSortie[]) => {
+        console.log("Réponse API sortie:", data);
         this.temp = [...data];
         this.rows = data;
         this.loadingIndicator = false;
       },
       error => {
-        console.error('Erreur lors du chargement des Mouvements Ticket Sortie', error);
+        console.error('Erreur lors du chargement des sorties de tickets', error);
         this.loadingIndicator = false;
       }
     );
   }
 
-  updateFilter(event: KeyboardEvent): void {
+  // La fonction pour le modal
+  getViewForm(row: TransactionSortie) {
+    this.selectedSortie = row;
+  }
+
+  // MISE À JOUR CRUCIALE DE LA FONCTION DE FILTRAGE
+  updateFilter(event: Event): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(sortie =>
-      (sortie.reference && sortie.reference.toLowerCase().includes(val)) ||
-      (sortie.vehicule && sortie.vehicule.immatriculation && sortie.vehicule.immatriculation.toLowerCase().includes(val)) ||
-      (sortie.coupon_ticket && sortie.coupon_ticket.libelle && sortie.coupon_ticket.libelle.toLowerCase().includes(val)) ||
-      (sortie.compagnie_petrolier && sortie.compagnie_petrolier.libelle && sortie.compagnie_petrolier.libelle.toLowerCase().includes(val)) ||
-      (sortie.depart && sortie.depart.libelle_commune && sortie.depart.libelle_commune.toLowerCase().includes(val)) ||
-      (sortie.arriver && sortie.arriver.libelle_commune && sortie.arriver.libelle_commune.toLowerCase().includes(val)) ||
-      (sortie.kilometrage && String(sortie.kilometrage).toLowerCase().includes(val)) ||
-      (sortie.employe && sortie.employe.nom && sortie.employe.nom.toLowerCase().includes(val)) ||
-      (sortie.objet && sortie.objet.toLowerCase().includes(val)) ||
-      (sortie.description && sortie.description.toLowerCase().includes(val)) ||
-      (sortie.qte && String(sortie.qte).toLowerCase().includes(val))
-    );
+    // Le filtrage doit maintenant chercher dans le tableau 'tickets'
+    this.rows = this.temp.filter(sortie => {
+      // Vérifie si au moins un ticket dans la transaction correspond à la recherche
+      const ticketMatch = sortie.tickets.some(ticket =>
+        (ticket.coupon?.libelle && ticket.coupon.libelle.toLowerCase().includes(val)) ||
+        (ticket.compagnie?.libelle && ticket.compagnie.libelle.toLowerCase().includes(val))
+      );
+
+      // Retourne vrai si un ticket correspond OU si une autre propriété commune correspond
+      return (
+        (sortie.reference && sortie.reference.toLowerCase().includes(val)) ||
+        (sortie.vehicule?.immatriculation && sortie.vehicule.immatriculation.toLowerCase().includes(val)) ||
+        (sortie.employe?.fullnameEmploye && sortie.employe.fullnameEmploye.toLowerCase().includes(val)) ||
+        (sortie.objet && sortie.objet.toLowerCase().includes(val)) ||
+        ticketMatch // Ajout de la condition de recherche sur les tickets
+      );
+    });
 
     this.table.offset = 0;
   }
+
+
+  // loadSorties(): void {
+  //   this.sortieService.getAllMouvementTicketSortie().subscribe(
+  //     (data: MouvementTicket[]) => {
+  //       this.temp = [...data];
+  //       this.rows = data;
+  //       this.loadingIndicator = false;
+  //     },
+  //     error => {
+  //       console.error('Erreur lors du chargement des Mouvements Ticket Sortie', error);
+  //       this.loadingIndicator = false;
+  //     }
+  //   );
+  // }
+
+  // updateFilter(event: KeyboardEvent): void {
+  //   const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+  //   this.rows = this.temp.filter(sortie =>
+  //     (sortie.reference && sortie.reference.toLowerCase().includes(val)) ||
+  //     (sortie.vehicule && sortie.vehicule.immatriculation && sortie.vehicule.immatriculation.toLowerCase().includes(val)) ||
+  //     (sortie.coupon_ticket && sortie.coupon_ticket.libelle && sortie.coupon_ticket.libelle.toLowerCase().includes(val)) ||
+  //     (sortie.compagnie_petrolier && sortie.compagnie_petrolier.libelle && sortie.compagnie_petrolier.libelle.toLowerCase().includes(val)) ||
+  //     (sortie.depart && sortie.depart.libelle_commune && sortie.depart.libelle_commune.toLowerCase().includes(val)) ||
+  //     (sortie.arriver && sortie.arriver.libelle_commune && sortie.arriver.libelle_commune.toLowerCase().includes(val)) ||
+  //     (sortie.kilometrage && String(sortie.kilometrage).toLowerCase().includes(val)) ||
+  //     (sortie.employe && sortie.employe.nom && sortie.employe.nom.toLowerCase().includes(val)) ||
+  //     (sortie.objet && sortie.objet.toLowerCase().includes(val)) ||
+  //     (sortie.description && sortie.description.toLowerCase().includes(val)) ||
+  //     (sortie.qte && String(sortie.qte).toLowerCase().includes(val))
+  //   );
+
+  //   this.table.offset = 0;
+  // }
 
   getEditForm(row: any) {
     const selectedCompositeId = this.couponTicketsWithCompagnies.find(
@@ -604,74 +729,143 @@ export class SortieComponent implements OnInit {
     return employe ? `${employe.nom} ${employe.prenom}` : '';
   }
 
-  updateQuantiteDisponible() {
-    const compositeId = this.addSortie.get('coupon_ticket_id')?.value;
-    let idCoupon: number | null = null;
-    let idCompagnie: number | null = null;
+  // updateQuantiteDisponible() {
+  //   const compositeId = this.addSortie.get('coupon_ticket_id')?.value;
+  //   let idCoupon: number | null = null;
+  //   let idCompagnie: number | null = null;
 
-    if (compositeId) {
-      const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === compositeId);
-      if (selectedItem) {
-        idCoupon = selectedItem.coupon_ticket_actual_id;
-        idCompagnie = selectedItem.compagnie_petrolier_actual_id;
-      }
-    }
+  //   if (compositeId) {
+  //     const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === compositeId);
+  //     if (selectedItem) {
+  //       idCoupon = selectedItem.coupon_ticket_actual_id;
+  //       idCompagnie = selectedItem.compagnie_petrolier_actual_id;
+  //     }
+  //   }
 
-    if (idCoupon === null || idCompagnie === null) {
-      this.quantiteDisponible = 0;
-      console.log('DEBUG: Coupon ou compagnie non sélectionnés, quantiteDisponible = 0.');
-      this.addSortie.get('qte')?.disable();
-      this.trajetNotFoundMessage = null; // Effacer le message si le coupon change
-      return;
-    }
+  //   if (idCoupon === null || idCompagnie === null) {
+  //     this.quantiteDisponible = 0;
+  //     console.log('DEBUG: Coupon ou compagnie non sélectionnés, quantiteDisponible = 0.');
+  //     this.addSortie.get('qte')?.disable();
+  //     this.trajetNotFoundMessage = null;
+  //   }
 
-    this.sortieService.getQuantiteDisponible(idCoupon, idCompagnie).subscribe(
-      (response) => {
-        this.quantiteDisponible = response.data;
-        console.log('DEBUG: Réponse de getQuantiteDisponible:', response.data);
-        console.log('DEBUG: quantiteDisponible mise à jour à:', this.quantiteDisponible);
+  //   this.sortieService.getQuantiteDisponible(idCoupon, idCompagnie).subscribe(
+  //     (response) => {
+  //       this.quantiteDisponible = response.data;
+  //       console.log('DEBUG: Réponse de getQuantiteDisponible:', response.data);
+  //       console.log('DEBUG: quantiteDisponible mise à jour à:', this.quantiteDisponible);
 
-        const qteControl = this.addSortie.get('qte');
-        qteControl?.setValidators([
-          Validators.required,
-          Validators.min(1),
-          Validators.max(this.quantiteDisponible)
-        ]);
-        qteControl?.updateValueAndValidity();
-        qteControl?.enable(); // S'assurer que le champ qte est activé après la mise à jour de la quantité disponible
-        this.trajetNotFoundMessage = null; // Effacer le message si la quantité disponible est mise à jour
+  //       const qteControl = this.addSortie.get('qte');
+  //       qteControl?.setValidators([
+  //         Validators.required,
+  //         Validators.min(1),
+  //         Validators.max(this.quantiteDisponible)
+  //       ]);
+  //       qteControl?.updateValueAndValidity();
+  //       qteControl?.enable();
+  //       this.trajetNotFoundMessage = null;
 
-      },
-      (error) => {
-        console.error('Erreur lors de la récupération de la quantité disponible:', error);
-        this.quantiteDisponible = 0;
-        this.addSortie.get('qte')?.disable(); // Désactiver le champ qte en cas d'erreur
-        this.trajetNotFoundMessage = null; // Effacer le message en cas d'erreur de récupération de stock
-      }
-    );
+  //     },
+  //     (error) => {
+  //       console.error('Erreur lors de la récupération de la quantité disponible:', error);
+  //       this.quantiteDisponible = 0;
+  //       this.addSortie.get('qte')?.disable();
+  //       this.trajetNotFoundMessage = null;
+  //     }
+  //   );
+  // }
+
+  // onCouponSelected(event: any): void {
+  //   if (event) {
+  //     this.coupon_ticket_id = event.coupon_ticket_actual_id;
+  //     this.compagnie_petrolier_id = event.compagnie_petrolier_actual_id;
+
+  //     this.addSortie.patchValue({
+  //       coupon_ticket_id: event.id,
+  //       compagnie_petrolier_id: this.compagnie_petrolier_id
+  //     });
+  //     this.updateQuantiteDisponible();
+
+  //   } else {
+  //     this.addSortie.patchValue({
+  //       coupon_ticket_id: null,
+  //       compagnie_petrolier_id: null
+  //     });
+  //     this.quantiteDisponible = 0;
+  //     this.addSortie.get('qte')?.disable();
+  //     this.trajetNotFoundMessage = null;
+  //   }
+  // }
+
+  // Déclarez cette propriété dans votre classe pour stocker les quantités
+quantitesDisponibles: { [key: number]: number } = {};
+
+updateQuantiteDisponible(index: number, couponId: number, compagnieId: number): void {
+  const ticketFormGroup = this.tickets.at(index) as FormGroup;
+  const qteControl = ticketFormGroup.get('qte');
+
+  if (couponId === null || compagnieId === null) {
+    this.quantitesDisponibles[index] = 0;
+    qteControl?.disable();
+    qteControl?.setErrors(null);
+    return;
   }
 
-  onCouponSelected(event: any): void {
-    if (event) {
-      this.coupon_ticket_id = event.coupon_ticket_actual_id;
-      this.compagnie_petrolier_id = event.compagnie_petrolier_actual_id;
+  this.sortieService.getQuantiteDisponible(couponId, compagnieId).subscribe(
+    (response: any) => {
+      const quantite = response.data;
+      this.quantitesDisponibles[index] = quantite;
 
-      this.addSortie.patchValue({
-        coupon_ticket_id: event.id,
-        compagnie_petrolier_id: this.compagnie_petrolier_id
-      });
-      this.updateQuantiteDisponible();
-
-    } else {
-      this.addSortie.patchValue({
-        coupon_ticket_id: null,
-        compagnie_petrolier_id: null
-      });
-      this.quantiteDisponible = 0;
-      this.addSortie.get('qte')?.disable(); // Désactiver le champ qte si aucun coupon n'est sélectionné
-      this.trajetNotFoundMessage = null; // Effacer le message si le coupon est désélectionné
+      qteControl?.enable();
+      // Met à jour les validateurs avec la nouvelle quantité maximale
+      qteControl?.setValidators([
+        Validators.required,
+        Validators.min(1),
+        Validators.max(quantite),
+      ]);
+      qteControl?.updateValueAndValidity();
+    },
+    (error: any) => {
+      console.error('Erreur lors de la récupération de la quantité disponible:', error);
+      this.quantitesDisponibles[index] = 0;
+      qteControl?.disable();
+      qteControl?.setErrors(null);
     }
+  );
+}
+
+  onCouponSelected(event: any, index: number): void {
+  const ticketFormGroup = this.tickets.at(index) as FormGroup;
+
+  if (event) {
+    const couponId = event.coupon_ticket_actual_id;
+    const compagnieId = event.compagnie_petrolier_actual_id;
+
+    // Met à jour la valeur du coupon_ticket_id dans le formulaire
+    ticketFormGroup.patchValue({
+      coupon_ticket_id: event.id,
+    });
+
+    // Appelle la fonction de mise à jour de la quantité disponible
+    this.updateQuantiteDisponible(index, couponId, compagnieId);
+  } else {
+    // Si le coupon est désélectionné, réinitialise le formulaire du ticket
+    ticketFormGroup.patchValue({
+      coupon_ticket_id: null,
+      qte: null,
+    });
+    // Désactive le champ de quantité et efface les erreurs
+    const qteControl = ticketFormGroup.get('qte');
+    if (qteControl) {
+      qteControl.disable();
+      qteControl.setErrors(null);
+    }
+    // Supprime la quantité disponible de l'affichage
+    delete this.quantitesDisponibles[index];
   }
+}
+
+
 
   calculerQuantiteTicket() {
     const data = {
