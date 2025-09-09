@@ -6,6 +6,8 @@ import { map } from 'rxjs/operators';
 import { ExerciceResponse, LoginResponse, Permission } from "../interface/models";
 import { environment } from '../../../../environments/environment';
 import { Exercice } from "../interface/models";
+import { switchMap } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root',
@@ -37,11 +39,17 @@ export class ExerciceService  {
   editExercice(data: any): Observable<Exercice> {
     return this.http.put<Exercice>(`${this.url}/exercices/${data.id}`, data);
   }
+  
 
-  updateExercice(data: any): Observable<Exercice> {
-    // Le chemin est maintenant correct et correspond à la route Laravel.
-    return this.http.put<Exercice>(`${this.url}/exercicestate/${data.id}/status`, data);
+  updateExercice(data: any): Observable<ExerciceResponse> {
+    return this.http
+      .put<Exercice>(`${this.url}/exercicestate/${data.id}/status`, data)
+      .pipe(
+        // Une fois le PUT fini, on relance le GET pour avoir l'exercice ouvert
+        switchMap(() => this.getExercice())
+      );
   }
+
 
   deleteExercice(data: Exercice): Observable<void> {
     return this.http.delete<void>(`${this.url}/exercices/${data.id}`);

@@ -31,7 +31,7 @@ export class NavbarComponent implements OnInit {
     if (userData) {
       this.user = JSON.parse(userData);
     }
-    this.loadexerciceEnCours();
+    
   }
 
   showActiveTheme(theme: string) {
@@ -52,23 +52,6 @@ export class NavbarComponent implements OnInit {
       box.classList.remove('dark');
       box.classList.add('light');
     }
-  }
-
-  loadexerciceEnCours(): void {
-    this.authService.getExercice().subscribe(
-      (response: ExerciceResponse) => {
-        if (response.success && response.exercice.statut === 'ouvert') {
-          this.exerciceEnCours = response.exercice;
-          console.log("ewe", this.exerciceEnCours)
-        } else {
-          this.exerciceEnCours = null;
-        }
-      },
-      (error: any) => {
-        console.error('Erreur lors du chargement de l\'exercice ouvert', error);
-        this.exerciceEnCours = null;
-      }
-    );
   }
 
   /**
