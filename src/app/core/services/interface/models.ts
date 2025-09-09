@@ -522,3 +522,20 @@ export interface ExerciceResponse {
   success: boolean;
   exercice: Exercice;
 }
+
+
+export interface ArticleExercice {
+  id: number;
+  id_article: number;
+  id_exercice: number;
+  stock_debut_exercice?: number;
+  stock_fin_exercice?: number;
+  cmp_debut_exercice?: number;
+  cmp_fin_exercice?: number;
+  created_at?: string;
+  updated_at?: string;
+
+  // relations
+  article?: { id: number; libelle: string };
+  exercice?: { id: number; annee: number; statut: string };
+}

@@ -42,6 +42,12 @@ export const MENU: MenuItem[] = [
         link: '/mouvement-stock/exercice',
         fonctionnalites: ['Sorties de Stock'],
       }
+      ,
+      {
+        label: 'Articles exercices',
+        link: '/mouvement-stock/articles-exercices',
+        fonctionnalites: ['Sorties de Stock'],
+      }
     ]
   },
   {

@@ -26,4 +26,8 @@ export default [
     path: 'les-demandes',
     loadComponent: () => import('./les-demandes/les-demandes.component').then(c => c.SortieStockGroupedComponent),
   },
+  {
+    path: 'articles-exercices',
+    loadComponent: () => import('./articles-exercices/articles-exercices.component').then(c => c.ArticleExerciceComponent),
+  },
 ] as Routes;
