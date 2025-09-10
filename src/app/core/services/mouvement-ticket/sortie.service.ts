@@ -50,8 +50,16 @@ export class MouvementTicketService  {
   saveMouvementTicketSortie(data: MouvementTicket): Observable<MouvementTicket> {
     return this.http.post<MouvementTicket>(`${this.url}/mouvement-ticket/sortie`, data);
   }
-  editMouvementTicketSortie(data: MouvementTicket): Observable<MouvementTicket> {
-    return this.http.put<MouvementTicket>(`${this.url}/mouvement-ticket/sortie/${data.id}`, data);
+
+  // 🛠️ Méthode corrigée pour accepter l'ID et les données
+  editMouvementTicketSortie(id: number | null, data: MouvementTicket): Observable<MouvementTicket> {
+    // Si la logique backend est déjà de gérer l'URL avec l'ID dans les données, 
+    // cette ligne est une bonne pratique de sécurité côté front-end.
+    if (id === null || id === undefined) {
+      // Optionnel : Lancer une erreur ou retourner un Observable d'erreur
+      throw new Error("L'ID est requis pour la modification d'un ticket de sortie.");
+    }
+    return this.http.put<MouvementTicket>(`${this.url}/mouvement-ticket/sortie/${id}`, data);
   }
 
 

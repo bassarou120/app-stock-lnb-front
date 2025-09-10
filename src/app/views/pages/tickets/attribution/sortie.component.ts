@@ -142,18 +142,18 @@ export class SortieComponent implements OnInit {
   });
 
     this.editSortie = this.formBuilder.group({
-      id: [0, [Validators.required]],
-      compagnie_petrolier_id: [null, [Validators.required]],
-      vehicule_id: [null, [Validators.required]],
-      coupon_ticket_id: [null, [Validators.required]],
-      kilometrage: [null, [Validators.required, Validators.min(0)]],
-      employe_id: [null, []],
-      commune_depart: [null, [Validators.required]],
-      commune_arriver: [null, [Validators.required]],
+      id: [null],
+      compagnie_petrolier_id: [null],
+      vehicule_id: [null],
+      coupon_ticket_id: [null],
+      kilometrage: [null],
+      employe_id: [null],
+      commune_depart: [null],
+      commune_arriver: [null],
       description: ["", []],
       objet: ["", []],
-      qte: [1, [Validators.required, Validators.min(1)]],
-      date: ["", [Validators.required]],
+      qte: [1, ],
+      date: ["", ],
       trajet_aller_retour: [false, []],
     });
 
@@ -380,29 +380,43 @@ onQteInput(event: any, index: number) {
 
   onClickSubmitEditSortie() {
     const spinner = document.querySelector('.spinnerModif');
+    console.log("🔄 Début de la soumission d'édition");
 
     if (this.editSortie.valid) {
+      console.log("✅ Formulaire valide :", this.editSortie.value);
+
       if (spinner) {
         spinner.classList.remove('d-none');
+        console.log("⏳ Spinner affiché");
       }
 
       const compositeCouponId = this.editSortie.get('coupon_ticket_id')?.value;
+      console.log("📌 Valeur du compositeCouponId :", compositeCouponId);
+
       let actualCouponId: number | null = null;
       let actualCompagnieId: number | null = null;
 
       if (compositeCouponId) {
-        const selectedItem = this.couponTicketsWithCompagnies.find(item => item.id === compositeCouponId);
+        const selectedItem = this.couponTicketsWithCompagnies.find(
+          item => item.id === compositeCouponId
+        );
+        console.log("🔍 Élément trouvé dans couponTicketsWithCompagnies :", selectedItem);
+
         if (selectedItem) {
           actualCouponId = selectedItem.coupon_ticket_actual_id;
           actualCompagnieId = selectedItem.compagnie_petrolier_actual_id;
+          console.log("✅ IDs réels => coupon:", actualCouponId, "compagnie:", actualCompagnieId);
         } else {
-          console.error("Erreur: L'élément sélectionné pour l'édition n'a pas été trouvé dans la liste des coupons.");
+          console.error("❌ Erreur: Élément introuvable dans couponTicketsWithCompagnies !");
           alert("Erreur lors de la soumission: Coupon sélectionné invalide pour l'édition.");
           if (spinner) {
             spinner.classList.add('d-none');
+            console.log("⏹️ Spinner caché (erreur coupon introuvable)");
           }
           return;
         }
+      } else {
+        console.warn("⚠️ Aucun compositeCouponId trouvé, passage des IDs à null");
       }
 
       const formData = {
@@ -412,41 +426,76 @@ onQteInput(event: any, index: number) {
         date: this.formatDate(this.editSortie.value.date),
       };
 
-      this.sortieService.editMouvementTicketSortie(formData).subscribe(
+      // 💡 Récupérer l'ID de la sortie du formulaire
+      const sortieId = formData.id;
+      console.log("🔑 ID de la sortie pour l'édition :", sortieId);
+
+      if (sortieId === null || sortieId === undefined) {
+        console.error("❌ Erreur: ID de sortie non défini. Arrêt de la requête.");
+        alert("Impossible de modifier, l'identifiant de la sortie est manquant.");
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+        return;
+      }
+
+      console.log("📤 Données envoyées au backend :", formData);
+
+      // 🚀 Passer l'ID comme premier argument à la méthode du service
+      this.sortieService.editMouvementTicketSortie(sortieId, formData).subscribe(
         (data: any) => {
+          console.log("✅ Réponse succès API :", data);
           this.loadSorties();
           if (spinner) {
             spinner.classList.add('d-none');
+            console.log("⏹️ Spinner caché (succès)");
           }
           this.editSortie.reset();
+          console.log("🧹 Formulaire réinitialisé après modification");
 
           const modal = document.getElementById('edit_sortie');
           const bsModal = bootstrap.Modal.getInstance(modal);
           bsModal?.hide();
+          console.log("📌 Modal 'edit_sortie' fermé");
 
           setTimeout(() => {
             this.alertModifVisible = true;
+            console.log("🔔 Alerte modification affichée");
             setTimeout(() => {
               this.alertModifVisible = false;
+              console.log("🔕 Alerte modification masquée");
             }, 2000);
           }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de la modification de la sortie :', error);
+          console.error("❌ Erreur API lors de la modification :", error);
           if (spinner) {
             spinner.classList.add('d-none');
+            console.log("⏹️ Spinner caché (erreur API)");
           }
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          alert("Une erreur s'est produite. Veuillez réessayer.");
         }
       );
     } else {
+      console.warn("⚠️ Formulaire invalide :", this.editSortie.value);
+      // 🔎 Ajout du détail champ par champ
+      Object.keys(this.editSortie.controls).forEach(key => {
+        const control = this.editSortie.get(key);
+        console.log(
+          `Champ ${key}: valeur=`, control?.value,
+          " valid=", control?.valid,
+          " errors=", control?.errors
+        );
+      });
       if (spinner) {
         spinner.classList.add('d-none');
+        console.log("⏹️ Spinner caché (formulaire invalide)");
       }
       this.markFormGroupTouched(this.editSortie);
       alert("Désolé, le formulaire n'est pas bien renseigné");
     }
   }
+
 
   onClickSubmitDeleteSortie() {
     const spinner = document.querySelector('.spinnerDelete');
@@ -681,26 +730,47 @@ onQteInput(event: any, index: number) {
   //   this.table.offset = 0;
   // }
 
-  getEditForm(row: any) {
-    const selectedCompositeId = this.couponTicketsWithCompagnies.find(
-      item => item.coupon_ticket_actual_id === row.coupon_ticket_id && item.compagnie_petrolier_actual_id === row.compagnie_petrolier_id
-    )?.id || null;
 
+  getEditForm(row: TransactionSortie) {
+    console.log('Objet à éditer:', row); // 👈 AJOUTEZ CECI POUR VÉRIFIER
+    // 1️⃣ Extraire le premier ticket (ou gérer si tu en as plusieurs)
+    const firstTicket = row.tickets && row.tickets.length > 0 ? row.tickets[0] : null;
+
+    // 2️⃣ Construire l’ID composite si ticket trouvé
+    const selectedCompositeId = firstTicket
+      ? this.couponTicketsWithCompagnies.find(
+          item =>
+            item.coupon_ticket_actual_id === firstTicket.coupon?.id &&
+            item.compagnie_petrolier_actual_id === firstTicket.compagnie?.id
+        )?.id || null
+      : null;
+
+      // 💡 Débogage : vérifiez l'ID de l'élément que vous recevez
+      console.log("🐛 ID de l'élément reçu :", row.id);
+
+    // 3️⃣ Patch le formulaire avec les bons champs
     this.editSortie.patchValue({
-      id: row.id,
-      vehicule_id: row.vehicule_id,
+      id: row.id || null,
+      vehicule_id: row.vehicule?.id || null,
+      // Utiliser l'ID composite pour le formulaire pour qu'il corresponde à la liste déroulante
       coupon_ticket_id: selectedCompositeId,
+      // Ces deux champs ne sont plus nécessaires dans la logique front-end du formulaire
+      compagnie_petrolier_id: null,
       kilometrage: row.kilometrage,
-      employe_id: row.employe_id,
-      commune_depart: row.commune_depart,
-      commune_arriver: row.commune_arriver,
-      description: row.description,
-      qte: row.qte,
+      kilometrage_de_fin: row.kilometrage_de_fin,
+      employe_id: row.employe?.id || null,
+      commune_depart: row.commune_depart?.id || null,
+      commune_arriver: row.commune_arriver?.id || null,
       objet: row.objet,
+      description: row.description,
       date: this.convertToNgbDate(row.date),
-      trajet_aller_retour: row.trajet_aller_retour
+      trajet_aller_retour: row.trajet_aller_retour,
+      qte: firstTicket?.qte || null
     });
-  }
+
+    console.log("✏️ Formulaire de modification rempli :", this.editSortie.value);
+}
+
 
   getDeleteForm(row: any) {
     this.deleteSortie.patchValue({

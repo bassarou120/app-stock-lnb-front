@@ -276,6 +276,7 @@ export interface TicketDetail {
 
 // Décrit la transaction de sortie complète (une ligne de votre tableau)
 export interface TransactionSortie {
+  id: number; // 👈 AJOUTEZ CETTE LIGNE
   reference: string;
   date: string;
   vehicule: { id: number; immatriculation: string; };
