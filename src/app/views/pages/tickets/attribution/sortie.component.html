@@ -497,15 +497,17 @@
           <div class="col-md-6">
             <p><strong>Référence :</strong> {{ selectedSortie.reference }}</p>
             <p><strong>Date :</strong> {{ selectedSortie.date | date:'dd/MM/yyyy' }}</p>
-            <p><strong>Véhicule :</strong> {{ selectedSortie.vehicule?.immatriculation }}</p>
-            <p><strong>Employé :</strong> {{ selectedSortie.employe?.fullnameEmploye }}</p>
+            <p><strong>Véhicule :</strong> {{ selectedSortie.vehicule.immatriculation }}</p>
+            <p><strong>Employé :</strong> {{ selectedSortie.employe.fullnameEmploye }}</p>
           </div>
           <div class="col-md-6">
             <p><strong>Objet :</strong> {{ selectedSortie.objet || '-' }}</p>
-            <p><strong>Départ :</strong> {{ selectedSortie.commune_depart?.libelle_commune || '-' }}</p>
-            <p><strong>Arrivée :</strong> {{ selectedSortie.commune_arriver?.libelle_commune || '-' }}</p>
-            <p><strong>Kilometrage de début :</strong> {{ selectedSortie.kilometrage|| '-' }}</p>
-            <p *ngIf="selectedSortie.kilometrage_de_fin"><strong>Kilometrage de fin :</strong> {{ selectedSortie.kilometrage_de_fin|| '-' }}</p>
+            <p><strong>Départ :</strong> {{ selectedSortie.commune_depart.libelle_commune || '-' }}</p>
+            <p><strong>Arrivée :</strong> {{ selectedSortie.commune_arriver.libelle_commune || '-' }}</p>
+            <!-- <p><strong>Kilometrage de début :</strong> {{ selectedSortie.kilometrage|| '-' }}</p>
+            <p><strong>Kilometrage de fin :</strong> {{ selectedSortie.kilometrage_de_fin|| '-' }}</p> -->
+            <p><strong>Kilométrage de début :</strong> {{ selectedSortie.kilometrage }}</p>
+            <p *ngIf="selectedSortie.kilometrage_de_fin"><strong>Kilométrage de fin :</strong> {{ selectedSortie.kilometrage_de_fin }}</p>
           </div>
         </div>
 
@@ -524,7 +526,7 @@
           <tbody>
             <tr *ngFor="let ticket of selectedSortie.tickets; let i = index">
               <td>{{ i + 1 }}</td>
-              <td>{{ ticket.compagnie?.libelle }}</td>
+              <td>{{ ticket.compagnie.libelle }}</td>
               <td>{{ ticket.coupon?.libelle }}</td>
               <td><strong>{{ ticket.qte }}</strong></td>
             </tr>
@@ -533,7 +535,7 @@
 
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary flex align-items-center" data-bs-toggle="modal"
+        <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
           data-bs-target="#edit_sortie" (click)="getEditForm(selectedSortie)">
           <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
         </button>
