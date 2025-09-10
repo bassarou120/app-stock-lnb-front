@@ -16,14 +16,12 @@ export class ArticleExerciceService {
   constructor(private http: HttpClient) {}
 
   getAllArticlExercices(): Observable<ArticleExercice[]> {
-    return this.http.get<{ success: boolean; message: string; data: { data: ArticleExercice[] } }>(
-      `${this.url}/articles/exercices`
+    return this.http.get<{ success: boolean; message: string; data: ArticleExercice[] }>(
+      `${this.url}/articlesExercices`
     ).pipe(
       tap(response => console.log('Service Article: Réponse brute getAllArticlExercices:', response)),
-      map((response: { success: boolean; message: string; data: { data: ArticleExercice[] } }) =>
-        response.data.data
-      ),
-      catchError(this.handleError<ArticleExercice[]>('getAllArticlExercices', [])) // Ici, 'handleError' est appelé
+      map(response => response.data),
+      catchError(this.handleError<ArticleExercice[]>('getAllArticlExercices', []))
     );
   }
 

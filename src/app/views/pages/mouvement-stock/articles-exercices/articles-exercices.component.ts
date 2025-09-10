@@ -72,19 +72,7 @@ export class ArticleExerciceComponent implements OnInit {
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(private articleExerciceService: ArticleExerciceService, private formBuilder: FormBuilder, private router: Router) {
-    const currentYear = this.today.year;
-    this.firstDayOfYear = { year: currentYear, month: 1, day: 1 };
-    this.lastDayOfYear = { year: currentYear, month: 12, day: 31 };
-        this.addExercice = this.formBuilder.group({
-            date_debut: [this.firstDayOfYear, Validators.required],
-            date_fin: [this.lastDayOfYear, Validators.required],
-        });
-        this.editExercice = this.formBuilder.group({
-            id: [0, [Validators.required]],
-            date_debut: [this.firstDayOfYear, Validators.required],
-            date_fin: [this.lastDayOfYear, Validators.required],
-            statut: ["", []],
-        });
+
   }
 
   ngOnInit(): void {
@@ -155,8 +143,7 @@ export class ArticleExerciceComponent implements OnInit {
   loadArticleExercice(): void {
     this.articleExerciceService.getAllArticlExercices().subscribe(
       (data: ArticleExercice[]) => {
-        this.temp = [...data]; // Sauvegarde de la liste complète pour la recherche
-        this.rows = data;
+        this.rows = data;  // ça devrait maintenant afficher tes données
         this.loadingIndicator = false;
       },
       error => {
