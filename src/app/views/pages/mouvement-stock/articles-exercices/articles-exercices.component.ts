@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ArticleExerciceService } from '../../../../core/services/article-exercice/article-exercice.service';
 import { ArticleExercice } from '../../../../core/services/interface/models';
+import { ExerciceService } from '../../../../core/services/exercice/exercice.service';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule,AbstractControl,ValidationErrors  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
@@ -10,6 +11,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+import { Exercice } from '../../../../core/services/interface/models';
 
 
 
@@ -37,6 +39,7 @@ export class ArticleExerciceComponent implements OnInit {
   canVoirParamStock: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
 
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
+  exercices: any[] = [];
 
   today: NgbDateStruct = inject(NgbCalendar).getToday();
   firstDayOfYear: NgbDateStruct;
@@ -71,7 +74,7 @@ export class ArticleExerciceComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleExerciceService: ArticleExerciceService, private formBuilder: FormBuilder, private router: Router) {
+  constructor(private articleExerciceService: ArticleExerciceService, private exerciceService: ExerciceService, private formBuilder: FormBuilder, private router: Router) {
 
   }
 
@@ -82,7 +85,7 @@ export class ArticleExerciceComponent implements OnInit {
 
     // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
-      this.loadArticleExercice();
+        this.loadAllData();
     }
 
   }
@@ -139,19 +142,47 @@ export class ArticleExerciceComponent implements OnInit {
   }
   // ---------------------------------------------------------------------
 
+loadAllData(): void {
+    this.loadingIndicator = true;
 
-  loadArticleExercice(): void {
-    this.articleExerciceService.getAllArticlExercices().subscribe(
-      (data: ArticleExercice[]) => {
-        this.rows = data;  // ça devrait maintenant afficher tes données
+    // Charger les articles exercices et stocker la copie
+    this.articleExerciceService.getAllArticlExercices().subscribe({
+      next: (data) => {
+        // Copier les données complètes dans `temp` pour le filtrage
+        this.temp = [...data];
+        // Affecter les données à `rows` pour l'affichage initial
+        this.rows = data;
         this.loadingIndicator = false;
       },
-      error => {
-        console.error('Erreur lors du chargement des articles exercices', error);
+      error: (err) => {
+        console.error('Erreur lors du chargement des articles exercices', err);
         this.loadingIndicator = false;
       }
-    );
+    });
+
+    // Charger la liste des exercices pour le select
+    this.exerciceService.getAllExercice().subscribe({
+      next: (data) => {
+        this.exercices = data;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des exercices', err);
+      }
+    });
   }
+
+  filterByExercice(selectedExerciceId: number | null): void {
+    // S'assurer que selectedExerciceId est bien un nombre
+    if (selectedExerciceId) {
+      // Filtrer le tableau temp (la source de vérité)
+      const filteredRows = this.temp.filter(row => row.id_exercice === selectedExerciceId);
+      this.rows = filteredRows;
+    } else {
+      // Si la sélection est annulée (valeur null), réinitialiser le tableau
+      this.rows = [...this.temp];
+    }
+  }
+
 
   formatDate(date: NgbDateStruct): string {
     const year = date.year;

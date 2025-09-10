@@ -71,13 +71,16 @@
 
           </div>
           <div class="col-xl-3 col-md-4 ml-2">
-            <ng-select
+<!--             <ng-select
+              #anneeSelect
+              [items]="exercices"
               bindLabel="annee"
               bindValue="id"
               placeholder="Toutes les années"
-              clearable="true">
+              [clearable]="true"
+              (change)="filterByExercice($event)">
             </ng-select>
-          </div>
+          </div> -->
         </div>
 
         <div class="table-responsive">
