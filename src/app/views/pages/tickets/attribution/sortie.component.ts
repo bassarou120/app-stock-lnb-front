@@ -147,6 +147,7 @@ export class SortieComponent implements OnInit {
       vehicule_id: [null],
       coupon_ticket_id: [null],
       kilometrage: [null],
+      kilometrage_de_fin: [null, [ Validators.min(0)]],
       employe_id: [null],
       commune_depart: [null],
       commune_arriver: [null],
