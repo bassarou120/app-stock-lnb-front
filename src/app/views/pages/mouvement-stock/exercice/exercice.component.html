@@ -47,14 +47,14 @@
           <h4 class="card-title">Liste des Exercice</h4>
           <p class="text-secondary">Liste des Exercice</p>
         </div>
-        <button
+<!--         <button
           type="button"
           class="btn btn-primary align-self-center"
           data-bs-toggle="modal"
           data-bs-target="#add_exercice"
         >
           Ajouter
-        </button>
+        </button> -->
       </div>
     </div>
   </div>
@@ -111,61 +111,7 @@
               name="Statut"
               prop="statut"
             ></ngx-datatable-column>
-            <ngx-datatable-column name="Actions">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                <div
-                  ngbDropdown
-                  container="body"
-                  placement="bottom-right"
-                  class="mb-2"
-                >
-                  <a
-                    class="no-dropdown-toggle-icon btn btn-primary"
-                    ngbDropdownToggle
-                    id="dropdownBasic_{{ row.id }}"
-                  >
-                    <i
-                      class="icon-lg text-white pb-3px"
-                      data-feather="more-vertical"
-                      appFeatherIcon
-                    ></i>
-                  </a>
-                  <div
-                    ngbDropdownMenu
-                    [attr.aria-labelledby]="'dropdownBasic_' + row.id"
-                  >
-                    <a
-                      ngbDropdownItem
-                      class="d-flex align-items-center"
-                      data-bs-toggle="modal"
-                      data-bs-target="#edit_exercice"
-                      (click)="getEditForm(row)"
-                    >
-                      <i
-                        data-feather="edit-2"
-                        appFeatherIcon
-                        class="icon-sm me-2"
-                      ></i>
-                      <span>Modifier</span>
-                    </a>
-                    <a
-                      ngbDropdownItem
-                      class="d-flex align-items-center"
-                      data-bs-toggle="modal"
-                      data-bs-target="#delete_exercice"
-                      (click)="getDeleteForm(row)"
-                    >
-                      <i
-                        data-feather="trash"
-                        appFeatherIcon
-                        class="icon-sm me-2"
-                      ></i>
-                      <span>Supprimer</span>
-                    </a>
-                  </div>
-                </div>
-              </ng-template>
-            </ngx-datatable-column>
+
 
                 <!-- Nouvelle colonne pour les actions d'état -->
     <ngx-datatable-column name="État">
@@ -179,16 +125,15 @@
           >
             Clôturer
           </button>
-          
+
           <!-- Bouton pour ouvrir l'exercice -->
-          <!-- Bouton pour ouvrir l'exercice -->
-          <button
+<!--           <button
               class="btn btn-success btn-sm"
               [disabled]="row.statut === 'ouvert'"
               (click)="openOuvrirConfirmation(row.id)"
           >
               Ouvrir
-          </button>
+          </button> -->
         </div>
       </ng-template>
     </ngx-datatable-column>
@@ -285,7 +230,7 @@
           >
             <small class="text-danger"> *la date de fin est obligatoire</small>
           </div>
-          
+
           <div *ngIf="addExercice.errors?.['sameYear']" class="text-danger">
             ⚠️ Les dates de début et de fin doivent être dans la même année.
           </div>
@@ -459,7 +404,7 @@
       <!-- En-tête du modal -->
       <div class="modal-header">
         <h5 class="modal-title" id="editBureauLabel">
-          Suppression Exercice
+            Suppression Exercice
         </h5>
         <button
           type="button"
@@ -469,7 +414,7 @@
         ></button>
       </div>
 
-      <!-- Contenu du modal -->
+      <!-- Contenu du     modal -->
       <div class="modal-body">
         <form
           class="forms-sample"

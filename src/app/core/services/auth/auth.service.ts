@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { LoginResponse, Permission } from "../interface/models";
+import { ExerciceResponse, LoginResponse, Permission } from "../interface/models";
 import { environment } from '../../../../environments/environment';
+import { Exercice } from "../interface/models";
+import { switchMap } from 'rxjs/operators';
 
 
 @Injectable({
@@ -111,8 +113,19 @@ private loadUserPermissions(): void {
   });
 }
 
+getExercice(): Observable<ExerciceResponse> {
+  return this.http.get<ExerciceResponse>(`${this.url}/exercice/ouvert`);
+}
 
 
+  updateExercice(data: any): Observable<ExerciceResponse> {
+    return this.http
+      .put<Exercice>(`${this.url}/exercicestate/${data.id}/status`, data)
+      .pipe(
+        // Une fois le PUT fini, on relance le GET pour avoir l'exercice ouvert
+        switchMap(() => this.getExercice())
+      );
+  }
 
   sendOTP(email: string): Observable<any> {
     return this.http.post(`${this.url}/forgot-password`, { email });

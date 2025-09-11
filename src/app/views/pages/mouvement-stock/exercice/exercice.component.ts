@@ -123,7 +123,7 @@ export class ExerciceComponent implements OnInit {
     }
   );
     // Appel de la nouvelle fonction pour le formulaire d'édition
-  this.setupEditDateObservers(); 
+  this.setupEditDateObservers();
   }
 
   // Enforce that start and end dates are in the same year
@@ -155,7 +155,7 @@ export class ExerciceComponent implements OnInit {
         // Force the date_debut to the first day of the year selected
         const firstDayOfYear = { year: date_debut.year, month: 1, day: 1 };
         this.addExercice.get('date_debut')?.setValue(firstDayOfYear, { emitEvent: false });
-        
+
         // Update the 'date_fin' field with the last day of the same year
         this.addExercice.get('date_fin')?.setValue(
           { year: date_debut.year, month: 12, day: 31 },
@@ -188,7 +188,7 @@ export class ExerciceComponent implements OnInit {
         // Force the date_debut to the first day of the year selected
         const firstDayOfYear = { year: date_debut.year, month: 1, day: 1 };
         this.editExercice.get('date_debut')?.setValue(firstDayOfYear, { emitEvent: false });
-        
+
         // Update the 'date_fin' field with the last day of the same year
         this.editExercice.get('date_fin')?.setValue(
           { year: date_debut.year, month: 12, day: 31 },
@@ -519,7 +519,7 @@ ouvrirExercice(id: number) {
   this.confirmationMessage = "Êtes-vous sûr de vouloir clôturer cet exercice ?";
   this.showConfirmationModal = true;
 }
-  
+
   // Cette méthode remplace l'appel direct à `ouvrirExercice` depuis le template
   openOuvrirConfirmation(rowId: number) {
     this.exerciceToChangeStatusId = rowId;

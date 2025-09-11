@@ -4,16 +4,18 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { FormGroup,FormBuilder, ReactiveFormsModule,Validators } from "@angular/forms";
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { Observable, of } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-
 import { SiteSettingsService } from '../../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
 import { Subject, takeUntil } from 'rxjs'; // NOUVEAUX IMPORTS POUR GÉRER LES OBSERVABLES
+import { Exercice, ExerciceResponse } from '../../../../core/services/interface/models';
 
 @Component({
   selector: 'app-login',
   standalone: true,
   imports: [
-    NgStyle,
+NgStyle,
     RouterLink,
     ReactiveFormsModule,
     NgbAlertModule,
@@ -23,9 +25,9 @@ import { Subject, takeUntil } from 'rxjs'; // NOUVEAUX IMPORTS POUR GÉRER LES O
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDestroy
-
   returnUrl: string = '/';
   public loginForm!: FormGroup ;
+  exerciceEnCours!: Exercice | null;
 
   // PROPRIÉTÉ POUR LE NOM DU SITE (AJOUTÉE)
   siteName: string = 'Chargement...';
@@ -38,7 +40,8 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private siteSettingsService: SiteSettingsService // INJECTION DU SERVICE
+    private siteSettingsService: SiteSettingsService, // INJECTION DU SERVICE
+    private http: HttpClient,
   ) {}
 
   ngOnInit(): void {
@@ -46,7 +49,10 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
     this.loginForm = this.formBuilder.group({
       email: ["" ,[Validators.required]],
       password: ["" ,[Validators.required]],
+
     });
+
+    this.loadexerciceEnCours();
 
     // S'abonner aux changements du nom du site (AJOUTÉ)
     this.siteSettingsService.siteSettings$.pipe(
@@ -63,6 +69,8 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
         error: (err) => console.error('LoginComponent: Erreur au chargement des paramètres:', err)
     });
   }
+
+
 
   // MÉTHODE ngOnDestroy POUR LA DÉSINSCRIPTION (AJOUTÉE)
   ngOnDestroy(): void {
@@ -95,4 +103,24 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
     alert("Désolé, le formulaire n'est pas bien renseigné");
   }
   }
+
+loadexerciceEnCours(): void {
+  this.authService.getExercice().subscribe(
+    (response: ExerciceResponse) => {
+      if (response.success && response.exercice.statut === 'ouvert') {
+        this.exerciceEnCours = response.exercice;
+      } else {
+        this.exerciceEnCours = null;
+      }
+    },
+    (error: any) => {
+      console.error('Erreur lors du chargement de l\'exercice ouvert', error);
+      this.exerciceEnCours = null;
+    }
+  );
+}
+
+
+
+
 }
