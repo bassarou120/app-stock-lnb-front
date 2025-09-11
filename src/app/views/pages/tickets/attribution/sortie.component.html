@@ -168,6 +168,7 @@
               <!-- Colonne de gauche -->
 
               <div class="col-md-6">
+                <div formArrayName="tickets">
                 <div class="row" *ngFor="let ticket of tickets.controls; let i = index" [formGroupName]="i"
                   class="card mb-3 p-3 shadow-sm">
                   <!-- Sélectionner un coupon -->
@@ -183,13 +184,16 @@
                         formControlName="coupon_ticket_id" [clearable]="true"
                         placeholder="Sélectionnez le Coupon Ticket" (change)="onCouponSelected($event, i)"></ng-select>
 
-                      <div *ngIf="
+                      <!-- <div *ngIf="
                           addSortie.get('coupon_ticket_id')?.invalid &&
                           addSortie.get('coupon_ticket_id')?.touched
                         ">
                         <small class="text-danger">
                           *Le coupon est obligatoire</small>
-                      </div>
+                      </div> -->
+                      <div *ngIf="ticket.get('coupon_ticket_id')?.invalid && ticket.get('coupon_ticket_id')?.touched">
+    <small class="text-danger">*Le coupon est obligatoire</small>
+  </div>
                     </ng-container>
 
                     <!-- Message si aucun CouponTicket n'existe -->
@@ -221,7 +225,7 @@
                     <div *ngIf="trajetNotFoundMessage" class="text-danger mt-1">
                       <small>{{ trajetNotFoundMessage }}</small>
                     </div>
-                    <div *ngIf="
+                    <!-- <div *ngIf="
                         addSortie.get('qte')?.invalid &&
                         addSortie.get('qte')?.touched
                       ">
@@ -232,7 +236,13 @@
                       <small *ngIf="addSortie.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas
                         dépasser
                         {{ quantiteDisponible }}</small>
-                    </div>
+                    </div> -->
+                     <div *ngIf="ticket.get('qte')?.invalid && ticket.get('qte')?.touched">
+    <small *ngIf="ticket.get('qte')?.errors?.['required']" class="text-danger">* La quantité est obligatoire</small>
+    <small *ngIf="ticket.get('qte')?.errors?.['min']" class="text-danger">* La quantité doit être au moins 1</small>
+    <small *ngIf="ticket.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas dépasser
+      {{ quantitesDisponibles[i] || "0" }}</small>
+  </div>
                   </div>
                   <div class="col-1 text-center">
                     <button type="button" class="btn btn-outline-danger btn-lg" (click)="removeTicket(i)"
@@ -247,6 +257,7 @@
                     + Ajouter un ticket
                   </button>
                 </div>
+              </div>
               </div>
 
               <!-- Colonne de droite -->
@@ -502,8 +513,8 @@
           </div>
           <div class="col-md-6">
             <p><strong>Objet :</strong> {{ selectedSortie.objet || '-' }}</p>
-            <p><strong>Départ :</strong> {{ selectedSortie.commune_depart.libelle_commune || '-' }}</p>
-            <p><strong>Arrivée :</strong> {{ selectedSortie.commune_arriver.libelle_commune || '-' }}</p>
+            <p><strong>Départ :</strong> {{ selectedSortie.commune_depart?.libelle_commune || '-' }}</p>
+            <p><strong>Arrivée :</strong> {{ selectedSortie.commune_arriver?.libelle_commune || '-' }}</p>
             <!-- <p><strong>Kilometrage de début :</strong> {{ selectedSortie.kilometrage|| '-' }}</p>
             <p><strong>Kilometrage de fin :</strong> {{ selectedSortie.kilometrage_de_fin|| '-' }}</p> -->
             <p><strong>Kilométrage de début :</strong> {{ selectedSortie.kilometrage }}</p>
@@ -526,9 +537,9 @@
           <tbody>
             <tr *ngFor="let ticket of selectedSortie.tickets; let i = index">
               <td>{{ i + 1 }}</td>
-              <td>{{ ticket.compagnie.libelle }}</td>
-              <td>{{ ticket.coupon?.libelle }}</td>
-              <td><strong>{{ ticket.qte }}</strong></td>
+              <td>{{ ticket.compagnie.libelle || '-' }}</td>
+              <td>{{ ticket.coupon.libelle || '-' }}</td>
+              <td><strong>{{ ticket.qte || '-' }}</strong></td>
             </tr>
           </tbody>
         </table>
