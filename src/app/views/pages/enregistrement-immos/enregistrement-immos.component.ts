@@ -3,7 +3,7 @@ import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
 // Assurez-vous que ces interfaces sont bien définies et importées :
-import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule } from '../../../core/services/interface/models';
+import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule, Bureau, Employe } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule } from '@ng-bootstrap/ng-bootstrap';
@@ -69,8 +69,14 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   statusImmo: StatusImmo[] = [];
   sousTypeImmo: SousTypeImmo[] = [];
   groupeTypeImmo: GroupeTypeImmo[] = [];
+  // AJOUTÉ: Déclaration des tableaux pour les bureaux et les employés
+  bureaux: Bureau[] = [];
+  employes: Employe[] = [];
 
   etatOptions: string[] = ['Bon', 'Usé', 'Défectueux / En panne', 'Irréparable'];
+
+  // --- Propriété ajoutée pour stocker les codes existants ---
+  codesImmo: any[] = [];
 
   isAddingImmobilisation: boolean = false;
   isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
@@ -84,6 +90,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   ngOnInit(): void {
     // INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+    this.getAllCodes(); // ✅ récupérer les codes dès l’init
 
     // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
@@ -93,6 +100,9 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       this.loadSousTypeImmo();
       this.loadGroupeTypeImmo();
       this.loadVehicules();
+      // AJOUTÉ: Appel aux méthodes de chargement des bureaux et des employés
+      this.loadEmployes();
+      this.loadBureaux();
     }
 
     this.addImmobilisation = this.formBuilder.group({
@@ -111,7 +121,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       taux_ammortissement: ["", [Validators.required]],
       duree_ammortissement: ["", [Validators.required]],
       date_acquisition: [null, [Validators.required]], // MODIFIÉ: null comme valeur initiale pour NgbDateStruct
-      date_mise_en_service: ["", []],
+      date_mise_en_service: [null, []],
       observation: [""],
       id_status_immo: [null, [Validators.required]],
       montant_ttc: ["", [Validators.required]],
@@ -266,7 +276,28 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
         ...this.addImmobilisation.value,
         // Convertir la date d'acquisition au format YYYY-MM-DD pour le backend
         date_acquisition: this.formatNgbDateToYYYYMMDD(this.addImmobilisation.value.date_acquisition),
+
+        // NOUVEAU: Logique pour l'affectation directe
+        // Si un bureau ou un employé est renseigné, on met à jour les dates
+        date_mouvement: null,
+        date_mise_en_service: null,
+        ancien_bureau: null
       };
+
+      if (formData.bureau_id || formData.employe_id) {
+        // La date de mouvement est la date du jour
+        const today = this.formatNgbDateToYYYYMMDD(this.currentDate);
+        // La date de mise en service est la date d'acquisition
+        const dateMiseEnService = this.formatNgbDateToYYYYMMDD(this.addImmobilisation.value.date_acquisition);
+        
+        formData.date_mouvement = today;
+        formData.date_mise_en_service = dateMiseEnService;
+        
+        // Ancienne valeur du bureau
+        formData.ancien_bureau = 'Magasin';
+      }
+      console.log('Debug: FormData à envoyer pour ajout Immobilisation:', formData);
+      
       this.immobilisationService.saveImmobilisation(formData).subscribe(
         (data: any) => {
           this.loadImmobilisations();
@@ -431,6 +462,19 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
     );
   }
 
+  // ✅ nouvelle méthode pour charger les codes existants
+  getAllCodes() {
+    this.immobilisationService.getAllImmobilisations().subscribe({
+      next: (res: any) => {
+        // on suppose que la réponse contient un tableau d’immobilisations avec la propriété "code"
+        this.codesImmo = res.map((immo: any) => ({ code: immo.code }));
+      },
+      error: (err) => {
+        console.error('Erreur récupération codes immobilisation:', err);
+      }
+    });
+  }
+
   updateFilter(event: KeyboardEvent): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
@@ -514,6 +558,28 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       },
       error: (err) => {
         console.error("Erreur lors du chargement des Vehicules :", err);
+      }
+    });
+  }
+
+  loadBureaux(): void {
+    this.immobilisationService.getAllBureaux().subscribe({
+      next: (data) => {
+        this.bureaux = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des bureaux :", err);
+      }
+    });
+  }
+
+  loadEmployes(): void {
+    this.immobilisationService.getAllEmployes().subscribe({
+      next: (data) => {
+        this.employes = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des employés :", err);
       }
     });
   }

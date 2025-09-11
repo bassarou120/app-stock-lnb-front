@@ -19,6 +19,10 @@ export default [
     loadComponent: () => import('./demande-old/demande-old.component').then(c => c.SortieComponent),
   },
   {
+    path: 'exercice',
+    loadComponent: () => import('./exercice/exercice.component').then(c => c.ExerciceComponent),
+  },
+  {
     path: 'les-demandes',
     loadComponent: () => import('./les-demandes/les-demandes.component').then(c => c.SortieStockGroupedComponent),
   },

@@ -26,10 +26,6 @@ export class VehiculeService  {
     );
   }
 
-  saveVehicule(data: Vehicule): Observable<Vehicule> {
-    return this.http.post<Vehicule>(`${this.url}/vehicules`, data);
-  }
-
   editVehicule(data: Vehicule): Observable<Vehicule> {
     return this.http.put<Vehicule>(`${this.url}/vehicules/${data.id}`, data);
   }

@@ -1,0 +1,528 @@
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Mouvement Stock</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Exercice</li>
+    </ol>
+  </nav>
+
+  <!-- Alerte pour ajout avec succès -->
+  <ngb-alert
+    *ngIf="alertAjoutVisible"
+    [dismissible]="false"
+    class="alerte"
+    [type]="'primary'"
+  >
+    Exercice Ajouté avec succès
+  </ngb-alert>
+  <!-- Alerte pour ajout avec succès -->
+
+  <!-- Alerte pour mofifier avec succès -->
+  <ngb-alert
+    *ngIf="alertModifVisible"
+    [dismissible]="false"
+    class="alerte"
+    [type]="'primary'"
+  >
+    Exercice Modifié avec succès
+  </ngb-alert>
+  <!-- Alerte pour mofifier avec succès -->
+
+  <!-- Alerte pour supprimer avec succès -->
+  <ngb-alert
+    *ngIf="alertSuppVisible"
+    [dismissible]="false"
+    class="alerte"
+    [type]="'danger'"
+  >
+    Exercice Supprimé avec succès
+  </ngb-alert>
+  <!-- Alerte pour supprimer avec succès -->
+
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Exercice</h4>
+          <p class="text-secondary">Liste des Exercice</p>
+        </div>
+        <button
+          type="button"
+          class="btn btn-primary align-self-center"
+          data-bs-toggle="modal"
+          data-bs-target="#add_exercice"
+        >
+          Ajouter
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Exercice</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Rechercher..."
+              (keyup)="updateFilter($event)"
+            />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable
+            table
+            class="bootstrap"
+            [rows]="rows"
+            [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force"
+            [footerHeight]="50"
+            [limit]="10"
+            rowHeight="auto"
+            [scrollbarH]="true"
+          >
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Date de début" prop="date_debut">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date : "dd/MM/yyyy HH:mm:ss" }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Date de fin" prop="date_fin">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date : "dd/MM/yyyy HH:mm:ss" }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column
+              name="Année"
+              prop="annee"
+            ></ngx-datatable-column>
+            <ngx-datatable-column
+              name="Statut"
+              prop="statut"
+            ></ngx-datatable-column>
+            <ngx-datatable-column name="Actions">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div
+                  ngbDropdown
+                  container="body"
+                  placement="bottom-right"
+                  class="mb-2"
+                >
+                  <a
+                    class="no-dropdown-toggle-icon btn btn-primary"
+                    ngbDropdownToggle
+                    id="dropdownBasic_{{ row.id }}"
+                  >
+                    <i
+                      class="icon-lg text-white pb-3px"
+                      data-feather="more-vertical"
+                      appFeatherIcon
+                    ></i>
+                  </a>
+                  <div
+                    ngbDropdownMenu
+                    [attr.aria-labelledby]="'dropdownBasic_' + row.id"
+                  >
+                    <a
+                      ngbDropdownItem
+                      class="d-flex align-items-center"
+                      data-bs-toggle="modal"
+                      data-bs-target="#edit_exercice"
+                      (click)="getEditForm(row)"
+                    >
+                      <i
+                        data-feather="edit-2"
+                        appFeatherIcon
+                        class="icon-sm me-2"
+                      ></i>
+                      <span>Modifier</span>
+                    </a>
+                    <a
+                      ngbDropdownItem
+                      class="d-flex align-items-center"
+                      data-bs-toggle="modal"
+                      data-bs-target="#delete_exercice"
+                      (click)="getDeleteForm(row)"
+                    >
+                      <i
+                        data-feather="trash"
+                        appFeatherIcon
+                        class="icon-sm me-2"
+                      ></i>
+                      <span>Supprimer</span>
+                    </a>
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+
+                <!-- Nouvelle colonne pour les actions d'état -->
+    <ngx-datatable-column name="État">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+        <div class="d-flex align-items-center gap-2">
+          <!-- Bouton pour clôturer l'exercice -->
+          <button
+            class="btn btn-warning btn-sm"
+            [disabled]="row.statut === 'cloture'"
+            (click)="openClotureConfirmation(row.id)"
+          >
+            Clôturer
+          </button>
+          
+          <!-- Bouton pour ouvrir l'exercice -->
+          <!-- Bouton pour ouvrir l'exercice -->
+          <button
+              class="btn btn-success btn-sm"
+              [disabled]="row.statut === 'ouvert'"
+              (click)="openOuvrirConfirmation(row.id)"
+          >
+              Ouvrir
+          </button>
+        </div>
+      </ng-template>
+    </ngx-datatable-column>
+
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add Exercice Modal -->
+<div
+  id="add_exercice"
+  class="modal fade"
+  tabindex="-1"
+  aria-labelledby="addExerciceLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addExerciceLabel">Ajouter un Exercice</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form
+          class="forms-sample"
+          [formGroup]="addExercice"
+          (ngSubmit)="onClickSubmitAddExercice()"
+          novalidate
+        >
+          <label for="date_debut" class="form-label"
+            >Date de début <span class="text-danger">*</span></label
+          >
+          <div class="input-group mb-3">
+            <button
+              class="btn btn-outline-primary btn-icon calendar"
+              type="button"
+              (click)="dAdd.toggle()"
+            >
+              <i data-feather="calendar"></i>
+            </button>
+            <input
+              class="form-control border-primary bg-transparent"
+              placeholder="yyyy-mm-dd"
+              name="dpAdd"
+              ngbDatepicker
+              #dAdd="ngbDatepicker"
+              formControlName="date_debut"
+            />
+          </div>
+          <div
+            *ngIf="
+              addExercice.get('date_debut')?.invalid &&
+              addExercice.get('date_debut')?.touched
+            "
+          >
+            <small class="text-danger">
+              *la date de début est obligatoire</small
+            >
+          </div>
+
+          <label for="date_fin" class="form-label"
+            >Date de fin <span class="text-danger">*</span></label
+          >
+          <div class="input-group mb-3">
+            <button
+              class="btn btn-outline-primary btn-icon calendar"
+              type="button"
+              (click)="dfAdd.toggle()"
+            >
+              <i data-feather="calendar"></i>
+            </button>
+            <input
+              class="form-control border-primary bg-transparent"
+              placeholder="yyyy-mm-dd"
+              ngbDatepicker
+              #dfAdd="ngbDatepicker"
+              formControlName="date_fin"
+            />
+          </div>
+          <div
+            *ngIf="
+              addExercice.get('date_fin')?.invalid &&
+              addExercice.get('date_fin')?.touched
+            "
+          >
+            <small class="text-danger"> *la date de fin est obligatoire</small>
+          </div>
+          
+          <div *ngIf="addExercice.errors?.['sameYear']" class="text-danger">
+            ⚠️ Les dates de début et de fin doivent être dans la même année.
+          </div>
+
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary" [disabled]="isAdding">
+              <div
+                class="spinner-border spinner-border-sm text-light me-2"
+                [class.d-none]="!isAdding"
+                role="status"
+              >
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+              {{ isAdding ? "Ajout en cours..." : "Ajouter" }}
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Add Bureau Modal -->
+
+<!-- edit Bureau Modal -->
+<div
+  id="edit_exercice"
+  class="modal fade"
+  tabindex="-1"
+  aria-labelledby="editBureauLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editBureauLabel">
+          Modification Exercice
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form
+          class="forms-sample"
+          [formGroup]="editExercice"
+          (ngSubmit)="onClickSubmitEditExercice()"
+          novalidate
+        >
+
+        <!-- date_debut -->
+          <label for="date_debut" class="form-label"
+            >Date de début <span class="text-danger">*</span></label
+          >
+          <div class="input-group mb-3">
+            <button
+              class="btn btn-outline-primary btn-icon calendar"
+              type="button"
+              (click)="dEdit.toggle()"
+            >
+              <i data-feather="calendar"></i>
+            </button>
+            <input
+              class="form-control border-primary bg-transparent"
+              placeholder="yyyy-mm-dd"
+              name="dEdit"
+              ngbDatepicker
+              #dEdit="ngbDatepicker"
+              formControlName="date_debut"
+            />
+          </div>
+          <div
+            *ngIf="
+              editExercice.get('date_debut')?.invalid &&
+              editExercice.get('date_debut')?.touched
+            "
+          >
+            <small class="text-danger">
+              *la date de début est obligatoire</small
+            >
+          </div>
+
+          <!-- date_fin -->
+          <label for="date_fin" class="form-label"
+            >Date de fin <span class="text-danger">*</span></label
+          >
+          <div class="input-group mb-3">
+            <button
+              class="btn btn-outline-primary btn-icon calendar"
+              type="button"
+              (click)="dfEdit.toggle()"
+            >
+              <i data-feather="calendar"></i>
+            </button>
+            <input
+              class="form-control border-primary bg-transparent"
+              placeholder="yyyy-mm-dd"
+              ngbDatepicker
+              #dfEdit="ngbDatepicker"
+              formControlName="date_fin"
+            />
+          </div>
+          <div
+            *ngIf="
+              editExercice.get('date_fin')?.invalid &&
+              editExercice.get('date_fin')?.touched
+            "
+          >
+            <small class="text-danger"> *la date de fin est obligatoire</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="statut" class="form-label">Nouveau Statut <span class="text-danger">*</span></label>
+            <ng-select [items]="['ouvert', 'cloture']" [clearable]="false"
+              placeholder="Sélectionnez le statut" formControlName="statut">
+            </ng-select>
+            <div *ngIf="editExercice.get('statut')?.invalid && editExercice.get('statut')?.touched">
+              <small class="text-danger"> *Le statut est obligatoire</small>
+            </div>
+          </div>
+
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div
+                class="spinner-border spinner-border-sm text-light d-none spinnerModif"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              Modifier
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /edit Bureau Modal -->
+
+<!-- delete Bureau Modal -->
+<div
+  id="delete_exercice"
+  class="modal fade"
+  tabindex="-1"
+  aria-labelledby="deleteBureauLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editBureauLabel">
+          Suppression Exercice
+        </h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form
+          class="forms-sample"
+          [formGroup]="deleteExercice"
+          (ngSubmit)="onClickSubmitDeleteExercice()"
+        >
+          <div class="mb-3">
+            <p class="text-secondary">
+              Voulez-vous vraiment supprimer cet exercice ?
+            </p>
+          </div>
+          <input type="hidden" formControlName="id" />
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div
+                class="spinner-border spinner-border-sm text-light d-none spinnerDelete"
+                role="status"
+              >
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              Supprimer
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete Bureau Modal -->
+
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true"
+    [class.show]="showConfirmationModal" [style.display]="showConfirmationModal ? 'block' : 'none'">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
+                <button type="button" class="btn-close" (click)="closeConfirmationModal()" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                {{ confirmationMessage }}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" (click)="closeConfirmationModal()">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="confirmStatusChange()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+</div>
