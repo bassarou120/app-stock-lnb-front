@@ -531,6 +531,20 @@ ouvrirExercice(id: number) {
     // Cette méthode est appelée par le bouton de confirmation du modal
   confirmStatusChange() {
     if (this.exerciceToChangeStatusId !== null && this.newStatus !== null) {
+
+      this.isAdding = true;
+        // Attendre que le modal soit fermé avant d'afficher l'alerte
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          console.log('Cloture de l\'exercice:', this.alertAjoutVisible);
+
+          // Utilisation de la transition pour faire apparaitre l'alerte
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000); // L'alerte disparaît après 2 secondes
+        }, 200); // L'alerte apparaît 200ms après la fermeture du modal
+
+
       this.exerciceService.updateExercice({ id: this.exerciceToChangeStatusId, statut: this.newStatus }).subscribe({
         next: () => {
           this.loadExercice();

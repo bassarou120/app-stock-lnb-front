@@ -118,6 +118,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     { id: 'entree', libelle: 'Ordre d\'Entrée' },
     { id: 'sortie', libelle: 'Ordre de Sortie' },
     { id: 'etat_stock', libelle: 'État de Stock' },
+    { id: 'individuel', libelle: 'Rapport Individuel' },
   ];
   selectedReportTypeId: string | null = null;
 
@@ -125,6 +126,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
   showEntryFilters: boolean = false;
   showExitFilters: boolean = false;
   showStockStatusFilters: boolean = false;
+  showIndividuelFilters: boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -242,6 +244,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showEntryFilters = true;
         this.showExitFilters = false;
         this.showStockStatusFilters = false;
+        this.showIndividuelFilters = false;
         this.rapportForm.get('id_Article_entree')?.enable();
         this.rapportForm.get('id_fournisseur_entree')?.enable();
         console.log('onTypeRapportChange: Showing entry filters.');
@@ -251,6 +254,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showEntryFilters = false;
         this.showExitFilters = true;
         this.showStockStatusFilters = false;
+        this.showIndividuelFilters = false;
         this.rapportForm.get('id_Article_sortie')?.enable();
         this.rapportForm.get('id_employe_sortie')?.enable();
         console.log('onTypeRapportChange: Showing exit filters.');
@@ -260,6 +264,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showEntryFilters = false;
         this.showExitFilters = false;
         this.showStockStatusFilters = true;
+        this.showIndividuelFilters = false;
         this.rapportForm.get('id_Article_etat')?.enable();
         this.rapportForm.get('qte_min_etat')?.enable();
         this.rapportForm.get('qte_max_etat')?.enable();
@@ -269,10 +274,21 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         console.log('onTypeRapportChange: Showing stock status filters.');
         break;
 
+      case 'individuel':
+        this.showEntryFilters = false;
+        this.showExitFilters = false;
+        this.showStockStatusFilters = false;
+        this.showIndividuelFilters = true;
+        this.rapportForm.get('id_Article_entree')?.enable();
+        this.rapportForm.get('id_fournisseur_entree')?.enable();
+        console.log('onTypeRapportChange: Showing entry filters.');
+        break;
+
       default:
         this.showEntryFilters = false;
         this.showExitFilters = false;
         this.showStockStatusFilters = false;
+        this.showIndividuelFilters = false;
         // Désactiver et nettoyer les validateurs des dates si aucun type de rapport n'est sélectionné
         this.rapportForm.get('date_debut')?.disable();
         this.rapportForm.get('date_fin')?.disable();
@@ -320,6 +336,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     this.showEntryFilters = false;
     this.showExitFilters = false;
     this.showStockStatusFilters = false;
+    this.showIndividuelFilters = false;
     this.rapportForm.clearValidators(); // Clear group validators as well
     this.rapportForm.updateValueAndValidity();
     this.rows = [];
@@ -422,7 +439,15 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         finalFilters.id_article = filters.id_Article_etat;
         finalFilters.qte_min = filters.qte_min_etat;
         finalFilters.qte_max = filters.qte_max_etat;
+
+    }   else if (this.selectedReportTypeId === 'individuel') {
+        finalFilters.id_type_rapport = 'individuel';
+        finalFilters.id_Article = filters.id_Article_entree;
+        finalFilters.id_fournisseur = filters.id_fournisseur_entree;
     }
+
+
+
 
     // Ajouter les dates aux filtres finaux, elles sont communes
     if (filters.date_debut) finalFilters.date_debut = filters.date_debut;
@@ -444,35 +469,51 @@ export class RapportStockComponent implements OnInit, OnDestroy {
       apiCall = this.stockRapportService.getRapportData(finalFilters);
     }
 
-    apiCall.pipe(takeUntil(this.destroy$)).subscribe(
-      (response: BackendPostResource<any>) => {
-        console.log('Réponse du backend (brute du service):', response);
-        if (response.success && response.data) {
-          if (this.selectedReportTypeId === 'etat_stock') {
-            this.rows = (response.data.articles || []).map((item: any) => ({
-                ...item,
-                // Utiliser la nouvelle fonction de parsing pour les dates
-                derniere_entree: item.derniere_entree ? { ...item.derniere_entree, date: this.parseBackendDateString(item.derniere_entree.date) } : null,
-                derniere_sortie: item.derniere_sortie ? { ...item.derniere_sortie, date: this.parseBackendDateString(item.derniere_sortie.date) } : null,
-                stock_actuel: item.stock_actuel ? { ...item.stock_actuel, date_maj: this.parseBackendDateString(item.stock_actuel.date_maj) } : null,
-            }));
-            this.temp = [...this.rows];
-            console.log('Données du rapport d\'état de stock chargées:', this.rows);
-          } else {
-            this.rows = (response.data.data || []).map((item: any) => ({
-                ...item,
-                // Utiliser la nouvelle fonction de parsing pour date_mouvement
-                date_mouvement: this.parseBackendDateString(item.date_mouvement)
-            }));
-            this.temp = [...this.rows];
-            console.log('Données du rapport entrée/sortie chargées:', this.rows);
-          }
-        } else {
-          this.rows = [];
-          this.temp = [];
-          this.errorMessage = response.message || "Aucune donnée trouvée ou erreur inattendue.";
-        }
+apiCall.pipe(takeUntil(this.destroy$)).subscribe(
+  (response: any) => {
+    console.log('Réponse du backend (brute du service):', response);
 
+    if (response.success && response.data) {
+      if (this.selectedReportTypeId === 'etat_stock') {
+        // Logique existante pour 'etat_stock'
+        this.rows = (response.data.articles || []).map((item: any) => ({
+          ...item,
+          derniere_entree: item.derniere_entree ? { ...item.derniere_entree, date: this.parseBackendDateString(item.derniere_entree.date) } : null,
+          derniere_sortie: item.derniere_sortie ? { ...item.derniere_sortie, date: this.parseBackendDateString(item.derniere_sortie.date) } : null,
+          stock_actuel: item.stock_actuel ? { ...item.stock_actuel, date_maj: this.parseBackendDateString(item.stock_actuel.date_maj) } : null,
+        }));
+        this.temp = [...this.rows];
+        console.log('Données du rapport d\'état de stock chargées:', this.rows);
+      } else if (this.selectedReportTypeId === 'entree' || this.selectedReportTypeId === 'sortie') {
+        // Logique existante pour 'entree' et 'sortie'
+        this.rows = (response.data.data || []).map((item: any) => ({
+          ...item,
+          date_mouvement: this.parseBackendDateString(item.date_mouvement)
+        }));
+        this.temp = [...this.rows];
+        console.log('Données du rapport entrée/sortie chargées:', this.rows);
+      } else if (this.selectedReportTypeId === 'individuel') {
+        // Nouvelle logique pour le rapport 'individuel'
+        // Le tableau de données est directement sous la clé 'data'
+        this.rows = (response.data || []).map((item: any) => ({
+          ...item,
+          date_mouvement: this.parseBackendDateString(item.date_mouvement)
+        }));
+        this.temp = [...this.rows];
+        console.log('Données du rapport individuel chargées:', this.rows);
+      } else {
+        // Cas par défaut si le type de rapport n'est pas géré
+        this.rows = [];
+        this.temp = [];
+        this.errorMessage = "Type de rapport non géré ou aucune donnée trouvée.";
+      }
+    } else {
+      this.rows = [];
+      this.temp = [];
+      this.errorMessage = response.message || "Aucune donnée trouvée ou erreur inattendue.";
+    }
+
+        // Le reste de votre code reste inchangé
         this.loadingIndicator = false;
         this.isGeneratingReport = false;
         if (this.rows.length === 0 && !this.errorMessage) {
@@ -482,6 +523,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         }
         console.log('État final des lignes affichées:', this.rows);
       },
+      // La partie 'error' reste inchangée
       (error: any) => {
         console.error('Erreur lors du chargement du rapport de stock:', error);
         this.errorMessage = `Erreur lors du chargement du rapport: ${error.message || 'Veuillez réessayer.'}`;
@@ -493,15 +535,11 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     );
   }
 
-  downloadRapportStockPDF(): void {
+
+
+ downloadRapportStockPDF(): void {
     console.log('--- Tentative d\'impression du rapport de stock PDF ---');
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
-    console.log('Form errors (PDF):', this.rapportForm.errors);
-    Object.keys(this.rapportForm.controls).forEach(key => {
-      if (this.rapportForm.get(key)?.errors && this.rapportForm.get(key)?.enabled) {
-        console.log(`Errors on control ${key} (PDF):`, this.rapportForm.get(key)?.errors);
-      }
-    });
 
     if (this.rapportForm.invalid) {
       this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires avant d'imprimer.";
@@ -534,10 +572,17 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie de stock');
         if (typeSortie) finalFilters.id_type_mouvement = typeSortie.id;
 
+    } else if (this.selectedReportTypeId === 'individuel') {
+        finalFilters.id_type_rapport = 'individuel';
+        // Pour un rapport individuel, seul l'article est nécessaire.
+        // On utilise l'ID de l'article provenant du champ individuel
+        finalFilters.id_Article = filters.id_Article_entree;
+
     } else if (this.selectedReportTypeId === 'etat_stock') {
-        finalFilters.id_article = filters.id_Article_etat;
-        finalFilters.qte_min = filters.qte_min_etat;
-        finalFilters.qte_max = filters.qte_max_etat;
+      // Ce rapport est géré différemment, pas besoin de id_type_rapport
+      finalFilters.id_article = filters.id_Article_etat;
+      finalFilters.qte_min = filters.qte_min_etat;
+      finalFilters.qte_max = filters.qte_max_etat;
     }
 
     // Ajouter les dates aux filtres finaux, elles sont communes
@@ -580,6 +625,16 @@ export class RapportStockComponent implements OnInit, OnDestroy {
       }
     );
   }
+
+
+
+
+
+
+
+
+
+
 
   formatDate(date: NgbDateStruct): string {
     if (!date) return '';
