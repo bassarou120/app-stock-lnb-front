@@ -905,36 +905,63 @@ updateQuantiteDisponible(index: number, couponId: number, compagnieId: number): 
   );
 }
 
-  onCouponSelected(event: any, index: number): void {
-  const ticketFormGroup = this.tickets.at(index) as FormGroup;
+    onCouponSelected(event: any, index: number): void {
+    const ticketFormGroup = this.tickets.at(index) as FormGroup;
 
-  if (event) {
-    const couponId = event.coupon_ticket_actual_id;
-    const compagnieId = event.compagnie_petrolier_actual_id;
+    if (event) {
+      const couponId = event.coupon_ticket_actual_id;
+      const compagnieId = event.compagnie_petrolier_actual_id;
 
-    // Met à jour la valeur du coupon_ticket_id dans le formulaire
-    ticketFormGroup.patchValue({
-      coupon_ticket_id: event.id,
-    });
+      // Met à jour la valeur du coupon_ticket_id dans le formulaire
+      ticketFormGroup.patchValue({
+        coupon_ticket_id: event.id,
+      });
 
-    // Appelle la fonction de mise à jour de la quantité disponible
-    this.updateQuantiteDisponible(index, couponId, compagnieId);
-  } else {
-    // Si le coupon est désélectionné, réinitialise le formulaire du ticket
-    ticketFormGroup.patchValue({
-      coupon_ticket_id: null,
-      qte: null,
-    });
-    // Désactive le champ de quantité et efface les erreurs
-    const qteControl = ticketFormGroup.get('qte');
-    if (qteControl) {
-      qteControl.disable();
-      qteControl.setErrors(null);
+      // Appelle la fonction de mise à jour de la quantité disponible
+      this.updateQuantiteDisponible(index, couponId, compagnieId);
+    } else {
+      // Si le coupon est désélectionné, réinitialise le formulaire du ticket
+      ticketFormGroup.patchValue({
+        coupon_ticket_id: null,
+        qte: null,
+      });
+      // Désactive le champ de quantité et efface les erreurs
+      const qteControl = ticketFormGroup.get('qte');
+      if (qteControl) {
+        qteControl.disable();
+        qteControl.setErrors(null);
+      }
+      // Supprime la quantité disponible de l'affichage
+      delete this.quantitesDisponibles[index];
     }
-    // Supprime la quantité disponible de l'affichage
-    delete this.quantitesDisponibles[index];
   }
+
+  genererBonDeSortie() {
+    if (this.selectedSortie && this.selectedSortie.reference) {
+        this.sortieService.genererBonDeSortie(this.selectedSortie.reference).subscribe({
+            next: (response) => {
+                const blob = new Blob([response], { type: 'application/pdf' });
+                const url = window.URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `bon_de_sortie_${this.selectedSortie.reference}.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+            },
+            error: (error) => {
+                console.error('Erreur lors de la génération du bon de sortie', error);
+                alert('Une erreur est survenue lors de la génération du bon de sortie.');
+            }
+        });
+    } else {
+        alert('Veuillez d\'abord sélectionner une sortie.');
+    }
 }
+
 
 
 

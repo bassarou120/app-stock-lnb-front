@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable} from 'rxjs';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
 import { Employe, Vehicule, CouponTicket, TypeMouvement, MouvementTicket, CompagniePetroliere, Commune , TransactionSortie} from "../interface/models";
 import { map } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { map } from 'rxjs/operators';
 })
 export class MouvementTicketService  {
   private url: string = environment.backend;
+  private apiUrl = 'http://127.0.0.1:8000/api/mouvement-tickets'; 
 
   constructor(private http: HttpClient) {}
 
@@ -127,6 +128,15 @@ export class MouvementTicketService  {
           response.data.data
         )
       );
+    }
+
+    genererBonDeSortie(reference: string): Observable<Blob> {
+      const headers = new HttpHeaders().set('Accept', 'application/pdf');
+      // La ligne corrigée est ici
+      return this.http.get(`${this.apiUrl}/generer-bon/${reference}`, {
+        headers: headers,
+        responseType: 'blob'
+      });
     }
 
     getQuantiteTicketAttribution(data: any): Observable<any> {
