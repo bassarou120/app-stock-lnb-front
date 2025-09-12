@@ -286,8 +286,8 @@ export interface TransactionSortie {
   employe: { id: number; fullnameEmploye: string; };
   objet: string;
   description: string;
-  commune_depart: Commune;
-  commune_arriver: Commune;
+  commune_depart?: Commune;
+  commune_arriver?: Commune;
   trajet_aller_retour: boolean;
   kilometrage: number;
   kilometrage_de_fin: number;
