@@ -546,7 +546,20 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="genererBonDeSortie()">Générer Bon de Sortie</button>
+        <button type="button" class="btn btn-secondary" (click)="genererBonDeSortie(selectedSortie.reference)">Générer Bon de Sortie</button>
+        
+        <button type="button" class="btn btn-primary" (click)="fileInput.click()">Téléverser un bon</button>
+        <input type="file" #fileInput style="display: none" (change)="onFileSelected($event, selectedSortie.id)" accept=".pdf"/>
+        
+        <button 
+          type="button" 
+          class="btn btn-success" 
+          (click)="voirBonDeSortie(selectedSortie.id)" 
+          *ngIf="selectedSortie?.bon_de_sortie_path"
+        >
+          Voir le bon
+        </button>
+        
         <button class="btn btn-primary d-flex align-items-center" data-bs-toggle="modal"
           data-bs-target="#edit_sortie" (click)="getEditForm(selectedSortie)">
           <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
@@ -555,7 +568,7 @@
       </div>
     </div>
   </div>
-</div>
+  </div>
 
 
  <!-- Edit sortie Modal -->

@@ -936,33 +936,72 @@ updateQuantiteDisponible(index: number, couponId: number, compagnieId: number): 
     }
   }
 
-  genererBonDeSortie() {
-    if (this.selectedSortie && this.selectedSortie.reference) {
-        this.sortieService.genererBonDeSortie(this.selectedSortie.reference).subscribe({
-            next: (response) => {
-                const blob = new Blob([response], { type: 'application/pdf' });
-                const url = window.URL.createObjectURL(blob);
-                
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = `bon_de_sortie_${this.selectedSortie.reference}.pdf`;
-                document.body.appendChild(link);
-                link.click();
-                
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-            },
-            error: (error) => {
-                console.error('Erreur lors de la génération du bon de sortie', error);
-                alert('Une erreur est survenue lors de la génération du bon de sortie.');
-            }
-        });
-    } else {
-        alert('Veuillez d\'abord sélectionner une sortie.');
+  genererBonDeSortie(reference: string): void {
+    // Ajoutez la logique ici pour appeler votre API Laravel
+    // par exemple :
+    this.sortieService.genererBonDeSortie(reference).subscribe({
+      next: (response) => {
+        // Logic pour gérer le PDF
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `bon_de_sortie_${reference}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la génération du bon de sortie', error);
+        alert('Une erreur est survenue lors de la génération du bon.');
+      }
+    });
+  }
+
+  // Méthode appelée lorsque l'utilisateur sélectionne un fichier
+  // Fichier : sortie.component.ts
+  onFileSelected(event: any, mouvementId: number): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.sortieService.televerserBon(mouvementId, file).subscribe({
+        next: (response) => {
+          console.log('Fichier téléversé avec succès', response);
+
+          // 1. Trouver l'objet `TransactionSortie` qui correspond à l'ID
+          const updatedSortie = this.rows.find((s: TransactionSortie) => s.id === mouvementId);
+
+          if (updatedSortie) {
+            // 2. Mettre à jour la propriété `bon_de_sortie_path` avec la valeur renvoyée par l'API
+            updatedSortie.bon_de_sortie_path = response.bon_de_sortie_path;
+          }
+
+          // 3. Mettre à jour l'objet sélectionné si c'est celui qui est affiché dans le modal
+          if (this.selectedSortie && this.selectedSortie.id === mouvementId) {
+            this.selectedSortie.bon_de_sortie_path = response.bon_de_sortie_path;
+          }
+
+          // Si vous utilisez `loadSorties`, vous pouvez aussi l'appeler pour rafraîchir la liste
+          // this.loadSorties();
+        },
+        error: (error) => {
+          console.error('Erreur lors du téléversement', error);
+        }
+      });
     }
-}
+  }
 
-
+  // Méthode pour voir le bon
+  voirBonDeSortie(mouvementId: number): void {
+    this.sortieService.voirBon(mouvementId).subscribe({
+      next: (response) => {
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la visualisation', error);
+      }
+    });
+  }
 
 
   calculerQuantiteTicket() {

@@ -139,6 +139,20 @@ export class MouvementTicketService  {
       });
     }
 
+    televerserBon(mouvementId: number, file: File): Observable<any> {
+      const formData = new FormData();
+      formData.append('bon_de_sortie', file, file.name);
+      return this.http.post(`${this.apiUrl}/${mouvementId}/televerser-bon`, formData);
+    }
+  
+    voirBon(mouvementId: number): Observable<Blob> {
+      const headers = new HttpHeaders().set('Accept', 'application/pdf');
+      return this.http.get(`${this.apiUrl}/${mouvementId}/voir-bon`, {
+        headers: headers,
+        responseType: 'blob'
+      });
+    }
+
     getQuantiteTicketAttribution(data: any): Observable<any> {
       return this.http.post<any>(`${this.url}/get-quantite-ticket-attribution`, data);
     }
