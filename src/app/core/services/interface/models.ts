@@ -235,6 +235,7 @@ export interface MouvementStock {
   qte: number;
   qteDemande: number;
   date_mouvement: string;
+  demandevalidesigne?: string;
   created_at: string;
   updated_at: string;
   statut?: string;
