@@ -145,6 +145,7 @@
             </div>
             <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT DE SORTIE -->
 
+
             <!-- NOUVEAU: FILTRES SPÉCIFIQUES AU RAPPORT D'ÉTAT DE STOCK -->
             <div class="row" *ngIf="showStockStatusFilters">
               <hr class="my-4">
@@ -191,6 +192,43 @@
               </div>
             </div>
             <!-- Fin NOUVEAU: FILTRES SPÉCIFIQUES AU RAPPORT D'ÉTAT DE STOCK -->
+
+
+            <!-- FILTRES SPÉCIFIQUES AU RAPPORT INDIVIDUEL -->
+            <div class="row" *ngIf="showIndividuelFilters">
+              <hr class="my-4">
+              <h5 class="mb-3">Filtres pour le rapport Individuel</h5>
+
+              <!-- Article (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="id_Article_entree" class="form-label">Article </label>
+                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_entree"
+                  [clearable]="true" placeholder="Sélectionnez un article">
+                  <ng-template ng-label-tmp let-item="item">
+                    {{item.code_article}} - {{item.libelle}}
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    {{item.code_article}} - {{item.libelle}}
+                  </ng-template>
+                </ng-select>
+              </div>
+
+              <!-- Fournisseur (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="id_fournisseur_entree" class="form-label">Fournisseur (Optionnel)</label>
+                <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id"
+                  formControlName="id_fournisseur_entree" [clearable]="true" placeholder="Sélectionnez un fournisseur">
+                </ng-select>
+              </div>
+            </div>
+            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ENTRÉE -->
+
+
+
+
+
+
+
 
 
             <!-- Bouton Charger Rapport -->
@@ -349,6 +387,32 @@
                 </ng-template>
               </ngx-datatable-column>
             </ng-container>
+
+            <ng-container *ngIf="selectedReportTypeId === 'individuel'">
+                <ngx-datatable-column name="N°">
+                  <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                    {{ rowIndex + 1 }}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Article">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.article?.libelle }}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Date Mouvement">
+                  <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ row.date_mouvement | date:'dd/MM/yyyy' }}
+                  </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+                <ngx-datatable-column name="Stock Init." prop="stock_initial_ligne"></ngx-datatable-column>
+                <ngx-datatable-column name="Entrées" prop="entrees"></ngx-datatable-column>
+                <ngx-datatable-column name="Sorties" prop="sorties"></ngx-datatable-column>
+                <ngx-datatable-column name="Stock Final" prop="stock_final"></ngx-datatable-column>
+                <ngx-datatable-column name="PU" prop="pu"></ngx-datatable-column>
+                <ngx-datatable-column name="Observations" prop="observations"></ngx-datatable-column>
+            </ng-container>
+
 
           </ngx-datatable>
         </div>
