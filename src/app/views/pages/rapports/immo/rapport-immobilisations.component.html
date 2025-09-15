@@ -361,6 +361,133 @@
                       </div>
                       <!-- Fin NOUVEAU: FILTRES SPÉCIFIQUES À LA FICHE D'INVENTAIRE -->
 
+                                            <!-- FILTRES DES RAPPORT PAR BUREAU -->
+                      <div class="row" *ngIf="showByBureauFilters">
+                        <hr class="my-4" />
+                        <h5 class="mb-3">Filtres pour le rapport des immobilisations par Bureau</h5>
+
+                        <div class="col-md-6 mb-3">
+                          <label for="dateDebutBureau" class="form-label"
+                            >Date (Début) <span class="text-danger">*</span></label
+                          >
+                          <div class="input-group">
+                                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="din3.toggle()">
+                                      <i data-feather="calendar" appFeatherIcon></i>
+                                  </button>
+                            <input
+                              class="form-control border-primary bg-transparent"
+                              placeholder="yyyy-mm-dd"
+                              name="din3"
+                              ngbDatepicker
+                              #din3="ngbDatepicker"
+                              formControlName="date_debut_bureau"
+                              [maxDate]="rapportForm.get('date_fin_bureau')?.value || undefined"
+                              [class.is-invalid]="
+                                (rapportForm.get('date_debut_bureau')?.invalid &&
+                                  rapportForm.get('date_debut_bureau')?.touched) ||
+                                rapportForm.errors?.['dateRangeInvalidOrder']
+                              "
+                            />
+                          </div>
+                          <div
+                            *ngIf="
+                              rapportForm.get('date_debut_bureau')?.invalid &&
+                              rapportForm.get('date_debut_bureau')?.touched
+                            "
+                          >
+                            <small
+                              *ngIf="rapportForm.get('date_debut_bureau')?.errors?.required"
+                              class="text-danger"
+                            >
+                              *La date de début est obligatoire.</small
+                            >
+                          </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                          <label for="dateFinBureau" class="form-label"
+                            >Date (Fin) <span class="text-danger">*</span></label
+                          >
+                          <div class="input-group">
+                            <button
+                              class="btn btn-outline-primary btn-icon calendar"
+                              type="button"
+                              (click)="db2.toggle()"
+                            >
+                              <i data-feather="calendar" appFeatherIcon></i>
+                            </button>
+                            <input
+                              class="form-control border-primary bg-transparent"
+                              placeholder="yyyy-mm-dd"
+                              name="db2"
+                              ngbDatepicker
+                              #db2="ngbDatepicker"
+                              formControlName="date_fin_bureau"
+                              [minDate]="rapportForm.get('date_debut_bureau')?.value || undefined"
+                              [class.is-invalid]="
+                                (rapportForm.get('date_fin_bureau')?.invalid &&
+                                  rapportForm.get('date_fin_bureau')?.touched) ||
+                                rapportForm.errors?.['dateRangeInvalidOrder']
+                              "
+                            />
+                          </div>
+                          <div
+                            *ngIf="
+                              rapportForm.get('date_fin_bureau')?.invalid &&
+                              rapportForm.get('date_fin_bureau')?.touched
+                            "
+                          >
+                            <small
+                              *ngIf="rapportForm.get('date_fin_bureau')?.errors?.required"
+                              class="text-danger"
+                            >
+                              *La date de fin est obligatoire.</small
+                            >
+                            <small
+                              *ngIf="
+                                rapportForm.get('date_fin_bureau')?.errors?.dateAfterStart ||
+                                rapportForm.errors?.['dateRangeInvalidOrder']
+                              "
+                              class="text-danger"
+                            >
+                              *La date de fin ne peut pas être antérieure à la date de début.</small
+                            >
+                          </div>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                          <label for="newBureau" class="form-label">Bureau Actuel</label>
+                          <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux2">
+                            <ng-select
+                              [items]="bureaux"
+                              bindLabel="libelle_bureau"
+                              bindValue="id"
+                              formControlName="bureau_id"
+                              [clearable]="true"
+                              placeholder="Sélectionner un bureau"
+                            >
+                            </ng-select>
+                          </ng-container>
+                          <ng-template #noBureaux2>
+                            <div
+                              class="alert alert-danger"
+                              style="
+                                padding: 5px 10px;
+                                font-size: 14px;
+                                line-height: 1.2;
+                                height: 40px;
+                                display: flex;
+                                align-items: center;
+                              "
+                            >
+                              <i class="feather icon-alert-circle"></i> Aucun Bureau. Veuillez en
+                              créer.
+                            </div>
+                          </ng-template>
+                        </div>
+                      </div>
+                      <!-- Fin FILTRES DES RAPPORT PAR BUREAU -->
+
 
                       <!-- Bouton Charger Rapport -->
                       <div class="d-flex justify-content-center gap-3 mt-4">
@@ -538,6 +665,53 @@
                               </ng-template>
                           </ngx-datatable-column>
                           <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+                      </ng-container>
+
+                                            <ng-container *ngIf="selectedReportTypeId === 'bureau'">
+                          <ngx-datatable-column name="N°">
+                              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                                  {{ rowIndex + 1 }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
+                          <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
+                          <ngx-datatable-column name="Montant TTC">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.montant_ttc | number:'1.2-2' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Bureau">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.bureau?.libelle_bureau || 'Non défini' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Status">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.status_immo?.libelle_status_immo || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+                          <ngx-datatable-column name="Groupe type immo">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Sous type immo">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.sous_type_immo?.libelle || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+                          <ngx-datatable-column name="Personnel">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.employe?.fullnameEmploye || 'Non défini' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+
+                          <ngx-datatable-column name="Date de création">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.date_acquisition | date:'dd/MM/yyyy' }}
+                              </ng-template>
+                          </ngx-datatable-column>
                       </ng-container>
 
                   </ngx-datatable>
