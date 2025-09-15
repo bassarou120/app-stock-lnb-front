@@ -120,4 +120,8 @@ export class MouvementStockService  {
     window.open(fullUrl, '_blank');
   }
 
+
+
+
+
 }

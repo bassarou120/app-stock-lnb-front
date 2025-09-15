@@ -109,6 +109,21 @@ export class ImmobilisationRapportService {
         }
         // Pas d'autres filtres spécifiques ici selon notre discussion
         break;
+
+      case 'bureau':
+        endpoint = `${this.apiUrl}/rapports/parBureau`;
+        // Modifie les noms des paramètres envoyés pour correspondre au backend
+        if (filters['date_debut_bureau']) {
+          params = params.set('date_debut_bureau', filters['date_debut_bureau']);
+        }
+        if (filters['date_fin_bureau']) {
+          params = params.set('date_fin_bureau', filters['date_fin_bureau']);
+        }
+        if (filters['bureau_id']) {
+          params = params.set('bureau_id', filters['bureau_id']);
+        }
+        break;
+
       default:
         return throwError(() => new Error(`Type de rapport non valide pour l\'affichage des données: '${reportType}'.`));
     }

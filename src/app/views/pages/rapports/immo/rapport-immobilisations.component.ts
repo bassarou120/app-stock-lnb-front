@@ -42,7 +42,7 @@ interface TypeRapportImmo {
   selector: 'app-rapport-immobilisations',
   standalone: true,
   imports: [
- 
+
   CommonModule,
     NgSelectModule,
     ReactiveFormsModule,
@@ -86,6 +86,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     { id: 'transfert', libelle: 'Rapport des Transferts d\'Immobilisations' },
     { id: 'intervention', libelle: 'Rapport des Interventions sur Immobilisations' },
     { id: 'inventaire', libelle: 'Rapport des immobilisations' },
+    { id: 'bureau', libelle: 'Rapport des immos par Bureau' },
   ];
   selectedReportTypeId: string | null = null;
 
@@ -93,6 +94,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
   showTransferFilters: boolean = false;
   showInterventionFilters: boolean = false;
   showInventoryFilters: boolean = false;
+  showByBureauFilters : boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -212,6 +214,9 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
 
       date_debut_inventaire: [firstDayOfMonth],
       date_fin_inventaire: [today],
+
+      date_debut_bureau: [firstDayOfMonth],
+      date_fin_bureau: [today],
     });
     console.log('RapportImmobilisationsComponent: Form initialized with default dates (controls not disabled yet).');
   }
@@ -288,11 +293,35 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         console.log('onTypeRapportChange: Showing inventory filters.');
         break;
 
+      case 'bureau':
+        this.showByBureauFilters = true;
+        // Use unique form control names for the bureau report
+        this.rapportForm.get('date_debut_bureau')?.setValue(firstDayOfMonth);
+        console.log('Set date_debut_bureau to:', this.rapportForm.get('date_debut_bureau')?.value);
+        this.rapportForm.get('date_fin_bureau')?.setValue(today);
+        console.log('Set date_fin_bureau to:', this.rapportForm.get('date_fin_bureau')?.value);
+
+        this.enableAndSetValidators([
+          'date_debut_bureau', // Correct form control name
+          'date_fin_bureau', // Correct form control name
+          'bureau_id' // You also had 'immo_id' which seems incorrect for a bureau report
+        ], this.rapportForm);
+
+        this.rapportForm.get('date_debut_bureau')?.setValidators(Validators.required);
+        this.rapportForm.get('date_fin_bureau')?.setValidators(Validators.required);
+        this.rapportForm.setValidators(this.dateRangeValidatorForReport());
+
+        this.rapportForm.get('date_debut_bureau')?.updateValueAndValidity();
+        this.rapportForm.get('date_fin_bureau')?.updateValueAndValidity();
+        console.log('onTypeRapportChange: Showing by bureau filters.');
+      break;
+
       default:
         this.showRegistrationFilters = false;
         this.showTransferFilters = false;
         this.showInterventionFilters = false;
         this.showInventoryFilters = false;
+        this.showByBureauFilters = false;
         this.rapportForm.reset({ id_type_rapport: typeRapportId });
         this.markFormGroupTouched(this.rapportForm);
         this.rapportForm.clearValidators();
@@ -331,6 +360,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     this.showTransferFilters = false;
     this.showInterventionFilters = false;
     this.showInventoryFilters = false;
+    this.showByBureauFilters = false;
     this.rapportForm.clearValidators();
     this.rapportForm.updateValueAndValidity();
     console.log('All non-type-rapport form controls reset and filters hidden.');
@@ -480,6 +510,25 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         processDateFilters('date_debut_inventaire', 'date_fin_inventaire');
         this.cleanFiltersForReportType(filters, ['code_immo', 'date_debut_acquisition', 'date_debut_mouvement', 'date_fin_mouvement', 'old_bureau_id', 'bureau_id', 'old_employe_id', 'employe_id', 'date_debut_intervention', 'date_fin_intervention', 'type_intervention_id', 'immo_id']);
         break;
+
+      case 'bureau':
+        // Renomme les champs pour qu'ils correspondent à la fois au backend et au service
+        if (filters.date_debut_bureau) {
+          filters.date_debut_bureau = this.formatDate(filters.date_debut_bureau);
+        }
+        if (filters.date_fin_bureau) {
+          filters.date_fin_bureau = this.formatDate(filters.date_fin_bureau);
+        }
+        if (filters.bureau_id === null || filters.bureau_id === undefined || filters.bureau_id === '') { delete filters.bureau_id; }
+        // Clean up filters from other reports to avoid sending unnecessary data
+        this.cleanFiltersForReportType(filters, [
+          'code_immo', 'date_debut_acquisition', 'date_debut_mouvement', 'date_fin_mouvement',
+          'old_bureau_id', 'old_employe_id', 'employe_id',
+          'date_debut_intervention', 'date_fin_intervention', 'type_intervention_id', 'immo_id',
+          'date_debut_inventaire', 'date_fin_inventaire',
+        ]);
+        break;
+
     }
 
     filters.id_type_rapport = this.selectedReportTypeId;
@@ -579,6 +628,12 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
       case 'inventaire':
         processDateFiltersPdf('date_debut_inventaire', 'date_fin_inventaire');
         this.cleanFiltersForReportType(filters, ['code_immo', 'date_debut_acquisition', 'date_debut_mouvement', 'date_fin_mouvement', 'old_bureau_id', 'bureau_id', 'old_employe_id', 'employe_id', 'date_debut_intervention', 'date_fin_intervention', 'type_intervention_id', 'immo_id']);
+        break;
+
+      case 'bureau' :
+        processDateFiltersPdf('date_debut_bureau', 'date_fin_bureau');
+        if (filters.bureau_id === null || filters.bureau_id === undefined || filters.bureau_id === '') { delete filters.bureau_id; }
+        this.cleanFiltersForReportType(filters, ['code_immo', 'date_debut_acquisition', 'date_debut_mouvement', 'date_fin_mouvement', 'old_bureau_id', 'bureau_id', 'old_employe_id', 'employe_id', 'date_debut_inventaire', 'date_fin_inventaire']);
         break;
     }
 
@@ -688,6 +743,20 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
                     (inventaireItem.sousTypeImmo?.libelle?.toLowerCase().includes(val) || false) ||
                     (inventaireItem.statusImmo?.libelle_status_immo?.toLowerCase().includes(val) || false);
             break;
+
+            case 'bureau':
+            const bureauItem = item as Immobilisation;
+            match = (bureauItem.code?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.designation?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.observation?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.bureau?.libelle_bureau?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.employe?.nom?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.fournisseur?.nom?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.groupeTypeImmo?.libelle?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.sousTypeImmo?.libelle?.toLowerCase().includes(val) || false) ||
+                    (bureauItem.statusImmo?.libelle_status_immo?.toLowerCase().includes(val) || false);
+            break;
+
         }
         return match;
       });

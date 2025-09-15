@@ -62,10 +62,12 @@
 <table class="table table-bordered" *ngIf="!loading">
   <thead>
     <tr>
-      <th>Code</th>
+      <th>Code </th>
       <th>Personnel</th>
       <th>Bureau</th>
       <th>Date Demande</th>
+      <!-- <th>Date Création</th> -->
+      <!-- <th>Statut</th> -->
       <th>Total Articles</th>
       <th>Action</th>
     </tr>
@@ -77,37 +79,29 @@
         <td>{{ group.personnel }}</td>
         <td>{{ group.bureau }}</td>
         <td>{{ group.dateDemande }}</td>
+        <!-- <td>{{ group.dateCreation  }}</td> -->
+        <!-- <td>{{ group.statut }}</td> -->
         <td>{{ group.totalArticles }}</td>
         <td>
+          <!-- <button class="btn btn-sm btn-primary" (click)="toggleGroup(group.code_mouvement)">
+            {{ expandedGroupCode === group.code_mouvement ? 'Fermer' : 'Voir' }}
+          </button> -->
           <button class="btn btn-sm btn-primary m-2" (click)="toggleGroup(group.code_mouvement)">
             {{ expandedGroupCode === group.code_mouvement ? '▲' : '👁️' }}
           </button>
-
-          <button 
-            *ngIf="canValidDemande || canAccordDemande || canRefuseDemande"
-            class="btn btn-sm"
-            [ngClass]="{
-              'btn-warning': !isGroupPartiallyProcessed(group),
-              'btn-info': isGroupInProgress(group),
-              'btn-success': isGroupCompletelyProcessed(group)
-            }"
-            data-bs-toggle="modal"
-            data-bs-target="#tout_traiter"
-            (click)="openToutTraiterModal(group.code_mouvement)"
+          <button *ngIf="canValidDemande || canAccordDemande || canRefuseDemande"
+              class="btn btn-sm"
+              [ngClass]="{
+                'btn-warning': isGroupTraitable(group),
+                'btn-success': !isGroupTraitable(group)
+              }"
+              data-bs-toggle="modal"
+              data-bs-target="#tout_traiter"
+              (click)="openToutTraiterModal(group.code_mouvement)"
             [disabled]="isGroupPartiallyProcessed(group)">
             {{ isGroupPartiallyProcessed(group) ? (isGroupCompletelyProcessed(group) ? 'Traité' : 'En cours') : 'Tout traiter' }}
           </button>
-
-<!--         <button
-          class="btn btn-sm btn-secondary m-2"
-          data-bs-toggle="modal"
-          data-bs-target="#validerlademande"
-          [disabled]="isGroupPartiallyProcessed(group)"
-          (click)="selectMouvement(group.code_mouvement)">
-          📥
-        </button> -->
-
-        <button
+          <button
             class="btn btn-sm btn-secondary m-2"
             data-bs-toggle="modal"
             data-bs-target="#validerlademande"
@@ -115,24 +109,30 @@
             (click)="selectMouvement(group.code_mouvement)">
             📥
           </button>
+          <button
+           
+            class="btn btn-sm btn-secondary"
+            (click)="downloadGroupedFile(group.code_mouvement); $event.stopPropagation()" 
+            >
+            voir
+          </button>
 
-         <button
-            class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none"
-            (click)="downloadGroupedFile(group.code_mouvement); $event.stopPropagation()">
-            Ouvrir
-        </button> 
         </td>
       </tr>
       <tr *ngIf="expandedGroupCode === group.code_mouvement">
         <td colspan="8" style="padding: 0;">
           <table class="table table-sm table-striped mb-0">
             <thead>
+
               <tr>
                 <th>Code</th>
                 <th>Article</th>
                 <th>Description</th>
                 <th>Quantité Demandée</th>
                 <th>Quantité Accordée</th>
+                <!-- <th>Personnel</th> -->
+                <!-- <th>Bureau</th> -->
+                <!-- <th>Date Mouvement</th> -->
                 <th>Statut</th>
                 <th>Action</th>
               </tr>
@@ -144,21 +144,23 @@
                 <td>{{ detail.description }}</td>
                 <td>{{ detail.qteDemande }}</td>
                 <td>{{ detail.qte }}</td>
+                <!-- <td>{{ detail.employe?.fullnameEmploye || 'Non défini' }}</td> -->
+                <!-- <td>{{ detail.bureau?.libelle_bureau || 'Non défini' }}</td> -->
+                <!-- <td>{{ detail.date_mouvement  }}</td> -->
                 <td>{{ detail.statut }}</td>
                 <td>
                   <button *ngIf="canValidDemande || canAccordDemande || canRefuseDemande"
-                    class="btn btn-sm"
-                    [ngClass]="{
-                      'btn-warning': detail.statut !== 'Accordé' && detail.statut !== 'Validé',
-                      'btn-success': detail.statut === 'Accordé' || detail.statut === 'Validé'
-                    }"
-                    data-bs-toggle="modal"
-                    data-bs-target="#edit_statut_sortie"
-                    (click)="getStatutForm(detail)"
+                          class="btn btn-sm"
+                          [ngClass]="{
+                            'btn-warning': detail.statut !== 'Accordé',
+                            'btn-success': detail.statut === 'Accordé'
+                          }"
+                          data-bs-toggle="modal"
+                          data-bs-target="#edit_statut_sortie"
+                          (click)="getStatutForm(detail)"
                     [disabled]="detail.statut === 'Accordé' || detail.statut === 'Validé'">
                     {{ detail.statut === 'Accordé' || detail.statut === 'Validé' ? 'Traité' : 'À traiter' }}
                   </button>
-
                   <button
                     class="btn btn-sm btn-secondary m-2"
                     data-bs-toggle="modal"
@@ -168,14 +170,14 @@
                   >
                     📥
                   </button>
-
-                  <!-- Bouton de visualisation, visible seulement si le lien existe -->
+                <!-- Bouton de visualisation, visible seulement si le lien existe -->
                 <button
                   *ngIf="detail.demandevalidesigne"
                   class="btn btn-sm btn-info m-2"
                   (click)="viewFile(detail.demandevalidesigne)">
                   👁️
                 </button>
+
                 </td>
               </tr>
             </tbody>
@@ -185,6 +187,68 @@
     </ng-container>
   </tbody>
 </table>
+
+
+<div id="validerlademande" class="modal fade" tabindex="-1" aria-labelledby="validerlademande" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="validerlademande">Valider la demande</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editvaliderDemande" (ngSubmit)="uploadSignedFile()" novalidate>
+
+          <input type="hidden" class="form-control" [formControlName]="'id'">
+          <input type="hidden" class="form-control" [formControlName]="'code_mouvement'">
+
+          <div class="mb-3">
+            <label for="statut" class="form-label">Statut de la demande <span class="text-danger">*</span></label>
+            <ng-select
+              [items]="['Validé']"
+              [clearable]="false"
+              placeholder="Sélectionnez le statut"
+              formControlName="statut">
+            </ng-select>
+            <div *ngIf="editvaliderDemande.get('statut')?.invalid && editvaliderDemande.get('statut')?.touched">
+              <small class="text-danger"> *Le statut est obligatoire</small>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="demandeSigne" class="form-label">Fichier de validation (PDF) <span class="text-danger">*</span></label>
+            <div class="input-group">
+                <input
+                    type="file"
+                    class="form-control"
+                    id="demandeSigne"
+                    accept=".pdf"
+                    (change)="onFileSelected($event)">
+            </div>
+            <div *ngIf="editvaliderDemande.get('demandevalidesigne')?.invalid && editvaliderDemande.get('demandevalidesigne')?.touched">
+              <small class="text-danger"> *Le fichier signé est obligatoire</small>
+              <br>
+              <small class="text-danger"> *Le fichier doit être au format PDF</small>
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-center gap-2 mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="isProcessingAll">
+              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isProcessingAll" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div>
+              {{ isProcessingAll ? 'Traitement en cours...' : 'Valider' }}
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!-- Edit statut Modal -->
 <div id="edit_statut_sortie" class="modal fade" tabindex="-1" aria-labelledby="editStatutSortieLabel"
@@ -200,7 +264,7 @@
         <form class="forms-sample" [formGroup]="editStatutSortie" (ngSubmit)="onClickSubmitEditStatutSortie()"
           novalidate>
           <div class="mb-3">
-            <label for="statut" class="form-label">Nouveau Statut seul<span class="text-danger">*</span></label>
+            <label for="statut" class="form-label">Nouveau Statut <span class="text-danger">*</span></label>
             <ng-select [items]="['Refusé', 'Accordé']" [clearable]="false"
               placeholder="Sélectionnez le statut" formControlName="statut">
             </ng-select>
@@ -283,7 +347,7 @@
 
           <div class="mb-3">
             <label for="statut" class="form-label">Nouveau Statut <span class="text-danger">*</span></label>
-            <ng-select [items]="['Refusé', 'Accordé', 'Validé']" [clearable]="false"
+            <ng-select [items]="['Refusé', 'Accordé']" [clearable]="false"
               placeholder="Sélectionnez le statut" formControlName="statut">
             </ng-select>
             <div *ngIf="editStatutSortie.get('statut')?.invalid && editStatutSortie.get('statut')?.touched">
@@ -318,121 +382,3 @@
   </div>
 </div>
 <!-- /Edit statut Modal -->
-
-
-<!-- Upload Modal -->
-<!-- <div id="validerlademande" class="modal fade" tabindex="-1" aria-labelledby="validerlademande"
-  aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="validerlademande">Valider la demande</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <form class="forms-sample" [formGroup]="editvaliderDemande" (ngSubmit)="uploadSignedFile()"
-          novalidate>
-          <div class="mb-4">
-            <label for="statut" class="form-label">Valider la demande<span class="text-danger">*</span></label>
-            <ng-select [items]="['Valider la demande']" [clearable]="false"
-              placeholder="Sélectionnez le statut" formControlName="statut">
-            </ng-select>
-            <div *ngIf="editStatutSortie.get('statut')?.invalid && editStatutSortie.get('statut')?.touched">
-              <small class="text-danger"> *Le statut est obligatoire</small>
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <label for="code_mouvement" class="form-label">Code Mouvement</label>
-            <input type="text"
-              class="form-control"
-              [formControlName]="'code_mouvement'"
-              [disabled]="true">
-          </div>
-
-          <div class="mb-4">
-            <input type="file" name="demandevalidesigne" class="form-control" id="demandeSigne" accept=".pdf" formControlName="demandevalidesigne">
-          </div>
-          <div *ngIf="editvaliderDemande.get('demandevalidesigne')?.invalid && editvaliderDemande.get('demandevalidesigne')?.touched">
-            <small class="text-danger"> *Le fichier signé est obligatoire</small>
-            <small class="text-danger"> *Le fichier doit être au format PDF</small>
-          </div>
-
-          <div class="mt-5 d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary" [disabled]="isProcessingAll">
-              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isProcessingAll" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              {{ isProcessingAll ? 'Traitement en cours...' : 'Valider' }}
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  </div>
-</div> -->
-<!-- /Upload Modal -->
-
-
-<div id="validerlademande" class="modal fade" tabindex="-1" aria-labelledby="validerlademande" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="validerlademande">Valider la demande</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-
-      <div class="modal-body">
-        <form class="forms-sample" [formGroup]="editvaliderDemande" (ngSubmit)="uploadSignedFile()" novalidate>
-
-          <input type="hidden" class="form-control" [formControlName]="'id'">
-          <input type="hidden" class="form-control" [formControlName]="'code_mouvement'">
-
-          <div class="mb-3">
-            <label for="statut" class="form-label">Statut de la demande <span class="text-danger">*</span></label>
-            <ng-select
-              [items]="['Validé']"
-              [clearable]="false"
-              placeholder="Sélectionnez le statut"
-              formControlName="statut">
-            </ng-select>
-            <div *ngIf="editvaliderDemande.get('statut')?.invalid && editvaliderDemande.get('statut')?.touched">
-              <small class="text-danger"> *Le statut est obligatoire</small>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label for="demandeSigne" class="form-label">Fichier de validation (PDF) <span class="text-danger">*</span></label>
-            <div class="input-group">
-                <input
-                    type="file"
-                    class="form-control"
-                    id="demandeSigne"
-                    accept=".pdf"
-                    (change)="onFileSelected($event)">
-            </div>
-            <div *ngIf="editvaliderDemande.get('demandevalidesigne')?.invalid && editvaliderDemande.get('demandevalidesigne')?.touched">
-              <small class="text-danger"> *Le fichier signé est obligatoire</small>
-              <br>
-              <small class="text-danger"> *Le fichier doit être au format PDF</small>
-            </div>
-          </div>
-
-          <div class="d-flex justify-content-center gap-2 mt-4">
-            <button type="submit" class="btn btn-primary" [disabled]="isProcessingAll">
-              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isProcessingAll" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              {{ isProcessingAll ? 'Traitement en cours...' : 'Valider' }}
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          </div>
-
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
