@@ -75,6 +75,9 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
 
   etatOptions: string[] = ['Bon', 'Usé', 'Défectueux / En panne', 'Irréparable'];
 
+  // --- Propriété ajoutée pour stocker les codes existants ---
+  codesImmo: any[] = [];
+
   isAddingImmobilisation: boolean = false;
   isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
@@ -87,6 +90,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   ngOnInit(): void {
     // INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
+    this.getAllCodes(); // ✅ récupérer les codes dès l’init
 
     // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
@@ -456,6 +460,19 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
         this.loadingIndicator = false;
       }
     );
+  }
+
+  // ✅ nouvelle méthode pour charger les codes existants
+  getAllCodes() {
+    this.immobilisationService.getAllImmobilisations().subscribe({
+      next: (res: any) => {
+        // on suppose que la réponse contient un tableau d’immobilisations avec la propriété "code"
+        this.codesImmo = res.map((immo: any) => ({ code: immo.code }));
+      },
+      error: (err) => {
+        console.error('Erreur récupération codes immobilisation:', err);
+      }
+    });
   }
 
   updateFilter(event: KeyboardEvent): void {

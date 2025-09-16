@@ -162,12 +162,18 @@
           <!-- code de l' Immobilisation -->
           <div class="mb-3">
             <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
-            <input type="text" class="form-control" id="code" placeholder="IMMO-001" autocomplete="off"
-              [class.invalid]="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched"
-              formControlName="code">
+            <ng-select
+              [items]="codesImmo"
+              bindLabel="code"
+              bindValue="code"
+              formControlName="code"
+              [addTag]="true" 
+              [clearable]="true"
+              placeholder="Sélectionnez ou entrez un code">
+            </ng-select>
+          
             <div *ngIf="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched">
-              <small *ngIf="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched"
-                class="text-danger"> *le code de l'immobilisation est obligatoire</small>
+              <small class="text-danger"> *le code de l'immobilisation est obligatoire</small>
             </div>
           </div>
           <!-- champ Référence d'estampillonnage -->
@@ -429,7 +435,7 @@
       </div>
     </div>
     </div>
-  </div>
+</div>
 <!-- /Add IMMO Modal -->
 <!-- NOUVEAU MODAL : Importation de immobilisation par Excel -->
 <div id="importImmobilisationsExcel" class="modal fade" tabindex="-1" aria-labelledby="importImmobilisationsExcelLabel" aria-hidden="true">

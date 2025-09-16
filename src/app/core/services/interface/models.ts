@@ -268,6 +268,31 @@ export interface MouvementStockGrouped {
   details: MouvementStock[];
 }
 
+// Décrit un seul ticket au sein d'une transaction
+export interface TicketDetail {
+  coupon: { id: number; libelle: string; };
+  compagnie: { id: number; libelle: string; };
+  qte: number;
+}
+
+// Décrit la transaction de sortie complète (une ligne de votre tableau)
+export interface TransactionSortie {
+  id: number; // 👈 AJOUTEZ CETTE LIGNE
+  reference: string;
+  date: string;
+  vehicule: { id: number; immatriculation: string; };
+  employe: { id: number; fullnameEmploye: string; };
+  objet: string;
+  description: string;
+  commune_depart?: Commune;
+  commune_arriver?: Commune;
+  trajet_aller_retour: boolean;
+  kilometrage: number;
+  kilometrage_de_fin: number;
+  tickets: TicketDetail[]; // Le tableau des tickets
+}
+
+
 
 export interface MouvementTicket {
   id: number;
