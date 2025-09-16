@@ -90,16 +90,16 @@
             {{ expandedGroupCode === group.code_mouvement ? '▲' : '👁️' }}
           </button>
           <button *ngIf="canValidDemande || canAccordDemande || canRefuseDemande"
-              class="btn btn-sm"
-              [ngClass]="{
-                'btn-warning': isGroupTraitable(group),
-                'btn-success': !isGroupTraitable(group)
-              }"
-              data-bs-toggle="modal"
-              data-bs-target="#tout_traiter"
-              (click)="openToutTraiterModal(group.code_mouvement)"
-            [disabled]="isGroupPartiallyProcessed(group)">
-            {{ isGroupPartiallyProcessed(group) ? (isGroupCompletelyProcessed(group) ? 'Traité' : 'En cours') : 'Tout traiter' }}
+                  class="btn btn-sm"
+                  [ngClass]="{
+                    'btn-warning': isGroupTraitable(group),
+                    'btn-success': !isGroupTraitable(group)
+                  }"
+                  data-bs-toggle="modal"
+                  data-bs-target="#tout_traiter"
+                  (click)="openToutTraiterModal(group.code_mouvement)"
+                  [disabled]="isGroupCompletelyProcessed(group)">
+              {{ isGroupCompletelyProcessed(group) ? 'Traité' : 'Tout traiter' }}
           </button>
           <button
             class="btn btn-sm btn-secondary m-2"
@@ -113,6 +113,7 @@
            
             class="btn btn-sm btn-secondary"
             (click)="downloadGroupedFile(group.code_mouvement); $event.stopPropagation()" 
+            *ngIf="hasGroupFile(group)"
             >
             voir
           </button>
