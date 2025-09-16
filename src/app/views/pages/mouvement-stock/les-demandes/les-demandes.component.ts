@@ -246,9 +246,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
 
   // Vérifie si TOUS les éléments du groupe sont traités
   isGroupCompletelyProcessed(group: any): boolean {
-    return group.details.every((detail: any) =>
-      detail.statut === 'Accordé' || detail.statut === 'Validé'
-    );
+    return group.details.every((detail: any) => detail.statut !== 'En attente');
   }
 
   onFileSelected(event: any): void {
@@ -258,6 +256,15 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
     // You can still set the form control value if you want to track it, but it's optional
     this.editvaliderDemande.get('demandevalidesigne')?.setValue(file);
   }
+}
+
+// Dans votre classe du composant (votre .ts)
+hasGroupFile(group: any): boolean {
+  if (!group || !group.details) {
+    return false;
+  }
+  // Renvoie `true` si au moins un des détails a un fichier, sinon `false`
+  return group.details.some((detail: any) => detail.demandevalidesigne);
 }
 
     // Nouvelle fonction pour la logique du bouton d'upload
@@ -459,7 +466,6 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
     this.editStatutSortie.markAsPristine();
   }
 
-
   formatDate(date: NgbDateStruct): string | null {
     if (!date) return null;
     const year = date.year;
@@ -480,73 +486,6 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
     }
     return null;
   }
-
-/*   onClickSubmitEditStatutSortie(): void {
-    // EMPÊCHEMENT DE CLICS MULTIPLES (basé sur l'exemple de EntreeComponent)
-    if (this.isStatutModifLoading) {
-      console.warn('Soumission de modification de statut déjà en cours. Opération annulée.');
-      return; // Empêche l'exécution si une soumission est déjà en cours
-    }
-
-    if (this.editStatutSortie.invalid) {
-      this.markFormGroupTouched(this.editStatutSortie);
-      console.error("Le formulaire est invalide. Erreurs au niveau du formulaire :", this.editStatutSortie.errors); // Vérifier les erreurs au niveau du formulaire
-      Object.keys(this.editStatutSortie.controls).forEach(key => {
-        const control = this.editStatutSortie.get(key);
-        if (control && control.invalid) {
-          console.error(`Le contrôle '${key}' est invalide. Erreurs :`, control.errors);
-        }
-      });
-
-      // 🔥 NOUVEAU : Vérifier spécifiquement l'erreur de quantité insuffisante
-      const qteControl = this.editStatutSortie.get('qte');
-      if (qteControl && qteControl.hasError('max')) {
-        alert(`La quantité demandée (${qteControl.value}) dépasse la quantité disponible (${this.quantiteDisponible}).`);
-      } else {
-        alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
-      }
-      return;
-    }
-
-    this.isStatutModifLoading = true; // Active le spinner et désactive le bouton dans le HTML
-
-    const id = this.editStatutSortie.value.id;
-    const formData = {
-      ...this.editStatutSortie.value,
-      date_mouvement: this.editStatutSortie.value.date_mouvement ? this.formatDate(this.editStatutSortie.value.date_mouvement) : null,
-    };
-    delete formData.id;
-    delete formData.qteDemande;
-
-    this.mouvementService.updateDemandeStock(id, formData)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (response: any) => {
-          this.loadGroupedMouvements();
-          this.editStatutSortie.reset();
-          this.isStatutModifLoading = false; // Réactive le bouton
-
-          // this.modalService.dismissAll();
-          // Fermer le modal
-          const modal = document.getElementById('edit_statut_sortie');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          setTimeout(() => {
-            this.alertModifVisible = true;
-            setTimeout(() => {
-              this.alertModifVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        error: (error: any) => {
-          console.error('Erreur lors de la modification du statut :', error);
-          this.isStatutModifLoading = false; // Réactive le bouton
-          alert(error.error?.error || "Une erreur s'est produite. Veuillez réessayer.");
-        }
-      });
-  } */
 
   onClickSubmitEditStatutSortie(): void {
     if (this.isStatutModifLoading) {
@@ -602,54 +541,57 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
       });
   }
 
-
-
-
   onClickSubmitEditAllSortie() {
-    // EMPÊCHEMENT DE CLICS MULTIPLES (basé sur l'exemple de EntreeComponent)
-    if (this.isProcessingAll) {
-      console.warn('Soumission "Tout Traiter" déjà en cours. Opération annulée.');
-      return; // Empêche l'exécution si une soumission est déjà en cours
-    }
+      // EMPÊCHEMENT DE CLICS MULTIPLES (basé sur l'exemple de EntreeComponent)
+      if (this.isProcessingAll) {
+        console.warn('Soumission "Tout Traiter" déjà en cours. Opération annulée.');
+        return;
+      }
 
-    if (this.edit_all.invalid) {
-      this.markFormGroupTouched(this.edit_all);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
-      return; // Bloque la soumission si le formulaire est invalide
-    }
+      if (this.edit_all.invalid) {
+        this.markFormGroupTouched(this.edit_all);
+        alert("Désolé, le formulaire n'est pas bien renseigné.");
+        return;
+      }
 
-    this.isProcessingAll = true; // Active le spinner et désactive le bouton dans le HTML
+      this.isProcessingAll = true;
 
-    const formData = {
-      ...this.edit_all.value,
-      date_mouvement: this.formatDate(this.edit_all.value.date_mouvement),
-    };
+      const formData = {
+        ...this.edit_all.value,
+        date_mouvement: this.formatDate(this.edit_all.value.date_mouvement),
+      };
 
-    this.mouvementService.validerDemandeGroupee(formData).pipe(takeUntil(this.destroy$)).subscribe(
-      (data: any) => {
-        this.loadGroupedMouvements();
-        this.edit_all.reset();
-        this.isProcessingAll = false; // Réactive le bouton
+      this.mouvementService.validerDemandeGroupee(formData).pipe(takeUntil(this.destroy$)).subscribe(
+        (data: any) => {
+          this.isProcessingAll = false;
 
-        // this.modalService.dismissAll();
-        // Fermer le modal
+          // Fermer le modal
           const modal = document.getElementById('tout_traiter');
-          // @ts-ignore
           const bsModal = bootstrap.Modal.getInstance(modal);
           bsModal?.hide();
 
-        setTimeout(() => {
-          this.alertModifAllVisible = true;
+          // Vérifier le succès et déclencher le téléchargement de la fiche
+          if (data && data.code_mouvement) {
+              // Déclenche le téléchargement du PDF dans une nouvelle fenêtre
+              window.open(`${this.url}/generer-fiche-demande/${data.code_mouvement}`, '_blank');
+
+          }
+
+          this.loadGroupedMouvements(); // Rafraîchit les données après le traitement
+          this.edit_all.reset();
+
           setTimeout(() => {
-            this.alertModifAllVisible = false;
-          }, 2000);
-        }, 200);
-      },
-      (error: any) => {
-        this.isProcessingAll = false; // Réactive le bouton
-        alert(error.error?.error || "Une erreur s'est produite lors du traitement groupé. Veuillez réessayer.");
-      }
-    );
+            this.alertModifAllVisible = true;
+            setTimeout(() => {
+              this.alertModifAllVisible = false;
+            }, 2000);
+          }, 200);
+        },
+        (error: any) => {
+          this.isProcessingAll = false;
+          alert(error.error?.error || "Une erreur s'est produite lors du traitement groupé. Veuillez réessayer.");
+        }
+      );
   }
 
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
