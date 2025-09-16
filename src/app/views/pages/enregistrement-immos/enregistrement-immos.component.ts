@@ -156,6 +156,9 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       id: [0, [Validators.required]],
     });
 
+    // Maintenant que les formulaires existent, on peut attacher les écouteurs
+    this.setupFormListeners();
+
     // NOUVEAU: Écouteur pour la date d'acquisition dans le formulaire d'ajout
     this.addImmobilisation.get('date_acquisition')?.valueChanges.pipe(
       takeUntil(this.destroy$)
@@ -240,6 +243,65 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
     this.hasPageAccess = true;
     console.log('✅ Permissions par défaut appliquées');
   }
+
+    private setupFormListeners(): void {
+        // Écoute les changements sur le champ taux_ammortissement (formulaire d'ajout)
+        this.addImmobilisation.get('taux_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(taux => {
+            const tauxNum = parseFloat(taux);
+            if (!isNaN(tauxNum) && tauxNum > 0) {
+                const duree = 100 / tauxNum;
+                this.addImmobilisation.get('duree_ammortissement')?.setValue(duree.toFixed(2), { emitEvent: false });
+            } else {
+                this.addImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
+            }
+        });
+
+        // Écoute les changements sur le champ duree_ammortissement (formulaire d'ajout)
+        this.addImmobilisation.get('duree_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(duree => {
+            const dureeNum = parseFloat(duree);
+            if (!isNaN(dureeNum) && dureeNum > 0) {
+                const taux = 100 / dureeNum;
+                this.addImmobilisation.get('taux_ammortissement')?.setValue(taux.toFixed(2), { emitEvent: false });
+            } else {
+                this.addImmobilisation.get('taux_ammortissement')?.setValue(null, { emitEvent: false });
+            }
+        });
+
+        // Écouteur pour la date d'acquisition dans le formulaire d'ajout
+        this.addImmobilisation.get('date_acquisition')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(date => {
+            console.log('Debug: date_acquisition changed (Add Form):', date);
+            // this.calculateDureeAmortie(date, this.addImmobilisation);
+        });
+
+        // Écoute les changements sur le champ taux_ammortissement
+this.addImmobilisation.get('taux_ammortissement')?.valueChanges.subscribe(taux => {
+    const tauxNum = parseFloat(taux);
+    if (!isNaN(tauxNum) && tauxNum > 0) {
+        // Calcule la durée d'amortissement en années (partie entière)
+        const duree = Math.floor(100 / tauxNum);
+        this.addImmobilisation.get('duree_ammortissement')?.setValue(duree, { emitEvent: false });
+    } else {
+        this.addImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
+    }
+});
+
+        // Écoute les changements sur le champ duree_ammortissement
+        this.addImmobilisation.get('duree_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(duree => {
+            const dureeNum = parseInt(duree); // Utilise parseInt directement
+            if (!isNaN(dureeNum) && dureeNum > 0) {
+                const taux = 100 / dureeNum;
+                this.addImmobilisation.get('taux_ammortissement')?.setValue(taux.toFixed(2), { emitEvent: false });
+            } else {
+                this.addImmobilisation.get('taux_ammortissement')?.setValue(null, { emitEvent: false });
+            }
+        });
+
+        // Écouteur pour la date d'acquisition dans le formulaire de modification
+        this.editImmobilisation.get('date_acquisition')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(date => {
+            console.log('Debug: date_acquisition changed (Edit Form):', date);
+            // this.calculateDureeAmortie(date, this.editImmobilisation);
+        });
+    }
 
   // NOUVELLE MÉTHODE pour "Voir plus"
   getViewForm(row: any): void {
@@ -688,44 +750,46 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   }
 
   // NOUVELLE MÉTHODE : Calculer la durée amortie en mois
-  private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: FormGroup): void {
-    console.log('Debug: calculateDureeAmortie appelée avec dateAcquisition:', dateAcquisition); // Debug log
-
-    if (!dateAcquisition) {
-      formGroup.get('duree_amorti')?.setValue(null); // Réinitialiser si pas de date
-      console.log('Debug: duree_amorti mis à null (pas de date d\'acquisition)'); // Debug log
-      return;
-    }
-
-    // Convertir NgbDateStruct en objet Date
-    // Le mois de NgbDateStruct est 1-indexé, celui de l'objet Date est 0-indexé
-    const acquisitionDate = new Date(dateAcquisition.year, dateAcquisition.month - 1, dateAcquisition.day);
-    const today = new Date();
-
-    // Mettre l'heure à 00:00:00 pour les deux dates pour éviter les problèmes de différence d'heure
-    acquisitionDate.setHours(0, 0, 0, 0);
-    today.setHours(0, 0, 0, 0);
-
-    // Calculer la différence en mois
-    let months;
-    months = (today.getFullYear() - acquisitionDate.getFullYear()) * 12;
-    months -= acquisitionDate.getMonth(); // Soustraire le mois de la date d'acquisition
-    months += today.getMonth(); // Ajouter le mois de la date d'aujourd'hui
-
-    // Ajuster si le jour actuel est avant le jour d'acquisition dans le mois
-    // Cela permet de compter les mois complets. Ex: 1er Janvier au 28 Février = 1 mois. 1er Janvier au 1er Février = 1 mois.
-    // 15 Janvier au 14 Février = 0 mois. 15 Janvier au 15 Février = 1 mois.
-    if (today.getDate() < acquisitionDate.getDate()) {
-        months--;
-    }
-
-    // S'assurer que le résultat n'est pas négatif
-    const dureeAmortie = Math.max(0, months);
-
-    // Mettre à jour le champ duree_amorti
-    formGroup.get('duree_amorti')?.setValue(dureeAmortie);
-    console.log('Debug: duree_amorti calculé:', dureeAmortie); // Debug log
+private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: FormGroup): void {
+  if (!dateAcquisition) {
+    formGroup.get('duree_amorti')?.setValue(null);
+    formGroup.get('duree_amorti_annees')?.setValue(null);
+    formGroup.get('duree_amorti_mois')?.setValue(null);
+    return;
   }
+
+  const acquisitionDate = new Date(dateAcquisition.year, dateAcquisition.month - 1, dateAcquisition.day);
+  const today = new Date();
+  acquisitionDate.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0);
+
+  let months = (today.getFullYear() - acquisitionDate.getFullYear()) * 12;
+  months -= acquisitionDate.getMonth();
+  months += today.getMonth();
+
+  if (today.getDate() < acquisitionDate.getDate()) {
+    months--;
+  }
+
+  const dureeAmortie = Math.max(0, months);
+  const annees = Math.floor(dureeAmortie / 12);
+  const moisRestants = dureeAmortie % 12;
+
+//mois
+    const totalMonths = (today.getFullYear() - acquisitionDate.getFullYear()) * 12 +
+                        (today.getMonth() - acquisitionDate.getMonth());
+
+    // Met à jour la valeur du FormControl `duree_amorti`
+    formGroup.get('duree_amorti')?.setValue(totalMonths);
+
+
+  // Sauvegarde dans le form
+  formGroup.get('duree_amorti')?.setValue(dureeAmortie); // en mois si tu veux garder l’historique
+  formGroup.get('duree_amorti_annees')?.setValue(annees);
+  formGroup.get('duree_amorti_mois')?.setValue(moisRestants);
+
+  console.log(`Debug: ${annees} an(s) et ${moisRestants} mois`);
+}
 
 
   downloadImmosPDF(): void {
