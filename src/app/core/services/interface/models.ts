@@ -289,6 +289,7 @@ export interface TransactionSortie {
   reference: string;
   date: string;
   vehicule: { id: number; immatriculation: string; };
+  categorie_sortie_ticket: { id: number; libelle: string; };
   employe: { id: number; fullnameEmploye: string; };
   objet: string;
   description: string;
@@ -329,6 +330,7 @@ export interface MouvementTicket {
   created_at: string;
   updated_at: string;
   bon_de_sortie_path?: string;
+  categorie_sortie_ticket_id: number;
 }
 
 export interface Intervention {

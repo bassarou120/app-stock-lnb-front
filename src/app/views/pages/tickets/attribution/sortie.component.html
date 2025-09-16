@@ -111,6 +111,12 @@
       </ng-template>
     </ngx-datatable-column>
 
+    <ngx-datatable-column name="Catégorie">
+      <ng-template let-row="row" ngx-datatable-cell-template>
+          {{ row.categorie_sortie_ticket?.libelle || "Non défini" }}
+      </ng-template>
+  </ngx-datatable-column>
+
     <ngx-datatable-column name="Total Tickets">
       <ng-template let-row="row" ngx-datatable-cell-template>
          <span class="badge bg-info">{{ row.tickets.length }}</span>
@@ -293,6 +299,36 @@
                       <i class="feather icon-alert-circle"></i> Aucun Vehicule.
                       Veuillez en créer.
                     </div>
+                  </ng-template>
+                </div>
+
+                <!-- Catégorie -->
+                <div class="mb-3">
+                  <label for="categorie_sortie" class="form-label">Catégorie de la sortie<span class="text-danger">*</span></label>
+                  <ng-container *ngIf="categoriesSortie && categoriesSortie.length > 0; else noCategories">
+                      <ng-select [items]="categoriesSortie" bindLabel="libelle" bindValue="id"
+                          formControlName="id_categorie_sortie_ticket" [clearable]="true" placeholder="Sélectionner une catégorie">
+                      </ng-select>
+                      <div *ngIf="
+                          addSortie.get('id_categorie_sortie_ticket')?.invalid &&
+                          addSortie.get('id_categorie_sortie_ticket')?.touched
+                      ">
+                          <small class="text-danger">
+                              *La catégorie est obligatoire</small>
+                      </div>
+                  </ng-container>
+                  <ng-template #noCategories>
+                      <div class="alert alert-danger" style="
+                          padding: 5px 10px;
+                          font-size: 14px;
+                          line-height: 1.2;
+                          height: 40px;
+                          display: flex;
+                          align-items: center;
+                      ">
+                          <i class="feather icon-alert-circle"></i> Aucune Catégorie de sortie.
+                          Veuillez en créer.
+                      </div>
                   </ng-template>
                 </div>
 
@@ -509,6 +545,7 @@
             <p><strong>Référence :</strong> {{ selectedSortie.reference }}</p>
             <p><strong>Date :</strong> {{ selectedSortie.date | date:'dd/MM/yyyy' }}</p>
             <p><strong>Véhicule :</strong> {{ selectedSortie.vehicule.immatriculation }}</p>
+            <p><strong>Catégorie :</strong> {{ selectedSortie.categorie_sortie_ticket?.libelle || '-' }}</p>
             <p><strong>Employé :</strong> {{ selectedSortie.employe.fullnameEmploye }}</p>
           </div>
           <div class="col-md-6">
@@ -653,6 +690,35 @@
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
                 <i class="feather icon-alert-circle"></i> Aucun Employé. Veuillez en créer.
               </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un Catégorie -->
+          <div class="mb-3">
+            <label for="edit_categorie_sortie" class="form-label">Catégorie de la sortie<span class="text-danger">*</span></label>
+            <ng-container *ngIf="categoriesSortie && categoriesSortie.length > 0; else noCategoriesEdit">
+                <ng-select [items]="categoriesSortie" bindLabel="libelle" bindValue="id"
+                    formControlName="id_categorie_sortie_ticket" [clearable]="true" placeholder="Sélectionner une catégorie">
+                </ng-select>
+                <div *ngIf="
+                    editSortie.get('id_categorie_sortie_ticket')?.invalid &&
+                    editSortie.get('id_categorie_sortie_ticket')?.touched
+                ">
+                    <small class="text-danger">
+                        *La catégorie est obligatoire</small>
+                </div>
+            </ng-container>
+            <ng-template #noCategoriesEdit>
+                <div class="alert alert-danger" style="
+                    padding: 5px 10px;
+                    font-size: 14px;
+                    line-height: 1.2;
+                    height: 40px;
+                    display: flex;
+                    align-items: center;
+                ">
+                    <i class="feather icon-alert-circle"></i> Aucune Catégorie de sortie. Veuillez en créer.
+                </div>
             </ng-template>
           </div>
 

@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject,TemplateRef, ViewEncapsulation } f
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/sortie.service';
-import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket, Commune,TicketDetail,TransactionSortie } from '../../../../core/services/interface/models';
+import { Employe, TypeMouvement, CompagniePetroliere, Vehicule, CouponTicket, MouvementTicket, Commune,TicketDetail,TransactionSortie,CategorieSortieTicket } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbDatepickerModule, NgbCalendar, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
+import { CategorieSortieTicketService } from '../../../../core/services/categorie-sortie-ticket/categorie-sortie-ticket.service';
 
 declare var bootstrap: any;
 
@@ -82,6 +83,7 @@ export class SortieComponent implements OnInit {
   trajetNotFoundMessage: string | null = null;
 
   communes: Commune[] = [];
+  categoriesSortie: CategorieSortieTicket[] = [];
 
   isAddingSortie: boolean = false;
 
@@ -95,7 +97,8 @@ export class SortieComponent implements OnInit {
     private ngbModalService: NgbModal,
     public modalService: NgbModal,
      private fb: FormBuilder,
-  private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private categorieSortieTicketService: CategorieSortieTicketService
   ) { }
 
 
@@ -109,6 +112,7 @@ export class SortieComponent implements OnInit {
       this.loadEmployes();
       this.loadVehicules();
       this.loadSorties();
+      this.loadCategoriesSortie();
     }
 
     // this.addSortie = this.formBuilder.group({
@@ -136,6 +140,7 @@ export class SortieComponent implements OnInit {
     objet: [""],
     date: [this.currentDate, [Validators.required]],
     trajet_aller_retour: [false],
+    id_categorie_sortie_ticket: ['', Validators.required],
     tickets: this.formBuilder.array([
       this.createTicketGroup()
     ])
@@ -156,6 +161,7 @@ export class SortieComponent implements OnInit {
       qte: [1, ],
       date: ["", ],
       trajet_aller_retour: [false, []],
+      id_categorie_sortie_ticket: [null, Validators.required],
     });
 
     this.deleteSortie = this.formBuilder.group({
@@ -664,6 +670,21 @@ onQteInput(event: any, index: number) {
         this.loadingIndicator = false;
       }
     );
+  }
+
+  loadCategoriesSortie(): void {
+    this.categorieSortieTicketService.getAllCategorieSortieTickets().subscribe({
+      next: (categories: CategorieSortieTicket[]) => {
+        // Le service retourne directement le tableau, donc on l'assigne directement.
+        this.categoriesSortie = categories;
+        console.log('Catégories de sortie chargées avec succès:', this.categoriesSortie);
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des catégories de sortie:', error);
+        // Ajoutez ici une gestion d'erreur plus conviviale.
+        //this.toastr.error('Impossible de charger les catégories de sortie.');
+      }
+    });
   }
 
   // La fonction pour le modal
