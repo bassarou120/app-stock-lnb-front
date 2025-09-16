@@ -221,6 +221,8 @@ export interface Vehicule {
   date_mise_en_service: string;
   created_at: string;
   updated_at: string;
+  nbreannee_amortissement?: number;
+  date_amortissement?: string;
 }
 
 export interface MouvementStock {
@@ -290,6 +292,7 @@ export interface TransactionSortie {
   kilometrage: number;
   kilometrage_de_fin: number;
   tickets: TicketDetail[]; // Le tableau des tickets
+  bon_de_sortie_path?: string;
 }
 
 
@@ -319,6 +322,7 @@ export interface MouvementTicket {
   reference: string;
   created_at: string;
   updated_at: string;
+  bon_de_sortie_path?: string;
 }
 
 export interface Intervention {

@@ -805,7 +805,18 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
             this.alertImportVisible = false;
           }, 2000);
         }, 200);
+        // Affiche les lignes ignorées si elles existent
+      if (response.ignored && response.ignored.length > 0) {
+        alert(
+          'Import partiel avec certaines lignes ignorées :\n' +
+          response.ignored.join('\n') +
+          '\n\n' +
+          response.message
+        );
+      } else {
+
         alert('Immobilisations importés avec succès !');
+      }
         this.selectedFile = null; // Réinitialiser le fichier sélectionné
       },
       error: (error) => {

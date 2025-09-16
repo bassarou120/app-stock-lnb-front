@@ -905,37 +905,103 @@ updateQuantiteDisponible(index: number, couponId: number, compagnieId: number): 
   );
 }
 
-  onCouponSelected(event: any, index: number): void {
-  const ticketFormGroup = this.tickets.at(index) as FormGroup;
+    onCouponSelected(event: any, index: number): void {
+    const ticketFormGroup = this.tickets.at(index) as FormGroup;
 
-  if (event) {
-    const couponId = event.coupon_ticket_actual_id;
-    const compagnieId = event.compagnie_petrolier_actual_id;
+    if (event) {
+      const couponId = event.coupon_ticket_actual_id;
+      const compagnieId = event.compagnie_petrolier_actual_id;
 
-    // Met à jour la valeur du coupon_ticket_id dans le formulaire
-    ticketFormGroup.patchValue({
-      coupon_ticket_id: event.id,
-    });
+      // Met à jour la valeur du coupon_ticket_id dans le formulaire
+      ticketFormGroup.patchValue({
+        coupon_ticket_id: event.id,
+      });
 
-    // Appelle la fonction de mise à jour de la quantité disponible
-    this.updateQuantiteDisponible(index, couponId, compagnieId);
-  } else {
-    // Si le coupon est désélectionné, réinitialise le formulaire du ticket
-    ticketFormGroup.patchValue({
-      coupon_ticket_id: null,
-      qte: null,
-    });
-    // Désactive le champ de quantité et efface les erreurs
-    const qteControl = ticketFormGroup.get('qte');
-    if (qteControl) {
-      qteControl.disable();
-      qteControl.setErrors(null);
+      // Appelle la fonction de mise à jour de la quantité disponible
+      this.updateQuantiteDisponible(index, couponId, compagnieId);
+    } else {
+      // Si le coupon est désélectionné, réinitialise le formulaire du ticket
+      ticketFormGroup.patchValue({
+        coupon_ticket_id: null,
+        qte: null,
+      });
+      // Désactive le champ de quantité et efface les erreurs
+      const qteControl = ticketFormGroup.get('qte');
+      if (qteControl) {
+        qteControl.disable();
+        qteControl.setErrors(null);
+      }
+      // Supprime la quantité disponible de l'affichage
+      delete this.quantitesDisponibles[index];
     }
-    // Supprime la quantité disponible de l'affichage
-    delete this.quantitesDisponibles[index];
   }
-}
 
+  genererBonDeSortie(reference: string): void {
+    // Ajoutez la logique ici pour appeler votre API Laravel
+    // par exemple :
+    this.sortieService.genererBonDeSortie(reference).subscribe({
+      next: (response) => {
+        // Logic pour gérer le PDF
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `bon_de_sortie_${reference}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la génération du bon de sortie', error);
+        alert('Une erreur est survenue lors de la génération du bon.');
+      }
+    });
+  }
+
+  // Méthode appelée lorsque l'utilisateur sélectionne un fichier
+  // Fichier : sortie.component.ts
+  onFileSelected(event: any, mouvementId: number): void {
+    const file: File = event.target.files[0];
+    if (file) {
+      this.sortieService.televerserBon(mouvementId, file).subscribe({
+        next: (response) => {
+          console.log('Fichier téléversé avec succès', response);
+
+          // 1. Trouver l'objet `TransactionSortie` qui correspond à l'ID
+          const updatedSortie = this.rows.find((s: TransactionSortie) => s.id === mouvementId);
+
+          if (updatedSortie) {
+            // 2. Mettre à jour la propriété `bon_de_sortie_path` avec la valeur renvoyée par l'API
+            updatedSortie.bon_de_sortie_path = response.bon_de_sortie_path;
+          }
+
+          // 3. Mettre à jour l'objet sélectionné si c'est celui qui est affiché dans le modal
+          if (this.selectedSortie && this.selectedSortie.id === mouvementId) {
+            this.selectedSortie.bon_de_sortie_path = response.bon_de_sortie_path;
+          }
+
+          // Si vous utilisez `loadSorties`, vous pouvez aussi l'appeler pour rafraîchir la liste
+          // this.loadSorties();
+        },
+        error: (error) => {
+          console.error('Erreur lors du téléversement', error);
+        }
+      });
+    }
+  }
+
+  // Méthode pour voir le bon
+  voirBonDeSortie(mouvementId: number): void {
+    this.sortieService.voirBon(mouvementId).subscribe({
+      next: (response) => {
+        const blob = new Blob([response], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        window.open(url);
+      },
+      error: (error) => {
+        console.error('Erreur lors de la visualisation', error);
+      }
+    });
+  }
 
 
   calculerQuantiteTicket() {

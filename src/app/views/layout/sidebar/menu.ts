@@ -36,18 +36,6 @@ export const MENU: MenuItem[] = [
         link: '/mouvement-stock/sorties',
         fonctionnalites: ['Sorties de Stock'],
       }
-      ,
-      {
-        label: 'Exercice',
-        link: '/mouvement-stock/exercice',
-        fonctionnalites: ['Sorties de Stock'],
-      }
-      ,
-      {
-        label: 'Articles exercices',
-        link: '/mouvement-stock/articles-exercices',
-        fonctionnalites: ['Sorties de Stock'],
-      }
     ]
   },
   {
@@ -204,6 +192,24 @@ export const MENU: MenuItem[] = [
     label: 'Paramètres',
     isTitle: true,
      module: 'Parametrage',
+  },
+  {
+    label: 'Paramètres Exercice',
+    icon: 'box',
+    module: 'Parametrage',
+    subItems: [
+      {
+        label: 'Exercice',
+        link: '/mouvement-stock/exercice',
+        fonctionnalites: ['Sorties de Stock'],
+      }
+      ,
+      {
+        label: 'Articles exercices',
+        link: '/mouvement-stock/articles-exercices',
+        fonctionnalites: ['Sorties de Stock'],
+      }
+    ]
   },
   {
     label: 'Paramètres Stock',
