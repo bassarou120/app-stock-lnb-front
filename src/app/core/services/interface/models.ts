@@ -80,6 +80,12 @@ export interface Marque {
   created_at: string;
   updated_at: string;
 }
+export interface CategorieSortieTicket {
+  id: number;
+  libelle: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface Modele {
   id: number;
@@ -241,7 +247,6 @@ export interface MouvementStock {
   created_at: string;
   updated_at: string;
   statut?: string;
-  // demandevalidesigne?: string;
   unite_de_mesure:number;
   piece_jointe_mouvement?: string;
 
@@ -284,6 +289,7 @@ export interface TransactionSortie {
   reference: string;
   date: string;
   vehicule: { id: number; immatriculation: string; };
+  categorie_sortie_ticket: { id: number; libelle: string; };
   employe: { id: number; fullnameEmploye: string; };
   objet: string;
   description: string;
@@ -293,6 +299,7 @@ export interface TransactionSortie {
   kilometrage: number;
   kilometrage_de_fin: number;
   tickets: TicketDetail[]; // Le tableau des tickets
+  bon_de_sortie_path?: string;
 }
 
 
@@ -322,6 +329,8 @@ export interface MouvementTicket {
   reference: string;
   created_at: string;
   updated_at: string;
+  bon_de_sortie_path?: string;
+  categorie_sortie_ticket_id: number;
 }
 
 export interface Intervention {

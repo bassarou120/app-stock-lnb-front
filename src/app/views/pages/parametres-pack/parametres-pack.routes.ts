@@ -24,6 +24,10 @@ export default [
   {
     path: 'compagnie-petroliere',
     loadComponent: () => import('./compagnie-petroliere/compagnie-petroliere.component').then(c => c.CompagniePetroliereComponent),
+  },
+  {
+    path: 'categorie-sortie-ticket',
+    loadComponent: () => import('./categorie-sortie-ticket/categorie-sortie-ticket.component').then(c => c.CategorieSortieTicketComponent),
   }
   ,
   {
