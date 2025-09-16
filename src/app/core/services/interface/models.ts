@@ -80,6 +80,12 @@ export interface Marque {
   created_at: string;
   updated_at: string;
 }
+export interface CategorieSortieTicket {
+  id: number;
+  libelle: string;
+  created_at: string;
+  updated_at: string;
+}
 
 export interface Modele {
   id: number;

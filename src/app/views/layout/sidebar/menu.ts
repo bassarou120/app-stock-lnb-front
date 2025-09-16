@@ -269,6 +269,11 @@ export const MENU: MenuItem[] = [
         fonctionnalites: ['Voir Parametres Parc']
       },
       {
+        label: 'Catégorie Sortie Ticket',
+        link: '/parametres-pack/categorie-sortie-ticket',
+        fonctionnalites: ['Voir Parametres Parc']
+      },
+      {
         label: 'Compagnie Pétrolière',
         link: '/parametres-pack/compagnie-petroliere',
         fonctionnalites: ['Voir Parametres Parc']
