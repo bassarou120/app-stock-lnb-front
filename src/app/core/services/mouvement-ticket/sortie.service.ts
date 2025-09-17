@@ -11,7 +11,7 @@ import { map } from 'rxjs/operators';
 })
 export class MouvementTicketService  {
   private url: string = environment.backend;
-  private apiUrl = 'http://127.0.0.1:8000/api/mouvement-tickets'; 
+  private apiUrl = `${this.url}/mouvement-tickets`;
 
   constructor(private http: HttpClient) {}
 
@@ -54,7 +54,7 @@ export class MouvementTicketService  {
 
   // 🛠️ Méthode corrigée pour accepter l'ID et les données
   editMouvementTicketSortie(id: number | null, data: MouvementTicket): Observable<MouvementTicket> {
-    // Si la logique backend est déjà de gérer l'URL avec l'ID dans les données, 
+    // Si la logique backend est déjà de gérer l'URL avec l'ID dans les données,
     // cette ligne est une bonne pratique de sécurité côté front-end.
     if (id === null || id === undefined) {
       // Optionnel : Lancer une erreur ou retourner un Observable d'erreur
@@ -144,7 +144,7 @@ export class MouvementTicketService  {
       formData.append('bon_de_sortie', file, file.name);
       return this.http.post(`${this.apiUrl}/${mouvementId}/televerser-bon`, formData);
     }
-  
+
     voirBon(mouvementId: number): Observable<Blob> {
       const headers = new HttpHeaders().set('Accept', 'application/pdf');
       return this.http.get(`${this.apiUrl}/${mouvementId}/voir-bon`, {
