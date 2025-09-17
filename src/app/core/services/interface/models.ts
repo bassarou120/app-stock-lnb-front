@@ -257,6 +257,7 @@ export interface MouvementStock {
   employe?: {
     fullnameEmploye: string;
   };
+
 }
 
 export interface MouvementStockGrouped {
@@ -268,6 +269,7 @@ export interface MouvementStockGrouped {
   statut: string;
   totalArticles: number;
   details: MouvementStock[];
+  file_path?: string;
 }
 
 // Décrit un seul ticket au sein d'une transaction
