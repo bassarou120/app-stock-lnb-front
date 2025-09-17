@@ -171,6 +171,22 @@ loadAllData(): void {
     });
   }
 
+  updateFilter(event: KeyboardEvent): void {
+    const val = (event.target as HTMLInputElement).value.toLowerCase();
+
+    this.rows = this.temp.filter(articleExercice =>
+      articleExercice.article?.libelle?.toString().toLowerCase().includes(val) ||
+      articleExercice.exercice?.annee?.toString().toLowerCase().includes(val) ||
+      articleExercice.stock_fin_exercice?.toString().toLowerCase().includes(val) || 
+      articleExercice.stock_debut_exercice?.toString().toLowerCase().includes(val)
+    );
+
+    // Vérifier si la table existe avant de réinitialiser l’offset
+    if (this.table) {
+      this.table.offset = 0;
+    }
+  }
+
   filterByExercice(selectedExerciceId: number | null): void {
     // S'assurer que selectedExerciceId est bien un nombre
     if (selectedExerciceId) {

@@ -106,6 +106,17 @@ export class MouvementStockService  {
     return this.http.get(url, { responseType: 'blob' });
   }
 
+  verifieStatus(code: string): Observable<any> {
+    return this.http.get<any>(`${this.url}/mouvements/demande-sortie/check-status-and-generate/${code}`);
+  }
+
+
+  genererFicheGroupeePDF(codeMouvement: string): Observable<Blob> {
+    const url = `${this.url}/mouvements/groupe/pdf/${codeMouvement}`;
+    // Utilisez l'option { responseType: 'blob' } pour les fichiers binaires
+    return this.http.get(url, { responseType: 'blob' });
+  }
+
   uploadSignedFile(formData: FormData): Observable<any> {
     return this.http.post<any>(`${this.url}/demande/valid-upload-signe`, formData);
   }
