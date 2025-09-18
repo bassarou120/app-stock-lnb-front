@@ -125,6 +125,8 @@ export class MouvementStockService  {
 
 
 
+
+
   genererFicheGroupeePDF(codeMouvement: string): Observable<Blob> {
     const url = `${this.url}/mouvements/groupe/pdf/${codeMouvement}`;
     // Utilisez l'option { responseType: 'blob' } pour les fichiers binaires

@@ -289,25 +289,26 @@ hasGroupFile(group: any): boolean {
 // }
 
   checkStatusAndGenerate(code: string): void {
-    this.mouvementService.verifieStatus(code).subscribe({
+    this.mouvementService.verifieStatus2(code).subscribe({
       next: () => {
-        this.mouvementService.downloadGroupedFile(code).subscribe({
+        this.mouvementService.downloadGroupedFile2(code).subscribe({
           next: (res: Blob) => {
             const file = new Blob([res], { type: 'application/pdf' });
             const fileURL = URL.createObjectURL(file);
             window.open(fileURL); // ouvre le PDF dans un nouvel onglet
           },
-          error: err => {
+          error: (err: any) => {
             console.error("Erreur lors du téléchargement du PDF :", err);
           }
         });
       },
-      error: err => {
+      error: (err: any) => {
         console.error("Erreur statut :", err);
         alert(err.error?.message || "Erreur lors de la vérification du statut.");
       }
     });
   }
+
 
 
   downloadGroupedFile(code: string): void {
