@@ -279,11 +279,12 @@ checkStatusAndGenerate(code: string): void {
   this.mouvementService.verifieStatus(code).subscribe({
     next: response => {
       this.downloadGroupedFile(code);
-    },
-    error: err => {
-      console.log(err)
-      alert(err.error?.message || "Erreur lors de la vérification du statut.");
     }
+    // ,
+    // error: err => {
+    //   console.log(err)
+    //   alert(err.error?.message || "Erreur lors de la vérification du statut.");
+    // }
   });
 }
 
