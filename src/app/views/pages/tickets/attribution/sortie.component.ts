@@ -132,7 +132,7 @@ export class SortieComponent implements OnInit {
 
     this.addSortie = this.formBuilder.group({
     vehicule_id: [null, [Validators.required]],
-    kilometrage: [null, [Validators.min(0)]],
+    kilometrage: [null, [Validators.required, Validators.min(0)]],
     employe_id: [null, [Validators.required]],
     commune_depart: [null],
     commune_arriver: [null],
@@ -787,6 +787,7 @@ onQteInput(event: any, index: number) {
       description: row.description,
       date: this.convertToNgbDate(row.date),
       trajet_aller_retour: row.trajet_aller_retour,
+      id_categorie_sortie_ticket: row.categorie_sortie_ticket?.id || null,
       qte: firstTicket?.qte || null
     });
 
