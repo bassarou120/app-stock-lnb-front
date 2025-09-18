@@ -106,8 +106,14 @@ export class MouvementStockService  {
     return this.http.get(url, { responseType: 'blob' });
   }
 
+  // verifieStatus(code: string): Observable<Blob>  {
+  //   return this.http.get<any>(`${this.url}/mouvements/demande-sortie/check-status-and-generate/${code}`);
+  // }
+
+
   verifieStatus(code: string): Observable<Blob>  {
-    return this.http.get<any>(`${this.url}/mouvements/demande-sortie/check-status-and-generate/${code}`);
+    // return this.http.get<any>(`${this.url}/mouvements/demande-sortie/check-status-and-generate/${code}`);
+    return this.http.get(`${this.url}/mouvements/demande-sortie/check-status-and-generate/${code}`, { responseType: 'blob' });
   }
 
 
