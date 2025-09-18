@@ -592,13 +592,6 @@ uploadSignedFile(): void {
           const bsModal = bootstrap.Modal.getInstance(modal);
           bsModal?.hide();
 
-          // Vérifier le succès et déclencher le téléchargement de la fiche
-          if (data && data.code_mouvement) {
-              // Déclenche le téléchargement du PDF dans une nouvelle fenêtre
-              window.open(`${this.url}/generer-fiche-demande/${data.code_mouvement}`, '_blank');
-
-          }
-
           this.loadGroupedMouvements(); // Rafraîchit les données après le traitement
           this.edit_all.reset();
 
