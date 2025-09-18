@@ -106,23 +106,23 @@ export class MouvementStockService  {
     return this.http.get(url, { responseType: 'blob' });
   }
 
-  verifieStatus(code: string): Observable<any> {
+  verifieStatus(code: string): Observable<Blob>  {
     return this.http.get<any>(`${this.url}/mouvements/demande-sortie/check-status-and-generate/${code}`);
   }
 
 
-
-  // Vérifie le statut uniquement (retour JSON attendu)
-  verifieStatus2(code: string): Observable<any> {
-    return this.http.get<any>(`${this.url}/mouvements/demande-sortie/check-status/${code}`);
-  }
-
-// Génère et retourne le PDF groupé
-  downloadGroupedFile2(code_mouvement: string): Observable<Blob> {
-    const url = `${this.url}/mouvements/demande-sortie/check-status-and-generate/${encodeURIComponent(code_mouvement)}`;
-    return this.http.get(url, { responseType: 'blob' });
-  }
-
+//
+//   // Vérifie le statut uniquement (retour JSON attendu)
+//   verifieStatus2(code: string): Observable<any> {
+//     return this.http.get<any>(`${this.url}/mouvements/demande-sortie/check-status/${code}`);
+//   }
+//
+// // Génère et retourne le PDF groupé
+//   downloadGroupedFile2(code_mouvement: string): Observable<Blob> {
+//     const url = `${this.url}/mouvements/demande-sortie/check-status-and-generate/${encodeURIComponent(code_mouvement)}`;
+//     return this.http.get(url, { responseType: 'blob' });
+//   }
+//
 
 
 

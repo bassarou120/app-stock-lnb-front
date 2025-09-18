@@ -287,24 +287,30 @@ hasGroupFile(group: any): boolean {
 //     }
 //   });
 // }
+//
 
   checkStatusAndGenerate(code: string): void {
-    this.mouvementService.verifieStatus2(code).subscribe({
-      next: () => {
-        this.mouvementService.downloadGroupedFile2(code).subscribe({
-          next: (res: Blob) => {
-            const file = new Blob([res], { type: 'application/pdf' });
-            const fileURL = URL.createObjectURL(file);
-            window.open(fileURL); // ouvre le PDF dans un nouvel onglet
-          },
-          error: (err: any) => {
-            console.error("Erreur lors du téléchargement du PDF :", err);
-          }
-        });
+    this.mouvementService.verifieStatus(code).subscribe({
+      next: (res: Blob) => {
+        // Vérifier si la réponse est un JSON ou un PDF
+        const isJson = res.type === "application/json";
+
+        if (isJson) {
+          const reader = new FileReader();
+          reader.onload = () => {
+            const json = JSON.parse(reader.result as string);
+            alert(json.message || "Erreur lors de la vérification du statut.");
+          };
+          reader.readAsText(res);
+        } else {
+          // C’est un PDF → on l’ouvre
+          const fileURL = URL.createObjectURL(res);
+          window.open(fileURL);
+        }
       },
       error: (err: any) => {
-        console.error("Erreur statut :", err);
-        alert(err.error?.message || "Erreur lors de la vérification du statut.");
+        console.error("Erreur :", err);
+        alert("Erreur inattendue.");
       }
     });
   }
