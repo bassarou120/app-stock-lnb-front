@@ -281,6 +281,7 @@ checkStatusAndGenerate(code: string): void {
       this.downloadGroupedFile(code);
     },
     error: err => {
+      console.log(err)
       alert(err.error?.message || "Erreur lors de la vérification du statut.");
     }
   });
@@ -386,7 +387,7 @@ uploadSignedFile(): void {
 
       const modal = document.getElementById('validerlademande');
       if (modal) {
-        const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modal) 
+        const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modal)
           || new (window as any).bootstrap.Modal(modal);
         bootstrapModal.hide();
       }
