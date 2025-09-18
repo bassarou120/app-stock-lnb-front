@@ -274,19 +274,41 @@ hasGroupFile(group: any): boolean {
   }
 
   generatedGroups: Set<string> = new Set();
+//
+// checkStatusAndGenerate(code: string): void {
+//   this.mouvementService.verifieStatus(code).subscribe({
+//     next: response => {
+//       this.downloadGroupedFile(code);
+//     }
+//     ,
+//     error: err => {
+//       console.log(err)
+//       alert(err.error?.message || "Erreur lors de la vérification du statut.");
+//     }
+//   });
+// }
 
-checkStatusAndGenerate(code: string): void {
-  this.mouvementService.verifieStatus(code).subscribe({
-    next: response => {
-      this.downloadGroupedFile(code);
-    }
-    // ,
-    // error: err => {
-    //   console.log(err)
-    //   alert(err.error?.message || "Erreur lors de la vérification du statut.");
-    // }
-  });
-}
+  checkStatusAndGenerate(code: string): void {
+    this.mouvementService.verifieStatus(code).subscribe({
+      next: () => {
+        this.mouvementService.downloadGroupedFile(code).subscribe({
+          next: (res: Blob) => {
+            const file = new Blob([res], { type: 'application/pdf' });
+            const fileURL = URL.createObjectURL(file);
+            window.open(fileURL); // ouvre le PDF dans un nouvel onglet
+          },
+          error: err => {
+            console.error("Erreur lors du téléchargement du PDF :", err);
+          }
+        });
+      },
+      error: err => {
+        console.error("Erreur statut :", err);
+        alert(err.error?.message || "Erreur lors de la vérification du statut.");
+      }
+    });
+  }
+
 
   downloadGroupedFile(code: string): void {
     this.mouvementService.downloadGroupedFile(code);
