@@ -29,5 +29,9 @@ export default [
   {
     path: 'trajets',
     loadComponent: () => import('./trajets/trajets.component').then(c => c.TrajetComponent),
-  }
+  },
+  {
+    path: 'exercice-mouvementticket',
+    loadComponent: () => import('./exercice-mouvementticket/exercice-mouvementticket.component').then(c => c.ExerciceMouvementTicketComponent),
+  },
 ] as Routes;

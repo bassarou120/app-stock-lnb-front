@@ -386,7 +386,7 @@ uploadSignedFile(): void {
 
       const modal = document.getElementById('validerlademande');
       if (modal) {
-        const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modal) 
+        const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modal)
           || new (window as any).bootstrap.Modal(modal);
         bootstrapModal.hide();
       }
