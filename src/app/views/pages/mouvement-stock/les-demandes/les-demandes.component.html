@@ -79,42 +79,50 @@
         <td>{{ group.personnel }}</td>
         <td>{{ group.bureau }}</td>
         <td>{{ group.dateDemande }}</td>
-        <!-- <td>{{ group.dateCreation  }}</td> -->
-        <!-- <td>{{ group.statut }}</td> -->
         <td>{{ group.totalArticles }}</td>
         <td>
-          <!-- <button class="btn btn-sm btn-primary" (click)="toggleGroup(group.code_mouvement)">
-            {{ expandedGroupCode === group.code_mouvement ? 'Fermer' : 'Voir' }}
-          </button> -->
           <button class="btn btn-sm btn-primary m-2" (click)="toggleGroup(group.code_mouvement)">
             {{ expandedGroupCode === group.code_mouvement ? '▲' : '👁️' }}
           </button>
+
           <button *ngIf="canValidDemande || canAccordDemande || canRefuseDemande"
-              class="btn btn-sm"
-              [ngClass]="{
-                'btn-warning': isGroupTraitable(group),
-                'btn-success': !isGroupTraitable(group)
-              }"
-              data-bs-toggle="modal"
-              data-bs-target="#tout_traiter"
-              (click)="openToutTraiterModal(group.code_mouvement)"
-            [disabled]="isGroupPartiallyProcessed(group)">
-            {{ isGroupPartiallyProcessed(group) ? (isGroupCompletelyProcessed(group) ? 'Traité' : 'En cours') : 'Tout traiter' }}
+                  class="btn btn-sm"
+                  [ngClass]="{
+                    'btn-warning': isGroupTraitable(group),
+                    'btn-success': !isGroupTraitable(group)
+                  }"
+                  data-bs-toggle="modal"
+                  data-bs-target="#tout_traiter"
+                  (click)="openToutTraiterModal(group.code_mouvement)"
+                  [disabled]="isGroupCompletelyProcessed(group)">
+            {{ isGroupCompletelyProcessed(group) ? 'Traité' : 'Tout traiter' }}
           </button>
+
+        <button
+          class="btn btn-sm btn-success m-2"
+          *ngIf="isGroupCompletelyAccorded(group) && !hasGroupFile(group)"
+          (click)="checkStatusAndGenerate(group.code_mouvement)"
+        >
+          Générer
+        </button>
+
+
           <button
-            class="btn btn-sm btn-secondary m-2"
+            class="btn btn-sm btn-success m-2"
+            *ngIf="isGroupCompletelyAccorded(group) || hasGroupFile(group)"
             data-bs-toggle="modal"
             data-bs-target="#validerlademande"
-            [disabled]="!isUploadActive(group)"
-            (click)="selectMouvement(group.code_mouvement)">
+            (click)="selectMouvement(group.code_mouvement)"
+          >
             📥
           </button>
+
           <button
-           
-            class="btn btn-sm btn-secondary"
-            (click)="downloadGroupedFile(group.code_mouvement); $event.stopPropagation()" 
-            >
-            voir
+            class="btn btn-sm btn-secondary m-2"
+            (click)="downloadGroupedFile(group.code_mouvement)" 
+            *ngIf="hasGroupFile(group)"
+          >
+            Voir
           </button>
 
         </td>
@@ -130,23 +138,17 @@
                 <th>Description</th>
                 <th>Quantité Demandée</th>
                 <th>Quantité Accordée</th>
-                <!-- <th>Personnel</th> -->
-                <!-- <th>Bureau</th> -->
-                <!-- <th>Date Mouvement</th> -->
                 <th>Statut</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               <tr *ngFor="let detail of group.details">
-                <td>{{ detail.article?.code_article || 'Non défini' }}</td>
+               <td>{{ detail.article?.code_article || 'Non défini' }}</td>
                 <td>{{ detail.article?.libelle || 'N/A' }}</td>
                 <td>{{ detail.description }}</td>
                 <td>{{ detail.qteDemande }}</td>
                 <td>{{ detail.qte }}</td>
-                <!-- <td>{{ detail.employe?.fullnameEmploye || 'Non défini' }}</td> -->
-                <!-- <td>{{ detail.bureau?.libelle_bureau || 'Non défini' }}</td> -->
-                <!-- <td>{{ detail.date_mouvement  }}</td> -->
                 <td>{{ detail.statut }}</td>
                 <td>
                   <button *ngIf="canValidDemande || canAccordDemande || canRefuseDemande"
@@ -158,27 +160,10 @@
                           data-bs-toggle="modal"
                           data-bs-target="#edit_statut_sortie"
                           (click)="getStatutForm(detail)"
-                    [disabled]="detail.statut === 'Accordé' || detail.statut === 'Validé'">
+                          [disabled]="detail.statut === 'Accordé' || detail.statut === 'Validé'">
                     {{ detail.statut === 'Accordé' || detail.statut === 'Validé' ? 'Traité' : 'À traiter' }}
                   </button>
-                  <button
-                    class="btn btn-sm btn-secondary m-2"
-                    data-bs-toggle="modal"
-                    data-bs-target="#validerlademande"
-                    [disabled]="detail.statut == 'En attente'"
-                    (click)="selectDetail(detail.id, detail.code_mouvement!)"
-                  >
-                    📥
-                  </button>
-                <!-- Bouton de visualisation, visible seulement si le lien existe -->
-                <button
-                  *ngIf="detail.demandevalidesigne"
-                  class="btn btn-sm btn-info m-2"
-                  (click)="viewFile(detail.demandevalidesigne)">
-                  👁️
-                </button>
-
-                </td>
+                  </td>
               </tr>
             </tbody>
           </table>

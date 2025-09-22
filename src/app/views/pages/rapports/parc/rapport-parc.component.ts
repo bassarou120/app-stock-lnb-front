@@ -65,13 +65,15 @@ export class RapportParcComponent implements OnInit, OnDestroy {
   // Types de rapports de parc
   typeRapportsParc: TypeRapportParc[] = [
     { id: 'vehicule', libelle: 'Liste des Véhicules' },
-    { id: 'intervention_vehicule', libelle: 'Rapport des Interventions sur Véhicules' }
+    { id: 'intervention_vehicule', libelle: 'Rapport des Interventions sur Véhicules' },
+    { id: 'vehicule_intervention_expirante', libelle: 'Rapport des Interventions Expirante'}
   ];
   selectedReportTypeId: string | null = null;
 
   // Indicateurs pour l'affichage conditionnel des filtres
   showVehiculeFilters: boolean = false;
   showInterventionVFilters: boolean = false;
+  showInterventionExpiranteFilters: boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -150,6 +152,11 @@ export class RapportParcComponent implements OnInit, OnDestroy {
       date_fin_intervention_v: [today],
       vehicule_id: [null],
       type_intervention_id: [null],
+
+      // Filtres pour Rapport Intervention Véhicule (les dates sont obligatoires)
+      date_debut_intervention_expirante: [firstDayOfMonth],
+      date_fin_intervention_expirante: [today],
+
     });
     console.log('RapportParcComponent: Form initialized with default dates.');
   }
@@ -170,6 +177,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
       case 'vehicule':
         this.showVehiculeFilters = true;
         this.showInterventionVFilters = false;
+        this.showInterventionExpiranteFilters = false;
 
         this.rapportForm.get('date_debut_vehicule')?.setValue(firstDayOfMonth, { emitEvent: false }); // <-- Ajout de emitEvent: false
         this.rapportForm.get('date_fin_vehicule')?.setValue(today, { emitEvent: false });             // <-- Ajout de emitEvent: false
@@ -185,6 +193,7 @@ export class RapportParcComponent implements OnInit, OnDestroy {
       case 'intervention_vehicule':
         this.showVehiculeFilters = false;
         this.showInterventionVFilters = true;
+        this.showInterventionExpiranteFilters = false;
 
         this.rapportForm.get('date_debut_intervention_v')?.setValue(firstDayOfMonth, { emitEvent: false }); // <-- Ajout de emitEvent: false
         this.rapportForm.get('date_fin_intervention_v')?.setValue(today, { emitEvent: false });             // <-- Ajout de emitEvent: false
@@ -201,9 +210,32 @@ export class RapportParcComponent implements OnInit, OnDestroy {
         console.log('onTypeRapportChange: Showing intervention vehicule filters with default dates.');
         break;
 
+      case 'vehicule_intervention_expirante':
+        this.showVehiculeFilters = false;
+        this.showInterventionExpiranteFilters = true;
+        this.showInterventionVFilters = false;
+
+        this.rapportForm.get('date_debut_intervention_expirante')?.setValue(firstDayOfMonth, { emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('date_fin_intervention_expirante')?.setValue(today, { emitEvent: false });             // <-- Ajout de emitEvent: false
+
+        this.rapportForm.get('date_debut_intervention_expirante')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('date_fin_intervention_expirante')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('vehicule_id')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+        this.rapportForm.get('type_intervention_id')?.enable({ emitEvent: false }); // <-- Ajout de emitEvent: false
+
+        this.rapportForm.get('date_debut_intervention_expirante')?.setValidators(Validators.required);
+        this.rapportForm.get('date_fin_intervention_expirante')?.setValidators(Validators.required);
+        this.rapportForm.setValidators(this.dateRangeValidatorForReport('date_debut_intervention_expirante', 'date_fin_intervention_expirante'));
+
+
+        console.log('onTypeRapportChange: Showing Exiprante vehicule filters with default dates.');
+        break;
+
+
       default:
         this.showVehiculeFilters = false;
         this.showInterventionVFilters = false;
+
         // Le resetFormControls() gère déjà la remise à null des valeurs et la désactivation.
         // On s'assure juste que le type de rapport reste sélectionné si l'utilisateur change d'avis.
         this.rapportForm.get('id_type_rapport')?.setValue(typeRapportId, { emitEvent: false }); // <-- Ajout de emitEvent: false
@@ -299,6 +331,11 @@ export class RapportParcComponent implements OnInit, OnDestroy {
         filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_intervention_v')?.value);
         filters.vehicule_id = this.rapportForm.get('vehicule_id')?.value;
         filters.type_intervention_id = this.rapportForm.get('type_intervention_id')?.value;
+    }else if (this.selectedReportTypeId === 'vehicule_intervention_expirante')  {
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_intervention_expirante')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_intervention_expirante')?.value);
+        filters.vehicule_id = this.rapportForm.get('vehicule_id')?.value;
+        filters.type_intervention_id = this.rapportForm.get('type_intervention_id')?.value;
     }
 
     Object.keys(filters).forEach(key => {
@@ -375,6 +412,11 @@ export class RapportParcComponent implements OnInit, OnDestroy {
         filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_intervention_v')?.value);
         filters.vehicule_id = this.rapportForm.get('vehicule_id')?.value;
         filters.type_intervention_id = this.rapportForm.get('type_intervention_id')?.value;
+    }else if (this.selectedReportTypeId === 'vehicule_intervention_expirante') {
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_intervention_expirante')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_intervention_expirante')?.value);
+        filters.vehicule_id = this.rapportForm.get('vehicule_id')?.value;
+        filters.type_intervention_id = this.rapportForm.get('type_intervention_id')?.value;
     }
 
     Object.keys(filters).forEach(key => {
@@ -439,6 +481,15 @@ export class RapportParcComponent implements OnInit, OnDestroy {
                         (String(vehicule.kilometrage).toLowerCase().includes(val) || false);
                         ;
             } else if (this.selectedReportTypeId === 'intervention_vehicule') {
+                const intervention = item as InterventionVehicule;
+                match = (intervention.titre?.toLowerCase().includes(val) || false) ||
+                        (intervention.observation?.toLowerCase().includes(val) || false) ||
+                        (intervention.vehicule?.immatriculation?.toLowerCase().includes(val) || false) ||
+                        (intervention.vehicule?.marque?.libelle?.toLowerCase().includes(val) || false) ||
+                        (intervention.vehicule?.modele?.libelle_modele?.toLowerCase().includes(val) || false) ||
+                        (intervention.typeIntervention?.libelle_type_intervention?.toLowerCase().includes(val) || false)||
+                        (String(intervention.montant).toLowerCase().includes(val) || false);
+            }else{
                 const intervention = item as InterventionVehicule;
                 match = (intervention.titre?.toLowerCase().includes(val) || false) ||
                         (intervention.observation?.toLowerCase().includes(val) || false) ||

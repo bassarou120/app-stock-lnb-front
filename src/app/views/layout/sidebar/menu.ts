@@ -278,11 +278,15 @@ export const MENU: MenuItem[] = [
         link: '/parametres-pack/compagnie-petroliere',
         fonctionnalites: ['Voir Parametres Parc']
       },
-
       {
         label: 'Trajet',
         icon: 'git-pull-request',
         link: '/parametres-pack/trajets',
+        fonctionnalites: ['Voir Parametres Parc']
+      },
+      {
+        label: 'Exercice - Ticket Valeur',
+        link: '/parametres-pack/exercice-mouvementticket',
         fonctionnalites: ['Voir Parametres Parc']
       },
     ]

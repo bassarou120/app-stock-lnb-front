@@ -280,7 +280,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showStockStatusFilters = false;
         this.showIndividuelFilters = true;
         this.rapportForm.get('id_Article_entree')?.enable();
-        this.rapportForm.get('id_fournisseur_entree')?.enable();
+        /* this.rapportForm.get('id_fournisseur_entree')?.enable(); */
         console.log('onTypeRapportChange: Showing entry filters.');
         break;
 
@@ -443,7 +443,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     }   else if (this.selectedReportTypeId === 'individuel') {
         finalFilters.id_type_rapport = 'individuel';
         finalFilters.id_Article = filters.id_Article_entree;
-        finalFilters.id_fournisseur = filters.id_fournisseur_entree;
+        /* finalFilters.id_fournisseur = filters.id_fournisseur_entree; */
     }
 
 
