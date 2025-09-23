@@ -15,18 +15,24 @@ import { CouponTicketService } from '../../../../core/services/coupon-tickets/co
 import { CompagniePetroliereService } from '../../../../core/services/compagnie-petroliere/compagnie-petroliere.service'; // Assurez-vous que ce service existe
 import { EmployesService } from '../../../../core/services/employes/employes.service'; // Pour les sorties
 import { VehiculeService } from '../../../../core/services/vehicules/vehicules.service'; // Pour les sorties
-// import { DepartService } from '../../../../core/services/depart/depart.service'; // Assurez-vous que ce service existe
-// import { ArriverService } from '../../../../core/services/arriver/arriver.service'; // Assurez-vous que ce service existe
+import { Exercice } from '../../../../core/services/interface/models';
+import { ExerciceService } from '../../../../core/services/exercice/exercice.service';
+import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/rapport-periodique.service';
 
 // Interfaces
 import {
-  MouvementTicket, RetourTicket, AnnulationTicket, CouponTicket, CompagniePetroliere, Employe, Vehicule, PaginatedResponse
+  MouvementTicket, RetourTicket, AnnulationTicket, CouponTicket, CompagniePetroliere, Employe, Vehicule, PaginatedResponse, RapportMensuel
 } from '../../../../core/services/interface/models';
 
 import { Subject, takeUntil } from 'rxjs';
 
 // Définir les types de rapport pour les tickets
 interface TypeRapportTicket {
+  id: string; // 'entree ticket', 'sortie ticket', 'retour ticket', 'annulation ticket'
+  libelle: string;
+}
+
+interface RapportPeriodique {
   id: string; // 'entree ticket', 'sortie ticket', 'retour ticket', 'annulation ticket'
   libelle: string;
 }
@@ -72,7 +78,14 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     { id: 'sortie ticket', libelle: 'Rapport de Sortie de Tickets' },
     { id: 'retour ticket', libelle: 'Rapport de Retour de Tickets' },
     { id: 'annulation ticket', libelle: 'Rapport d\'Annulation de Tickets' },
+    { id: 'rapport periodique', libelle: 'Rapport périodique' },
   ];
+
+  rapportPeriodique: RapportPeriodique[] = [
+    { id: 'trimestriel', libelle: 'Trimestriel' },
+    { id: 'semestriel', libelle: 'Semestriel' },
+  ];
+
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
   // Indicateurs pour l'affichage conditionnel des filtres
@@ -80,11 +93,13 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   showSortieTicketFilters: boolean = false;
   showRetourTicketFilters: boolean = false;
   showAnnulationTicketFilters: boolean = false;
+  showRapportPeriodiqueFilters: boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   private destroy$ = new Subject<void>();
+  exercices: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -94,14 +109,15 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     private employesService: EmployesService,
     private vehiculeService: VehiculeService,
     private cd: ChangeDetectorRef, // Inject ChangeDetectorRef
-    // private departService: DepartService,
-    // private arriverService: ArriverService,
-    private ngbCalendar: NgbCalendar // <-- INJECTION DE NgbCalendar
+    private exerciceService: ExerciceService,
+    private ngbCalendar: NgbCalendar ,
+    private mouvementTicketService: MouvementTicketService
   ) { }
 
   ngOnInit(): void {
     this.initForm();
     this.loadFilterData();
+    this.loadAllData();
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
       this.onTypeRapportChange(typeRapportId);
     });
@@ -148,7 +164,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
     // <-- FIN DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
 
-    this.rapportForm = this.fb.group({
+      this.rapportForm = this.fb.group({
       id_type_rapport: [null, Validators.required],
 
       // Filtres pour Entrée Ticket
@@ -178,6 +194,11 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       date_fin_annulation_t: [today],             // <-- Date par défaut
       coupon_id_annulation: [null],
       compagnie_id_annulation: [null],
+
+      // Filtre rapport   exercice_id: [null, Validators.required],
+        exercice_id: [null, Validators.required],
+        periode_id: [null, Validators.required]
+
     });
     console.log('RapportTicketComponent: Form initialized with default dates.');
   }
@@ -265,11 +286,19 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         console.log('onTypeRapportChange: Showing Annulation Ticket filters with default dates.');
         break;
 
+      case 'rapport periodique':
+        this.showRapportPeriodiqueFilters = true;
+        this.rapportForm.get('exercice_id')?.enable();
+        this.rapportForm.get('periode_id')?.enable();
+        break;
+
+
       default:
         this.showEntreeTicketFilters = false;
         this.showSortieTicketFilters = false;
         this.showRetourTicketFilters = false;
         this.showAnnulationTicketFilters = false;
+        this.showRapportPeriodiqueFilters = false;
         // Remettre à null toutes les dates spécifiques pour éviter des valeurs résiduelles
         this.resetSpecificDateControls();
         console.log('onTypeRapportChange: No specific report type selected or unknown.');
@@ -311,6 +340,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.showSortieTicketFilters = false;
     this.showRetourTicketFilters = false;
     this.showAnnulationTicketFilters = false;
+    this.showRapportPeriodiqueFilters = false;
   }
 
   private resetSpecificDateControls(): void {
@@ -447,6 +477,21 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadAllData(): void {
+    this.loadingIndicator = true;
+
+    // Charger la liste des exercices pour le select
+    this.exerciceService.getAllExercice().subscribe({
+      next: (data) => {
+        this.exercices = data;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des exercices', err);
+      }
+    });
+  }
+
+
   downloadRapportTicketPDF(): void {
     console.log('--- Tentative d\'impression du rapport de ticket PDF ---');
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
@@ -576,7 +621,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
                             (sortie.description.toLowerCase().includes(val) || false)||
                             (String(sortie.kilometrage).toLowerCase().includes(val) || false)||
                             (String(sortie.qte).toLowerCase().includes(val) || false);
-                            
+
                     break;
                 case 'retour ticket':
                     const retour = item as RetourTicket;
@@ -603,5 +648,22 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       this.table.offset = 0;
     }
   }
+
+
+    load_rapportperiodique(annee: number, periode: string): void {
+      this.loadingIndicator = true;
+
+      // Charger la liste des exercices pour le select
+      this.mouvementTicketService.getRapportPeriodique(annee, periode).subscribe({
+        next: (data) => {
+          this.exercices = data;
+          this.loadingIndicator = false;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement des exercices', err);
+          this.loadingIndicator = false;
+        }
+      });
+    } 
 
 }

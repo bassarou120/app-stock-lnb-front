@@ -593,3 +593,15 @@ export interface ExerciceMouvementTicket {
   coupon_ticket?: CouponTicket;
   compagnie_petrolier?: CompagniePetroliere;
 }
+
+export interface RapportMensuel {
+  mois: number;
+  mois_libelle: string;
+  stock_initial: number;
+  entrees: number;
+  sorties: number;
+  sorties_par_categorie: { [key: string]: number };
+  retours: number;
+  stock_final: number;
+  total_entrees_cumulees: number;
+}
