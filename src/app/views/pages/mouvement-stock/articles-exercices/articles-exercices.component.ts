@@ -142,7 +142,7 @@ export class ArticleExerciceComponent implements OnInit {
   }
   // ---------------------------------------------------------------------
 
-loadAllData(): void {
+  loadAllData(): void {
     this.loadingIndicator = true;
 
     // Charger les articles exercices et stocker la copie

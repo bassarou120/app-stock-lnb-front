@@ -263,6 +263,55 @@
               </div>
               <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ANNULATION DE TICKETS -->
 
+              
+              <!-- FILTRES SPÉCIFIQUES AU RAPPORT PERIODIQUE -->
+              <div class="row" *ngIf="showRapportPeriodiqueFilters">
+                <hr class="my-4">
+                <h5 class="mb-3">Filtres pour le rapport périodique</h5>
+
+                <!-- Exercice (Obligatoires) -->
+                <div class="col-md-6 mb-3">
+                  <label for="exercice_id" class="form-label">
+                    Exercices <span class="text-danger">*</span>
+                  </label>
+                  
+                  <ng-select
+                      #anneeSelect
+                      id="exercice_id"
+                      formControlName="exercice_id"
+                      [items]="exercices"
+                      bindLabel="annee"
+                      bindValue="id">
+                  </ng-select>
+                  
+                  <div *ngIf="rapportForm.get('exercice_id')?.invalid && rapportForm.get('exercice_id')?.touched">
+                    <small *ngIf="rapportForm.get('exercice_id')?.errors?.required" class="text-danger">
+                      *L'exercice est obligatoire.
+                    </small>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="periode_id" class="form-label">
+                    Période <span class="text-danger">*</span>
+                  </label>
+                  
+                  <ng-select
+                      id="periode_id"
+                      formControlName="periode_id"
+                      [items]="rapportPeriodique"
+                      bindLabel="libelle"
+                      bindValue="id">
+                  </ng-select>
+                  
+                  <div *ngIf="rapportForm.get('periode_id')?.invalid && rapportForm.get('periode_id')?.touched">
+                    <small *ngIf="rapportForm.get('periode_id')?.errors?.required" class="text-danger">
+                      *La période est obligatoire.
+                    </small>
+                  </div>
+                </div>
+              </div>
+              <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT PERIODIQUE -->
 
               <!-- Bouton Charger Rapport -->
               <div class="d-flex justify-content-center gap-3 mt-4">

@@ -19,7 +19,7 @@ import { Router } from '@angular/router';
     ReactiveFormsModule,
     CommonModule,
     NgbAlertModule,
-    NgbDropdownModule 
+    NgbDropdownModule
   ],
   templateUrl: 'coupon-tickets.component.html'
 })
@@ -58,7 +58,7 @@ export class CouponTicketsComponent implements OnInit {
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
 
-    
+   
     // Ensuite charger les données seulement si on a accès
     if (this.hasPageAccess) {
       this.loadCouponTickets();
