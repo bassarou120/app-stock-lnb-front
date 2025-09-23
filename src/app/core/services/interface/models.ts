@@ -263,6 +263,7 @@ export interface MouvementStock {
   employe?: {
     fullnameEmploye: string;
   };
+
 }
 
 export interface MouvementStockGrouped {
@@ -274,6 +275,7 @@ export interface MouvementStockGrouped {
   statut: string;
   totalArticles: number;
   details: MouvementStock[];
+  file_path?: string;
 }
 
 // Décrit un seul ticket au sein d'une transaction
@@ -576,4 +578,18 @@ export interface ArticleExercice {
   // relations
   article?: { id: number; libelle: string };
   exercice?: { id: number; annee: number; statut: string };
+}
+
+export interface ExerciceMouvementTicket {
+  id: number;
+  exercice_id: number;
+  coupon_ticket_id: number;
+  compagnie_petrolier_id: number;
+  qte_actuel: string; // ou 'number' si vous le traitez comme un nombre
+  created_at: string;
+  updated_at: string;
+  // Ajoutez les relations
+  exercice?: Exercice;
+  coupon_ticket?: CouponTicket;
+  compagnie_petrolier?: CompagniePetroliere;
 }

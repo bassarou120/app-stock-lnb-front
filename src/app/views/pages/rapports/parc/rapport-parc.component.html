@@ -146,6 +146,69 @@
             <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION SUR VÉHICULE -->
 
 
+           <!-- FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION EXPIRANTE SUR VÉHICULE -->
+            <div class="row" *ngIf="showInterventionExpiranteFilters">
+              <hr class="my-4">
+              <h5 class="mb-3">Filtres pour le rapport d'Intervention Expirante sur Véhicules</h5>
+
+              <!-- Dates d'Intervention (Obligatoires) -->
+              <div class="col-md-6 mb-3">
+                <label for="date_debut_intervention_expirante" class="form-label">Date d'Intervention (Début) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddiv1.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddiv1"
+                         ngbDatepicker #ddiv1="ngbDatepicker" formControlName="date_debut_intervention_expirante"
+                         [maxDate]="rapportForm.get('date_fin_intervention_expirante')?.value || undefined"
+                         [class.is-invalid]="(rapportForm.get('date_debut_intervention_expirante')?.invalid && rapportForm.get('date_debut_intervention_expirante')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                </div>
+                <div *ngIf="rapportForm.get('date_debut_intervention_expirante')?.invalid && rapportForm.get('date_debut_intervention_expirante')?.touched">
+                  <small *ngIf="rapportForm.get('date_debut_intervention_expirante')?.errors?.required" class="text-danger"> *La date de début est obligatoire.</small>
+                </div>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="date_fin_intervention_expirante" class="form-label">Date d'Intervention (Fin) <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="ddiv2.toggle()">
+                    <i data-feather="calendar" appFeatherIcon></i>
+                  </button>
+                  <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="ddiv2"
+                         ngbDatepicker #ddiv2="ngbDatepicker" formControlName="date_fin_intervention_expirante"
+                         [minDate]="rapportForm.get('date_debut_intervention_expirante')?.value || undefined"
+                         [class.is-invalid]="(rapportForm.get('date_fin_intervention_expirante')?.invalid && rapportForm.get('date_fin_intervention_expirante')?.touched) || rapportForm.errors?.['dateRangeInvalidOrder']">
+                </div>
+                <div *ngIf="rapportForm.get('date_fin_intervention_expirante')?.invalid && rapportForm.get('date_fin_intervention_expirante')?.touched">
+                  <small *ngIf="rapportForm.get('date_fin_intervention_expirante')?.errors?.required" class="text-danger"> *La date de fin est obligatoire.</small>
+                  <small *ngIf="rapportForm.get('date_fin_intervention_expirante')?.errors?.dateAfterStart || rapportForm.errors?.['dateRangeInvalidOrder']" class="text-danger"> *La date de fin ne peut pas être antérieure à la date de début.</small>
+                </div>
+              </div>
+
+              <!-- Véhicule (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="vehicule_id" class="form-label">Véhicule (Optionnel)</label>
+                <ng-select [items]="vehiculesList" bindLabel="immatriculation" bindValue="id"
+                           formControlName="vehicule_id" [clearable]="true" placeholder="Sélectionnez un véhicule">
+                  <ng-template ng-label-tmp let-item="item">
+                    {{item.marque?.libelle}} ({{item.immatriculation}})
+                  </ng-template>
+                  <ng-template ng-option-tmp let-item="item">
+                    {{item.marque?.libelle}} ({{item.immatriculation}})
+                  </ng-template>
+                </ng-select>
+              </div>
+
+              <!-- Type d'Intervention (Optionnel) -->
+              <div class="col-md-6 mb-3">
+                <label for="type_intervention_id" class="form-label">Type d'Intervention (Optionnel)</label>
+                <ng-select [items]="typeInterventionsList" bindLabel="libelle_type_intervention" bindValue="id"
+                           formControlName="type_intervention_id" [clearable]="true" placeholder="Sélectionnez un type d'intervention">
+                </ng-select>
+              </div>
+            </div>
+            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'INTERVENTION EXPIRANTE SUR VÉHICULE -->
+
+
             <!-- Bouton Charger Rapport -->
             <div class="d-flex justify-content-center gap-3 mt-4">
               <button type="button" class="btn btn-primary btn-icon-text" (click)="loadRapportParc()" [disabled]="isGeneratingReport || rapportForm.invalid">
@@ -225,6 +288,35 @@
                     </ng-template>
                 </ngx-datatable-column>
                 <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+            </ng-container>
+
+            <ng-container *ngIf="selectedReportTypeId === 'vehicule_intervention_expirante'">
+                <ngx-datatable-column name="N°">
+                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                        {{ rowIndex + 1 }}
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Titre" prop="titre"></ngx-datatable-column>
+
+                <ngx-datatable-column name="Date d'intervention">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.date_intervention | date: 'dd/MM/yyyy' }}
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <ngx-datatable-column name="Date d'expiration">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                        {{ row.date_expiration | date: 'dd/MM/yyyy' }}
+                    </ng-template>
+                </ngx-datatable-column>
+
+                <ngx-datatable-column name="Type d'intervention" prop="type_intervention.libelle_type_intervention"></ngx-datatable-column>
+                <ngx-datatable-column name="Immatriculation" prop="vehicule.immatriculation"></ngx-datatable-column>
+                <ngx-datatable-column name="Modèle" prop="vehicule.modele.libelle_modele"></ngx-datatable-column>
+                <!-- <ngx-datatable-column name="Marque" prop="vehicule.marque.libelle"></ngx-datatable-column> -->
+                 <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+                <ngx-datatable-column name="N° Châssis" prop="vehicule.numero_chassis"></ngx-datatable-column>
+                <ngx-datatable-column name="Coût" prop="montant"></ngx-datatable-column>
             </ng-container>
 
           </ngx-datatable>
