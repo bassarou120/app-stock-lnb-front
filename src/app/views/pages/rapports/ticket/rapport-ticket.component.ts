@@ -228,8 +228,8 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       compagnie_id_annulation: [null],
 
       // Filtre rapport   exercice_id: [null, Validators.required],
-        exercice_id: [null, Validators.required],
-        periode_id: [null, Validators.required]
+        exercice_id: [null],
+        periode_id: [null]
 
     });
     console.log('RapportTicketComponent: Form initialized with default dates.');
@@ -322,8 +322,11 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.showRapportPeriodiqueFilters = true;
         this.rapportForm.get('exercice_id')?.enable();
         this.rapportForm.get('periode_id')?.enable();
-        break;
-
+        // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
+        this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
+        this.rapportForm.get('periode_id')?.setValidators(Validators.required);
+        console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
+        break;
 
       default:
         this.showEntreeTicketFilters = false;
@@ -722,30 +725,30 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     });
   }
 
-chargerRapport(annee: number, periode: string) {
-  if (!annee || !periode) {
-    this.errorMessage = "Veuillez sélectionner une année et une période.";
-    return;
+  chargerRapport(annee: number, periode: string) {
+    if (!annee || !periode) {
+      this.errorMessage = "Veuillez sélectionner une année et une période.";
+      return;
+    }
+
+    this.loadingIndicator = true;
+    this.errorMessage = '';
+
+    this.mouvementTicketService.getRapportPeriodique(annee, periode)
+      .subscribe({
+        next: (data) => {
+          console.log('Résultats du rapport:', data);
+          this.rows = data;
+          this.temp = [...data];
+          this.loadingIndicator = false;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement du rapport:', err);
+          this.errorMessage = `Erreur lors du chargement du rapport: ${err.message || 'Veuillez réessayer.'}`;
+          this.loadingIndicator = false;
+        }
+      });
   }
-
-  this.loadingIndicator = true;
-  this.errorMessage = '';
-
-  this.mouvementTicketService.getRapportPeriodique(annee, periode)
-    .subscribe({
-      next: (data) => {
-        console.log('Résultats du rapport:', data);
-        this.rows = data;
-        this.temp = [...data];
-        this.loadingIndicator = false;
-      },
-      error: (err) => {
-        console.error('Erreur lors du chargement du rapport:', err);
-        this.errorMessage = `Erreur lors du chargement du rapport: ${err.message || 'Veuillez réessayer.'}`;
-        this.loadingIndicator = false;
-      }
-    });
-}
 
 
 }
