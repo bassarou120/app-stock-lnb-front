@@ -59,10 +59,12 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   @ViewChild('table') table!: DatatableComponent;
 
   rapportForm!: FormGroup;
-  rows: (MouvementTicket | RetourTicket | AnnulationTicket)[] = [];
-  temp: (MouvementTicket | RetourTicket | AnnulationTicket)[] = [];
+  rows: (MouvementTicket | RetourTicket | AnnulationTicket | RapportMensuel)[] = [];
+  temp: (MouvementTicket | RetourTicket | AnnulationTicket | RapportMensuel)[] = [];
   loadingIndicator = false;
   ColumnMode = ColumnMode;
+  exercice_id: number ; // par défaut l'année courante
+  periode_id: string;
 
   // Listes pour les dropdowns de filtrage
   couponTicketsList: CouponTicket[] = [];
@@ -86,6 +88,8 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     { id: 'semestriel', libelle: 'Semestriel' },
     { id: 'mensuel', libelle: 'Mensuel' }
   ];
+
+  rapportResultats: RapportMensuel[] = [];
 
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
@@ -120,9 +124,35 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.initForm();
     this.loadFilterData();
     this.loadAllData();
+    //this.chargerRapport();
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
       this.onTypeRapportChange(typeRapportId);
     });
+
+
+    // ⚡ Synchronisation des selects avec tes variables
+  this.rapportForm.get('exercice_id')?.valueChanges
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(value => {
+      this.exercice_id = value;
+      console.log('Exercice sélectionné:', this.exercice_id);
+    });
+
+  this.rapportForm.get('periode_id')?.valueChanges
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(value => {
+      this.periode_id = value;
+      console.log('Période sélectionnée:', this.periode_id);
+    });
+
+  // Tu peux charger le rapport initial si tu veux avec des valeurs par défaut
+  if (this.rapportForm.get('exercice_id')?.value && this.rapportForm.get('periode_id')?.value) {
+    this.chargerRapport(                  
+          this.rapportForm.get('exercice_id')?.value,
+          this.rapportForm.get('periode_id')?.value
+        );
+  }
+
   }
 
   ngOnDestroy(): void {
@@ -445,9 +475,12 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
               // 💡 Utilisez les noms de contrôles de votre formulaire
               const annee = this.rapportForm.get('exercice_id')?.value;
               const periode = this.rapportForm.get('periode_id')?.value;
-          
+
               if (annee && periode) {
-                  this.load_rapportperiodique(annee, periode);
+                      this.chargerRapport(
+                        this.rapportForm.get('exercice_id')?.value,
+                        this.rapportForm.get('periode_id')?.value
+                      );
               } else {
                   this.errorMessage = "Veuillez sélectionner une année et une période.";
               }
@@ -668,8 +701,8 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
-  
-    this.ticketRapportService.getRapportPeriodique(annee, periode).subscribe({
+
+    this.mouvementTicketService.getRapportPeriodique(annee, periode).subscribe({
       next: (response: any[]) => { // 💡 La réponse est un tableau, pas un objet avec 'data'
         console.log('Réponse du back-end pour le rapport périodique:', response);
         if (response && response.length > 0) {
@@ -688,4 +721,31 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       }
     });
   }
+
+chargerRapport(annee: number, periode: string) {
+  if (!annee || !periode) {
+    this.errorMessage = "Veuillez sélectionner une année et une période.";
+    return;
+  }
+
+  this.loadingIndicator = true;
+  this.errorMessage = '';
+
+  this.mouvementTicketService.getRapportPeriodique(annee, periode)
+    .subscribe({
+      next: (data) => {
+        console.log('Résultats du rapport:', data);
+        this.rows = data;
+        this.temp = [...data];
+        this.loadingIndicator = false;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement du rapport:', err);
+        this.errorMessage = `Erreur lors du chargement du rapport: ${err.message || 'Veuillez réessayer.'}`;
+        this.loadingIndicator = false;
+      }
+    });
+}
+
+
 }

@@ -18,7 +18,7 @@ export interface BackendPostResource<T> {
 })
 export class TicketRapportService {
   private apiUrl = `${environment.backend}/rapports/ticket`;
-  private apiRapportPeriodiqueUrl = `${environment.backend}/rapports/periodique`; 
+  private apiRapportPeriodiqueUrl = `${environment.backend}/rapports/periodique`;
 
   constructor(private http: HttpClient) {}
 
@@ -85,7 +85,7 @@ export class TicketRapportService {
    * @param annee L'année pour le rapport.
    * @param periode La période ('mensuel', 'trimestriel', 'semestriel').
    */
-  getRapportPeriodique(annee: number, periode: string): Observable<any[]> {
+/*   getRapportPeriodique(annee: number, periode: string): Observable<any[]> {
     let params = new HttpParams()
       .set('annee', annee.toString())
       .set('periode', periode);
@@ -94,7 +94,7 @@ export class TicketRapportService {
       tap(response => console.log('Réponse du service Rapport Périodique:', response)),
       catchError(this.handleError<any[]>('getRapportPeriodique'))
     );
-  }
+  } */
 
   /**
  * Appelle l'API Laravel pour imprimer le rapport périodique en PDF.

@@ -16,14 +16,24 @@ export class MouvementTicketService  {
 
   constructor(private http: HttpClient) {}
 
-  getRapportPeriodique(annee: number, periode: string): Observable<RapportMensuel[]> {
+/*    getRapportPeriodique(annee: number, periode: string): Observable<RapportMensuel[]> {
     const body = { annee, periode };
     return this.http.post<{ success: boolean; message: string; data: { data: RapportMensuel[] } }>(
       `${this.url}/rapport-periodique`,
       body
     ).pipe(
-      map(response => response.data.data) 
+      map(response => response.data.data)
     );
-  }
+  }  */
+
+  getRapportPeriodique(annee: number, periode: string): Observable<RapportMensuel[]> {
+    const body = { annee, periode };
+    return this.http.post<{ success: boolean; message: string; data: RapportMensuel[] }>(
+      `${this.url}/rapport-periodique`,
+      body
+    ).pipe(
+      map(response => response.data) // 
+    );
+  } 
 
 }

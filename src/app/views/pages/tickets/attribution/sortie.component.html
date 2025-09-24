@@ -545,7 +545,7 @@
             <p><strong>Référence :</strong> {{ selectedSortie.reference }}</p>
             <p><strong>Date :</strong> {{ selectedSortie.date | date:'dd/MM/yyyy' }}</p>
             <p><strong>Véhicule :</strong> {{ selectedSortie.vehicule.immatriculation }}</p>
-            <p><strong>Catégorie :</strong> {{ selectedSortie.categorie_sortie_ticket?.libelle || '-' }}</p>
+            <p><strong>Catégorie :</strong> {{ selectedSortie.categorie_sortie_ticket.libelle || '-' }}</p>
             <p><strong>Employé :</strong> {{ selectedSortie.employe.fullnameEmploye }}</p>
           </div>
           <div class="col-md-6">
