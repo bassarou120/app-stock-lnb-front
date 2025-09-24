@@ -579,3 +579,29 @@ export interface ArticleExercice {
   article?: { id: number; libelle: string };
   exercice?: { id: number; annee: number; statut: string };
 }
+
+export interface ExerciceMouvementTicket {
+  id: number;
+  exercice_id: number;
+  coupon_ticket_id: number;
+  compagnie_petrolier_id: number;
+  qte_actuel: string; // ou 'number' si vous le traitez comme un nombre
+  created_at: string;
+  updated_at: string;
+  // Ajoutez les relations
+  exercice?: Exercice;
+  coupon_ticket?: CouponTicket;
+  compagnie_petrolier?: CompagniePetroliere;
+}
+
+export interface RapportMensuel {
+  mois: number;
+  mois_libelle: string;
+  stock_initial: number;
+  entrees: number;
+  sorties: number;
+  sorties_par_categorie: { [key: string]: number };
+  retours: number;
+  stock_final: number;
+  total_entrees_cumulees: number;
+}

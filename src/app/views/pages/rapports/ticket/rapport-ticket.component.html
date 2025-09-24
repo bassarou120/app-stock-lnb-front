@@ -264,6 +264,55 @@
               <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ANNULATION DE TICKETS -->
 
 
+              <!-- FILTRES SPÉCIFIQUES AU RAPPORT PERIODIQUE -->
+              <div class="row" *ngIf="showRapportPeriodiqueFilters">
+                <hr class="my-4">
+                <h5 class="mb-3">Filtres pour le rapport périodique</h5>
+
+                <!-- Exercice (Obligatoires) -->
+                <div class="col-md-6 mb-3">
+                  <label for="exercice_id" class="form-label">
+                    Exercices <span class="text-danger">*</span>
+                  </label>
+
+                  <ng-select
+                      #anneeSelect
+                      id="exercice_id"
+                      formControlName="exercice_id"
+                      [items]="exercices"
+                      bindLabel="annee"
+                      bindValue="id">
+                  </ng-select>
+
+                  <div *ngIf="rapportForm.get('exercice_id')?.invalid && rapportForm.get('exercice_id')?.touched">
+                    <small *ngIf="rapportForm.get('exercice_id')?.errors?.required" class="text-danger">
+                      *L'exercice est obligatoire.
+                    </small>
+                  </div>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                  <label for="periode_id" class="form-label">
+                    Période <span class="text-danger">*</span>
+                  </label>
+
+                  <ng-select
+                      id="periode_id"
+                      formControlName="periode_id"
+                      [items]="rapportPeriodique"
+                      bindLabel="libelle"
+                      bindValue="id">
+                  </ng-select>
+
+                  <div *ngIf="rapportForm.get('periode_id')?.invalid && rapportForm.get('periode_id')?.touched">
+                    <small *ngIf="rapportForm.get('periode_id')?.errors?.required" class="text-danger">
+                      *La période est obligatoire.
+                    </small>
+                  </div>
+                </div>
+              </div>
+              <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT PERIODIQUE -->
+
               <!-- Bouton Charger Rapport -->
               <div class="d-flex justify-content-center gap-3 mt-4">
                 <button type="button" class="btn btn-primary btn-icon-text" (click)="loadRapportTicket()" [disabled]="isGeneratingReport || rapportForm.invalid">
@@ -385,7 +434,39 @@
                 </ngx-datatable-column>
               </ng-container>
 
-            </ngx-datatable>
+              <ng-container *ngIf="selectedReportTypeId === 'rapport periodique'">
+                <ngx-datatable-column name="Période" prop="periode">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Période</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Stock Initial" prop="stock_initial">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Initial</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Entrées" prop="entrees">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Entrées</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Sorties" prop="sorties">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Sorties</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Retours" prop="retours">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Retours</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Stock Final" prop="stock_final">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Final</span>
+                    </ng-template>
+                </ngx-datatable-column>
+              </ng-container>
+              </ngx-datatable>
           </div>
           <div *ngIf="rows.length === 0 && !loadingIndicator && !errorMessage" class="no-data-message mt-3">
             <p class="text-center text-muted">Veuillez sélectionner un type de rapport et charger les données.</p>

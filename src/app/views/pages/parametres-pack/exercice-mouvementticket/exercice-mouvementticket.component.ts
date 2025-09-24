@@ -2,8 +2,7 @@ import { Component, ViewChild, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ArticleExerciceService } from '../../../../core/services/article-exercice/article-exercice.service';
-import { ArticleExercice } from '../../../../core/services/interface/models';
-import { ExerciceService } from '../../../../core/services/exercice/exercice.service';
+import { ExerciceMouvementTicket } from '../../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule,AbstractControl,ValidationErrors  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
@@ -11,18 +10,17 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDatepickerModule, NgbCalendar } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
-import { Exercice } from '../../../../core/services/interface/models';
-
 
 
 declare var bootstrap: any;
 import { Router } from '@angular/router';
+import { ExerciceMouvementTicketService } from '../../../../core/services/exercice-mouvementTicket/exercice-mouvementTicket.service';
 
 @Component({
   selector: 'app-exercice',
   standalone: true,
   imports: [
-  RouterLink,
+RouterLink,
     NgxDatatableModule,
     ReactiveFormsModule,
     CommonModule,
@@ -31,22 +29,24 @@ import { Router } from '@angular/router';
     NgbDatepickerModule,
     MyNgSelectComponent
   ],
-  templateUrl: 'articles-exercices.component.html'
+  templateUrl: 'exercice-mouvementticket.component.html'
 })
-export class ArticleExerciceComponent implements OnInit {
+export class ExerciceMouvementTicketComponent implements OnInit {
   // PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canVoirParamStock: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
 
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
-  exercices: any[] = [];
+  exerciceMouvementticket: ExerciceMouvementTicket[] = [];
+
+  exerciceTicket: any[] = [];
 
   today: NgbDateStruct = inject(NgbCalendar).getToday();
   firstDayOfYear: NgbDateStruct;
   lastDayOfYear: NgbDateStruct;
 
-  rows: ArticleExercice[] = [];
-  temp: ArticleExercice[] = [];
+  rows: ExerciceMouvementTicket[] = [];
+  temp: ExerciceMouvementTicket[] = [];
   loadingIndicator = true;
   reorderable = true;
   ColumnMode = ColumnMode;
@@ -74,7 +74,7 @@ export class ArticleExerciceComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private articleExerciceService: ArticleExerciceService, private exerciceService: ExerciceService, private formBuilder: FormBuilder, private router: Router) {
+  constructor(private exerciceMouvementTicketService: ExerciceMouvementTicketService, private formBuilder: FormBuilder, private router: Router) {
 
   }
 
@@ -142,11 +142,10 @@ export class ArticleExerciceComponent implements OnInit {
   }
   // ---------------------------------------------------------------------
 
-  loadAllData(): void {
+loadAllData(): void {
     this.loadingIndicator = true;
-
     // Charger les articles exercices et stocker la copie
-    this.articleExerciceService.getAllArticlExercices().subscribe({
+    this.exerciceMouvementTicketService.getAllExerciceMouvementTickets().subscribe({
       next: (data) => {
         // Copier les données complètes dans `temp` pour le filtrage
         this.temp = [...data];
@@ -155,15 +154,15 @@ export class ArticleExerciceComponent implements OnInit {
         this.loadingIndicator = false;
       },
       error: (err) => {
-        console.error('Erreur lors du chargement des articles exercices', err);
+        console.error('Erreur lors du chargement des exercices mouvement ticket', err);
         this.loadingIndicator = false;
       }
     });
 
     // Charger la liste des exercices pour le select
-    this.exerciceService.getAllExercice().subscribe({
+    this.exerciceMouvementTicketService.getAllExerciceMouvementTickets().subscribe({
       next: (data) => {
-        this.exercices = data;
+        this.exerciceMouvementticket = data;
       },
       error: (err) => {
         console.error('Erreur lors du chargement des exercices', err);
@@ -171,34 +170,36 @@ export class ArticleExerciceComponent implements OnInit {
     });
   }
 
-  updateFilter(event: KeyboardEvent): void {
-    const val = (event.target as HTMLInputElement).value.toLowerCase();
+updateFilter(event: KeyboardEvent): void {
+  const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-    this.rows = this.temp.filter(articleExercice =>
-      articleExercice.article?.libelle?.toString().toLowerCase().includes(val) ||
-      articleExercice.exercice?.annee?.toString().toLowerCase().includes(val) ||
-      articleExercice.stock_fin_exercice?.toString().toLowerCase().includes(val) ||
-      articleExercice.stock_debut_exercice?.toString().toLowerCase().includes(val)
-    );
+  this.rows = this.temp.filter(row =>
+    // Filtrer par le libellé du Coupon Ticket
+    row.coupon_ticket?.libelle?.toLowerCase().includes(val) ||
+    // Filtrer par l'année de l'Exercice
+    row.exercice?.annee?.toString().toLowerCase().includes(val) ||
+    // Filtrer par le libellé de la Compagnie Pétrolière
+    row.compagnie_petrolier?.libelle?.toLowerCase().includes(val) ||
+    // Filtrer par la quantité actuelle
+    row.qte_actuel?.toString().toLowerCase().includes(val)
+  );
 
-    // Vérifier si la table existe avant de réinitialiser l’offset
-    if (this.table) {
-      this.table.offset = 0;
-    }
+  // Vérifier si la table existe avant de réinitialiser l’offset
+  if (this.table) {
+    this.table.offset = 0;
   }
+}
 
-  filterByExercice(selectedExerciceId: number | null): void {
-    // S'assurer que selectedExerciceId est bien un nombre
-    if (selectedExerciceId) {
-      // Filtrer le tableau temp (la source de vérité)
-      const filteredRows = this.temp.filter(row => row.id_exercice === selectedExerciceId);
-      this.rows = filteredRows;
-    } else {
-      // Si la sélection est annulée (valeur null), réinitialiser le tableau
-      this.rows = [...this.temp];
-    }
+filterByExercice(selectedExerciceId: number | null): void {
+  if (selectedExerciceId) {
+    // Filtrer en utilisant l'ID de l'exercice dans l'objet imbriqué
+    const filteredRows = this.temp.filter(row => row.exercice?.id === selectedExerciceId);
+    this.rows = filteredRows;
+  } else {
+    // Si la sélection est annulée, réinitialiser le tableau
+    this.rows = [...this.temp];
   }
-
+}
 
   formatDate(date: NgbDateStruct): string {
     const year = date.year;

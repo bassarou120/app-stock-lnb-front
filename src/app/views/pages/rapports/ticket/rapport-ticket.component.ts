@@ -15,18 +15,24 @@ import { CouponTicketService } from '../../../../core/services/coupon-tickets/co
 import { CompagniePetroliereService } from '../../../../core/services/compagnie-petroliere/compagnie-petroliere.service'; // Assurez-vous que ce service existe
 import { EmployesService } from '../../../../core/services/employes/employes.service'; // Pour les sorties
 import { VehiculeService } from '../../../../core/services/vehicules/vehicules.service'; // Pour les sorties
-// import { DepartService } from '../../../../core/services/depart/depart.service'; // Assurez-vous que ce service existe
-// import { ArriverService } from '../../../../core/services/arriver/arriver.service'; // Assurez-vous que ce service existe
+import { Exercice } from '../../../../core/services/interface/models';
+import { ExerciceService } from '../../../../core/services/exercice/exercice.service';
+import { MouvementTicketService } from '../../../../core/services/mouvement-ticket/rapport-periodique.service';
 
 // Interfaces
 import {
-  MouvementTicket, RetourTicket, AnnulationTicket, CouponTicket, CompagniePetroliere, Employe, Vehicule, PaginatedResponse
+  MouvementTicket, RetourTicket, AnnulationTicket, CouponTicket, CompagniePetroliere, Employe, Vehicule, PaginatedResponse, RapportMensuel
 } from '../../../../core/services/interface/models';
 
 import { Subject, takeUntil } from 'rxjs';
 
 // Définir les types de rapport pour les tickets
 interface TypeRapportTicket {
+  id: string; // 'entree ticket', 'sortie ticket', 'retour ticket', 'annulation ticket'
+  libelle: string;
+}
+
+interface RapportPeriodique {
   id: string; // 'entree ticket', 'sortie ticket', 'retour ticket', 'annulation ticket'
   libelle: string;
 }
@@ -53,10 +59,12 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   @ViewChild('table') table!: DatatableComponent;
 
   rapportForm!: FormGroup;
-  rows: (MouvementTicket | RetourTicket | AnnulationTicket)[] = [];
-  temp: (MouvementTicket | RetourTicket | AnnulationTicket)[] = [];
+  rows: (MouvementTicket | RetourTicket | AnnulationTicket | RapportMensuel)[] = [];
+  temp: (MouvementTicket | RetourTicket | AnnulationTicket | RapportMensuel)[] = [];
   loadingIndicator = false;
   ColumnMode = ColumnMode;
+  exercice_id: number ; // par défaut l'année courante
+  periode_id: string;
 
   // Listes pour les dropdowns de filtrage
   couponTicketsList: CouponTicket[] = [];
@@ -72,7 +80,17 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     { id: 'sortie ticket', libelle: 'Rapport de Sortie de Tickets' },
     { id: 'retour ticket', libelle: 'Rapport de Retour de Tickets' },
     { id: 'annulation ticket', libelle: 'Rapport d\'Annulation de Tickets' },
+    { id: 'rapport periodique', libelle: 'Rapport périodique' },
   ];
+
+  rapportPeriodique: RapportPeriodique[] = [
+    { id: 'trimestriel', libelle: 'Trimestriel' },
+    { id: 'semestriel', libelle: 'Semestriel' },
+    { id: 'mensuel', libelle: 'Mensuel' }
+  ];
+
+  rapportResultats: RapportMensuel[] = [];
+
   selectedReportTypeId: string | null = null; // ID du type de rapport sélectionné
 
   // Indicateurs pour l'affichage conditionnel des filtres
@@ -80,11 +98,14 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   showSortieTicketFilters: boolean = false;
   showRetourTicketFilters: boolean = false;
   showAnnulationTicketFilters: boolean = false;
+  showRapportPeriodiqueFilters: boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
   currentDate: NgbDateStruct = inject(NgbCalendar).getToday();
   private destroy$ = new Subject<void>();
+  exercices: any[] = [];
+  periodicReportData: any[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -94,17 +115,44 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     private employesService: EmployesService,
     private vehiculeService: VehiculeService,
     private cd: ChangeDetectorRef, // Inject ChangeDetectorRef
-    // private departService: DepartService,
-    // private arriverService: ArriverService,
-    private ngbCalendar: NgbCalendar // <-- INJECTION DE NgbCalendar
+    private exerciceService: ExerciceService,
+    private ngbCalendar: NgbCalendar ,
+    private mouvementTicketService: MouvementTicketService
   ) { }
 
   ngOnInit(): void {
     this.initForm();
     this.loadFilterData();
+    this.loadAllData();
+    //this.chargerRapport();
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
       this.onTypeRapportChange(typeRapportId);
     });
+
+
+    // ⚡ Synchronisation des selects avec tes variables
+  this.rapportForm.get('exercice_id')?.valueChanges
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(value => {
+      this.exercice_id = value;
+      console.log('Exercice sélectionné:', this.exercice_id);
+    });
+
+  this.rapportForm.get('periode_id')?.valueChanges
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(value => {
+      this.periode_id = value;
+      console.log('Période sélectionnée:', this.periode_id);
+    });
+
+  // Tu peux charger le rapport initial si tu veux avec des valeurs par défaut
+  if (this.rapportForm.get('exercice_id')?.value && this.rapportForm.get('periode_id')?.value) {
+    this.chargerRapport(                  
+          this.rapportForm.get('exercice_id')?.value,
+          this.rapportForm.get('periode_id')?.value
+        );
+  }
+
   }
 
   ngOnDestroy(): void {
@@ -148,7 +196,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
     // <-- FIN DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
 
-    this.rapportForm = this.fb.group({
+      this.rapportForm = this.fb.group({
       id_type_rapport: [null, Validators.required],
 
       // Filtres pour Entrée Ticket
@@ -178,6 +226,11 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       date_fin_annulation_t: [today],             // <-- Date par défaut
       coupon_id_annulation: [null],
       compagnie_id_annulation: [null],
+
+      // Filtre rapport   exercice_id: [null, Validators.required],
+        exercice_id: [null],
+        periode_id: [null]
+
     });
     console.log('RapportTicketComponent: Form initialized with default dates.');
   }
@@ -265,11 +318,23 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         console.log('onTypeRapportChange: Showing Annulation Ticket filters with default dates.');
         break;
 
+      case 'rapport periodique':
+        this.showRapportPeriodiqueFilters = true;
+        this.rapportForm.get('exercice_id')?.enable();
+        this.rapportForm.get('periode_id')?.enable();
+        // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
+        this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
+        this.rapportForm.get('periode_id')?.setValidators(Validators.required);
+        console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
+        break;
+
       default:
         this.showEntreeTicketFilters = false;
         this.showSortieTicketFilters = false;
         this.showRetourTicketFilters = false;
         this.showAnnulationTicketFilters = false;
+        this.showRapportPeriodiqueFilters = false;
+        this.periodicReportData = [];
         // Remettre à null toutes les dates spécifiques pour éviter des valeurs résiduelles
         this.resetSpecificDateControls();
         console.log('onTypeRapportChange: No specific report type selected or unknown.');
@@ -311,6 +376,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.showSortieTicketFilters = false;
     this.showRetourTicketFilters = false;
     this.showAnnulationTicketFilters = false;
+    this.showRapportPeriodiqueFilters = false;
   }
 
   private resetSpecificDateControls(): void {
@@ -347,6 +413,10 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     );
     // this.departService.getAllDeparts().pipe(takeUntil(this.destroy$)).subscribe((data: Depart[]) => this.departsList = data);
     // this.arriverService.getAllArrivers().pipe(takeUntil(this.destroy$)).subscribe((data: Arriver[]) => this.arriversList = data);
+  }
+
+  getObjectKeys(obj: any): string[] {
+    return Object.keys(obj);
   }
 
   loadRapportTicket(): void {
@@ -404,6 +474,22 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
             filters.coupon_id = this.rapportForm.get('coupon_id_annulation')?.value;
             filters.compagnie_id = this.rapportForm.get('compagnie_id_annulation')?.value;
             break;
+        case 'rapport periodique':
+              // 💡 Utilisez les noms de contrôles de votre formulaire
+              const annee = this.rapportForm.get('exercice_id')?.value;
+              const periode = this.rapportForm.get('periode_id')?.value;
+
+              if (annee && periode) {
+                      this.chargerRapport(
+                        this.rapportForm.get('exercice_id')?.value,
+                        this.rapportForm.get('periode_id')?.value
+                      );
+              } else {
+                  this.errorMessage = "Veuillez sélectionner une année et une période.";
+              }
+              this.isGeneratingReport = false;
+              this.loadingIndicator = false;
+              return;
     }
 
     // Nettoyer les filtres vides avant l'envoi
@@ -447,15 +533,26 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     );
   }
 
+  loadAllData(): void {
+    this.loadingIndicator = true;
+
+    // Charger la liste des exercices pour le select
+    this.exerciceService.getAllExercice().subscribe({
+      next: (data) => {
+        this.exercices = data;
+      },
+      error: (err) => {
+        console.error('Erreur lors du chargement des exercices', err);
+      }
+    });
+  }
+
+
+
   downloadRapportTicketPDF(): void {
     console.log('--- Tentative d\'impression du rapport de ticket PDF ---');
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
     console.log('Form errors (PDF):', this.rapportForm.errors);
-    Object.keys(this.rapportForm.controls).forEach(key => {
-      if (this.rapportForm.get(key)?.errors) {
-        console.log(`Errors on control ${key} (PDF):`, this.rapportForm.get(key)?.errors);
-      }
-    });
 
     if (this.rapportForm.invalid) {
       this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires avant d'imprimer.";
@@ -467,46 +564,43 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.isGeneratingReport = true;
     this.errorMessage = '';
 
-    const filters: { [key: string]: any } = {
-        id_type_rapport: this.selectedReportTypeId,
-    };
+    // 💡 NOUVEAU BLOC : Gérer le cas du rapport périodique séparément
+    if (this.selectedReportTypeId === 'rapport periodique') {
+      const annee = this.rapportForm.get('exercice_id')?.value;
+      const periode = this.rapportForm.get('periode_id')?.value;
 
-    // Construire les filtres en fonction du type de rapport sélectionné pour le PDF
-    switch (this.selectedReportTypeId) {
-        case 'entree ticket':
-            filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_entree_t')?.value);
-            filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_entree_t')?.value);
-            filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_entree')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_entree')?.value;
-            break;
-        case 'sortie ticket':
-            filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_sortie_t')?.value);
-            filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_sortie_t')?.value);
-            filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_sortie')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_sortie')?.value;
-            filters.employe_id = this.rapportForm.get('employe_id_sortie')?.value;
-            filters.vehicule_id = this.rapportForm.get('vehicule_id_sortie')?.value;
-            filters.depart_id = this.rapportForm.get('depart_id_sortie')?.value;
-            filters.arriver_id = this.rapportForm.get('arriver_id_sortie')?.value;
-            break;
-        case 'retour ticket':
-            filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_retour_t')?.value);
-            filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_retour_t')?.value);
-            filters.coupon_id = this.rapportForm.get('coupon_id_retour')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_retour')?.value;
-            break;
-        case 'annulation ticket':
-            filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_annulation_t')?.value);
-            filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_annulation_t')?.value);
-            filters.coupon_id = this.rapportForm.get('coupon_id_annulation')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_annulation')?.value;
-            break;
+      if (!annee || !periode) {
+        this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
+        this.isGeneratingReport = false;
+        return;
+      }
+
+      this.ticketRapportService.imprimerRapportPeriodique(annee, periode).subscribe({
+        next: (response) => {
+          const fileURL = window.URL.createObjectURL(response);
+          window.open(fileURL, '_blank');
+          this.isGeneratingReport = false;
+        },
+        error: (error) => {
+          console.error('Erreur lors de la préparation du PDF du rapport périodique :', error);
+          this.errorMessage = `Erreur lors de la génération du PDF : ${error.message || 'Veuillez réessayer.'}`;
+          this.isGeneratingReport = false;
+        }
+      });
+      return; // Très important : arrête la fonction après l'appel
     }
 
+    // 👇 L'ancienne logique pour les autres rapports reste ici
+    const filters: { [key: string]: any } = {
+      id_type_rapport: this.selectedReportTypeId,
+    };
+
+    // ... (votre switch existant pour les filtres des autres rapports)
+
     Object.keys(filters).forEach(key => {
-        if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
-            delete filters[key];
-        }
+      if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
+        delete filters[key];
+      }
     });
 
     console.log('Envoi des filtres pour PDF au backend pour le rapport de ticket:', filters);
@@ -576,7 +670,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
                             (sortie.description.toLowerCase().includes(val) || false)||
                             (String(sortie.kilometrage).toLowerCase().includes(val) || false)||
                             (String(sortie.qte).toLowerCase().includes(val) || false);
-                            
+
                     break;
                 case 'retour ticket':
                     const retour = item as RetourTicket;
@@ -603,5 +697,58 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       this.table.offset = 0;
     }
   }
+
+
+  load_rapportperiodique(annee: number, periode: string): void {
+    this.loadingIndicator = true;
+    this.errorMessage = '';
+    this.rows = [];
+    this.temp = [];
+
+    this.mouvementTicketService.getRapportPeriodique(annee, periode).subscribe({
+      next: (response: any[]) => { // 💡 La réponse est un tableau, pas un objet avec 'data'
+        console.log('Réponse du back-end pour le rapport périodique:', response);
+        if (response && response.length > 0) {
+          this.rows = response; // 💡 On utilise la réponse directement
+          this.temp = [...response];
+          this.errorMessage = '';
+        } else {
+          this.errorMessage = "Aucune donnée trouvée pour les critères spécifiés.";
+        }
+        this.loadingIndicator = false;
+      },
+      error: (err: any) => {
+        console.error('Erreur lors du chargement du rapport périodique:', err);
+        this.errorMessage = `Erreur lors du chargement: ${err.message || 'Veuillez réessayer.'}`;
+        this.loadingIndicator = false;
+      }
+    });
+  }
+
+  chargerRapport(annee: number, periode: string) {
+    if (!annee || !periode) {
+      this.errorMessage = "Veuillez sélectionner une année et une période.";
+      return;
+    }
+
+    this.loadingIndicator = true;
+    this.errorMessage = '';
+
+    this.mouvementTicketService.getRapportPeriodique(annee, periode)
+      .subscribe({
+        next: (data) => {
+          console.log('Résultats du rapport:', data);
+          this.rows = data;
+          this.temp = [...data];
+          this.loadingIndicator = false;
+        },
+        error: (err) => {
+          console.error('Erreur lors du chargement du rapport:', err);
+          this.errorMessage = `Erreur lors du chargement du rapport: ${err.message || 'Veuillez réessayer.'}`;
+          this.loadingIndicator = false;
+        }
+      });
+  }
+
 
 }
