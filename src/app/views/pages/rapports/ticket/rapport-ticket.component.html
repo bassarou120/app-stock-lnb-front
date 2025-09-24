@@ -434,7 +434,39 @@
                 </ngx-datatable-column>
               </ng-container>
 
-            </ngx-datatable>
+              <ng-container *ngIf="selectedReportTypeId === 'rapport periodique'">
+                <ngx-datatable-column name="Période" prop="periode">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Période</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Stock Initial" prop="stock_initial">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Initial</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Entrées" prop="entrees">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Entrées</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Sorties" prop="sorties">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Sorties</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Retours" prop="retours">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Retours</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Stock Final" prop="stock_final">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Final</span>
+                    </ng-template>
+                </ngx-datatable-column>
+              </ng-container>
+              </ngx-datatable>
           </div>
           <div *ngIf="rows.length === 0 && !loadingIndicator && !errorMessage" class="no-data-message mt-3">
             <p class="text-center text-muted">Veuillez sélectionner un type de rapport et charger les données.</p>
