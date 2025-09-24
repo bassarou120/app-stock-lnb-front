@@ -445,7 +445,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
               // 💡 Utilisez les noms de contrôles de votre formulaire
               const annee = this.rapportForm.get('exercice_id')?.value;
               const periode = this.rapportForm.get('periode_id')?.value;
-          
+
               if (annee && periode) {
                   this.load_rapportperiodique(annee, periode);
               } else {
@@ -668,7 +668,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
-  
+
     this.ticketRapportService.getRapportPeriodique(annee, periode).subscribe({
       next: (response: any[]) => { // 💡 La réponse est un tableau, pas un objet avec 'data'
         console.log('Réponse du back-end pour le rapport périodique:', response);
