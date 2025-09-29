@@ -160,8 +160,8 @@
                           data-bs-toggle="modal"
                           data-bs-target="#edit_statut_sortie"
                           (click)="getStatutForm(detail)"
-                          [disabled]="detail.statut === 'Accordé' || detail.statut === 'Validé'">
-                    {{ detail.statut === 'Accordé' || detail.statut === 'Validé' ? 'Traité' : 'À traiter' }}
+                          [disabled]="detail.statut === 'Accordé' || detail.statut === 'Cloturé'">
+                    {{ detail.statut === 'Accordé' || detail.statut === 'Cloturé' ? 'Traité' : 'À traiter' }}
                   </button>
                   </td>
               </tr>
@@ -191,7 +191,7 @@
           <div class="mb-3">
             <label for="statut" class="form-label">Statut de la demande <span class="text-danger">*</span></label>
             <ng-select
-              [items]="['Validé']"
+              [items]="['Cloturé']"
               [clearable]="false"
               placeholder="Sélectionnez le statut"
               formControlName="statut">
