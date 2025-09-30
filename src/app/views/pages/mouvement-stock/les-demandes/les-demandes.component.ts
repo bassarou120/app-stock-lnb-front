@@ -148,7 +148,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
     const statuts: string[] = ['En attente']; // Toujours disponible
 
     if (this.canValidDemande) {
-      statuts.push('Validé');
+      statuts.push('Cloturé');
     }
     if (this.canRefuseDemande) {
       statuts.push('Refusé');
@@ -231,7 +231,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
   // Ajoutez cette nouvelle fonction à votre composant
   isGroupInProgress(group: any): boolean {
     const hasProcessedItems = group.details.some((detail: any) =>
-      detail.statut === 'Accordé' || detail.statut === 'Validé'
+      detail.statut === 'Accordé' || detail.statut === 'Cloturé'
     );
     const hasUntreatedItems = group.details.some((detail: any) =>
       detail.statut === 'À traiter'
@@ -241,7 +241,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
 
   // Cette fonction est maintenant utilisée pour le bouton "Tout traiter"
   isGroupPartiallyProcessed(group: any): boolean {
-    return group.details.some((detail: any) => detail.statut === 'Accordé' || detail.statut === 'Validé');
+    return group.details.some((detail: any) => detail.statut === 'Accordé' || detail.statut === 'Cloturé');
   }
 
   // Vérifie si TOUS les éléments du groupe sont traités
@@ -274,20 +274,6 @@ hasGroupFile(group: any): boolean {
   }
 
   generatedGroups: Set<string> = new Set();
-//
-// checkStatusAndGenerate(code: string): void {
-//   this.mouvementService.verifieStatus(code).subscribe({
-//     next: response => {
-//       this.downloadGroupedFile(code);
-//     }
-//     ,
-//     error: err => {
-//       console.log(err)
-//       alert(err.error?.message || "Erreur lors de la vérification du statut.");
-//     }
-//   });
-// }
-//
 
   checkStatusAndGenerate(code: string): void {
     this.mouvementService.verifieStatus(code).subscribe({
@@ -341,7 +327,7 @@ hasGroupFile(group: any): boolean {
     return this.listOfAvailableFiles.includes(code_mouvement);
   }
 
-    selectMouvement(code: string): void {
+  selectMouvement(code: string): void {
     this.selectedMouvementCode = code;
     this.selectedId = null;
     this.editvaliderDemande.reset({
@@ -357,77 +343,100 @@ hasGroupFile(group: any): boolean {
   }
 
   // The upload function will now check which ID to use
-uploadSignedFile(): void {
-  if (this.editvaliderDemande.invalid) {
-    console.error('Veuillez remplir tous les champs obligatoires.');
-    return;
-  }
-
-  this.isProcessingAll = true;
-
-  const formData = new FormData();
-  if (this.selectedFile) {
-    formData.append('demandevalidesigne', this.selectedFile, this.selectedFile.name);
-  } else {
-    console.error('Aucun fichier sélectionné.');
-    this.isProcessingAll = false;
-    return;
-  }
-
-  formData.append('statut', 'Validé');
-
-  if (this.selectedId) {
-    formData.append('id', this.selectedId.toString());
-  } else if (this.selectedMouvementCode) {
-    formData.append('code_mouvement', this.selectedMouvementCode);
-  } else {
-    console.error('Erreur: Aucun élément sélectionné pour la validation.');
-    this.isProcessingAll = false;
-    return;
-  }
-
-  this.mouvementService.uploadSignedFile(formData).subscribe({
-    next: (response) => {
-      console.log('Upload réussi', response);
-
-      // Mise à jour du détail si c'est un détail spécifique
-      if (this.selectedId) {
-        const updatedDetail = this.findDetailById(this.selectedId, this.filteredMouvementsGrouped);
-        if (updatedDetail) {
-          updatedDetail.statut = response.new_statut;
-          updatedDetail.demandevalidesigne = response.file_path;
-        }
-      }
-
-      // Mise à jour du groupe entier si upload global
-      if (this.selectedMouvementCode) {
-        const group = this.filteredMouvementsGrouped.find(
-          g => g.code_mouvement === this.selectedMouvementCode
-        );
-        if (group) {
-          group.file_path = response.file_path; // ← c'est ici que "Voir" sera déclenché
-        }
-      }
-
-      this.isProcessingAll = false;
-      this.editvaliderDemande.reset();
-      this.selectedFile = null;
-      this.selectedId = null;
-      this.selectedMouvementCode = null;
-
-      const modal = document.getElementById('validerlademande');
-      if (modal) {
-        const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modal)
-          || new (window as any).bootstrap.Modal(modal);
-        bootstrapModal.hide();
-      }
-    },
-    error: (error: HttpErrorResponse) => {
-      console.error('Erreur d\'upload', error);
-      this.isProcessingAll = false;
+  uploadSignedFile(): void {
+    if (this.editvaliderDemande.invalid) {
+      console.error('Veuillez remplir tous les champs obligatoires.');
+      return;
     }
-  });
-}
+
+    this.isProcessingAll = true;
+
+    const formData = new FormData();
+    if (this.selectedFile) {
+      formData.append('demandevalidesigne', this.selectedFile, this.selectedFile.name);
+    } else {
+      console.error('Aucun fichier sélectionné.');
+      this.isProcessingAll = false;
+      return;
+    }
+
+    formData.append('statut', 'Cloturé');
+
+    if (this.selectedId) {
+      formData.append('id', this.selectedId.toString());
+    } else if (this.selectedMouvementCode) {
+      formData.append('code_mouvement', this.selectedMouvementCode);
+    } else {
+      console.error('Erreur: Aucun élément sélectionné pour la validation.');
+      this.isProcessingAll = false;
+      return;
+    }
+
+    this.mouvementService.uploadSignedFile(formData).subscribe({
+      next: (response) => {
+        console.log('Upload réussi', response);
+
+        // Mise à jour du détail si c'est un détail spécifique (par ID)
+        if (this.selectedId) {
+          const updatedDetail = this.findDetailById(this.selectedId, this.filteredMouvementsGrouped);
+          if (updatedDetail) {
+            console.log("voici le statut", response.new_statut);
+            updatedDetail.statut = response.new_statut;
+            updatedDetail.demandevalidesigne = response.file_path;
+          }
+        }
+
+        // Mise à jour du groupe entier si upload global (par code_mouvement)
+        if (this.selectedMouvementCode) {
+          const groupIndex = this.filteredMouvementsGrouped.findIndex(
+            g => g.code_mouvement === this.selectedMouvementCode
+          );
+
+          if (groupIndex !== -1) {
+            const group = this.filteredMouvementsGrouped[groupIndex];
+
+            // 1. Mise à jour de la propriété de fichier au niveau du groupe
+            group.file_path = response.file_path;
+
+            // 2. MISE À JOUR CRITIQUE : Créer un nouvel array 'details' mis à jour
+            if (group.details && Array.isArray(group.details)) {
+              // Créer une NOUVELLE liste de détails avec les statuts mis à jour
+              group.details = group.details.map((detail: any) => ({
+                ...detail, // Copie toutes les propriétés existantes
+                statut: response.new_statut, // Force le nouveau statut
+                demandevalidesigne: response.file_path, // Force le chemin du fichier
+              }));
+            }
+
+            // 3. TECHNIQUE D'IMMUTABILITÉ pour forcer la détection de changement sur le groupe entier.
+            // Angular détecte que l'objet 'group' a été modifié car 'group.details' a une nouvelle référence.
+            this.filteredMouvementsGrouped[groupIndex] = { ...group };
+
+            // 4. Force la détection de changement sur le tableau parent
+            this.filteredMouvementsGrouped = [...this.filteredMouvementsGrouped];
+          }
+        }
+
+        this.isProcessingAll = false;
+        this.editvaliderDemande.reset();
+        this.selectedFile = null;
+        this.selectedId = null;
+        this.selectedMouvementCode = null;
+
+        const modal = document.getElementById('validerlademande');
+        if (modal) {
+          const bootstrapModal = (window as any).bootstrap.Modal.getInstance(modal)
+            || new (window as any).bootstrap.Modal(modal);
+          bootstrapModal.hide();
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        console.error('Erreur d\'upload', error);
+        this.isProcessingAll = false;
+      }
+    });
+  }
+
 
 
   loadGroupedMouvements() {
