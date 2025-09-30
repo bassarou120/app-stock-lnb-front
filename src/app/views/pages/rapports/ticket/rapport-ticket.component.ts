@@ -100,6 +100,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   showRetourTicketFilters: boolean = false;
   showAnnulationTicketFilters: boolean = false;
   showRapportPeriodiqueFilters: boolean = false;
+  showRapportPeriodiqueMontantFilters: boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -330,7 +331,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       break;
 
       case 'rapport periodique par montant':
-        this.showRapportPeriodiqueFilters = true;
+        this.showRapportPeriodiqueMontantFilters = true;
         this.rapportForm.get('exercice_id')?.enable();
         this.rapportForm.get('periode_id')?.enable();
         // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
@@ -345,6 +346,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.showRetourTicketFilters = false;
         this.showAnnulationTicketFilters = false;
         this.showRapportPeriodiqueFilters = false;
+        this.showRapportPeriodiqueMontantFilters = false;
         this.periodicReportData = [];
         // Remettre à null toutes les dates spécifiques pour éviter des valeurs résiduelles
         this.resetSpecificDateControls();
@@ -501,7 +503,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
               }
               this.isGeneratingReport = false;
               this.loadingIndicator = false;
-              break;
+              return;
 
         case 'rapport periodique par montant':
               // 💡 Utilisez les noms de contrôles de votre formulaire
