@@ -132,7 +132,7 @@ export class SortieComponent implements OnInit {
 
     this.addSortie = this.formBuilder.group({
     vehicule_id: [null, [Validators.required]],
-    kilometrage: [null, [Validators.required, Validators.min(0)]],
+    kilometrage: [null, [ Validators.min(0)]],
     employe_id: [null, [Validators.required]],
     commune_depart: [null],
     commune_arriver: [null],
