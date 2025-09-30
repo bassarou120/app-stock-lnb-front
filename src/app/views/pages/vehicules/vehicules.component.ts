@@ -538,10 +538,12 @@ export class VehiculesComponent implements OnInit {
       console.log("Carte grise ajoutée avec succès :", res);
       modal.close();
       this.selectedFile = null;
+      this.loadVehicules();
     },
     (err: any) => {
       console.error("Erreur lors de l'ajout de la carte grise :", err);
       alert("Erreur lors de l'upload de la carte grise.");
+      this.loadVehicules();
     }
   );
 }

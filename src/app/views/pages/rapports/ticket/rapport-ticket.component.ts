@@ -147,7 +147,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 
   // Tu peux charger le rapport initial si tu veux avec des valeurs par défaut
   if (this.rapportForm.get('exercice_id')?.value && this.rapportForm.get('periode_id')?.value) {
-    this.chargerRapport(                  
+    this.chargerRapport(
           this.rapportForm.get('exercice_id')?.value,
           this.rapportForm.get('periode_id')?.value
         );
@@ -323,10 +323,10 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('exercice_id')?.enable();
         this.rapportForm.get('periode_id')?.enable();
         // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
-        this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
-        this.rapportForm.get('periode_id')?.setValidators(Validators.required);
-        console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
-        break;
+       this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
+      this.rapportForm.get('periode_id')?.setValidators(Validators.required);
+       console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
+      break;
 
       default:
         this.showEntreeTicketFilters = false;
