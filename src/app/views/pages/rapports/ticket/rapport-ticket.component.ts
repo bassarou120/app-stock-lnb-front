@@ -823,7 +823,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.loadingIndicator = true;
     this.errorMessage = '';
 
-    this.mouvementTicketService.getRapportPeriodique(annee, periode)
+    this.mouvementTicketService.getRapportPeriodiqueMontant(annee, periode)
       .subscribe({
         next: (data) => {
           console.log('Résultats du rapport:', data);
