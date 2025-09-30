@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit,ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ArticleService } from '../../../core/services/articles/articles.service';
-import { Categorie, Article } from '../../../core/services/interface/models';
+import { Categorie, Article, ImportReport, ImportError } from '../../../core/services/interface/models';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule,FormArray  } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
@@ -43,6 +43,9 @@ export class ArticlesComponent implements OnInit {
   reorderable = true;
   ColumnMode = ColumnMode;
 
+importReport: ImportReport | null = null;
+importError: ImportError | null = null;
+
   categories: Categorie[] = []; // Liste des types d'immos
   selectedCategorieId: number | null = null; // ID sélectionné
 
@@ -64,6 +67,8 @@ export class ArticlesComponent implements OnInit {
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
   @ViewChild('table') table!: DatatableComponent;
+
+
 
   constructor(private articleService: ArticleService,private formBuilder: FormBuilder, private router: Router) {}
 
@@ -413,15 +418,7 @@ loadArticles(): void {
     );
   }
 
-//   updateFilter(event: KeyboardEvent): void {
-//     const val = (event.target as HTMLInputElement).value.toLowerCase();
 
-//     this.rows = this.temp.filter(article =>
-//       article.libelle.toLowerCase().includes(val)
-//     );
-
-//     this.table.offset = 0;
-//   }
 updateFilter(event: KeyboardEvent): void {
   const val = (event.target as HTMLInputElement).value.toLowerCase();
 
@@ -469,77 +466,103 @@ updateFilter(event: KeyboardEvent): void {
   /**
    * Envoie le fichier Excel sélectionné au backend pour importation.
    */
-uploadExcelFile(): void {
-  if (!this.selectedFile) {
-    alert('Veuillez sélectionner un fichier Excel à importer.');
-    return;
-  }
-
-  this.isImporting = true;
-  const spinner = document.querySelector('.spinner-import-article');
-  if (spinner) {
-    spinner.classList.remove('d-none');
-  }
-
-  const formData = new FormData();
-  formData.append('file', this.selectedFile, this.selectedFile.name);
-
-  this.articleService.importArticles(formData).subscribe({
-    next: (response: any) => {
-      console.log('Importation réussie:', response);
-      this.loadArticles();
-      this.isImporting = false;
-      if (spinner) {
-        spinner.classList.add('d-none');
-      }
-
-      // Fermer le modal d'importation
-      const modal = document.getElementById('importArticlesExcel');
-      const bsModal = bootstrap.Modal.getInstance(modal);
-      bsModal?.hide();
-
-      setTimeout(() => {
+  uploadExcelFile(): void {
+    // Remplacer 'alert' par une méthode de notification/modal
+    const showNotification = (message: string, isError: boolean = false): void => {
+      // Logique simulée pour afficher une notification (à remplacer par votre service de notification réel)
+      console.log(`[Notification - ${isError ? 'ERROR' : 'SUCCESS'}]`, message);
+      if (!isError) {
         this.alertImportVisible = true;
         setTimeout(() => {
           this.alertImportVisible = false;
-        }, 2000);
-      }, 200);
-
-      // Affiche les lignes ignorées si elles existent
-      if (response.ignored && response.ignored.length > 0) {
-        alert(
-          'Import partiel avec certaines lignes ignorées :\n' +
-          response.ignored.join('\n') +
-          '\n\n' +
-          response.message
-        );
-      } else {
-        alert(response.message);
+        }, 3000);
       }
-
-      this.selectedFile = null; // Réinitialiser le fichier sélectionné
-    },
-    error: (error) => {
-      console.error('Erreur lors de l\'importation des articles:', error);
-      this.isImporting = false;
-      if (spinner) {
-        spinner.classList.add('d-none');
-      }
-      let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
-      if (error.error && error.error.errors) {
-        errorMessage += '\nErreurs de validation:';
-        for (const key in error.error.errors) {
-          if (error.error.errors.hasOwnProperty(key)) {
-            errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
-          }
-        }
-      } else if (error.error && error.error.error) {
-        errorMessage = error.error.error;
-      }
-      alert(errorMessage);
+    };
+  
+  
+    if (!this.selectedFile) {
+      showNotification('Veuillez sélectionner un fichier Excel à importer.', true);
+      return;
     }
-  });
-}
+  
+    this.isImporting = true;
+    this.importReport = null; // Réinitialiser le rapport
+    this.importError = null; // Réinitialiser l'erreur
+  
+    // Gérer le spinner directement via la propriété isImporting ou une variable dédiée
+    const spinner = document.querySelector('.spinner-import-article');
+    if (spinner) {
+      spinner.classList.remove('d-none');
+    }
+  
+    const formData = new FormData();
+    formData.append('file', this.selectedFile, this.selectedFile.name);
+  
+    this.articleService.importArticles(formData).subscribe({
+      next: (response: any) => {
+        console.log('Importation réussie:', response);
+        this.loadArticles(); // Recharger la liste des articles
+        
+        this.isImporting = false;
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+  
+        // Stocker le rapport complet (y compris les lignes ignorées)
+        this.importReport = {
+          message: response.message, // Message de résumé (ex: "Import terminé. 5 articles ajoutés...")
+          success_count: response.success_count,
+          total_rows_processed: response.total_rows_processed,
+          ignored: response.ignored || [] // S'assurer que 'ignored' est un tableau
+        };
+  
+        // Afficher le message de résumé dans la notification toast
+        showNotification(response.message); 
+  
+        // Fermer le modal d'importation
+        const modal = document.getElementById('importArticlesExcel');
+        // Vérifier si bootstrap est défini avant d'utiliser Modal
+        if (typeof bootstrap !== 'undefined' && modal) {
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            bsModal?.hide();
+        }
+  
+        this.selectedFile = null; // Réinitialiser le fichier sélectionné
+      },
+      error: (error) => {
+        console.error('Erreur lors de l\'importation des articles:', error);
+  
+        this.isImporting = false;
+        if (spinner) {
+          spinner.classList.add('d-none');
+        }
+  
+        let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+        
+        if (error.error) {
+            if (error.error.errors) {
+                // Erreur de validation 422
+                let validationErrors = [];
+                for (const key in error.error.errors) {
+                    if (error.error.errors.hasOwnProperty(key)) {
+                        validationErrors.push(error.error.errors[key].join(', '));
+                    }
+                }
+                // Construire le message d'erreur de validation
+                errorMessage = 'Le fichier contient des erreurs de validation : ' + validationErrors.join('; ');
+                this.importError = { type: 'Validation', message: errorMessage, details: validationErrors };
+            } else if (error.error.message) {
+                // Erreur critique 500
+                errorMessage = error.error.message + (error.error.error ? ` Détails: ${error.error.error}` : '');
+                this.importError = { type: 'Critique', message: errorMessage };
+            }
+        }
+  
+        showNotification(errorMessage, true);
+      }
+    });
+  }
+  
 
 
  }
