@@ -605,3 +605,19 @@ export interface RapportMensuel {
   stock_final: number;
   total_entrees_cumulees: number;
 }
+
+export interface ImportReport {
+  message: string;
+  success_count: number;
+  total_rows_processed: number;
+  ignored: string[];
+}
+
+/**
+ * Définition d'un type pour l'objet d'erreur d'importation
+ */
+export interface ImportError {
+  type: 'Validation' | 'Critique';
+  message: string;
+  details?: string[];
+}

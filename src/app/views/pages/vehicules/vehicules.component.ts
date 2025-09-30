@@ -75,6 +75,7 @@ export class VehiculesComponent implements OnInit {
   isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
+
   @ViewChild('table') table!: DatatableComponent;
   @ViewChild('addVehiculeContent') addVehiculeContent!: TemplateRef<any>;
   @ViewChild('editVehiculeContent') editVehiculeContent!: TemplateRef<any>;
@@ -566,8 +567,6 @@ export class VehiculesComponent implements OnInit {
     const formData = new FormData();
     formData.append('file', this.selectedFile, this.selectedFile.name);
 
-    // Assurez-vous que l'URL correspond à votre route d'importation dans Laravel
-    // Ex: 'http://localhost:8000/api/vehicules/import'
     this.vehiculeService.importVehicules(formData).subscribe({
       next: (response) => {
         console.log('Importation réussie:', response);
@@ -587,8 +586,15 @@ export class VehiculesComponent implements OnInit {
             this.alertImportVisible = false;
           }, 2000);
         }, 200);
-        alert('Véhicules importés avec succès !');
+                // CORRECTION MAJEURE ICI : Utiliser le message de la réponse Laravel
+        // Pour afficher le résumé des succès/échecs
+        const finalAlertMessage = response.message + 
+            (response.ignored.length > 0 ? "\n\nDétails des lignes ignorées:\n" + response.ignored.join("\n") : "");
+            
+        alert(finalAlertMessage); // Affiche le résumé précis du back-end
+        
         this.selectedFile = null; // Réinitialiser le fichier sélectionné
+
       },
       error: (error) => {
         console.error('Erreur lors de l\'importation des véhicules:', error);
