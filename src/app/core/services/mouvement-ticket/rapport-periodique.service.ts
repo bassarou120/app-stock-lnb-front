@@ -32,8 +32,18 @@ export class MouvementTicketService  {
       `${this.url}/rapport-periodique`,
       body
     ).pipe(
-      map(response => response.data) // 
+      map(response => response.data) //
     );
-  } 
+  }
+
+  getRapportPeriodiqueMontant(annee: number, periode: string): Observable<RapportMensuel[]> {
+    const body = { annee, periode };
+    return this.http.post<{ success: boolean; message: string; data: RapportMensuel[] }>(
+      `${this.url}/rapport-periodiqueMontant`,
+      body
+    ).pipe(
+      map(response => response.data) //
+    );
+  }
 
 }

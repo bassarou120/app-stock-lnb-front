@@ -113,4 +113,26 @@ export class TicketRapportService {
       catchError(this.handleError<Blob>('imprimerRapportPeriodique'))
     );
   }
+
+
+
+
+
+  /**
+ * Appelle l'API Laravel pour imprimer le rapport périodique en PDF.
+ * @param annee L'année pour le rapport.
+ * @param periode La période ('mensuel', 'trimestriel', 'semestriel').
+ */
+  imprimerRapportPeriodiqueMontant(annee: number, periode: string): Observable<Blob> {
+    const printUrl = `${environment.backend}/rapports/periodiqueMontant/imprimer`;
+    let params = new HttpParams()
+      .set('annee', annee.toString())
+      .set('periode', periode);
+
+    console.log('Requête PDF pour le rapport périodique vers:', printUrl, 'avec params:', params.toString());
+    return this.http.get(printUrl, { responseType: 'blob', params: params }).pipe(
+      tap(() => console.log('PDF du rapport périodique reçu.')),
+      catchError(this.handleError<Blob>('imprimerRapportPeriodique'))
+    );
+  }
 }
