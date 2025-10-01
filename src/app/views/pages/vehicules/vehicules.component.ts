@@ -90,7 +90,7 @@ export class VehiculesComponent implements OnInit {
     private http: HttpClient // Injecter HttpClient
   ) { }
 
-  ngOnInit(): void {
+/*   ngOnInit(): void {
     this.initializePermissions();
     if (this.hasPageAccess) {
       this.loadMarques();
@@ -119,6 +119,51 @@ export class VehiculesComponent implements OnInit {
     this.carteGrise = this.formBuilder.group({
       id: [null, [Validators.required]],
     });
+  } */
+
+  ngOnInit(): void {
+    this.initializePermissions();
+    if (this.hasPageAccess) {
+      this.loadMarques();
+      this.loadModeles();
+      this.loadVehicules();
+      this.initForm();
+    }
+
+
+
+    this.editVehicule = this.formBuilder.group({
+      id: [0, [Validators.required]],
+      marque_id: [null, [Validators.required]],
+      modele_id: [null, [Validators.required]],
+      immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
+      numero_chassis: [""],
+      puissance: [""],
+      places_assises: [0],
+      energie: [""],
+      kilometrage: [0, [Validators.required, Validators.min(0)]],
+      date_mise_en_service: ["", [Validators.required]],
+      nbreannee_amortissement: [5, [Validators.min(1)]], // Valeur par défaut 5 ans
+      date_amortissement: [""],
+    });
+
+    this.deleteVehicule = this.formBuilder.group({
+      id: [null, [Validators.required]],
+    });
+    this.carteGrise = this.formBuilder.group({
+      id: [null, [Validators.required]],
+    });
+
+// 🔹 Ecoute les changements sur date_mise_en_service et nbreannee_amortissement
+    this.addVehicule.get("date_mise_en_service")?.valueChanges.subscribe(() => {
+      this.updateDateAmortissement();
+    });
+    this.editVehicule.get("nbreannee_amortissement")?.valueChanges.subscribe(() => {
+      this.updateDateAmortissement();
+    });
+
+    // Appel initial pour calculer la date d'amortissement par défaut au chargement
+    this.updateDateAmortissement();
   }
 
   private initializePermissions(): void {
@@ -161,27 +206,60 @@ export class VehiculesComponent implements OnInit {
     this.addVehicule = this.formBuilder.group({
       vehicules: this.formBuilder.array([this.createVehiculeFormGroup()])
     });
+
+    //
+
+    this.editVehicule = this.formBuilder.group({
+        id: [0, [Validators.required]],
+        marque_id: [null, [Validators.required]],
+        modele_id: [null, [Validators.required]],
+        immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
+        numero_chassis: [""],
+        puissance: [100, [Validators.required, Validators.min(1)]],
+        places_assises: [4, [Validators.required, Validators.min(1)]],
+        energie: ['Essence', Validators.required],
+        kilometrage: [0, [Validators.required, Validators.min(0)]],
+        // Initialiser avec une date string ISO
+        date_mise_en_service: [this.getTodayDateString(), [Validators.required]],
+        nbreannee_amortissement: [5, [Validators.min(1)]],
+        // Le champ de date d'amortissement est désactivé et calculé
+        date_amortissement: [{ value: '', disabled: false }], 
+    });
+
+    this.deleteVehicule = this.formBuilder.group({ id: [null, [Validators.required]] });
+    this.carteGrise = this.formBuilder.group({ id: [null, [Validators.required]] });
   }
 
   get vehiculesArray(): FormArray {
     return this.addVehicule.get('vehicules') as FormArray;
   }
 
-  createVehiculeFormGroup(): FormGroup {
-    return this.formBuilder.group({
-      marque_id: [null, [Validators.required]],
-      modele_id: [null, [Validators.required]],
-      immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
-      numero_chassis: [""],
-      kilometrage: [null, [Validators.required, Validators.min(0)]],
-      date_mise_en_service: ["", [Validators.required]],
-      puissance: [""],
-      places_assises: [null],
-      energie: [""],
-      nbreannee_amortissement: [5, [Validators.min(1)]], // Valeur par défaut à 5 ans
-      date_amortissement: [""],
-    });
-  }
+createVehiculeFormGroup(): FormGroup {
+  const group = this.formBuilder.group({
+    marque_id: [null, [Validators.required]],
+    modele_id: [null, [Validators.required]],
+    immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
+    numero_chassis: [""],
+    kilometrage: [null, [Validators.required, Validators.min(0)]],
+    date_mise_en_service: ["", [Validators.required]],
+    puissance: [""],
+    places_assises: [null],
+    energie: [""],
+    nbreannee_amortissement: [5, [Validators.min(1)]],
+    date_amortissement: [""],
+  });
+
+  // 🔹 Abonne-toi aux changements pour recalculer automatiquement
+  group.get('date_mise_en_service')?.valueChanges.subscribe(() => {
+    this.updateDateAmortissementForGroup(group);
+  });
+  group.get('nbreannee_amortissement')?.valueChanges.subscribe(() => {
+    this.updateDateAmortissementForGroup(group);
+  });
+
+  return group;
+}
+
 
   addNewVehicule(): void {
     this.vehiculesArray.push(this.createVehiculeFormGroup());
@@ -199,6 +277,13 @@ export class VehiculesComponent implements OnInit {
     this.modalService.open(this.addVehiculeContent, { centered: true, size: 'xl' }); // Ouvre le modal
   }
 
+  getTodayDateString(): string {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
 
   onClickSubmitAddVehicules(): void {
     console.log('onClickSubmitAddVehicules appelé. isAddingVehicules:', this.isAddingVehicules);
@@ -617,4 +702,87 @@ export class VehiculesComponent implements OnInit {
       }
     });
   }
+
+    calculerDateAmortissement(dateMiseEnService: string, duree: number): string {
+    const date = new Date(dateMiseEnService);
+    date.setFullYear(date.getFullYear() + duree);
+
+    // Format yyyy-MM-dd (pour input type="date")
+    return date.toISOString().split('T')[0];
+  }
+
+private updateDateAmortissement(): void {
+    const dateMiseEnService = this.editVehicule.get("date_mise_en_service")?.value;
+    const nbreAnnees = this.editVehicule.get("nbreannee_amortissement")?.value;
+
+    const dateAmortissementControl = this.editVehicule.get("date_amortissement");
+
+    if (dateMiseEnService && nbreAnnees && Number(nbreAnnees) > 0) {
+      const parts = dateMiseEnService.split('-');
+      // Construction de la date locale pour éviter les problèmes de fuseau horaire
+      const date = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+
+      if (isNaN(date.getTime())) {
+          dateAmortissementControl?.patchValue("Date Invalide", { emitEvent: false });
+          return;
+      }
+
+      // Calcul de la nouvelle année
+      date.setFullYear(date.getFullYear() + Number(nbreAnnees));
+
+      // Reformatage en YYYY-MM-DD
+      const year = date.getFullYear();
+      const month = (date.getMonth() + 1).toString().padStart(2, '0');
+      const day = date.getDate().toString().padStart(2, '0');
+      const dateAmortissement = `${year}-${month}-${day}`;
+      
+      // Mise à jour du formControl sans émettre d'événement
+      dateAmortissementControl?.patchValue(dateAmortissement, { emitEvent: false });
+    } else {
+        // Vide le champ si les données sont manquantes ou incorrectes
+        dateAmortissementControl?.patchValue('', { emitEvent: false });
+    }
+  }
+
+  private updateDateAmortissementForGroup(group: FormGroup): void {
+  let dateMiseEnService = group.get("date_mise_en_service")?.value;
+  const nbreAnnees = group.get("nbreannee_amortissement")?.value;
+
+  console.log('updateDateAmortissementForGroup called', dateMiseEnService, nbreAnnees);
+
+  let date: Date | null = null;
+
+  if (dateMiseEnService) {
+    // Si c'est un objet NgbDateStruct {year, month, day}
+    if (typeof dateMiseEnService === 'object') {
+      date = new Date(dateMiseEnService.year, dateMiseEnService.month - 1, dateMiseEnService.day);
+    } else if (typeof dateMiseEnService === 'string') {
+      const parts = dateMiseEnService.split('-');
+      date = new Date(+parts[0], +parts[1] - 1, +parts[2]);
+    }
+  }
+
+  if (date && nbreAnnees && Number(nbreAnnees) > 0 && !isNaN(date.getTime())) {
+    date.setFullYear(date.getFullYear() + Number(nbreAnnees));
+
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    const dateAmortissement = `${year}-${month}-${day}`;
+
+    const ctrl = group.get("date_amortissement");
+    ctrl?.enable({ emitEvent: false });
+    ctrl?.patchValue(dateAmortissement, { emitEvent: false });
+    ctrl?.disable({ emitEvent: false });
+  } else {
+    const ctrl = group.get("date_amortissement");
+    ctrl?.enable({ emitEvent: false });
+    ctrl?.patchValue('', { emitEvent: false });
+    ctrl?.disable({ emitEvent: false });
+  }
+
+}
+
+
+
 }
