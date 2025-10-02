@@ -275,14 +275,14 @@
                   Exercices <span class="text-danger">*</span>
                 </label>
 
-                <ng-select
-                    #anneeSelect
-                    id="exercice_id"
-                    formControlName="exercice_id"
-                    [items]="exercices"
-                    bindLabel="annee"
-                    bindValue="id">
-                </ng-select>
+                  <ng-select
+                      #anneeSelect
+                      id="exercice_id"
+                      formControlName="exercice_id"
+                      [items]="exercices"
+                      bindLabel="annee"
+                      bindValue="id">
+                  </ng-select>
 
                 <div *ngIf="rapportForm.get('exercice_id')?.invalid && rapportForm.get('exercice_id')?.touched">
                   <small *ngIf="rapportForm.get('exercice_id')?.errors?.required" class="text-danger">
@@ -296,13 +296,13 @@
                   Période <span class="text-danger">*</span>
                 </label>
 
-                <ng-select
-                    id="periode_id"
-                    formControlName="periode_id"
-                    [items]="rapportPeriodique"
-                    bindLabel="libelle"
-                    bindValue="id">
-                </ng-select>
+                  <ng-select
+                      id="periode_id"
+                      formControlName="periode_id"
+                      [items]="rapportPeriodique"
+                      bindLabel="libelle"
+                      bindValue="id">
+                  </ng-select>
 
                 <div *ngIf="rapportForm.get('periode_id')?.invalid && rapportForm.get('periode_id')?.touched">
                   <small *ngIf="rapportForm.get('periode_id')?.errors?.required" class="text-danger">
@@ -325,14 +325,14 @@
                   Exercices <span class="text-danger">*</span>
                 </label>
 
-                <ng-select
-                    #anneeSelect
-                    id="exercice_id"
-                    formControlName="exercice_id"
-                    [items]="exercices"
-                    bindLabel="annee"
-                    bindValue="id">
-                </ng-select>
+                  <ng-select
+                      #anneeSelect
+                      id="exercice_id"
+                      formControlName="exercice_id"
+                      [items]="exercices"
+                      bindLabel="annee"
+                      bindValue="id">
+                  </ng-select>
 
                 <div *ngIf="rapportForm.get('exercice_id')?.invalid && rapportForm.get('exercice_id')?.touched">
                   <small *ngIf="rapportForm.get('exercice_id')?.errors?.required" class="text-danger">
@@ -346,13 +346,13 @@
                   Période <span class="text-danger">*</span>
                 </label>
 
-                <ng-select
-                    id="periode_id"
-                    formControlName="periode_id"
-                    [items]="rapportPeriodique"
-                    bindLabel="libelle"
-                    bindValue="id">
-                </ng-select>
+                  <ng-select
+                      id="periode_id"
+                      formControlName="periode_id"
+                      [items]="rapportPeriodique"
+                      bindLabel="libelle"
+                      bindValue="id">
+                  </ng-select>
 
                 <div *ngIf="rapportForm.get('periode_id')?.invalid && rapportForm.get('periode_id')?.touched">
                   <small *ngIf="rapportForm.get('periode_id')?.errors?.required" class="text-danger">
@@ -383,175 +383,175 @@
   </div>
 </div>
 
-<div class="row mt-4">
-  <div class="col-md-12 stretch-card">
-    <div class="card">
-      <div class="card-body">
-        <h6 class="card-title">Résultats du Rapport</h6>
-        <div class="row mb-3 d-flex justify-content-between">
-          <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
-              (keyup)="updateFilter($event)" />
+  <div class="row mt-4">
+    <div class="col-md-12 stretch-card">
+      <div class="card">
+        <div class="card-body">
+          <h6 class="card-title">Résultats du Rapport</h6>
+          <div class="row mb-3 d-flex justify-content-between">
+            <div class="col-xl-3 col-md-4">
+              <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
+                (keyup)="updateFilter($event)" />
+            </div>
           </div>
-        </div>
-        <div class="table-responsive">
-          <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
-            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+          <div class="table-responsive">
+            <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+              [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
 
-            <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
-            <ng-container *ngIf="selectedReportTypeId === 'entree ticket'">
-                <ngx-datatable-column name="N°">
-                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                        {{ rowIndex + 1 }}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Date Mouvement">
+              <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
+              <ng-container *ngIf="selectedReportTypeId === 'entree ticket'">
+                  <ngx-datatable-column name="N°">
+                      <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                          {{ rowIndex + 1 }}
+                      </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Date Mouvement">
+                      <ng-template let-row="row" ngx-datatable-cell-template>
+                          {{ row.date | date:'dd/MM/yyyy' }}
+                      </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Coupon Ticket" prop="coupon_ticket.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Compagnie" prop="compagnie_petrolier.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
+                  <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
+                  <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+              </ng-container>
+
+              <ng-container *ngIf="selectedReportTypeId === 'sortie ticket'">
+                  <ngx-datatable-column name="N°">
+                      <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                          {{ rowIndex + 1 }}
+                      </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Reference">
                     <ng-template let-row="row" ngx-datatable-cell-template>
-                        {{ row.date | date:'dd/MM/yyyy' }}
+                      {{ row.reference || 'N/A' }}
                     </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Coupon Ticket" prop="coupon_ticket.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Compagnie" prop="compagnie_petrolier.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
-                <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
-                <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
-            </ng-container>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Coupon Ticket" prop="coupon_ticket.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Compagnie" prop="compagnie_petrolier.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
+                  <ngx-datatable-column name="Employé">
+                      <ng-template let-row="row" ngx-datatable-cell-template>
+                          {{ row.employe?.nom }} {{ row.employe?.prenom }}
+                      </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Véhicule" prop="vehicule.immatriculation"></ngx-datatable-column>
+                  <ngx-datatable-column name="Kilometrage" prop="kilometrage"></ngx-datatable-column>
+                  <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
+                  <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
+              </ng-container>
 
-            <ng-container *ngIf="selectedReportTypeId === 'sortie ticket'">
-                <ngx-datatable-column name="N°">
-                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                        {{ rowIndex + 1 }}
-                    </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Reference">
-                  <ng-template let-row="row" ngx-datatable-cell-template>
-                    {{ row.reference || 'N/A' }}
-                  </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Coupon Ticket" prop="coupon_ticket.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Compagnie" prop="compagnie_petrolier.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
-                <ngx-datatable-column name="Employé">
+              <ng-container *ngIf="selectedReportTypeId === 'retour ticket'">
+                  <ngx-datatable-column name="N°">
+                      <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                          {{ rowIndex + 1 }}
+                      </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Reference">
                     <ng-template let-row="row" ngx-datatable-cell-template>
-                        {{ row.employe?.nom }} {{ row.employe?.prenom }}
+                      {{ row.mouvement?.reference || 'Non défini' }}
                     </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Véhicule" prop="vehicule.immatriculation"></ngx-datatable-column>
-                <ngx-datatable-column name="Kilometrage" prop="kilometrage"></ngx-datatable-column>
-                <ngx-datatable-column name="Objet" prop="objet"></ngx-datatable-column>
-                <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
-            </ng-container>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Date Retour">
+                      <ng-template let-row="row" ngx-datatable-cell-template>
+                          {{ row.created_at | date:'dd/MM/yyyy' }}
+                      </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Coupon Ticket" prop="coupon.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Compagnie" prop="compagnie.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
+              </ng-container>
 
-            <ng-container *ngIf="selectedReportTypeId === 'retour ticket'">
-                <ngx-datatable-column name="N°">
-                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                        {{ rowIndex + 1 }}
+              <ng-container *ngIf="selectedReportTypeId === 'annulation ticket'">
+                  <ngx-datatable-column name="N°">
+                      <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                          {{ rowIndex + 1 }}
+                      </ng-template>
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Reference">
+                    <ng-template let-row="row" ngx-datatable-cell-template>
+                      {{ row.mouvement?.reference || 'Non défini' }}
                     </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Reference">
-                  <ng-template let-row="row" ngx-datatable-cell-template>
-                    {{ row.mouvement?.reference || 'Non défini' }}
-                  </ng-template>
-                </ngx-datatable-column>
-                <ngx-datatable-column name="Date Retour">
+                  </ngx-datatable-column>
+                  <ngx-datatable-column name="Coupon Ticket" prop="coupon.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Compagnie" prop="compagnie.libelle"></ngx-datatable-column>
+                  <ngx-datatable-column name="Quantité Annulée" prop="qte"></ngx-datatable-column>
+                  <ngx-datatable-column name="Date Annulation">
                     <ng-template let-row="row" ngx-datatable-cell-template>
                         {{ row.created_at | date:'dd/MM/yyyy' }}
                     </ng-template>
                 </ngx-datatable-column>
-                <ngx-datatable-column name="Coupon Ticket" prop="coupon.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Compagnie" prop="compagnie.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
-            </ng-container>
+              </ng-container>
 
-            <ng-container *ngIf="selectedReportTypeId === 'annulation ticket'">
-                <ngx-datatable-column name="N°">
-                    <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                        {{ rowIndex + 1 }}
+              <ng-container *ngIf="selectedReportTypeId === 'rapport periodique'">
+                <ngx-datatable-column name="Période" prop="periode">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Période</span>
                     </ng-template>
                 </ngx-datatable-column>
-                <ngx-datatable-column name="Reference">
-                  <ng-template let-row="row" ngx-datatable-cell-template>
-                    {{ row.mouvement?.reference || 'Non défini' }}
-                  </ng-template>
+                <ngx-datatable-column name="Stock Initial" prop="stock_initial">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Initial</span>
+                    </ng-template>
                 </ngx-datatable-column>
-                <ngx-datatable-column name="Coupon Ticket" prop="coupon.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Compagnie" prop="compagnie.libelle"></ngx-datatable-column>
-                <ngx-datatable-column name="Quantité Annulée" prop="qte"></ngx-datatable-column>
-                <ngx-datatable-column name="Date Annulation">
-                  <ng-template let-row="row" ngx-datatable-cell-template>
-                      {{ row.created_at | date:'dd/MM/yyyy' }}
-                  </ng-template>
-              </ngx-datatable-column>
-            </ng-container>
+                <ngx-datatable-column name="Entrées" prop="entrees">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Entrées</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Sorties" prop="sorties">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Sorties</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Retours" prop="retours">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Retours</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Stock Final" prop="stock_final">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Final</span>
+                    </ng-template>
+                </ngx-datatable-column>
+              </ng-container>
 
-            <ng-container *ngIf="selectedReportTypeId === 'rapport periodique'">
-              <ngx-datatable-column name="Période" prop="periode">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Période</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Stock Initial" prop="stock_initial">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Stock Initial</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Entrées" prop="entrees">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Entrées</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Sorties" prop="sorties">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Sorties</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Retours" prop="retours">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Retours</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Stock Final" prop="stock_final">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Stock Final</span>
-                  </ng-template>
-              </ngx-datatable-column>
-            </ng-container>
-
-            <ng-container *ngIf="selectedReportTypeId === 'rapport periodique par montant'">
-              <ngx-datatable-column name="Période" prop="periode">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Période</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Stock Initial" prop="stock_initial">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Stock Initial</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Entrées" prop="entrees">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Entrées</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Sorties" prop="sorties">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Sorties</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Retours" prop="retours">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Retours</span>
-                  </ng-template>
-              </ngx-datatable-column>
-              <ngx-datatable-column name="Stock Final" prop="stock_final">
-                  <ng-template ngx-datatable-header-template>
-                      <span class="text-nowrap">Stock Final</span>
-                  </ng-template>
-              </ngx-datatable-column>
-            </ng-container>
+              <ng-container *ngIf="selectedReportTypeId === 'rapport periodique par montant'">
+                <ngx-datatable-column name="Période" prop="periode">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Période</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Stock Initial" prop="stock_initial">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Initial</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Entrées" prop="entrees">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Entrées</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Sorties" prop="sorties">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Sorties</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Retours" prop="retours">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Retours</span>
+                    </ng-template>
+                </ngx-datatable-column>
+                <ngx-datatable-column name="Stock Final" prop="stock_final">
+                    <ng-template ngx-datatable-header-template>
+                        <span class="text-nowrap">Stock Final</span>
+                    </ng-template>
+                </ngx-datatable-column>
+              </ng-container>
 
 
-            </ngx-datatable>
+          </ngx-datatable>
         </div>
         <div *ngIf="rows.length === 0 && !loadingIndicator && !errorMessage" class="no-data-message mt-3">
           <p class="text-center text-muted">Veuillez sélectionner un type de rapport et charger les données.</p>
