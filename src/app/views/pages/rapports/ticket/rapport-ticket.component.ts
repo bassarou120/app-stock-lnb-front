@@ -715,6 +715,38 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       });
       return; // Très important : arrête la fonction après l'appel pour le rapport périodique
     }
+
+    if(this.selectedReportTypeId === 'rapport periodique par montant') {
+      const annee = this.rapportForm.get('exercice_id')?.value;
+      const periode = this.rapportForm.get('periode_id')?.value;
+  
+      if (!annee || !periode) {
+        this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
+        this.isGeneratingReport = false;
+        return;
+      }
+  
+      // Appel du service spécifique pour le rapport périodique par montant
+      this.ticketRapportService.imprimerRapportPeriodiqueMontant(annee, periode).subscribe({
+        next: (response: Blob) => { // Assurez-vous que le type de réponse est correct (Blob)
+          const fileURL = window.URL.createObjectURL(response);
+          const a = document.createElement('a'); // Utiliser la même méthode pour le téléchargement
+          a.href = fileURL;
+          a.download = `rapport_periodique_montant_${annee}_${periode}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(fileURL);
+          this.isGeneratingReport = false;
+        },
+        error: (error: any) => {
+          console.error('Erreur lors de la préparation du PDF du rapport périodique par montant :', error);
+          this.errorMessage = `Erreur lors de la génération du PDF : ${error.message || 'Veuillez réessayer.'}`;
+          this.isGeneratingReport = false;
+        }
+      });
+      return; // Très important : arrête la fonction après l'appel pour le rapport périodique par montant
+    }
   
     // 👇 Logique pour les autres types de rapports (entrée, sortie, retour, annulation)
     const filters: { [key: string]: any } = {
