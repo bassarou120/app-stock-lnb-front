@@ -81,7 +81,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     { id: 'retour ticket', libelle: 'Rapport de Retour de Tickets' },
     { id: 'annulation ticket', libelle: 'Rapport d\'Annulation de Tickets' },
     { id: 'rapport periodique', libelle: 'Rapport périodique' },
-    { id: 'rapport periodique par montant', libelle: 'Rapport périodique par montant' },
   ];
 
   rapportPeriodique: RapportPeriodique[] = [
@@ -100,7 +99,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   showRetourTicketFilters: boolean = false;
   showAnnulationTicketFilters: boolean = false;
   showRapportPeriodiqueFilters: boolean = false;
-  showRapportPeriodiqueMontantFilters: boolean = false;
 
   errorMessage: string = '';
   isGeneratingReport = false;
@@ -149,7 +147,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 
   // Tu peux charger le rapport initial si tu veux avec des valeurs par défaut
   if (this.rapportForm.get('exercice_id')?.value && this.rapportForm.get('periode_id')?.value) {
-    this.chargerRapport(
+    this.chargerRapport(                  
           this.rapportForm.get('exercice_id')?.value,
           this.rapportForm.get('periode_id')?.value
         );
@@ -325,20 +323,10 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('exercice_id')?.enable();
         this.rapportForm.get('periode_id')?.enable();
         // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
-       this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
-      this.rapportForm.get('periode_id')?.setValidators(Validators.required);
-       console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
-      break;
-
-      case 'rapport periodique par montant':
-        this.showRapportPeriodiqueMontantFilters = true;
-        this.rapportForm.get('exercice_id')?.enable();
-        this.rapportForm.get('periode_id')?.enable();
-        // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
-       this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
-      this.rapportForm.get('periode_id')?.setValidators(Validators.required);
-       console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
-      break;
+        this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
+        this.rapportForm.get('periode_id')?.setValidators(Validators.required);
+        console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
+        break;
 
       default:
         this.showEntreeTicketFilters = false;
@@ -346,7 +334,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.showRetourTicketFilters = false;
         this.showAnnulationTicketFilters = false;
         this.showRapportPeriodiqueFilters = false;
-        this.showRapportPeriodiqueMontantFilters = false;
         this.periodicReportData = [];
         // Remettre à null toutes les dates spécifiques pour éviter des valeurs résiduelles
         this.resetSpecificDateControls();
@@ -487,7 +474,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
             filters.coupon_id = this.rapportForm.get('coupon_id_annulation')?.value;
             filters.compagnie_id = this.rapportForm.get('compagnie_id_annulation')?.value;
             break;
-
         case 'rapport periodique':
               // 💡 Utilisez les noms de contrôles de votre formulaire
               const annee = this.rapportForm.get('exercice_id')?.value;
@@ -504,25 +490,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
               this.isGeneratingReport = false;
               this.loadingIndicator = false;
               return;
-
-        case 'rapport periodique par montant':
-              // 💡 Utilisez les noms de contrôles de votre formulaire
-              const annee_ = this.rapportForm.get('exercice_id')?.value;
-              const periode_ = this.rapportForm.get('periode_id')?.value;
-
-              if (annee_ && periode_) {
-                      this.chargerRapportMontant(
-                        this.rapportForm.get('exercice_id')?.value,
-                        this.rapportForm.get('periode_id')?.value
-                      );
-              } else {
-                  this.errorMessage = "Veuillez sélectionner une année et une période.";
-              }
-              this.isGeneratingReport = false;
-              this.loadingIndicator = false;
-              return;
-
-
     }
 
     // Nettoyer les filtres vides avant l'envoi
@@ -622,39 +589,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       });
       return; // Très important : arrête la fonction après l'appel
     }
-
-
-
-    // 💡 NOUVEAU BLOC : Gérer le cas du rapport périodique par montant séparément
-    if (this.selectedReportTypeId === 'rapport periodique par montant') {
-      const annee = this.rapportForm.get('exercice_id')?.value;
-      const periode = this.rapportForm.get('periode_id')?.value;
-
-      if (!annee || !periode) {
-        this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
-        this.isGeneratingReport = false;
-        return;
-      }
-
-      this.ticketRapportService.imprimerRapportPeriodiqueMontant(annee, periode).subscribe({
-        next: (response) => {
-          const fileURL = window.URL.createObjectURL(response);
-          window.open(fileURL, '_blank');
-          this.isGeneratingReport = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la préparation du PDF du rapport périodique :', error);
-          this.errorMessage = `Erreur lors de la génération du PDF : ${error.message || 'Veuillez réessayer.'}`;
-          this.isGeneratingReport = false;
-        }
-      });
-      return; // Très important : arrête la fonction après l'appel
-    }
-
-
-
-
-
 
     // 👇 L'ancienne logique pour les autres rapports reste ici
     const filters: { [key: string]: any } = {
@@ -801,31 +735,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     this.mouvementTicketService.getRapportPeriodique(annee, periode)
-      .subscribe({
-        next: (data) => {
-          console.log('Résultats du rapport:', data);
-          this.rows = data;
-          this.temp = [...data];
-          this.loadingIndicator = false;
-        },
-        error: (err) => {
-          console.error('Erreur lors du chargement du rapport:', err);
-          this.errorMessage = `Erreur lors du chargement du rapport: ${err.message || 'Veuillez réessayer.'}`;
-          this.loadingIndicator = false;
-        }
-      });
-  }
-
-  chargerRapportMontant(annee: number, periode: string) {
-    if (!annee || !periode) {
-      this.errorMessage = "Veuillez sélectionner une année et une période.";
-      return;
-    }
-
-    this.loadingIndicator = true;
-    this.errorMessage = '';
-
-    this.mouvementTicketService.getRapportPeriodiqueMontant(annee, periode)
       .subscribe({
         next: (data) => {
           console.log('Résultats du rapport:', data);
