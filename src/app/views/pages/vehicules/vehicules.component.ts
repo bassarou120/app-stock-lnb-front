@@ -234,31 +234,31 @@ export class VehiculesComponent implements OnInit {
     return this.addVehicule.get('vehicules') as FormArray;
   }
 
-createVehiculeFormGroup(): FormGroup {
-  const group = this.formBuilder.group({
-    marque_id: [null, [Validators.required]],
-    modele_id: [null, [Validators.required]],
-    immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
-    numero_chassis: [""],
-    kilometrage: [null, [Validators.required, Validators.min(0)]],
-    date_mise_en_service: ["", [Validators.required]],
-    puissance: [""],
-    places_assises: [null],
-    energie: [""],
-    nbreannee_amortissement: [5, [Validators.min(1)]],
-    date_amortissement: [""],
-  });
+  createVehiculeFormGroup(): FormGroup {
+    const group = this.formBuilder.group({
+      marque_id: [null, [Validators.required]],
+      modele_id: [null, [Validators.required]],
+      immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
+      numero_chassis: [""],
+      kilometrage: [null, [Validators.required, Validators.min(0)]],
+      date_mise_en_service: ["", [Validators.required]],
+      puissance: [""],
+      places_assises: [null],
+      energie: [""],
+      nbreannee_amortissement: [5, [Validators.min(1)]],
+      date_amortissement: [""],
+    });
 
-  // 🔹 Abonne-toi aux changements pour recalculer automatiquement
-  group.get('date_mise_en_service')?.valueChanges.subscribe(() => {
-    this.updateDateAmortissementForGroup(group);
-  });
-  group.get('nbreannee_amortissement')?.valueChanges.subscribe(() => {
-    this.updateDateAmortissementForGroup(group);
-  });
+    // 🔹 Abonne-toi aux changements pour recalculer automatiquement
+    group.get('date_mise_en_service')?.valueChanges.subscribe(() => {
+      this.updateDateAmortissementForGroup(group);
+    });
+    group.get('nbreannee_amortissement')?.valueChanges.subscribe(() => {
+      this.updateDateAmortissementForGroup(group);
+    });
 
-  return group;
-}
+    return group;
+  }
 
 
   addNewVehicule(): void {
