@@ -478,36 +478,36 @@ updateFilter(event: KeyboardEvent): void {
         }, 3000);
       }
     };
-  
-  
+
+
     if (!this.selectedFile) {
       showNotification('Veuillez sélectionner un fichier Excel à importer.', true);
       return;
     }
-  
+
     this.isImporting = true;
     this.importReport = null; // Réinitialiser le rapport
     this.importError = null; // Réinitialiser l'erreur
-  
+
     // Gérer le spinner directement via la propriété isImporting ou une variable dédiée
     const spinner = document.querySelector('.spinner-import-article');
     if (spinner) {
       spinner.classList.remove('d-none');
     }
-  
+
     const formData = new FormData();
     formData.append('file', this.selectedFile, this.selectedFile.name);
-  
+
     this.articleService.importArticles(formData).subscribe({
       next: (response: any) => {
         console.log('Importation réussie:', response);
         this.loadArticles(); // Recharger la liste des articles
-        
+
         this.isImporting = false;
         if (spinner) {
           spinner.classList.add('d-none');
         }
-  
+
         // Stocker le rapport complet (y compris les lignes ignorées)
         this.importReport = {
           message: response.message, // Message de résumé (ex: "Import terminé. 5 articles ajoutés...")
@@ -515,10 +515,19 @@ updateFilter(event: KeyboardEvent): void {
           total_rows_processed: response.total_rows_processed,
           ignored: response.ignored || [] // S'assurer que 'ignored' est un tableau
         };
-  
+
+        // 🔥 Construire le message détaillé
+          let detailsMessage = response.message;
+          if (this.importReport.ignored.length > 0) {
+            detailsMessage += '\n\nLignes ignorées :\n' + this.importReport.ignored.join('\n');
+          }
+
+           // 👉 Afficher dans une alerte
+          alert(detailsMessage);
+
         // Afficher le message de résumé dans la notification toast
-        showNotification(response.message); 
-  
+        showNotification(detailsMessage);
+
         // Fermer le modal d'importation
         const modal = document.getElementById('importArticlesExcel');
         // Vérifier si bootstrap est défini avant d'utiliser Modal
@@ -526,19 +535,19 @@ updateFilter(event: KeyboardEvent): void {
             const bsModal = bootstrap.Modal.getInstance(modal);
             bsModal?.hide();
         }
-  
+
         this.selectedFile = null; // Réinitialiser le fichier sélectionné
       },
       error: (error) => {
         console.error('Erreur lors de l\'importation des articles:', error);
-  
+
         this.isImporting = false;
         if (spinner) {
           spinner.classList.add('d-none');
         }
-  
+
         let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
-        
+
         if (error.error) {
             if (error.error.errors) {
                 // Erreur de validation 422
@@ -557,12 +566,12 @@ updateFilter(event: KeyboardEvent): void {
                 this.importError = { type: 'Critique', message: errorMessage };
             }
         }
-  
+
         showNotification(errorMessage, true);
       }
     });
   }
-  
+
 
 
  }
