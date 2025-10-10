@@ -326,7 +326,7 @@
           </div>
 
           <!-- duree_amorti de l' Immobilisation -->
-          <div class="mb-3">
+          <div class="mb-3" hidden>
             <label for="duree_amorti" class="form-label">Duree amortie (en mois)</label>
             <input type="text" class="form-control" id="duree_amorti" placeholder="2" autocomplete="off"
               [class.invalid]="addImmobilisation.get('duree_amorti')?.invalid && addImmobilisation.get('duree_amorti')?.touched"
