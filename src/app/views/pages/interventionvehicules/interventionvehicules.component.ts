@@ -484,6 +484,8 @@ export class InterventionVehiculeComponent implements OnInit {
 
   // Prépare le formulaire d'édition
   getEditForm(row: InterventionVehicule) {
+    console.log('DEBUG: Date intervention reçue du backend:', row.date_intervention); // 👈 AJOUTEZ CECI
+    console.log('DEBUG: Date expiration reçue du backend:', row.date_expiration);   // 👈 ET CECI
     console.log('getEditForm: Préparation du formulaire d\'édition pour la ligne:', row);
     // IMPORTANT: Assurez-vous que row.typeIntervention est chargé (eager loading dans Laravel)
     // ou chargez-le manuellement si ce n'est pas le cas.
@@ -682,10 +684,28 @@ getDaysExpiredSince(dateExpiration: string): number {
   }
 
   // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+  // convertToNgbDate(dateString: string | null): NgbDateStruct | null {
+  //   if (!dateString) return null;
+  //   const parts = dateString.split('-');
+  //   if (parts.length !== 3) return null;
+  //   return {
+  //     year: +parts[0],
+  //     month: +parts[1],
+  //     day: +parts[2],
+  //   };
+  // }
+
   convertToNgbDate(dateString: string | null): NgbDateStruct | null {
     if (!dateString) return null;
-    const parts = dateString.split('-');
+    
+    // 💡 MODIFICATION CLÉ : prendre uniquement la partie date (YYYY-MM-DD)
+    // Cela tronque "2025-10-10T00:00:00.000000Z" en "2025-10-10"
+    const dateOnlyString = dateString.substring(0, 10); 
+    
+    const parts = dateOnlyString.split('-');
+    
     if (parts.length !== 3) return null;
+    
     return {
       year: +parts[0],
       month: +parts[1],
