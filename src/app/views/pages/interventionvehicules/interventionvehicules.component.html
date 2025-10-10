@@ -119,26 +119,20 @@
               </ng-template>
             </ngx-datatable-column>
             <!-- Nouvelle colonne pièce jointe -->
-<ngx-datatable-column name="Carte grise">
-  <ng-template let-row="row" ngx-datatable-cell-template>
-    <div class="d-flex align-items-center">
-      <!-- Si carte grise existe -->
-      <a *ngIf="row.piece_jointe"
-         [href]="url + '/' + row.piece_jointe"
-         target="_blank"
-         class="btn btn-sm btn-outline-primary me-2">
-        Voir
-      </a>
-
-      <!-- Si carte grise absente -->
-      <!-- <button *ngIf="!row.piece_jointe"
-              class="btn btn-sm btn-outline-success">
-        Uploader
-      </button> -->
-    </div>
-  </ng-template>
-</ngx-datatable-column>
-
+            <ngx-datatable-column name="Carte grise">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div class="d-flex align-items-center">
+                  <!-- Si carte grise existe -->
+                  <a *ngIf="row.piece_jointe"
+                    [href]="url + '/' + row.piece_jointe"
+                    target="_blank"
+                    class="btn btn-sm btn-outline-primary me-2">
+                    Voir
+                  </a>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+            
 
 
             <ngx-datatable-column *ngIf="canModifyInterventionVehicule || canDeleteInterventionVehicule" name="Actions" [frozenRight]="true"
