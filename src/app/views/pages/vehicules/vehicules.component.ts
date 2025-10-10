@@ -185,7 +185,7 @@ export class VehiculesComponent implements OnInit {
         date_mise_en_service: [this.getTodayDateString(), [Validators.required]],
         nbreannee_amortissement: [5, [Validators.min(1)]],
         // Le champ de date d'amortissement est désactivé et calculé
-        date_amortissement: [{ value: '', disabled: false }], 
+        date_amortissement: [{ value: '', disabled: false }],
     });
 
     this.deleteVehicule = this.formBuilder.group({ id: [null, [Validators.required]] });
@@ -671,11 +671,11 @@ export class VehiculesComponent implements OnInit {
         }, 200);
                 // CORRECTION MAJEURE ICI : Utiliser le message de la réponse Laravel
         // Pour afficher le résumé des succès/échecs
-        const finalAlertMessage = response.message + 
+        const finalAlertMessage = response.message +
             (response.ignored.length > 0 ? "\n\nDétails des lignes ignorées:\n" + response.ignored.join("\n") : "");
-            
+
         alert(finalAlertMessage); // Affiche le résumé précis du back-end
-        
+
         this.selectedFile = null; // Réinitialiser le fichier sélectionné
 
       },
@@ -735,7 +735,7 @@ export class VehiculesComponent implements OnInit {
       const month = (date.getMonth() + 1).toString().padStart(2, '0');
       const day = date.getDate().toString().padStart(2, '0');
       const dateAmortissement = `${year}-${month}-${day}`;
-      
+
       // Mise à jour du formControl sans émettre d'événement
       dateAmortissementControl?.patchValue(dateAmortissement, { emitEvent: false });
     } else {
