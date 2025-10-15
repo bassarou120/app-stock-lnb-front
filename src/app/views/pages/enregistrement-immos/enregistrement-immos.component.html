@@ -297,7 +297,7 @@
             <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched"
-              formControlName="duree_ammortissement">
+              formControlName="duree_ammortissement" [readonly]="true" >
             <div
               *ngIf="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched">
               <small
@@ -836,7 +836,7 @@
             <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="taux_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('taux_ammortissement')?.invalid && editImmobilisation.get('taux_ammortissement')?.touched"
-              formControlName="taux_ammortissement">
+              formControlName="taux_ammortissement"  >
             <div
               *ngIf="editImmobilisation.get('taux_ammortissement')?.invalid && editImmobilisation.get('taux_ammortissement')?.touched">
               <small
@@ -879,7 +879,7 @@
           </div>
 
           <!-- duree_amorti de l' Immobilisation -->
-          <div class="mb-3">
+          <div class="mb-3" hidden>
             <label for="duree_amorti" class="form-label">Duree amortie (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_amorti" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched"
@@ -954,7 +954,7 @@
 
 
           <!-- isVehicule  ?? -->
-          <div class="form-check mb-3">
+          <div class="form-check mb-3" hidden>
             <input type="checkbox" class="form-check-input" id="checkDefault" (change)="onCheckboxEditChange($event)" [checked]="editImmobilisation.get('isVehicule')?.value === 1">
             <label class="form-check-label" for="checkDefault">
               Cette Immobilisation est une voiture ?
@@ -962,7 +962,7 @@
           </div>
 
           <!-- Sélectionner un le véhicule si l'immo est un véhicule -->
-          <div class="mb-3" *ngIf="editImmobilisation.get('isVehicule')?.value === 1">
+          <div class="mb-3" *ngIf="editImmobilisation.get('isVehicule')?.value === 1" hidden>
             <label for="vehicule_id" class="form-label">Immatriculation du véhicule</label>
 
             <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehiculeEdit">
