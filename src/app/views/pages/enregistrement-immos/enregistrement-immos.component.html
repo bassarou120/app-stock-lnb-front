@@ -850,7 +850,7 @@
             <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('duree_ammortissement')?.invalid && editImmobilisation.get('duree_ammortissement')?.touched"
-              formControlName="duree_ammortissement">
+              formControlName="duree_ammortissement" [readonly]="true">
             <div
               *ngIf="editImmobilisation.get('duree_ammortissement')?.invalid && editImmobilisation.get('duree_ammortissement')?.touched">
               <small
