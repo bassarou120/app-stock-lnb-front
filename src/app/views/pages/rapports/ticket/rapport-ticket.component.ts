@@ -585,22 +585,22 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 /*   downloadRapportTicketPDF(): void {
     console.log('--- Tentative d\'impression du rapport de ticket PDF ---');
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
-  
+
     if (this.rapportForm.invalid) {
       this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires avant d'imprimer.";
       this.markFormGroupTouched(this.rapportForm);
       console.warn('Formulaire invalide, impression PDF non lancée.');
       return;
     }
-  
+
     this.isGeneratingReport = true;
     this.errorMessage = '';
-  
+
     // Construire les filtres correctement
     const filters: { [key: string]: any } = {
       id_type_rapport: this.selectedReportTypeId,
     };
-  
+
     // Ajouter les filtres spécifiques selon le type de rapport
     switch (this.selectedReportTypeId) {
       case 'entree ticket':
@@ -630,16 +630,16 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_id_annulation')?.value;
         break;
     }
-  
+
     // Nettoyer les filtres vides
     Object.keys(filters).forEach(key => {
       if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
         delete filters[key];
       }
     });
-  
+
     console.log('Envoi des filtres pour PDF (POST):', filters);
-  
+
     this.ticketRapportService.imprimerRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
       (response: Blob) => {
         console.log('Réponse PDF reçue du backend.');
@@ -661,39 +661,40 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     );
   } */
 
+
   downloadRapportTicketPDF(): void {
     console.log('--- Tentative d\'impression du rapport de ticket PDF ---');
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
     console.log('Form errors (PDF):', this.rapportForm.errors);
-  
+
     // Débogage pour voir les erreurs spécifiques aux contrôles (comme dans la version initiale)
     Object.keys(this.rapportForm.controls).forEach(key => {
       if (this.rapportForm.get(key)?.errors) {
         console.log(`Errors on control ${key} (PDF):`, this.rapportForm.get(key)?.errors);
       }
     });
-  
+
     if (this.rapportForm.invalid) {
       this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires avant d'imprimer.";
       this.markFormGroupTouched(this.rapportForm);
       console.warn('Formulaire invalide, impression PDF non lancée.');
       return;
     }
-  
+
     this.isGeneratingReport = true;
     this.errorMessage = '';
-  
+
     // 💡 Gérer le cas du rapport périodique séparément
     if (this.selectedReportTypeId === 'rapport periodique') {
       const annee = this.rapportForm.get('exercice_id')?.value;
       const periode = this.rapportForm.get('periode_id')?.value;
-  
+
       if (!annee || !periode) {
         this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
         this.isGeneratingReport = false;
         return;
       }
-  
+
       // Appel du service spécifique pour le rapport périodique
       this.ticketRapportService.imprimerRapportPeriodique(annee, periode).subscribe({
         next: (response: Blob) => { // Assurez-vous que le type de réponse est correct (Blob)
@@ -719,13 +720,13 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     if(this.selectedReportTypeId === 'rapport periodique par montant') {
       const annee = this.rapportForm.get('exercice_id')?.value;
       const periode = this.rapportForm.get('periode_id')?.value;
-  
+
       if (!annee || !periode) {
         this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
         this.isGeneratingReport = false;
         return;
       }
-  
+
       // Appel du service spécifique pour le rapport périodique par montant
       this.ticketRapportService.imprimerRapportPeriodiqueMontant(annee, periode).subscribe({
         next: (response: Blob) => { // Assurez-vous que le type de réponse est correct (Blob)
@@ -747,12 +748,12 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       });
       return; // Très important : arrête la fonction après l'appel pour le rapport périodique par montant
     }
-  
+
     // 👇 Logique pour les autres types de rapports (entrée, sortie, retour, annulation)
     const filters: { [key: string]: any } = {
       id_type_rapport: this.selectedReportTypeId,
     };
-  
+
     // Construire les filtres en fonction du type de rapport sélectionné pour le PDF
     switch (this.selectedReportTypeId) {
       case 'entree ticket':
@@ -784,16 +785,16 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_annulation')?.value;
         break;
     }
-  
+
     // Nettoyer les filtres (supprimer les valeurs nulles, undefined ou vides)
     Object.keys(filters).forEach(key => {
       if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
         delete filters[key];
       }
     });
-  
+
     console.log('Envoi des filtres pour PDF au backend pour le rapport de ticket:', filters);
-  
+
     // Appel du service pour les rapports de tickets classiques
     this.ticketRapportService.imprimerRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
       (response: Blob) => {
@@ -815,7 +816,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       }
     );
   }
-
 
   formatDate(date: NgbDateStruct): string {
     if (!date) return '';
@@ -888,7 +888,6 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       this.table.offset = 0;
     }
   }
-
 
   load_rapportperiodique(annee: number, periode: string): void {
     this.loadingIndicator = true;
