@@ -274,16 +274,16 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
         });
 
         // Écoute les changements sur le champ taux_ammortissement
-this.addImmobilisation.get('taux_ammortissement')?.valueChanges.subscribe(taux => {
-    const tauxNum = parseFloat(taux);
-    if (!isNaN(tauxNum) && tauxNum > 0) {
-        // Calcule la durée d'amortissement en années (partie entière)
-        const duree = Math.floor(100 / tauxNum);
-        this.addImmobilisation.get('duree_ammortissement')?.setValue(duree, { emitEvent: false });
-    } else {
-        this.addImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
-    }
-});
+        this.addImmobilisation.get('taux_ammortissement')?.valueChanges.subscribe(taux => {
+            const tauxNum = parseFloat(taux);
+            if (!isNaN(tauxNum) && tauxNum > 0) {
+                // Calcule la durée d'amortissement en années (partie entière)
+                const duree = Math.floor(100 / tauxNum);
+                this.addImmobilisation.get('duree_ammortissement')?.setValue(duree, { emitEvent: false });
+            } else {
+                this.addImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
+            }
+        });
 
         // Écoute les changements sur le champ duree_ammortissement
         this.addImmobilisation.get('duree_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(duree => {
@@ -301,6 +301,39 @@ this.addImmobilisation.get('taux_ammortissement')?.valueChanges.subscribe(taux =
             console.log('Debug: date_acquisition changed (Edit Form):', date);
             // this.calculateDureeAmortie(date, this.editImmobilisation);
         });
+
+        // --- Logique pour le formulaire de MODIFICATION (editImmobilisation) ---
+
+        // NOUVEAU: Écoute les changements sur le champ taux_ammortissement (formulaire de modification)
+        this.editImmobilisation.get('taux_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(taux => {
+          const tauxNum = parseFloat(taux);
+          if (!isNaN(tauxNum) && tauxNum > 0) {
+              // Calcule la durée d'amortissement en années (partie entière)
+              const duree = Math.floor(100 / tauxNum);
+              // On met à jour le champ Duree ammortissement du formulaire de modification
+              this.editImmobilisation.get('duree_ammortissement')?.setValue(duree, { emitEvent: false });
+          } else {
+              this.editImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
+          }
+      });
+
+      // NOUVEAU: Écoute les changements sur le champ duree_ammortissement (formulaire de modification)
+      this.editImmobilisation.get('duree_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(duree => {
+          const dureeNum = parseInt(duree); // Utilise parseInt directement
+          if (!isNaN(dureeNum) && dureeNum > 0) {
+              const taux = 100 / dureeNum;
+              // On met à jour le champ Taux ammortissement du formulaire de modification
+              this.editImmobilisation.get('taux_ammortissement')?.setValue(taux.toFixed(2), { emitEvent: false });
+          } else {
+              this.editImmobilisation.get('taux_ammortissement')?.setValue(null, { emitEvent: false });
+          }
+      });
+
+      // Écouteur pour la date d'acquisition dans le formulaire de modification (déjà présent)
+      this.editImmobilisation.get('date_acquisition')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(date => {
+          console.log('Debug: date_acquisition changed (Edit Form):', date);
+          // this.calculateDureeAmortie(date, this.editImmobilisation); // Si cette méthode est utilisée
+      });
     }
 
   // NOUVELLE MÉTHODE pour "Voir plus"
