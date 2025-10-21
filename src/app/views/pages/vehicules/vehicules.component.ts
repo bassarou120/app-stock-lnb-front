@@ -75,6 +75,12 @@ export class VehiculesComponent implements OnInit {
   isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
+  public toastVisible: boolean = false;
+  public toastType: 'success' | 'danger' | 'warning' = 'success'; // Type d'alerte Bootstrap
+  public toastTitle: string = '';
+  public toastMessage: string = '';
+  public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
+
 
   @ViewChild('table') table!: DatatableComponent;
   @ViewChild('addVehiculeContent') addVehiculeContent!: TemplateRef<any>;
@@ -636,71 +642,91 @@ export class VehiculesComponent implements OnInit {
    * Envoie le fichier Excel sélectionné au backend pour importation.
    */
   uploadExcelFile(): void {
-    if (!this.selectedFile) {
-      alert('Veuillez sélectionner un fichier Excel à importer.');
-      return;
-    }
-
-    this.isImporting = true;
-    const spinner = document.querySelector('.spinner-import-vehicule'); // Assurez-vous d'avoir un spinner dans votre HTML pour l'import
-    if (spinner) {
-      spinner.classList.remove('d-none');
-    }
-
-    const formData = new FormData();
-    formData.append('file', this.selectedFile, this.selectedFile.name);
-
-    this.vehiculeService.importVehicules(formData).subscribe({
-      next: (response) => {
-        console.log('Importation réussie:', response);
-        this.loadVehicules(); // Recharger la liste des véhicules après l'import
-        this.isImporting = false;
-        if (spinner) {
-          spinner.classList.add('d-none');
-        }
-        // Fermer le modal d'importation
-        const modal = document.getElementById('importVehiculesExcel');
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
-
-        setTimeout(() => {
-          this.alertImportVisible = true;
-          setTimeout(() => {
-            this.alertImportVisible = false;
-          }, 2000);
-        }, 200);
-                // CORRECTION MAJEURE ICI : Utiliser le message de la réponse Laravel
-        // Pour afficher le résumé des succès/échecs
-        const finalAlertMessage = response.message +
-            (response.ignored.length > 0 ? "\n\nDétails des lignes ignorées:\n" + response.ignored.join("\n") : "");
-
-        alert(finalAlertMessage); // Affiche le résumé précis du back-end
-
-        this.selectedFile = null; // Réinitialiser le fichier sélectionné
-
-      },
-      error: (error) => {
-        console.error('Erreur lors de l\'importation des véhicules:', error);
-        this.isImporting = false;
-        if (spinner) {
-          spinner.classList.add('d-none');
-        }
-        let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
-        if (error.error && error.error.errors) {
-          // Si Laravel renvoie des erreurs de validation
-          errorMessage += '\nErreurs de validation:';
-          for (const key in error.error.errors) {
-            if (error.error.errors.hasOwnProperty(key)) {
-              errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
-            }
-          }
-        } else if (error.error && error.error.error) {
-          // Si Laravel renvoie un message d'erreur général (comme dans votre try-catch du contrôleur)
-          errorMessage = error.error.error;
-        }
-        alert(errorMessage);
+      if (!this.selectedFile) {
+          // 1. Remplacement du premier alert
+          this.showToast('warning', 'Sélection de Fichier', 'Veuillez sélectionner un fichier Excel à importer.');
+          return;
       }
-    });
+
+      this.isImporting = true;
+      const spinner = document.querySelector('.spinner-import-vehicule');
+      if (spinner) {
+          spinner.classList.remove('d-none');
+      }
+
+      const formData = new FormData();
+      formData.append('file', this.selectedFile, this.selectedFile.name);
+
+      this.vehiculeService.importVehicules(formData).subscribe({
+          next: (response: any) => {
+              console.log('Importation réussie:', response);
+              this.loadVehicules();
+              this.isImporting = false;
+              if (spinner) {
+                  spinner.classList.add('d-none');
+              }
+
+              // Fermer le modal d'importation
+              const modal = document.getElementById('importVehiculesExcel');
+              const bsModal = bootstrap.Modal.getInstance(modal);
+              bsModal?.hide();
+
+              // ⚠️ On supprime la logique obsolète de setTimeout et alertImportVisible ⚠️
+              // setTimeout(() => { ... });
+
+              // 2. Remplacement du deuxième alert (Succès/Partiel)
+              if (response.ignored && response.ignored.length > 0) {
+                  // Succès partiel (utilise 'warning' pour le toast)
+                  this.ignoredLines = response.ignored; // Stocke pour l'affichage détaillé dans le Toast HTML
+                  this.showToast(
+                      'warning',
+                      'Importation Partielle',
+                      response.message + '. Veuillez consulter les lignes ignorées.'
+                  );
+              } else {
+                  // Succès total (utilise 'success' pour le toast)
+                  this.ignoredLines = [];
+                  this.showToast(
+                      'success',
+                      'Importation Réussie !',
+                      response.message || 'Tous les véhicules ont été importés avec succès.'
+                  );
+              }
+
+              this.selectedFile = null;
+          },
+          error: (error) => {
+              console.error('Erreur lors de l\'importation des véhicules:', error);
+              this.isImporting = false;
+              if (spinner) {
+                  spinner.classList.add('d-none');
+              }
+
+              // 3. Remplacement du troisième alert (Erreur)
+              let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+              let errorTitle = 'Erreur Générale';
+
+              if (error.error && error.error.errors) {
+                  // Erreurs de validation
+                  let validationErrors = [];
+                  for (const key in error.error.errors) {
+                      if (error.error.errors.hasOwnProperty(key)) {
+                          validationErrors.push(error.error.errors[key].join(', '));
+                      }
+                  }
+                  errorMessage = 'Le fichier contient des erreurs de validation : ' + validationErrors.join('; ');
+                  errorTitle = 'Erreur de Validation (422)';
+
+              } else if (error.error && error.error.error) {
+                  // Message d'erreur général
+                  errorMessage = error.error.error;
+                  errorTitle = 'Erreur Critique du Serveur';
+              }
+
+              this.ignoredLines = [];
+              this.showToast('danger', errorTitle, errorMessage); // Utilise 'danger' pour le toast
+          }
+      });
   }
 
     calculerDateAmortissement(dateMiseEnService: string, duree: number): string {
@@ -840,6 +866,19 @@ private updateDateAmortissement(): void {
         });
     }
 }
+
+  showToast(type: 'success' | 'danger' | 'warning', title: string, message: string): void {
+    this.toastType = type;
+    this.toastTitle = title;
+    this.toastMessage = message;
+    this.toastVisible = true;
+
+    // Masquer le toast automatiquement après 5 secondes
+    setTimeout(() => {
+      this.toastVisible = false;
+      this.ignoredLines = [];
+    }, 60000);
+  }
 
   
 

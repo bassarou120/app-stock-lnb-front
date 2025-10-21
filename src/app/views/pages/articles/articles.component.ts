@@ -66,6 +66,12 @@ importError: ImportError | null = null;
   isImporting: boolean = false; // Nouvelle propriété pour l'état d'importation
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
+  public toastVisible: boolean = false;
+  public toastType: 'success' | 'danger' | 'warning' = 'success'; // Type d'alerte Bootstrap
+  public toastTitle: string = '';
+  public toastMessage: string = '';
+  public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
+
   @ViewChild('table') table!: DatatableComponent;
 
 
@@ -466,110 +472,119 @@ updateFilter(event: KeyboardEvent): void {
   /**
    * Envoie le fichier Excel sélectionné au backend pour importation.
    */
-  uploadExcelFile(): void {
-    // Remplacer 'alert' par une méthode de notification/modal
-    const showNotification = (message: string, isError: boolean = false): void => {
-      // Logique simulée pour afficher une notification (à remplacer par votre service de notification réel)
-      console.log(`[Notification - ${isError ? 'ERROR' : 'SUCCESS'}]`, message);
-      if (!isError) {
-        this.alertImportVisible = true;
-        setTimeout(() => {
-          this.alertImportVisible = false;
-        }, 3000);
-      }
-    };
-
+    uploadExcelFile(): void {
+    // ⚠️ On retire la fonction locale showNotification ⚠️
 
     if (!this.selectedFile) {
-      showNotification('Veuillez sélectionner un fichier Excel à importer.', true);
-      return;
+        // Utilisation du Toast pour l'alerte
+        this.showToast('warning', 'Sélection de Fichier', 'Veuillez sélectionner un fichier Excel à importer.');
+        return;
     }
 
     this.isImporting = true;
-    this.importReport = null; // Réinitialiser le rapport
-    this.importError = null; // Réinitialiser l'erreur
+    this.importReport = null;
+    this.importError = null;
 
-    // Gérer le spinner directement via la propriété isImporting ou une variable dédiée
     const spinner = document.querySelector('.spinner-import-article');
     if (spinner) {
-      spinner.classList.remove('d-none');
+        spinner.classList.remove('d-none');
     }
 
     const formData = new FormData();
     formData.append('file', this.selectedFile, this.selectedFile.name);
 
     this.articleService.importArticles(formData).subscribe({
-      next: (response: any) => {
-        console.log('Importation réussie:', response);
-        this.loadArticles(); // Recharger la liste des articles
+        next: (response: any) => {
+            console.log('Importation réussie:', response);
+            this.loadArticles();
 
-        this.isImporting = false;
-        if (spinner) {
-          spinner.classList.add('d-none');
-        }
-
-        // Stocker le rapport complet (y compris les lignes ignorées)
-        this.importReport = {
-          message: response.message, // Message de résumé (ex: "Import terminé. 5 articles ajoutés...")
-          success_count: response.success_count,
-          total_rows_processed: response.total_rows_processed,
-          ignored: response.ignored || [] // S'assurer que 'ignored' est un tableau
-        };
-
-        // 🔥 Construire le message détaillé
-          let detailsMessage = response.message;
-          if (this.importReport.ignored.length > 0) {
-            detailsMessage += '\n\nLignes ignorées :\n' + this.importReport.ignored.join('\n');
-          }
-
-           // 👉 Afficher dans une alerte
-          alert(detailsMessage);
-
-        // Afficher le message de résumé dans la notification toast
-        showNotification(detailsMessage);
-
-        // Fermer le modal d'importation
-        const modal = document.getElementById('importArticlesExcel');
-        // Vérifier si bootstrap est défini avant d'utiliser Modal
-        if (typeof bootstrap !== 'undefined' && modal) {
-            const bsModal = bootstrap.Modal.getInstance(modal);
-            bsModal?.hide();
-        }
-
-        this.selectedFile = null; // Réinitialiser le fichier sélectionné
-      },
-      error: (error) => {
-        console.error('Erreur lors de l\'importation des articles:', error);
-
-        this.isImporting = false;
-        if (spinner) {
-          spinner.classList.add('d-none');
-        }
-
-        let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
-
-        if (error.error) {
-            if (error.error.errors) {
-                // Erreur de validation 422
-                let validationErrors = [];
-                for (const key in error.error.errors) {
-                    if (error.error.errors.hasOwnProperty(key)) {
-                        validationErrors.push(error.error.errors[key].join(', '));
-                    }
-                }
-                // Construire le message d'erreur de validation
-                errorMessage = 'Le fichier contient des erreurs de validation : ' + validationErrors.join('; ');
-                this.importError = { type: 'Validation', message: errorMessage, details: validationErrors };
-            } else if (error.error.message) {
-                // Erreur critique 500
-                errorMessage = error.error.message + (error.error.error ? ` Détails: ${error.error.error}` : '');
-                this.importError = { type: 'Critique', message: errorMessage };
+            this.isImporting = false;
+            if (spinner) {
+                spinner.classList.add('d-none');
             }
-        }
 
-        showNotification(errorMessage, true);
-      }
+            // Fermer le modal d'importation
+            const modal = document.getElementById('importArticlesExcel');
+            if (typeof bootstrap !== 'undefined' && modal) {
+                const bsModal = bootstrap.Modal.getInstance(modal);
+                bsModal?.hide();
+            }
+
+            // Stocker le rapport (optionnel, mais bien pour le debug)
+            this.importReport = {
+                message: response.message,
+                success_count: response.success_count,
+                total_rows_processed: response.total_rows_processed,
+                ignored: response.ignored || []
+            };
+
+            // ✅ GESTION DU SUCCÈS OU SUCCÈS PARTIEL avec this.showToast()
+            if (this.importReport.ignored.length > 0) {
+                this.ignoredLines = this.importReport.ignored; // Stocke les lignes pour l'affichage HTML du toast
+                this.showToast(
+                    'warning', // Type : Avertissement (jaune/orange)
+                    'Importation Partielle',
+                    response.message + '. Veuillez consulter les lignes ignorées.'
+                );
+            } else {
+                this.ignoredLines = []; // Aucune ligne ignorée
+                this.showToast(
+                    'success', // Type : Succès (vert)
+                    'Importation Réussie !',
+                    response.message || 'Tous les articles ont été importés avec succès.'
+                );
+            }
+
+            this.selectedFile = null;
+        },
+        error: (error) => {
+            console.error('Erreur lors de l\'importation des articles:', error);
+
+            this.isImporting = false;
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+
+            // GESTION DE L'ERREUR avec this.showToast()
+            let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+            let errorTitle = 'Erreur Générale';
+
+            if (error.error) {
+                if (error.error.errors) {
+                    // Erreur de validation (422)
+                    let validationErrors = [];
+                    for (const key in error.error.errors) {
+                        if (error.error.errors.hasOwnProperty(key)) {
+                            validationErrors.push(error.error.errors[key].join(', '));
+                        }
+                    }
+                    errorMessage = 'Le fichier contient des erreurs de validation : ' + validationErrors.join('; ');
+                    errorTitle = 'Erreur de Validation (422)';
+                } else if (error.error.message) {
+                    // Erreur critique (500)
+                    errorMessage = error.error.message + (error.error.error ? ` Détails: ${error.error.error}` : '');
+                    errorTitle = 'Erreur Critique du Serveur';
+                }
+            }
+
+            // Utilisation du Toast pour l'erreur
+            this.ignoredLines = []; // Pas de lignes ignorées à afficher en cas d'erreur totale
+            this.showToast('danger', errorTitle, errorMessage);
+        }
     });
+}
+
+  showToast(type: 'success' | 'danger' | 'warning', title: string, message: string): void {
+    this.toastType = type;
+    this.toastTitle = title;
+    this.toastMessage = message;
+    this.toastVisible = true;
+
+    // Masquer le toast automatiquement après 5 secondes
+    setTimeout(() => {
+      this.toastVisible = false;
+      this.ignoredLines = [];
+    }, 60000);
   }
 
 

@@ -54,6 +54,22 @@
   </ngb-alert>
   <!-- Alerte pour import avec succès -->
 
+  <div *ngIf="toastVisible" [ngClass]="['alert', 'alert-' + toastType]" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; width: 400px;opacity: 1 !important; background-color: white !important;">
+    <h4 class="alert-heading">{{ toastTitle }}</h4>
+    <p>{{ toastMessage }}</p>
+
+    <ng-container *ngIf="toastType === 'warning' && ignoredLines.length > 0">
+        <hr>
+        <p class="mb-0">Détails des lignes ignorées:</p>
+        <ul class="text-start">
+            <li *ngFor="let line of ignoredLines.slice(0, 5)">{{ line }}</li>
+            <li *ngIf="ignoredLines.length > 5">... et {{ ignoredLines.length }} autres lignes.</li>
+        </ul>
+    </ng-container>
+
+    <button type="button" class="btn-close" (click)="toastVisible = false" aria-label="Close"></button>
+</div>
+
   <div class="row">
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card">

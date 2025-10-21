@@ -30,6 +30,23 @@
 </ngb-alert>
 <!-- Alerte pour import avec succès -->
 
+
+  <div *ngIf="toastVisible" [ngClass]="['alert', 'alert-' + toastType]" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; width: 400px;opacity: 1 !important; background-color: white !important;">
+    <h4 class="alert-heading">{{ toastTitle }}</h4>
+    <p>{{ toastMessage }}</p>
+
+    <ng-container *ngIf="toastType === 'warning' && ignoredLines.length > 0">
+        <hr>
+        <p class="mb-0">Détails des lignes ignorées:</p>
+        <ul class="text-start">
+            <li *ngFor="let line of ignoredLines.slice(0, 5)">{{ line }}</li>
+            <li *ngIf="ignoredLines.length > 5">... et {{ ignoredLines.length }} autres lignes.</li>
+        </ul>
+    </ng-container>
+
+    <button type="button" class="btn-close" (click)="toastVisible = false" aria-label="Close"></button>
+  </div>
+
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
@@ -167,11 +184,11 @@
               bindLabel="code"
               bindValue="code"
               formControlName="code"
-              [addTag]="true" 
+              [addTag]="true"
               [clearable]="true"
               placeholder="Sélectionnez ou entrez un code">
             </ng-select>
-          
+
             <div *ngIf="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched">
               <small class="text-danger"> *le code de l'immobilisation est obligatoire</small>
             </div>
@@ -415,7 +432,7 @@
           <div class="d-flex justify-content-center gap-2">
             <button
               type="submit"
-              class="btn btn-primary" 
+              class="btn btn-primary"
               (click)="onClickSubmitAddImmobilisation()"
               [disabled]="isAddingImmobilisation || addImmobilisation.invalid" >
               <span *ngIf="isAddingImmobilisation" class="spinner-border spinner-border-sm text-light me-2 spinner-add-immobilisation" role="status" aria-hidden="true">
