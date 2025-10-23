@@ -332,7 +332,7 @@
           <span *ngIf="isAddingVehicules" class="spinner-border spinner-border-sm text-light me-2 spinner-add-vehicule" role="status" aria-hidden="true">
             <span class="visually-hidden">Loading...</span>
           </span>
-          {{ isAddingVehicules ? 'Ajout en cours...' : 'Ajouter les véhicules' }}
+          {{ isAddingVehicules ? 'Ajout en cours...' : 'Enregistrer les véhicules' }}
         </button>
         <!-- NOUVEAU BOUTON : Importer Excel -->
         <button type="button" class="btn btn-outline-success btn-lg px-4" data-bs-toggle="modal" data-bs-target="#importVehiculesExcel">
@@ -540,7 +540,7 @@
 
   <div class="modal-footer d-flex justify-content-center gap-2">
     <button type="button" class="btn btn-primary" (click)="onClickSubmitCarteGrise(modal)">
-      Ajouter
+      Enregistrer
     </button>
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
   </div>
