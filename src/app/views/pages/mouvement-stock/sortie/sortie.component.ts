@@ -309,7 +309,7 @@ export class SortieComponent implements OnInit {
       }
     );
   }
-  
+
   loadEmployes(): void {
     this.sortieService.getAllEmployes().subscribe({
       next: (data) => {
@@ -352,7 +352,7 @@ export class SortieComponent implements OnInit {
 
   loadSortiesAccordees(): void {
     this.sortieService.getAllMouvementStockSortie().pipe(
-      map((data: MouvementStock[]) => data.filter(sortie => sortie.statut === 'Accordé'))
+      map((data: MouvementStock[]) => data.filter(sortie => sortie.statut === 'Validé'))
     ).subscribe(
       (data: MouvementStock[]) => {
         this.temp = [...data]; // Sauvegarde de la liste filtrée pour la recherche
