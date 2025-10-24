@@ -83,6 +83,12 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
   public selectedImmobilisation: any = null;
 
+  public toastVisible: boolean = false;
+  public toastType: 'success' | 'danger' | 'warning' = 'success'; // Type d'alerte Bootstrap
+  public toastTitle: string = '';
+  public toastMessage: string = '';
+  public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
+
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder, private router: Router) { }
@@ -274,16 +280,16 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
         });
 
         // Écoute les changements sur le champ taux_ammortissement
-this.addImmobilisation.get('taux_ammortissement')?.valueChanges.subscribe(taux => {
-    const tauxNum = parseFloat(taux);
-    if (!isNaN(tauxNum) && tauxNum > 0) {
-        // Calcule la durée d'amortissement en années (partie entière)
-        const duree = Math.floor(100 / tauxNum);
-        this.addImmobilisation.get('duree_ammortissement')?.setValue(duree, { emitEvent: false });
-    } else {
-        this.addImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
-    }
-});
+        this.addImmobilisation.get('taux_ammortissement')?.valueChanges.subscribe(taux => {
+            const tauxNum = parseFloat(taux);
+            if (!isNaN(tauxNum) && tauxNum > 0) {
+                // Calcule la durée d'amortissement en années (partie entière)
+                const duree = Math.floor(100 / tauxNum);
+                this.addImmobilisation.get('duree_ammortissement')?.setValue(duree, { emitEvent: false });
+            } else {
+                this.addImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
+            }
+        });
 
         // Écoute les changements sur le champ duree_ammortissement
         this.addImmobilisation.get('duree_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(duree => {
@@ -301,6 +307,39 @@ this.addImmobilisation.get('taux_ammortissement')?.valueChanges.subscribe(taux =
             console.log('Debug: date_acquisition changed (Edit Form):', date);
             // this.calculateDureeAmortie(date, this.editImmobilisation);
         });
+
+        // --- Logique pour le formulaire de MODIFICATION (editImmobilisation) ---
+
+        // NOUVEAU: Écoute les changements sur le champ taux_ammortissement (formulaire de modification)
+        this.editImmobilisation.get('taux_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(taux => {
+          const tauxNum = parseFloat(taux);
+          if (!isNaN(tauxNum) && tauxNum > 0) {
+              // Calcule la durée d'amortissement en années (partie entière)
+              const duree = Math.floor(100 / tauxNum);
+              // On met à jour le champ Duree ammortissement du formulaire de modification
+              this.editImmobilisation.get('duree_ammortissement')?.setValue(duree, { emitEvent: false });
+          } else {
+              this.editImmobilisation.get('duree_ammortissement')?.setValue(null, { emitEvent: false });
+          }
+      });
+
+      // NOUVEAU: Écoute les changements sur le champ duree_ammortissement (formulaire de modification)
+      this.editImmobilisation.get('duree_ammortissement')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(duree => {
+          const dureeNum = parseInt(duree); // Utilise parseInt directement
+          if (!isNaN(dureeNum) && dureeNum > 0) {
+              const taux = 100 / dureeNum;
+              // On met à jour le champ Taux ammortissement du formulaire de modification
+              this.editImmobilisation.get('taux_ammortissement')?.setValue(taux.toFixed(2), { emitEvent: false });
+          } else {
+              this.editImmobilisation.get('taux_ammortissement')?.setValue(null, { emitEvent: false });
+          }
+      });
+
+      // Écouteur pour la date d'acquisition dans le formulaire de modification (déjà présent)
+      this.editImmobilisation.get('date_acquisition')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(date => {
+          console.log('Debug: date_acquisition changed (Edit Form):', date);
+          // this.calculateDureeAmortie(date, this.editImmobilisation); // Si cette méthode est utilisée
+      });
     }
 
   // NOUVELLE MÉTHODE pour "Voir plus"
@@ -833,9 +872,10 @@ private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: 
   /**
    * Envoie le fichier Excel sélectionné au backend pour importation.
    */
-  uploadExcelFile(): void {
+    uploadExcelFile(): void {
     if (!this.selectedFile) {
-      alert('Veuillez sélectionner un fichier Excel à importer.');
+      //alert('Veuillez sélectionner un fichier Excel à importer.');
+      this.showToast('warning', 'Alerte', 'Veuillez sélectionner un fichier Excel à importer.');
       return;
     }
 
@@ -850,60 +890,76 @@ private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: 
 
     // Assurez-vous que l'URL correspond à votre route d'importation dans Laravel
     // Ex: 'http://localhost:8000/api/vehicules/import'
-    this.immobilisationService.importImmobilisations(formData).subscribe({
-      next: (response) => {
-        console.log('Importation réussie:', response);
-        this.loadImmobilisations(); // Recharger la liste des véhicules après l'import
-        this.isImporting = false;
-        if (spinner) {
-          spinner.classList.add('d-none');
-        }
-        // Fermer le modal d'importation
-        const modal = document.getElementById('importImmobilisationsExcel');
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
-
-        setTimeout(() => {
-          this.alertImportVisible = true;
-          setTimeout(() => {
-            this.alertImportVisible = false;
-          }, 2000);
-        }, 200);
-        // Affiche les lignes ignorées si elles existent
-      if (response.ignored && response.ignored.length > 0) {
-        alert(
-          'Import partiel avec certaines lignes ignorées :\n' +
-          response.ignored.join('\n') +
-          '\n\n' +
-          response.message
-        );
-      } else {
-
-        alert('Immobilisations importés avec succès !');
-      }
-        this.selectedFile = null; // Réinitialiser le fichier sélectionné
-      },
-      error: (error) => {
-        console.error('Erreur lors de l\'importation des Immobilisations:', error);
-        this.isImporting = false;
-        if (spinner) {
-          spinner.classList.add('d-none');
-        }
-        let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
-        if (error.error && error.error.errors) {
-          // Si Laravel renvoie des erreurs de validation
-          errorMessage += '\nErreurs de validation:';
-          for (const key in error.error.errors) {
-            if (error.error.errors.hasOwnProperty(key)) {
-              errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
+this.immobilisationService.importImmobilisations(formData).subscribe({
+        next: (response) => {
+            console.log('Importation réussie:', response);
+            this.loadImmobilisations();
+            this.isImporting = false;
+            if (spinner) {
+                spinner.classList.add('d-none');
             }
-          }
-        } else if (error.error && error.error.error) {
-          // Si Laravel renvoie un message d'erreur général (comme dans votre try-catch du contrôleur)
-          errorMessage = error.error.error;
+            // Fermer le modal
+            const modal = document.getElementById('importImmobilisationsExcel');
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            bsModal?.hide();
+
+            // Gestion de la notification de SUCCÈS (avec lignes ignorées)
+            if (response.ignored && response.ignored.length > 0) {
+                this.ignoredLines = response.ignored;
+                this.showToast(
+                    'warning',
+                    'Importation Partielle Réussie',
+                    response.message || 'L\'importation est partielle, veuillez consulter la liste des lignes ignorées ci-dessous.'
+                );
+            } else {
+                this.ignoredLines = [];
+                this.showToast(
+                    'success',
+                    'Importation Réussie !',
+                    response.message || 'Toutes les immobilisations ont été importées avec succès.'
+                );
+            }
+
+            this.selectedFile = null; // Réinitialiser le fichier sélectionné
+        },
+        error: (error) => {
+            console.error('Erreur lors de l\'importation des Immobilisations:', error);
+            this.isImporting = false;
+            if (spinner) {
+                spinner.classList.add('d-none');
+            }
+
+            // Gestion de la notification d'ERREUR
+            let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+            if (error.error && error.error.errors) {
+                // Erreurs de validation Laravel
+                errorMessage = 'Erreurs de validation:';
+                for (const key in error.error.errors) {
+                    if (error.error.errors.hasOwnProperty(key)) {
+                        errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
+                    }
+                }
+            } else if (error.error && error.error.error) {
+                // Message d'erreur général du contrôleur Laravel
+                errorMessage = error.error.error;
+            }
+
+            this.ignoredLines = []; // Aucune ligne ignorée en cas d'erreur totale
+            this.showToast('danger', 'Erreur d\'Importation', errorMessage);
         }
-        alert(errorMessage);
-      }
     });
+  }
+
+  showToast(type: 'success' | 'danger' | 'warning', title: string, message: string): void {
+    this.toastType = type;
+    this.toastTitle = title;
+    this.toastMessage = message;
+    this.toastVisible = true;
+
+    // Masquer le toast automatiquement après 5 secondes
+    setTimeout(() => {
+      this.toastVisible = false;
+      this.ignoredLines = [];
+    }, 60000);
   }
 }

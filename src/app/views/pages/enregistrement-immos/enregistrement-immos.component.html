@@ -30,6 +30,23 @@
 </ngb-alert>
 <!-- Alerte pour import avec succès -->
 
+
+  <div *ngIf="toastVisible" [ngClass]="['alert', 'alert-' + toastType]" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; width: 400px;opacity: 1 !important; background-color: white !important;">
+    <h4 class="alert-heading">{{ toastTitle }}</h4>
+    <p>{{ toastMessage }}</p>
+
+    <ng-container *ngIf="toastType === 'warning' && ignoredLines.length > 0">
+        <hr>
+        <p class="mb-0">Détails des lignes ignorées:</p>
+        <ul class="text-start">
+            <li *ngFor="let line of ignoredLines.slice(0, 5)">{{ line }}</li>
+            <li *ngIf="ignoredLines.length > 5">... et {{ ignoredLines.length }} autres lignes.</li>
+        </ul>
+    </ng-container>
+
+    <button type="button" class="btn-close" (click)="toastVisible = false" aria-label="Close"></button>
+  </div>
+
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
       <div class="card-body d-flex justify-content-between">
@@ -167,11 +184,11 @@
               bindLabel="code"
               bindValue="code"
               formControlName="code"
-              [addTag]="true" 
+              [addTag]="true"
               [clearable]="true"
               placeholder="Sélectionnez ou entrez un code">
             </ng-select>
-          
+
             <div *ngIf="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched">
               <small class="text-danger"> *le code de l'immobilisation est obligatoire</small>
             </div>
@@ -297,7 +314,7 @@
             <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched"
-              formControlName="duree_ammortissement">
+              formControlName="duree_ammortissement" [readonly]="true" >
             <div
               *ngIf="addImmobilisation.get('duree_ammortissement')?.invalid && addImmobilisation.get('duree_ammortissement')?.touched">
               <small
@@ -415,7 +432,7 @@
           <div class="d-flex justify-content-center gap-2">
             <button
               type="submit"
-              class="btn btn-primary" 
+              class="btn btn-primary"
               (click)="onClickSubmitAddImmobilisation()"
               [disabled]="isAddingImmobilisation || addImmobilisation.invalid" >
               <span *ngIf="isAddingImmobilisation" class="spinner-border spinner-border-sm text-light me-2 spinner-add-immobilisation" role="status" aria-hidden="true">
@@ -836,7 +853,7 @@
             <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="taux_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('taux_ammortissement')?.invalid && editImmobilisation.get('taux_ammortissement')?.touched"
-              formControlName="taux_ammortissement">
+              formControlName="taux_ammortissement"  >
             <div
               *ngIf="editImmobilisation.get('taux_ammortissement')?.invalid && editImmobilisation.get('taux_ammortissement')?.touched">
               <small
@@ -850,7 +867,7 @@
             <label for="duree_ammortissement" class="form-label">Duree ammortissement (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_ammortissement" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('duree_ammortissement')?.invalid && editImmobilisation.get('duree_ammortissement')?.touched"
-              formControlName="duree_ammortissement">
+              formControlName="duree_ammortissement" [readonly]="true">
             <div
               *ngIf="editImmobilisation.get('duree_ammortissement')?.invalid && editImmobilisation.get('duree_ammortissement')?.touched">
               <small
@@ -879,7 +896,7 @@
           </div>
 
           <!-- duree_amorti de l' Immobilisation -->
-          <div class="mb-3">
+          <div class="mb-3" hidden>
             <label for="duree_amorti" class="form-label">Duree amortie (en ans) <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="duree_amorti" placeholder="5" autocomplete="off"
               [class.invalid]="editImmobilisation.get('duree_amorti')?.invalid && editImmobilisation.get('duree_amorti')?.touched"
@@ -954,7 +971,7 @@
 
 
           <!-- isVehicule  ?? -->
-          <div class="form-check mb-3">
+          <div class="form-check mb-3" hidden>
             <input type="checkbox" class="form-check-input" id="checkDefault" (change)="onCheckboxEditChange($event)" [checked]="editImmobilisation.get('isVehicule')?.value === 1">
             <label class="form-check-label" for="checkDefault">
               Cette Immobilisation est une voiture ?
@@ -962,7 +979,7 @@
           </div>
 
           <!-- Sélectionner un le véhicule si l'immo est un véhicule -->
-          <div class="mb-3" *ngIf="editImmobilisation.get('isVehicule')?.value === 1">
+          <div class="mb-3" *ngIf="editImmobilisation.get('isVehicule')?.value === 1" hidden>
             <label for="vehicule_id" class="form-label">Immatriculation du véhicule</label>
 
             <ng-container *ngIf="vehicules && vehicules.length > 0; else noVehiculeEdit">
