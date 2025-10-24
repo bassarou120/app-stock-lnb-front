@@ -76,7 +76,7 @@ export class VehiculesComponent implements OnInit {
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
   public toastVisible: boolean = false;
-  public toastType: 'success' | 'danger' | 'warning' = 'success'; // Type d'alerte Bootstrap
+  public toastType: 'success' | 'danger' | 'warning' | 'black' = 'success'; // Type d'alerte Bootstrap
   public toastTitle: string = '';
   public toastMessage: string = '';
   public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
@@ -129,7 +129,7 @@ export class VehiculesComponent implements OnInit {
     });
 
   // 🔹 Ecoute les changements sur date_mise_en_service et nbreannee_amortissement
-    this.setupAmortissementListeners(); 
+    this.setupAmortissementListeners();
     // Appel initial pour calculer la date d'amortissement par défaut au chargement
     this.updateDateAmortissement();
   }
@@ -343,7 +343,7 @@ export class VehiculesComponent implements OnInit {
       // 1. Définir les variables pour le calcul
       const dateMiseEnServiceFormatted = this.formatDate(this.editVehicule.value.date_mise_en_service);
       // Utiliser la valeur du formulaire, ou 5 par défaut si elle est nulle/vide
-      const nbreannee = this.editVehicule.value.nbreannee_amortissement || 5; 
+      const nbreannee = this.editVehicule.value.nbreannee_amortissement || 5;
 
       // 2. Calculer la date d'amortissement
       const dateAmortissementCalculee = this.calculerDateAmortissement(dateMiseEnServiceFormatted, nbreannee);
@@ -552,7 +552,7 @@ export class VehiculesComponent implements OnInit {
     const month = date.month.toString().padStart(2, '0');
     const day = date.day.toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
-  } 
+  }
 
   formatDateUpdate(dateString: string): string | null {
   if (!dateString) return null;
@@ -644,6 +644,9 @@ export class VehiculesComponent implements OnInit {
   uploadExcelFile(): void {
       if (!this.selectedFile) {
           // 1. Remplacement du premier alert
+          const modal = document.getElementById('importVehiculesExcel');
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
           this.showToast('warning', 'Sélection de Fichier', 'Veuillez sélectionner un fichier Excel à importer.');
           return;
       }
@@ -679,7 +682,7 @@ export class VehiculesComponent implements OnInit {
                   // Succès partiel (utilise 'warning' pour le toast)
                   this.ignoredLines = response.ignored; // Stocke pour l'affichage détaillé dans le Toast HTML
                   this.showToast(
-                      'warning',
+                      'black',
                       'Importation Partielle',
                       response.message + '. Veuillez consulter les lignes ignorées.'
                   );
@@ -694,6 +697,10 @@ export class VehiculesComponent implements OnInit {
               }
 
               this.selectedFile = null;
+              const fileInput = document.getElementById('excelFile') as HTMLInputElement;
+                if (fileInput) {
+                    fileInput.value = ''; // important pour pouvoir re-sélectionner le même fichier
+                }
           },
           error: (error) => {
               console.error('Erreur lors de l\'importation des véhicules:', error);
@@ -778,10 +785,10 @@ private updateDateAmortissement(): void {
   const dateAmortissementControl = this.editVehicule.get("date_amortissement");
 
   if (dateMiseEnServiceValue && nbreAnnees && Number(nbreAnnees) > 0) {
-      
+
       // ⭐ ÉTAPE CLÉ : Convertir la valeur du Form Control (Objet ou String) en String YYYY-MM-DD
-      const dateMiseEnServiceFormatted = this.formatDate(dateMiseEnServiceValue); 
-      
+      const dateMiseEnServiceFormatted = this.formatDate(dateMiseEnServiceValue);
+
       // Vérification de sécurité au cas où formatDate renverrait null
       if (!dateMiseEnServiceFormatted) {
           dateAmortissementControl?.patchValue('', { emitEvent: false });
@@ -790,7 +797,7 @@ private updateDateAmortissement(): void {
 
       // Utiliser la fonction de calcul existante (qui prend maintenant une chaîne formatée)
       const dateAmortissement = this.calculerDateAmortissement(dateMiseEnServiceFormatted, Number(nbreAnnees));
-      
+
       // Mettre à jour le champ 'date_amortissement'
       dateAmortissementControl?.patchValue(dateAmortissement, { emitEvent: false });
   } else {
@@ -848,7 +855,7 @@ private updateDateAmortissement(): void {
     // ❌ AVANT: 'edit_date_mise_en_service'
     // ✅ APRÈS : 'date_mise_en_service'
     const dateMiseEnServiceControl = this.editVehicule.get('date_mise_en_service');
-    
+
     // ❌ AVANT: 'edit_nbreannee_amortissement'
     // ✅ APRÈS : 'nbreannee_amortissement'
     const nbreAnneesControl = this.editVehicule.get('nbreannee_amortissement');
@@ -867,7 +874,7 @@ private updateDateAmortissement(): void {
     }
 }
 
-  showToast(type: 'success' | 'danger' | 'warning', title: string, message: string): void {
+  showToast(type: 'success' | 'danger' | 'warning'| 'black', title: string, message: string): void {
     this.toastType = type;
     this.toastTitle = title;
     this.toastMessage = message;
@@ -877,9 +884,9 @@ private updateDateAmortissement(): void {
     setTimeout(() => {
       this.toastVisible = false;
       this.ignoredLines = [];
-    }, 60000);
+    }, 5000);
   }
 
-  
+
 
 }

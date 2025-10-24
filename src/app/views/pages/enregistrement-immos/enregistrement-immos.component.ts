@@ -84,7 +84,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   public selectedImmobilisation: any = null;
 
   public toastVisible: boolean = false;
-  public toastType: 'success' | 'danger' | 'warning' = 'success'; // Type d'alerte Bootstrap
+  public toastType: 'success' | 'danger' | 'warning' | 'black' = 'success'; // Type d'alerte Bootstrap
   public toastTitle: string = '';
   public toastMessage: string = '';
   public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
@@ -875,6 +875,10 @@ private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: 
     uploadExcelFile(): void {
     if (!this.selectedFile) {
       //alert('Veuillez sélectionner un fichier Excel à importer.');
+      const modal = document.getElementById('importImmobilisationsExcel');
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      bsModal?.hide();
+
       this.showToast('warning', 'Alerte', 'Veuillez sélectionner un fichier Excel à importer.');
       return;
     }
@@ -921,6 +925,10 @@ this.immobilisationService.importImmobilisations(formData).subscribe({
             }
 
             this.selectedFile = null; // Réinitialiser le fichier sélectionné
+            const fileInput = document.getElementById('excelFile') as HTMLInputElement;
+            if (fileInput) {
+                fileInput.value = ''; // important pour pouvoir re-sélectionner le même fichier
+            }
         },
         error: (error) => {
             console.error('Erreur lors de l\'importation des Immobilisations:', error);
@@ -950,7 +958,7 @@ this.immobilisationService.importImmobilisations(formData).subscribe({
     });
   }
 
-  showToast(type: 'success' | 'danger' | 'warning', title: string, message: string): void {
+  showToast(type: 'success' | 'danger' | 'warning' | 'black', title: string, message: string): void {
     this.toastType = type;
     this.toastTitle = title;
     this.toastMessage = message;
