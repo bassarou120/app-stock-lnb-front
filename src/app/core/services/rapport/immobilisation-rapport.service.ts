@@ -211,6 +211,22 @@ export class ImmobilisationRapportService {
           params = params.set('date_fin_acquisition', filters['date_fin']);
         }
         break;
+
+      case 'bureau': // ⬅️ AJOUTEZ CE CAS
+        endpoint = `${this.apiUrl}/rapports/bureau/imprimer`; // Définir un nouvel endpoint si nécessaire
+
+        if (filters['date_debut']) {
+          params = params.set('date_debut_bureau', filters['date_debut']); // Nom du paramètre attendu par Laravel
+        }
+        if (filters['date_fin']) {
+          params = params.set('date_fin_bureau', filters['date_fin']); // Nom du paramètre attendu par Laravel
+        }
+        if (filters['bureau_id']) {
+          params = params.set('bureau_id', filters['bureau_id']);
+        }
+        break;
+
+
       default:
         return throwError(() => new Error(`Type de rapport non valide pour l\'impression: '${reportType}'.`));
     }
