@@ -133,27 +133,27 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 
 
     // ⚡ Synchronisation des selects avec tes variables
-  this.rapportForm.get('exercice_id')?.valueChanges
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(value => {
-      this.exercice_id = value;
-      console.log('Exercice sélectionné:', this.exercice_id);
-    });
+    this.rapportForm.get('exercice_id')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.exercice_id = value;
+        console.log('Exercice sélectionné:', this.exercice_id);
+      });
 
-  this.rapportForm.get('periode_id')?.valueChanges
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(value => {
-      this.periode_id = value;
-      console.log('Période sélectionnée:', this.periode_id);
-    });
+    this.rapportForm.get('periode_id')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.periode_id = value;
+        console.log('Période sélectionnée:', this.periode_id);
+      });
 
-  // Tu peux charger le rapport initial si tu veux avec des valeurs par défaut
-  if (this.rapportForm.get('exercice_id')?.value && this.rapportForm.get('periode_id')?.value) {
-    this.chargerRapport(
-          this.rapportForm.get('exercice_id')?.value,
-          this.rapportForm.get('periode_id')?.value
-        );
-  }
+    // Tu peux charger le rapport initial si tu veux avec des valeurs par défaut
+    if (this.rapportForm.get('exercice_id')?.value && this.rapportForm.get('periode_id')?.value) {
+      this.chargerRapport(
+        this.rapportForm.get('exercice_id')?.value,
+        this.rapportForm.get('periode_id')?.value
+      );
+    }
 
   }
 
@@ -198,20 +198,20 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     const firstDayOfMonth: NgbDateStruct = { year: today.year, month: today.month, day: 1 };
     // <-- FIN DES MODIFICATIONS POUR LES DATES PAR DÉFAUT
 
-      this.rapportForm = this.fb.group({
+    this.rapportForm = this.fb.group({
       id_type_rapport: [null, Validators.required],
 
       // Filtres pour Entrée Ticket
       date_debut_entree_t: [firstDayOfMonth], // <-- Date par défaut
       date_fin_entree_t: [today],             // <-- Date par défaut
       coupon_ticket_id_entree: [null],
-      compagnie_id_entree: [null],
+      compagnie_petrolier_id_entree: [null],
 
       // Filtres pour Sortie Ticket
       date_debut_sortie_t: [firstDayOfMonth], // <-- Date par défaut
       date_fin_sortie_t: [today],             // <-- Date par défaut
       coupon_ticket_id_sortie: [null],
-      compagnie_id_sortie: [null],
+      compagnie_petrolier_id_sortie: [null],
       employe_id_sortie: [null],
       vehicule_id_sortie: [null],
       depart_id_sortie: [null],
@@ -221,17 +221,17 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       date_debut_retour_t: [firstDayOfMonth], // <-- Date par défaut
       date_fin_retour_t: [today],             // <-- Date par défaut
       coupon_id_retour: [null],
-      compagnie_id_retour: [null],
+      compagnie_petrolier_id_retour: [null],
 
       // Filtres pour Annulation Ticket
       date_debut_annulation_t: [firstDayOfMonth], // <-- Date par défaut
       date_fin_annulation_t: [today],             // <-- Date par défaut
       coupon_id_annulation: [null],
-      compagnie_id_annulation: [null],
+      compagnie_petrolier_id_annulation: [null],
 
       // Filtre rapport   exercice_id: [null, Validators.required],
-        exercice_id: [null],
-        periode_id: [null]
+      exercice_id: [null],
+      periode_id: [null]
 
     });
     console.log('RapportTicketComponent: Form initialized with default dates.');
@@ -259,7 +259,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_entree_t')?.enable();
         this.rapportForm.get('date_fin_entree_t')?.enable();
         this.rapportForm.get('coupon_ticket_id_entree')?.enable();
-        this.rapportForm.get('compagnie_id_entree')?.enable();
+        this.rapportForm.get('compagnie_petrolier_id_entree')?.enable();
 
         // Dates obligatoires pour l'entrée
         this.rapportForm.get('date_debut_entree_t')?.setValidators(Validators.required);
@@ -275,7 +275,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_sortie_t')?.enable();
         this.rapportForm.get('date_fin_sortie_t')?.enable();
         this.rapportForm.get('coupon_ticket_id_sortie')?.enable();
-        this.rapportForm.get('compagnie_id_sortie')?.enable();
+        this.rapportForm.get('compagnie_petrolier_id_sortie')?.enable();
         this.rapportForm.get('employe_id_sortie')?.enable();
         this.rapportForm.get('vehicule_id_sortie')?.enable();
         this.rapportForm.get('depart_id_sortie')?.enable();
@@ -295,7 +295,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_retour_t')?.enable();
         this.rapportForm.get('date_fin_retour_t')?.enable();
         this.rapportForm.get('coupon_id_retour')?.enable();
-        this.rapportForm.get('compagnie_id_retour')?.enable();
+        this.rapportForm.get('compagnie_petrolier_id_retour')?.enable();
 
         // Dates obligatoires pour le retour
         this.rapportForm.get('date_debut_retour_t')?.setValidators(Validators.required);
@@ -311,7 +311,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('date_debut_annulation_t')?.enable();
         this.rapportForm.get('date_fin_annulation_t')?.enable();
         this.rapportForm.get('coupon_id_annulation')?.enable();
-        this.rapportForm.get('compagnie_id_annulation')?.enable();
+        this.rapportForm.get('compagnie_petrolier_id_annulation')?.enable();
 
         // Dates obligatoires pour l'annulation
         this.rapportForm.get('date_debut_annulation_t')?.setValidators(Validators.required);
@@ -325,20 +325,20 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         this.rapportForm.get('exercice_id')?.enable();
         this.rapportForm.get('periode_id')?.enable();
         // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
-       this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
-      this.rapportForm.get('periode_id')?.setValidators(Validators.required);
-       console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
-      break;
+        this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
+        this.rapportForm.get('periode_id')?.setValidators(Validators.required);
+        console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
+        break;
 
       case 'rapport periodique par montant':
         this.showRapportPeriodiqueMontantFilters = true;
         this.rapportForm.get('exercice_id')?.enable();
         this.rapportForm.get('periode_id')?.enable();
         // 💡 AJOUTER LA LIGNE SUIVANTE POUR APPLIQUER LA VALIDATION
-       this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
-      this.rapportForm.get('periode_id')?.setValidators(Validators.required);
-       console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
-      break;
+        this.rapportForm.get('exercice_id')?.setValidators(Validators.required);
+        this.rapportForm.get('periode_id')?.setValidators(Validators.required);
+        console.log('onTypeRapportChange: Showing Rapport Periodique filters.');
+        break;
 
       default:
         this.showEntreeTicketFilters = false;
@@ -355,8 +355,8 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     }
     // Décaler l'appel à updateValueAndValidity pour éviter ExpressionChangedAfterItHasBeenCheckedError
     setTimeout(() => {
-        this.rapportForm.updateValueAndValidity();
-      }, 0);
+      this.rapportForm.updateValueAndValidity();
+    }, 0);
     this.errorMessage = '';
     this.rows = [];
     this.temp = [];
@@ -366,10 +366,10 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
   private resetFormControls(): void {
     // Liste de tous les contrôles de filtres spécifiques (sauf 'id_type_rapport')
     const allSpecificControls = [
-      'date_debut_entree_t', 'date_fin_entree_t', 'coupon_ticket_id_entree', 'compagnie_id_entree',
-      'date_debut_sortie_t', 'date_fin_sortie_t', 'coupon_ticket_id_sortie', 'compagnie_id_sortie', 'employe_id_sortie', 'vehicule_id_sortie', 'depart_id_sortie', 'arriver_id_sortie',
-      'date_debut_retour_t', 'date_fin_retour_t', 'coupon_id_retour', 'compagnie_id_retour',
-      'date_debut_annulation_t', 'date_fin_annulation_t', 'coupon_id_annulation', 'compagnie_id_annulation',
+      'date_debut_entree_t', 'date_fin_entree_t', 'coupon_ticket_id_entree', 'compagnie_petrolier_id_entree',
+      'date_debut_sortie_t', 'date_fin_sortie_t', 'coupon_ticket_id_sortie', 'compagnie_petrolier_id_sortie', 'employe_id_sortie', 'vehicule_id_sortie', 'depart_id_sortie', 'arriver_id_sortie',
+      'date_debut_retour_t', 'date_fin_retour_t', 'coupon_id_retour', 'compagnie_petrolier_id_retour',
+      'date_debut_annulation_t', 'date_fin_annulation_t', 'coupon_id_annulation', 'compagnie_petrolier_id_annulation',
     ];
 
     allSpecificControls.forEach(key => {
@@ -454,7 +454,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     this.errorMessage = '';
 
     const filters: { [key: string]: any } = {
-        id_type_rapport: this.selectedReportTypeId,
+      id_type_rapport: this.selectedReportTypeId,
     };
 
     // Construire les filtres en fonction du type de rapport sélectionné
@@ -463,13 +463,13 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
             filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_entree_t')?.value);
             filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_entree_t')?.value);
             filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_entree')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_entree')?.value;
+            filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_entree')?.value;
             break;
         case 'sortie ticket':
             filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_sortie_t')?.value);
             filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_sortie_t')?.value);
             filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_sortie')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_sortie')?.value;
+            filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_sortie')?.value;
             filters.employe_id = this.rapportForm.get('employe_id_sortie')?.value;
             filters.vehicule_id = this.rapportForm.get('vehicule_id_sortie')?.value;
             filters.depart_id = this.rapportForm.get('depart_id_sortie')?.value;
@@ -479,57 +479,57 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
             filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_retour_t')?.value);
             filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_retour_t')?.value);
             filters.coupon_id = this.rapportForm.get('coupon_id_retour')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_retour')?.value;
+            filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_retour')?.value;
             break;
         case 'annulation ticket':
             filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_annulation_t')?.value);
             filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_annulation_t')?.value);
             filters.coupon_id = this.rapportForm.get('coupon_id_annulation')?.value;
-            filters.compagnie_id = this.rapportForm.get('compagnie_id_annulation')?.value;
+            filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_annulation')?.value;
             break;
 
-        case 'rapport periodique':
-              // 💡 Utilisez les noms de contrôles de votre formulaire
-              const annee = this.rapportForm.get('exercice_id')?.value;
-              const periode = this.rapportForm.get('periode_id')?.value;
+      case 'rapport periodique':
+        // 💡 Utilisez les noms de contrôles de votre formulaire
+        const annee = this.rapportForm.get('exercice_id')?.value;
+        const periode = this.rapportForm.get('periode_id')?.value;
 
-              if (annee && periode) {
-                      this.chargerRapport(
-                        this.rapportForm.get('exercice_id')?.value,
-                        this.rapportForm.get('periode_id')?.value
-                      );
-              } else {
-                  this.errorMessage = "Veuillez sélectionner une année et une période.";
-              }
-              this.isGeneratingReport = false;
-              this.loadingIndicator = false;
-              return;
+        if (annee && periode) {
+          this.chargerRapport(
+            this.rapportForm.get('exercice_id')?.value,
+            this.rapportForm.get('periode_id')?.value
+          );
+        } else {
+          this.errorMessage = "Veuillez sélectionner une année et une période.";
+        }
+        this.isGeneratingReport = false;
+        this.loadingIndicator = false;
+        return;
 
-        case 'rapport periodique par montant':
-              // 💡 Utilisez les noms de contrôles de votre formulaire
-              const annee_ = this.rapportForm.get('exercice_id')?.value;
-              const periode_ = this.rapportForm.get('periode_id')?.value;
+      case 'rapport periodique par montant':
+        // 💡 Utilisez les noms de contrôles de votre formulaire
+        const annee_ = this.rapportForm.get('exercice_id')?.value;
+        const periode_ = this.rapportForm.get('periode_id')?.value;
 
-              if (annee_ && periode_) {
-                      this.chargerRapportMontant(
-                        this.rapportForm.get('exercice_id')?.value,
-                        this.rapportForm.get('periode_id')?.value
-                      );
-              } else {
-                  this.errorMessage = "Veuillez sélectionner une année et une période.";
-              }
-              this.isGeneratingReport = false;
-              this.loadingIndicator = false;
-              return;
+        if (annee_ && periode_) {
+          this.chargerRapportMontant(
+            this.rapportForm.get('exercice_id')?.value,
+            this.rapportForm.get('periode_id')?.value
+          );
+        } else {
+          this.errorMessage = "Veuillez sélectionner une année et une période.";
+        }
+        this.isGeneratingReport = false;
+        this.loadingIndicator = false;
+        return;
 
 
     }
 
     // Nettoyer les filtres vides avant l'envoi
     Object.keys(filters).forEach(key => {
-        if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
-            delete filters[key];
-        }
+      if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
+        delete filters[key];
+      }
     });
 
     console.log('Envoi des filtres au backend pour le rapport de ticket:', filters);
@@ -582,95 +582,219 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 
 
 
-  downloadRapportTicketPDF(): void {
+/*   downloadRapportTicketPDF(): void {
     console.log('--- Tentative d\'impression du rapport de ticket PDF ---');
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
-    console.log('Form errors (PDF):', this.rapportForm.errors);
-
+  
     if (this.rapportForm.invalid) {
       this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires avant d'imprimer.";
       this.markFormGroupTouched(this.rapportForm);
       console.warn('Formulaire invalide, impression PDF non lancée.');
       return;
     }
-
+  
     this.isGeneratingReport = true;
     this.errorMessage = '';
-
-    // 💡 NOUVEAU BLOC : Gérer le cas du rapport périodique séparément
-    if (this.selectedReportTypeId === 'rapport periodique') {
-      const annee = this.rapportForm.get('exercice_id')?.value;
-      const periode = this.rapportForm.get('periode_id')?.value;
-
-      if (!annee || !periode) {
-        this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
-        this.isGeneratingReport = false;
-        return;
-      }
-
-      this.ticketRapportService.imprimerRapportPeriodique(annee, periode).subscribe({
-        next: (response) => {
-          const fileURL = window.URL.createObjectURL(response);
-          window.open(fileURL, '_blank');
-          this.isGeneratingReport = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la préparation du PDF du rapport périodique :', error);
-          this.errorMessage = `Erreur lors de la génération du PDF : ${error.message || 'Veuillez réessayer.'}`;
-          this.isGeneratingReport = false;
-        }
-      });
-      return; // Très important : arrête la fonction après l'appel
-    }
-
-
-
-    // 💡 NOUVEAU BLOC : Gérer le cas du rapport périodique par montant séparément
-    if (this.selectedReportTypeId === 'rapport periodique par montant') {
-      const annee = this.rapportForm.get('exercice_id')?.value;
-      const periode = this.rapportForm.get('periode_id')?.value;
-
-      if (!annee || !periode) {
-        this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
-        this.isGeneratingReport = false;
-        return;
-      }
-
-      this.ticketRapportService.imprimerRapportPeriodiqueMontant(annee, periode).subscribe({
-        next: (response) => {
-          const fileURL = window.URL.createObjectURL(response);
-          window.open(fileURL, '_blank');
-          this.isGeneratingReport = false;
-        },
-        error: (error) => {
-          console.error('Erreur lors de la préparation du PDF du rapport périodique :', error);
-          this.errorMessage = `Erreur lors de la génération du PDF : ${error.message || 'Veuillez réessayer.'}`;
-          this.isGeneratingReport = false;
-        }
-      });
-      return; // Très important : arrête la fonction après l'appel
-    }
-
-
-
-
-
-
-    // 👇 L'ancienne logique pour les autres rapports reste ici
+  
+    // Construire les filtres correctement
     const filters: { [key: string]: any } = {
       id_type_rapport: this.selectedReportTypeId,
     };
-
-    // ... (votre switch existant pour les filtres des autres rapports)
-
+  
+    // Ajouter les filtres spécifiques selon le type de rapport
+    switch (this.selectedReportTypeId) {
+      case 'entree ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_entree_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_entree_t')?.value);
+        filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_entree')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_id_entree')?.value;
+        break;
+      case 'sortie ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_sortie_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_sortie_t')?.value);
+        filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_sortie')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_id_sortie')?.value;
+        filters.employe_id = this.rapportForm.get('employe_id_sortie')?.value;
+        filters.vehicule_id = this.rapportForm.get('vehicule_id_sortie')?.value;
+        break;
+      case 'retour ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_retour_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_retour_t')?.value);
+        filters.coupon_ticket_id = this.rapportForm.get('coupon_id_retour')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_id_retour')?.value;
+        break;
+      case 'annulation ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_annulation_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_annulation_t')?.value);
+        filters.coupon_ticket_id = this.rapportForm.get('coupon_id_annulation')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_id_annulation')?.value;
+        break;
+    }
+  
+    // Nettoyer les filtres vides
     Object.keys(filters).forEach(key => {
       if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
         delete filters[key];
       }
     });
+  
+    console.log('Envoi des filtres pour PDF (POST):', filters);
+  
+    this.ticketRapportService.imprimerRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
+      (response: Blob) => {
+        console.log('Réponse PDF reçue du backend.');
+        const fileURL = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = fileURL;
+        a.download = `rapport_ticket_${this.selectedReportTypeId}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(fileURL);
+        this.isGeneratingReport = false;
+      },
+      (error: any) => {
+        console.error('Erreur lors du téléchargement du PDF du rapport de ticket:', error);
+        this.errorMessage = `Impossible de télécharger le PDF: ${error.message || 'Veuillez vérifier votre connexion ou contacter l\'administrateur.'}`;
+        this.isGeneratingReport = false;
+      }
+    );
+  } */
 
+  downloadRapportTicketPDF(): void {
+    console.log('--- Tentative d\'impression du rapport de ticket PDF ---');
+    console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
+    console.log('Form errors (PDF):', this.rapportForm.errors);
+  
+    // Débogage pour voir les erreurs spécifiques aux contrôles (comme dans la version initiale)
+    Object.keys(this.rapportForm.controls).forEach(key => {
+      if (this.rapportForm.get(key)?.errors) {
+        console.log(`Errors on control ${key} (PDF):`, this.rapportForm.get(key)?.errors);
+      }
+    });
+  
+    if (this.rapportForm.invalid) {
+      this.errorMessage = "Veuillez sélectionner un type de rapport et remplir tous les champs obligatoires avant d'imprimer.";
+      this.markFormGroupTouched(this.rapportForm);
+      console.warn('Formulaire invalide, impression PDF non lancée.');
+      return;
+    }
+  
+    this.isGeneratingReport = true;
+    this.errorMessage = '';
+  
+    // 💡 Gérer le cas du rapport périodique séparément
+    if (this.selectedReportTypeId === 'rapport periodique') {
+      const annee = this.rapportForm.get('exercice_id')?.value;
+      const periode = this.rapportForm.get('periode_id')?.value;
+  
+      if (!annee || !periode) {
+        this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
+        this.isGeneratingReport = false;
+        return;
+      }
+  
+      // Appel du service spécifique pour le rapport périodique
+      this.ticketRapportService.imprimerRapportPeriodique(annee, periode).subscribe({
+        next: (response: Blob) => { // Assurez-vous que le type de réponse est correct (Blob)
+          const fileURL = window.URL.createObjectURL(response);
+          const a = document.createElement('a'); // Utiliser la même méthode pour le téléchargement
+          a.href = fileURL;
+          a.download = `rapport_periodique_${annee}_${periode}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(fileURL);
+          this.isGeneratingReport = false;
+        },
+        error: (error: any) => {
+          console.error('Erreur lors de la préparation du PDF du rapport périodique :', error);
+          this.errorMessage = `Erreur lors de la génération du PDF : ${error.message || 'Veuillez réessayer.'}`;
+          this.isGeneratingReport = false;
+        }
+      });
+      return; // Très important : arrête la fonction après l'appel pour le rapport périodique
+    }
+
+    if(this.selectedReportTypeId === 'rapport periodique par montant') {
+      const annee = this.rapportForm.get('exercice_id')?.value;
+      const periode = this.rapportForm.get('periode_id')?.value;
+  
+      if (!annee || !periode) {
+        this.errorMessage = "Veuillez sélectionner une année et une période pour imprimer le rapport.";
+        this.isGeneratingReport = false;
+        return;
+      }
+  
+      // Appel du service spécifique pour le rapport périodique par montant
+      this.ticketRapportService.imprimerRapportPeriodiqueMontant(annee, periode).subscribe({
+        next: (response: Blob) => { // Assurez-vous que le type de réponse est correct (Blob)
+          const fileURL = window.URL.createObjectURL(response);
+          const a = document.createElement('a'); // Utiliser la même méthode pour le téléchargement
+          a.href = fileURL;
+          a.download = `rapport_periodique_montant_${annee}_${periode}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(fileURL);
+          this.isGeneratingReport = false;
+        },
+        error: (error: any) => {
+          console.error('Erreur lors de la préparation du PDF du rapport périodique par montant :', error);
+          this.errorMessage = `Erreur lors de la génération du PDF : ${error.message || 'Veuillez réessayer.'}`;
+          this.isGeneratingReport = false;
+        }
+      });
+      return; // Très important : arrête la fonction après l'appel pour le rapport périodique par montant
+    }
+  
+    // 👇 Logique pour les autres types de rapports (entrée, sortie, retour, annulation)
+    const filters: { [key: string]: any } = {
+      id_type_rapport: this.selectedReportTypeId,
+    };
+  
+    // Construire les filtres en fonction du type de rapport sélectionné pour le PDF
+    switch (this.selectedReportTypeId) {
+      case 'entree ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_entree_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_entree_t')?.value);
+        filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_entree')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_entree')?.value;
+        break;
+      case 'sortie ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_sortie_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_sortie_t')?.value);
+        filters.coupon_ticket_id = this.rapportForm.get('coupon_ticket_id_sortie')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_sortie')?.value;
+        filters.employe_id = this.rapportForm.get('employe_id_sortie')?.value;
+        filters.vehicule_id = this.rapportForm.get('vehicule_id_sortie')?.value;
+        filters.depart_id = this.rapportForm.get('depart_id_sortie')?.value;
+        filters.arriver_id = this.rapportForm.get('arriver_id_sortie')?.value;
+        break;
+      case 'retour ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_retour_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_retour_t')?.value);
+        filters.coupon_id = this.rapportForm.get('coupon_id_retour')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_retour')?.value;
+        break;
+      case 'annulation ticket':
+        filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_annulation_t')?.value);
+        filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_annulation_t')?.value);
+        filters.coupon_id = this.rapportForm.get('coupon_id_annulation')?.value;
+        filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_annulation')?.value;
+        break;
+    }
+  
+    // Nettoyer les filtres (supprimer les valeurs nulles, undefined ou vides)
+    Object.keys(filters).forEach(key => {
+      if (filters[key] === null || filters[key] === undefined || filters[key] === '') {
+        delete filters[key];
+      }
+    });
+  
     console.log('Envoi des filtres pour PDF au backend pour le rapport de ticket:', filters);
-
+  
+    // Appel du service pour les rapports de tickets classiques
     this.ticketRapportService.imprimerRapportData(filters).pipe(takeUntil(this.destroy$)).subscribe(
       (response: Blob) => {
         console.log('Réponse PDF reçue du backend.');
@@ -691,6 +815,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
       }
     );
   }
+
 
   formatDate(date: NgbDateStruct): string {
     if (!date) return '';
@@ -714,49 +839,49 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
     console.log('Valeur de recherche locale:', val);
 
     if (this.temp.length > 0) {
-        this.rows = this.temp.filter(item => {
-            let match = false;
-            switch (this.selectedReportTypeId) {
-                case 'entree ticket':
-                    const entree = item as MouvementTicket;
-                    match = (entree.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
-                            (entree.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
-                            (String(entree.qte).toLowerCase().includes(val) || false)||
-                            (entree.objet.toLowerCase().includes(val) || false)||
-                            (entree.description.toLowerCase().includes(val) || false);
-                    break;
-                case 'sortie ticket':
-                    const sortie = item as MouvementTicket;
-                    match =
-                            (sortie.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
-                            (sortie.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false) ||
-                            (sortie.employe?.nom?.toLowerCase().includes(val) || false) ||
-                            (sortie.vehicule?.immatriculation?.toLowerCase().includes(val) || false)||
-                            (sortie.objet.toLowerCase().includes(val) || false)||
-                            (sortie.description.toLowerCase().includes(val) || false)||
-                            (String(sortie.kilometrage).toLowerCase().includes(val) || false)||
-                            (String(sortie.qte).toLowerCase().includes(val) || false);
+      this.rows = this.temp.filter(item => {
+        let match = false;
+        switch (this.selectedReportTypeId) {
+          case 'entree ticket':
+            const entree = item as MouvementTicket;
+            match = (entree.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
+              (entree.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
+              (String(entree.qte).toLowerCase().includes(val) || false)||
+              (entree.objet.toLowerCase().includes(val) || false)||
+              (entree.description.toLowerCase().includes(val) || false);
+            break;
+          case 'sortie ticket':
+            const sortie = item as MouvementTicket;
+            match =
+              (sortie.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
+              (sortie.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false) ||
+              (sortie.employe?.nom?.toLowerCase().includes(val) || false) ||
+              (sortie.vehicule?.immatriculation?.toLowerCase().includes(val) || false)||
+              (sortie.objet.toLowerCase().includes(val) || false)||
+              (sortie.description.toLowerCase().includes(val) || false)||
+              (String(sortie.kilometrage).toLowerCase().includes(val) || false)||
+              (String(sortie.qte).toLowerCase().includes(val) || false);
 
-                    break;
-                case 'retour ticket':
-                    const retour = item as RetourTicket;
-                    match =
-                            (retour.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
-                            (retour.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
-                            (String(retour.qte).toLowerCase().includes(val) || false);
-                    break;
-                case 'annulation ticket':
-                    const annulation = item as AnnulationTicket;
-                    match =
-                            (annulation.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
-                            (annulation.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
-                            (String(annulation.qte).toLowerCase().includes(val) || false);
-                    break;
-            }
-            return match;
-        });
+            break;
+          case 'retour ticket':
+            const retour = item as RetourTicket;
+            match =
+              (retour.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
+              (retour.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
+              (String(retour.qte).toLowerCase().includes(val) || false);
+            break;
+          case 'annulation ticket':
+            const annulation = item as AnnulationTicket;
+            match =
+              (annulation.coupon_ticket?.libelle?.toLowerCase().includes(val) || false) ||
+              (annulation.compagnie_petrolier?.libelle?.toLowerCase().includes(val) || false)||
+              (String(annulation.qte).toLowerCase().includes(val) || false);
+            break;
+        }
+        return match;
+      });
     } else {
-        this.rows = [];
+      this.rows = [];
     }
 
     if (this.table) {

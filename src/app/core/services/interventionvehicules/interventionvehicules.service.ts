@@ -28,8 +28,10 @@ export class InterventionsVehiculeService {
     return this.http.post<InterventionVehicule>(`${this.url}/intervention-vehicules`, data);
   }
 
-  editInterventionVehicule(data: InterventionVehicule): Observable<InterventionVehicule> {
-    return this.http.put<InterventionVehicule>(`${this.url}/intervention-vehicules/${data.id}`, data);
+  editInterventionVehicule(id: number, data: FormData): Observable<InterventionVehicule> {
+    // 💡 On utilise POST pour contourner les limitations du PUT avec FormData.
+    // Le composant ajoutera '_method: PUT' à FormData pour que Laravel sache quoi faire.
+    return this.http.post<InterventionVehicule>(`${this.url}/intervention-vehicules/${id}`, data);
   }
 
   deleteInterventionVehicule(data: InterventionVehicule): Observable<void> {

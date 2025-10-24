@@ -65,6 +65,7 @@ export class InterventionVehiculeComponent implements OnInit {
   public addInterventionVehicule!: FormGroup;
   public editInterventionVehicule!: FormGroup;
   public deleteInterventionVehicule!: FormGroup;
+  
 
   vehicules: Vehicule[] = [];
   communes: Commune[] = []; // Gardé si utilisé ailleurs, mais pas directement dans cette logique
@@ -359,61 +360,94 @@ export class InterventionVehiculeComponent implements OnInit {
     );
   }
 
-  onClickSubmitEditInterventionVehicule() {
-    console.log('onClickSubmitEditInterventionVehicule: Tentative d\'édition...');
-    if (this.isEditingInterventionVehicule) {
-      console.warn('Soumission multiple détectée pour édition Intervention Véhicule. Annulation.');
-      return;
-    }
+ // interventionvehicules.component.ts
 
-    if (this.editInterventionVehicule.invalid) {
-      this.markFormGroupTouched(this.editInterventionVehicule);
-      console.error('Formulaire d\'édition invalide. Erreurs:', this.editInterventionVehicule.errors, 'Controls:', this.editInterventionVehicule.controls);
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
-      return;
-    }
-
-    this.isEditingInterventionVehicule = true;
-    const formData = {
-      ...this.editInterventionVehicule.value,
-      date_intervention: this.formatDate(this.editInterventionVehicule.value.date_intervention),
-      date_expiration: this.editInterventionVehicule.value.date_expiration ?
-                       this.formatDate(this.editInterventionVehicule.value.date_expiration) : null
-    };
-    console.log('onClickSubmitEditInterventionVehicule: Données à envoyer:', formData);
-
-
-    this.interventionVehiculeService.editInterventionVehicule(formData).subscribe(
-      (data: any) => {
-        console.log('onClickSubmitEditInterventionVehicule: Édition réussie:', data);
-        this.loadInterventionVehicules();
-        this.editInterventionVehicule.reset();
-        this.isEditingInterventionVehicule = false;
-
-        // Masquer le champ de date d'expiration après reset
-        this.editShowExpirationDateInput = false;
-        this.editInterventionVehicule.get('date_expiration')?.clearValidators(); // Retirer les validateurs
-        this.editInterventionVehicule.get('date_expiration')?.updateValueAndValidity(); // Mettre à jour la validité
-
-        const modal = document.getElementById('edit_intervention_vehicule');
-        // @ts-ignore
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
-
-        setTimeout(() => {
-          this.alertModifVisible = true;
-          setTimeout(() => {
-            this.alertModifVisible = false;
-          }, 2000);
-        }, 200);
-      },
-      (error: any) => {
-        console.error('Erreur lors de la modification de l\'intervention du véhicule :', error);
-        this.isEditingInterventionVehicule = false;
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      }
-    );
+onClickSubmitEditInterventionVehicule() {
+  console.log('onClickSubmitEditInterventionVehicule: Tentative d\'édition...');
+  if (this.isEditingInterventionVehicule) {
+    console.warn('Soumission multiple détectée pour édition Intervention Véhicule. Annulation.');
+    return;
   }
+
+  if (this.editInterventionVehicule.invalid) {
+    this.markFormGroupTouched(this.editInterventionVehicule);
+    console.error('Formulaire d\'édition invalide. Erreurs:', this.editInterventionVehicule.errors, 'Controls:', this.editInterventionVehicule.controls);
+    alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+    return;
+  }
+
+  this.isEditingInterventionVehicule = true;
+
+  // 💡 MODIFICATION 1 : Création de FormData et utilisation des valeurs du formulaire
+  const formValue = this.editInterventionVehicule.value;
+  const formData = new FormData();
+
+  // 💡 MODIFICATION 2 : Ajouter l'override de la méthode PUT pour Laravel
+  formData.append('_method', 'PUT'); 
+
+  // Conversion et ajout des données au FormData
+  // Note: Les valeurs sont converties en string avant d'être ajoutées à FormData
+  const dateInterventionStr = this.formatDate(formValue.date_intervention);
+  const dateExpirationStr = formValue.date_expiration ? this.formatDate(formValue.date_expiration) : '';
+  
+  formData.append('id', formValue.id.toString());
+  formData.append('vehicule_id', formValue.vehicule_id.toString());
+  formData.append('titre', formValue.titre);
+  formData.append('montant', formValue.montant.toString());
+  formData.append('observation', formValue.observation || '');
+  formData.append('date_intervention', dateInterventionStr ?? ''); 
+  formData.append('type_intervention_id', formValue.type_intervention_id.toString());
+
+  if (dateExpirationStr) {
+      formData.append('date_expiration', dateExpirationStr);
+  }
+
+  // 💡 MODIFICATION 3 : Ajouter le fichier sélectionné s'il existe
+  if (this.selectedFile) {
+      formData.append('piece_jointe', this.selectedFile, this.selectedFile.name);
+  }
+
+
+  console.log('onClickSubmitEditInterventionVehicule: Données à envoyer (FormData généré, fichier inclus si sélectionné)');
+
+  // 💡 MODIFICATION 4 : Appel au service avec l'ID et l'objet FormData
+  this.interventionVehiculeService.editInterventionVehicule(formValue.id, formData).subscribe(
+    (data: any) => {
+      console.log('onClickSubmitEditInterventionVehicule: Édition réussie:', data);
+      
+      // ✅ CRUCIAL : Réinitialiser le fichier après succès
+      this.selectedFile = null; 
+      
+      this.loadInterventionVehicules();
+      this.editInterventionVehicule.reset();
+      this.isEditingInterventionVehicule = false;
+
+      // Masquer le champ de date d'expiration après reset
+      this.editShowExpirationDateInput = false;
+      this.editInterventionVehicule.get('date_expiration')?.clearValidators();
+      this.editInterventionVehicule.get('date_expiration')?.updateValueAndValidity();
+
+      const modal = document.getElementById('edit_intervention_vehicule');
+      // @ts-ignore
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      bsModal?.hide();
+
+      setTimeout(() => {
+        this.alertModifVisible = true;
+        setTimeout(() => {
+          this.alertModifVisible = false;
+        }, 2000);
+      }, 200);
+    },
+    (error: any) => {
+      console.error('Erreur lors de la modification de l\'intervention du véhicule :', error);
+      this.isEditingInterventionVehicule = false;
+      // Réinitialiser le fichier même en cas d'erreur
+      this.selectedFile = null; 
+      alert('Une erreur s\'est produite. Veuillez réessayer.');
+    }
+  );
+}
 
   onClickSubmitDeleteInterventionVehicule() {
     console.log('onClickSubmitDeleteInterventionVehicule: Tentative de suppression...');
@@ -484,6 +518,8 @@ export class InterventionVehiculeComponent implements OnInit {
 
   // Prépare le formulaire d'édition
   getEditForm(row: InterventionVehicule) {
+    console.log('DEBUG: Date intervention reçue du backend:', row.date_intervention); // 👈 AJOUTEZ CECI
+    console.log('DEBUG: Date expiration reçue du backend:', row.date_expiration);   // 👈 ET CECI
     console.log('getEditForm: Préparation du formulaire d\'édition pour la ligne:', row);
     // IMPORTANT: Assurez-vous que row.typeIntervention est chargé (eager loading dans Laravel)
     // ou chargez-le manuellement si ce n'est pas le cas.
@@ -682,10 +718,28 @@ getDaysExpiredSince(dateExpiration: string): number {
   }
 
   // Méthode pour convertir "YYYY-MM-DD" en NgbDateStruct
+  // convertToNgbDate(dateString: string | null): NgbDateStruct | null {
+  //   if (!dateString) return null;
+  //   const parts = dateString.split('-');
+  //   if (parts.length !== 3) return null;
+  //   return {
+  //     year: +parts[0],
+  //     month: +parts[1],
+  //     day: +parts[2],
+  //   };
+  // }
+
   convertToNgbDate(dateString: string | null): NgbDateStruct | null {
     if (!dateString) return null;
-    const parts = dateString.split('-');
+    
+    // 💡 MODIFICATION CLÉ : prendre uniquement la partie date (YYYY-MM-DD)
+    // Cela tronque "2025-10-10T00:00:00.000000Z" en "2025-10-10"
+    const dateOnlyString = dateString.substring(0, 10); 
+    
+    const parts = dateOnlyString.split('-');
+    
     if (parts.length !== 3) return null;
+    
     return {
       year: +parts[0],
       month: +parts[1],

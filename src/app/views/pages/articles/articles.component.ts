@@ -89,7 +89,7 @@ importError: ImportError | null = null;
 //       code_article: ["", [Validators.required]],
       id_cat: [null, [Validators.required]],
       stock_alerte: [0, [Validators.required]],
-      description: ["" ,[Validators.required]],
+      description: [""],
    });
     this.deleteArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -149,7 +149,7 @@ importError: ImportError | null = null;
       libelle: ['', [Validators.required]],
 //       code_article: ['', [Validators.required]],
       id_cat: [null, [Validators.required]],
-      description: ['', [Validators.required]],
+      description: [''],
       stock_alerte: [0, [Validators.required]]
     });
   }

@@ -19,7 +19,7 @@ declare var bootstrap: any;
   selector: 'app-sortie',
   standalone: true,
   imports: [
-  RouterLink,
+    RouterLink,
     NgxDatatableModule,
     ReactiveFormsModule,
     CommonModule,
@@ -34,7 +34,7 @@ declare var bootstrap: any;
 })
 export class SortieComponent implements OnInit {
 
-    // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
+  // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canViewSortie: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
 
@@ -120,7 +120,7 @@ export class SortieComponent implements OnInit {
       // 🔥 VÉRIFICATION DES PERMISSIONS SPÉCIFIQUES
       this.canViewSortie = allowedFonctionnalites.includes('Sorties de Stock');
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
-      this.hasPageAccess = this.canViewSortie ;
+      this.hasPageAccess = this.canViewSortie;
 
       console.log('🔐 Permissions calculées:', {
         canViewSortie: this.canViewSortie,
@@ -289,7 +289,7 @@ export class SortieComponent implements OnInit {
     });
   }
 
-    downloadMouvementsSortiePDF(): void {
+  downloadMouvementsSortiePDF(): void {
     // 🔥 VÉRIFICATION DE PERMISSION AVANT EXPORT
 
     this.sortieService.imprimerMouvementsSortie().subscribe(
@@ -352,7 +352,7 @@ export class SortieComponent implements OnInit {
 
   loadSortiesAccordees(): void {
     this.sortieService.getAllMouvementStockSortie().pipe(
-      map((data: MouvementStock[]) => data.filter(sortie => sortie.statut === 'Validé'))
+      map((data: MouvementStock[]) => data.filter(sortie => sortie.statut === 'Cloturé'))
     ).subscribe(
       (data: MouvementStock[]) => {
         this.temp = [...data]; // Sauvegarde de la liste filtrée pour la recherche
@@ -360,7 +360,7 @@ export class SortieComponent implements OnInit {
         this.loadingIndicator = false;
       },
       error => {
-        console.error('Erreur lors du chargement des Mouvements Stock Sortie accordés', error);
+        console.error('Erreur lors du chargement des Mouvements Stock Sortie cloturé', error);
         this.loadingIndicator = false;
       }
     );
@@ -448,13 +448,13 @@ export class SortieComponent implements OnInit {
         this.quantiteDisponible = response.data;
 
         // 🔥 On met à jour le validateur max du champ qte
-    const qteControl = this.addSortie.get('qte');
-    qteControl?.setValidators([
-      Validators.required,
-      Validators.min(1),
-      Validators.max(this.quantiteDisponible)
-    ]);
-    qteControl?.updateValueAndValidity();
+        const qteControl = this.addSortie.get('qte');
+        qteControl?.setValidators([
+          Validators.required,
+          Validators.min(1),
+          Validators.max(this.quantiteDisponible)
+        ]);
+        qteControl?.updateValueAndValidity();
 
       },
       (error) => {
@@ -463,6 +463,6 @@ export class SortieComponent implements OnInit {
       }
     );
 
-}
+  }
 }
 
