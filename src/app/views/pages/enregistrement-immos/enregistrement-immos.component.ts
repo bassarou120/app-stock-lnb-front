@@ -88,6 +88,8 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   public toastTitle: string = '';
   public toastMessage: string = '';
   public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
+  selectedSousCompte: string = '0';
+  selectedGroupeCompte: string = '0';
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -628,6 +630,15 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       id: row.id,
     })
   }
+
+
+onSousTypeChange(sousType: any) {
+  this.selectedSousCompte = sousType ? String(sousType.compte) : '0';
+}
+onGroupeTypeChange(groupeType: any) {
+  this.selectedGroupeCompte = groupeType ? String(groupeType.compte) : '0';
+}
+
 
   onCheckboxChange(event: any) {
     this.addImmobilisation.patchValue({
