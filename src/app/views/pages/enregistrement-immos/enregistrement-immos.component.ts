@@ -84,10 +84,12 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   public selectedImmobilisation: any = null;
 
   public toastVisible: boolean = false;
-  public toastType: 'success' | 'danger' | 'warning' = 'success'; // Type d'alerte Bootstrap
+  public toastType: 'success' | 'danger' | 'warning' | 'black' = 'success'; // Type d'alerte Bootstrap
   public toastTitle: string = '';
   public toastMessage: string = '';
   public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
+  selectedSousCompte: string = '0';
+  selectedGroupeCompte: string = '0';
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -390,15 +392,15 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
         const today = this.formatNgbDateToYYYYMMDD(this.currentDate);
         // La date de mise en service est la date d'acquisition
         const dateMiseEnService = this.formatNgbDateToYYYYMMDD(this.addImmobilisation.value.date_acquisition);
-        
+
         formData.date_mouvement = today;
         formData.date_mise_en_service = dateMiseEnService;
-        
+
         // Ancienne valeur du bureau
         formData.ancien_bureau = 'Magasin';
       }
       console.log('Debug: FormData à envoyer pour ajout Immobilisation:', formData);
-      
+
       this.immobilisationService.saveImmobilisation(formData).subscribe(
         (data: any) => {
           this.loadImmobilisations();
@@ -593,7 +595,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
 
   getEditForm(row: any) {
     const ngbDateAcquisition = this.convertToNgbDate(row.date_acquisition);
-    
+
     this.editImmobilisation.patchValue({
       id: row.id,
       bureau_id: row.bureau_id,
@@ -628,6 +630,15 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       id: row.id,
     })
   }
+
+
+onSousTypeChange(sousType: any) {
+  this.selectedSousCompte = sousType ? String(sousType.compte) : '0';
+}
+onGroupeTypeChange(groupeType: any) {
+  this.selectedGroupeCompte = groupeType ? String(groupeType.compte) : '0';
+}
+
 
   onCheckboxChange(event: any) {
     this.addImmobilisation.patchValue({
@@ -875,6 +886,10 @@ private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: 
     uploadExcelFile(): void {
     if (!this.selectedFile) {
       //alert('Veuillez sélectionner un fichier Excel à importer.');
+      const modal = document.getElementById('importImmobilisationsExcel');
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      bsModal?.hide();
+
       this.showToast('warning', 'Alerte', 'Veuillez sélectionner un fichier Excel à importer.');
       return;
     }
@@ -921,6 +936,10 @@ this.immobilisationService.importImmobilisations(formData).subscribe({
             }
 
             this.selectedFile = null; // Réinitialiser le fichier sélectionné
+            const fileInput = document.getElementById('excelFile') as HTMLInputElement;
+            if (fileInput) {
+                fileInput.value = ''; // important pour pouvoir re-sélectionner le même fichier
+            }
         },
         error: (error) => {
             console.error('Erreur lors de l\'importation des Immobilisations:', error);
@@ -950,7 +969,7 @@ this.immobilisationService.importImmobilisations(formData).subscribe({
     });
   }
 
-  showToast(type: 'success' | 'danger' | 'warning', title: string, message: string): void {
+  showToast(type: 'success' | 'danger' | 'warning' | 'black', title: string, message: string): void {
     this.toastType = type;
     this.toastTitle = title;
     this.toastMessage = message;

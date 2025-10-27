@@ -31,11 +31,23 @@
 <!-- Alerte pour import avec succès -->
 
 
-  <div *ngIf="toastVisible" [ngClass]="['alert', 'alert-' + toastType]" role="alert" style="position: fixed; top: 20px; right: 20px; z-index: 1050; width: 400px;opacity: 1 !important; background-color: white !important;">
+<div *ngIf="toastVisible"
+     [ngClass]="['alert', 'alert-' + toastType]"
+     role="alert"
+     style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1050;
+        width: 400px;
+        opacity: 1 !important;
+        background-color: white !important;
+     ">
     <h4 class="alert-heading">{{ toastTitle }}</h4>
     <p>{{ toastMessage }}</p>
 
-    <ng-container *ngIf="toastType === 'warning' && ignoredLines.length > 0">
+    <ng-container *ngIf="toastType === 'black' && ignoredLines.length > 0">
         <hr>
         <p class="mb-0">Détails des lignes ignorées:</p>
         <ul class="text-start">
@@ -106,6 +118,16 @@
             <ngx-datatable-column name="Groupe type immo">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.groupe_type_immo?.libelle || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="N Compte Groupe type immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.groupe_type_immo?.compte || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="N Compte Sous type immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.sous_type_immo?.compte || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
             <!-- <ngx-datatable-column name="Sous type immo">
@@ -254,8 +276,12 @@
 
             <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmo">
               <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
-                [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation">
+                [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation" (change)="onSousTypeChange($event)">
               </ng-select>
+              <div class="text-primary mt-2">
+                      <small>Compte :
+                        {{ selectedSousCompte }}</small>
+              </div>
               <div
                 *ngIf="addImmobilisation.get('id_sous_type_immo')?.invalid && addImmobilisation.get('id_sous_type_immo')?.touched">
                 <small class="text-danger"> *Le Sous Type Immo est obligatoire</small>
@@ -278,8 +304,12 @@
             <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmo">
               <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
                 formControlName="id_groupe_type_immo" [clearable]="true"
-                placeholder="Sélectionnez le Groupe type de l'Immobilisation">
+                placeholder="Sélectionnez le Groupe type de l'Immobilisation" (change)="onGroupeTypeChange($event)">
               </ng-select>
+              <div class="text-primary mt-2">
+                      <small>Compte :
+                        {{ selectedGroupeCompte }}</small>
+              </div>
               <div
                 *ngIf="addImmobilisation.get('id_groupe_type_immo')?.invalid && addImmobilisation.get('id_groupe_type_immo')?.touched">
                 <small class="text-danger"> *Le Groupe Type Immo est obligatoire</small>

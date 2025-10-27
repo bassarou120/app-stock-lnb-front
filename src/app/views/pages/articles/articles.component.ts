@@ -67,7 +67,7 @@ importError: ImportError | null = null;
   selectedFile: File | null = null; // Pour stocker le fichier sélectionné
 
   public toastVisible: boolean = false;
-  public toastType: 'success' | 'danger' | 'warning' = 'success'; // Type d'alerte Bootstrap
+  public toastType: 'success' | 'danger' | 'warning' | 'black' = 'success'; // Type d'alerte Bootstrap
   public toastTitle: string = '';
   public toastMessage: string = '';
   public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
@@ -477,6 +477,9 @@ updateFilter(event: KeyboardEvent): void {
 
     if (!this.selectedFile) {
         // Utilisation du Toast pour l'alerte
+        const modal = document.getElementById('importArticlesExcel');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
         this.showToast('warning', 'Sélection de Fichier', 'Veuillez sélectionner un fichier Excel à importer.');
         return;
     }
@@ -536,6 +539,10 @@ updateFilter(event: KeyboardEvent): void {
             }
 
             this.selectedFile = null;
+            const fileInput = document.getElementById('excelFile') as HTMLInputElement;
+            if (fileInput) {
+                fileInput.value = ''; // important pour pouvoir re-sélectionner le même fichier
+            }
         },
         error: (error) => {
             console.error('Erreur lors de l\'importation des articles:', error);
@@ -574,7 +581,7 @@ updateFilter(event: KeyboardEvent): void {
     });
 }
 
-  showToast(type: 'success' | 'danger' | 'warning', title: string, message: string): void {
+  showToast(type: 'success' | 'danger' | 'warning' | 'black', title: string, message: string): void {
     this.toastType = type;
     this.toastTitle = title;
     this.toastMessage = message;
