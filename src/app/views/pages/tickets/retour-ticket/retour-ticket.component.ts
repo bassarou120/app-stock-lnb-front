@@ -420,15 +420,41 @@ export class RetourTicketComponent implements OnInit {
     );
   }
 
+  // loadAllSortieTicketWhereNotInRetour(): void {
+  //   this.retourTicketService.getAllSortieTicketWhereNotInRetour().subscribe({
+  //     next: (data) => {
+  //       this.mouvementsTickets = data;
+  //       console.error(" voici la liste", this.mouvementsTickets);
+  //     },
+  //     error: (err) => {
+  //       console.error("Erreur lors du chargement des mouvements :", err);
+  //     }
+  //   });
+  // }
   loadAllSortieTicketWhereNotInRetour(): void {
     this.retourTicketService.getAllSortieTicketWhereNotInRetour().subscribe({
-      next: (data) => {
-        this.mouvementsTickets = data;
-        console.error(" voici la liste", this.mouvementsTickets);
-      },
-      error: (err) => {
-        console.error("Erreur lors du chargement des mouvements :", err);
-      }
+        next: (allMouvements: any[]) => { 
+            console.log("Liste des mouvements reçus (avec ID uniques, mais la même référence) :", allMouvements);
+
+            // 1. DÉDUPLICATION FRONTEND: Utiliser la PROPRIÉTÉ 'reference' comme clé unique
+            const uniqueMouvementsMap = new Map();
+            
+            allMouvements.forEach((mouvement: any) => {
+                // 💡 CLÉ DE DÉDUPLICATION CHANGÉE : Nous utilisons mouvement.reference
+                if (mouvement.reference && !uniqueMouvementsMap.has(mouvement.reference)) {
+                    uniqueMouvementsMap.set(mouvement.reference, mouvement);
+                }
+            });
+
+            // 2. Convertir la Map en tableau et assigner à this.mouvementsTickets
+            this.mouvementsTickets = Array.from(uniqueMouvementsMap.values());
+            
+            // Note: Le ng-select affichera la référence, et chaque élément sera unique.
+            console.log("Liste des mouvements dédupliqués (par RÉFÉRENCE unique) :", this.mouvementsTickets);
+        },
+        error: (err) => {
+            console.error("Erreur lors du chargement des mouvements :", err);
+        }
     });
   }
   loadCouponTickets(): void {
