@@ -120,6 +120,16 @@
                 {{ row.groupe_type_immo?.libelle || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="N Compte Groupe type immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.groupe_type_immo?.compte || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="N Compte Sous type immo">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.sous_type_immo?.compte || 'N/A' }}
+              </ng-template>
+            </ngx-datatable-column>
             <!-- <ngx-datatable-column name="Sous type immo">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ row.sous_type_immo?.libelle || 'N/A' }}
@@ -266,8 +276,12 @@
 
             <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmo">
               <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
-                [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation">
+                [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation" (change)="onSousTypeChange($event)">
               </ng-select>
+              <div class="text-primary mt-2">
+                      <small>Compte :
+                        {{ selectedSousCompte }}</small>
+              </div>
               <div
                 *ngIf="addImmobilisation.get('id_sous_type_immo')?.invalid && addImmobilisation.get('id_sous_type_immo')?.touched">
                 <small class="text-danger"> *Le Sous Type Immo est obligatoire</small>
@@ -290,8 +304,12 @@
             <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmo">
               <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
                 formControlName="id_groupe_type_immo" [clearable]="true"
-                placeholder="Sélectionnez le Groupe type de l'Immobilisation">
+                placeholder="Sélectionnez le Groupe type de l'Immobilisation" (change)="onGroupeTypeChange($event)">
               </ng-select>
+              <div class="text-primary mt-2">
+                      <small>Compte :
+                        {{ selectedGroupeCompte }}</small>
+              </div>
               <div
                 *ngIf="addImmobilisation.get('id_groupe_type_immo')?.invalid && addImmobilisation.get('id_groupe_type_immo')?.touched">
                 <small class="text-danger"> *Le Groupe Type Immo est obligatoire</small>

@@ -88,6 +88,8 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   public toastTitle: string = '';
   public toastMessage: string = '';
   public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
+  selectedSousCompte: string = '0';
+  selectedGroupeCompte: string = '0';
 
   @ViewChild('table') table!: DatatableComponent;
 
@@ -390,15 +392,15 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
         const today = this.formatNgbDateToYYYYMMDD(this.currentDate);
         // La date de mise en service est la date d'acquisition
         const dateMiseEnService = this.formatNgbDateToYYYYMMDD(this.addImmobilisation.value.date_acquisition);
-        
+
         formData.date_mouvement = today;
         formData.date_mise_en_service = dateMiseEnService;
-        
+
         // Ancienne valeur du bureau
         formData.ancien_bureau = 'Magasin';
       }
       console.log('Debug: FormData à envoyer pour ajout Immobilisation:', formData);
-      
+
       this.immobilisationService.saveImmobilisation(formData).subscribe(
         (data: any) => {
           this.loadImmobilisations();
@@ -593,7 +595,7 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
 
   getEditForm(row: any) {
     const ngbDateAcquisition = this.convertToNgbDate(row.date_acquisition);
-    
+
     this.editImmobilisation.patchValue({
       id: row.id,
       bureau_id: row.bureau_id,
@@ -628,6 +630,15 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       id: row.id,
     })
   }
+
+
+onSousTypeChange(sousType: any) {
+  this.selectedSousCompte = sousType ? String(sousType.compte) : '0';
+}
+onGroupeTypeChange(groupeType: any) {
+  this.selectedGroupeCompte = groupeType ? String(groupeType.compte) : '0';
+}
+
 
   onCheckboxChange(event: any) {
     this.addImmobilisation.patchValue({
