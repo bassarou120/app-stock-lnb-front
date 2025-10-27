@@ -2,7 +2,8 @@ import { Component, ViewChild, OnInit, inject, TemplateRef,ViewEncapsulation } f
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { VehiculeService } from '../../../core/services/vehicules/vehicules.service';
-import { Vehicule, Modele, Marque } from '../../../core/services/interface/models';
+import { Vehicule, Modele, Marque, Immobilisation, SousTypeImmo, GroupeTypeImmo } from '../../../core/services/interface/models';
+import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
 import { NgbAlertModule, NgbCalendar, NgbDateStruct, NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -59,6 +60,10 @@ export class VehiculesComponent implements OnInit {
   modeles: Modele[] = [];
   marques: Marque[] = [];
 
+  sousTypeImmo: SousTypeImmo[] = [];
+  groupeTypeImmo: GroupeTypeImmo[] = [];
+
+
   alertAjoutVisible: boolean = false;
   alertModifVisible: boolean = false;
   alertSuppVisible: boolean = false;
@@ -68,6 +73,8 @@ export class VehiculesComponent implements OnInit {
   public editVehicule!: FormGroup;
   public carteGrise!: FormGroup;
   public deleteVehicule!: FormGroup;
+
+  public selectedImmobilisation: any = null;
 
   isAddingVehicules: boolean = false;
   isDeletingVehicule: boolean = false;
@@ -93,7 +100,8 @@ export class VehiculesComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     public modalService: NgbModal,
-    private http: HttpClient // Injecter HttpClient
+    private http: HttpClient, // Injecter HttpClient
+    private immobilisationService: ImmobilisationsService
   ) { }
 
 
@@ -103,6 +111,8 @@ export class VehiculesComponent implements OnInit {
       this.loadMarques();
       this.loadModeles();
       this.loadVehicules();
+      this.loadSousTypeImmo();
+      this.loadGroupeTypeImmo();
       this.initForm();
     }
 
@@ -119,6 +129,8 @@ export class VehiculesComponent implements OnInit {
       date_mise_en_service: ["", [Validators.required]],
       nbreannee_amortissement: [5, [Validators.min(1)]], // Valeur par défaut 5 ans
       date_amortissement: [""],
+      id_groupe_type_immo: [null, [Validators.required]],
+      id_sous_type_immo: [null, [Validators.required]],
     });
 
     this.deleteVehicule = this.formBuilder.group({
@@ -192,6 +204,8 @@ export class VehiculesComponent implements OnInit {
         nbreannee_amortissement: [5, [Validators.min(1)]],
         // Le champ de date d'amortissement est désactivé et calculé
         date_amortissement: [{ value: '', disabled: false }],
+        id_groupe_type_immo: [null, [Validators.required]],
+        id_sous_type_immo: [null, [Validators.required]],
     });
 
     this.deleteVehicule = this.formBuilder.group({ id: [null, [Validators.required]] });
@@ -215,6 +229,8 @@ export class VehiculesComponent implements OnInit {
       energie: [""],
       nbreannee_amortissement: [5, [Validators.min(1)]],
       date_amortissement: [""],
+      id_groupe_type_immo: [null, [Validators.required]],
+      id_sous_type_immo: [null, [Validators.required]],
     });
 
     // 🔹 Abonne-toi aux changements pour recalculer automatiquement
@@ -274,6 +290,14 @@ export class VehiculesComponent implements OnInit {
 
       const vehiculesToSave = this.vehiculesArray.value.map((vehicule: any) => {
 
+          if (!vehicule.id_sous_type_immo || !vehicule.id_groupe_type_immo) {
+            throw new Error('Tous les véhicules doivent avoir un sous-type et un groupe type renseignés');
+          }
+          console.log("id_sous_type:", vehicule.id_sous_type_immo);
+          console.log("id_groupe_type:", vehicule.id_groupe_type_immo);
+
+          
+          
         const dateMiseEnService = this.formatDate(vehicule.date_mise_en_service);
         const nbreannee = vehicule.nbreannee_amortissement || 5;
 
@@ -283,9 +307,13 @@ export class VehiculesComponent implements OnInit {
           ...vehicule,
           date_mise_en_service: this.formatDate(vehicule.date_mise_en_service),
           date_amortissement :dateAmortissementCalculee,
-          nbreannee_amortissement: nbreannee
+          nbreannee_amortissement: nbreannee,
+          id_sous_type_immo: vehicule.id_sous_type_immo,
+          id_groupe_type_immo: vehicule.id_groupe_type_immo
         };
       });
+
+      console.log('Payload envoyé :', { vehicules: vehiculesToSave });
 
       this.vehiculeService.saveMultipleVehicules(vehiculesToSave).subscribe(
         (data: any) => {
@@ -526,6 +554,8 @@ export class VehiculesComponent implements OnInit {
       energie: row.energie, // Ajouté
       nbreannee_amortissement: row.nbreannee_amortissement,
       date_amortissement: this.formatDateUpdate(row.date_amortissement),
+      id_sous_type_immo: row.id_sous_type_immo ?? row.sous_type_immo?.id,
+      id_groupe_type_immo: row.id_groupe_type_immo ?? row.groupe_type_immo?.id
     });
     this.modalService.open(this.editVehiculeContent, { centered: true });
   }
@@ -888,5 +918,26 @@ private updateDateAmortissement(): void {
   }
 
 
+    loadSousTypeImmo(): void {
+    this.immobilisationService.getAllSousTypeImmos().subscribe({
+      next: (data) => {
+        this.sousTypeImmo = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des SousTypeImmo :", err);
+      }
+    });
+  }
+
+  loadGroupeTypeImmo(): void {
+    this.immobilisationService.getAllGroupeTypeImmos().subscribe({
+      next: (data) => {
+        this.groupeTypeImmo = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des groupeTypeImmo :", err);
+      }
+    });
+  }
 
 }
