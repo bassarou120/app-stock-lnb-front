@@ -137,31 +137,42 @@
                   {{ row.modele?.libelle_modele || 'N/A' }}
                 </ng-template>
               </ngx-datatable-column>
+              <ngx-datatable-column name="Sous-type">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.sous_type_immo?.libelle || 'N/A' }}
+                </ng-template>
+              </ngx-datatable-column>
+
+              <ngx-datatable-column name="Groupe">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="kilometrage (en Km)" prop="kilometrage"></ngx-datatable-column>
               <ngx-datatable-column name="Puissance (en CV)" prop="puissance"></ngx-datatable-column>
               <ngx-datatable-column name="Places assises" prop="places_assises"></ngx-datatable-column>
               <ngx-datatable-column name="Energie" prop="energie"></ngx-datatable-column>
               <!-- Nouvelle colonne Carte grise -->
-<ngx-datatable-column name="Carte grise">
-  <ng-template let-row="row" ngx-datatable-cell-template>
-    <div class="d-flex align-items-center">
-      <!-- Si carte grise existe -->
-      <a *ngIf="row.carte_grise"
-         [href]="url + '/' + row.carte_grise"
-         target="_blank"
-         class="btn btn-sm btn-outline-primary me-2">
-        Voir
-      </a>
+              <ngx-datatable-column name="Carte grise">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  <div class="d-flex align-items-center">
+                    <!-- Si carte grise existe -->
+                    <a *ngIf="row.carte_grise"
+                      [href]="url + '/' + row.carte_grise"
+                      target="_blank"
+                      class="btn btn-sm btn-outline-primary me-2">
+                      Voir
+                    </a>
 
-      <!-- Si carte grise absente -->
-      <button *ngIf="!row.carte_grise"
-              class="btn btn-sm btn-outline-success"
-              (click)="sendCarteGrise(row)">
-        Uploader
-      </button>
-    </div>
-  </ng-template>
-</ngx-datatable-column>
+                    <!-- Si carte grise absente -->
+                    <button *ngIf="!row.carte_grise"
+                            class="btn btn-sm btn-outline-success"
+                            (click)="sendCarteGrise(row)">
+                      Uploader
+                    </button>
+                  </div>
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="Date de 1ère en service" prop="date_mise_en_service">
                 <ng-template let-value="value" ngx-datatable-cell-template>
                   {{ value | date:'dd/MM/yyyy' }}
@@ -331,6 +342,56 @@
                     formControlName="date_amortissement"
                     readonly>
             </div>
+
+          <!-- Sélectionner un SousTypeImmo -->
+          <div class="col-md-3">
+            <label for="sousTypeImmo" class="form-label">Sous Type Immo <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmoEdit">
+              <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
+                [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation">
+              </ng-select>
+               <div
+                *ngIf="editVehicule.get('id_sous_type_immo')?.invalid && editVehicule.get('id_sous_type_immo')?.touched">
+                <small class="text-danger"> *Le Sous Type Immo est obligatoire</small>
+              </div> 
+            </ng-container>
+
+            <!-- Message si aucun sousTypeImmo n'existe -->
+            <ng-template #noSousTypeImmoEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Sous Type Immo. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un GroupeTypeImmo -->
+          <div class="col-md-3">
+            <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmoEdit">
+              <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
+                formControlName="id_groupe_type_immo" [clearable]="true"
+                placeholder="Sélectionnez le Groupe type de l'Immobilisation">
+              </ng-select>
+               <div
+                *ngIf="editVehicule.get('id_groupe_type_immo')?.invalid && editVehicule.get('id_groupe_type_immo')?.touched">
+                <small class="text-danger"> *Le Groupe Type Immo est obligatoire</small>
+              </div> 
+            </ng-container>
+
+            <!-- Message si aucun GroupeTypeImmo n'existe -->
+            <ng-template #noGroupeTypeImmoEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Groupe Type Immo. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+
+
           </div>
 
           <!-- Actions -->
@@ -514,6 +575,55 @@
               formControlName="date_amortissement" id="edit_date_amortissement"
               readonly>
       </div>
+
+          <!-- Sélectionner un SousTypeImmo -->
+          <div class="mb-3">
+            <label for="sousTypeImmo" class="form-label">Sous Type Immo <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmoEdit">
+              <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
+                [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation">
+              </ng-select>
+               <div
+                *ngIf="editVehicule.get('id_sous_type_immo')?.invalid && editVehicule.get('id_sous_type_immo')?.touched">
+                <small class="text-danger"> *Le Sous Type Immo est obligatoire</small>
+              </div> 
+            </ng-container>
+
+            <!-- Message si aucun sousTypeImmo n'existe -->
+            <ng-template #noSousTypeImmoEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Sous Type Immo. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+          <!-- Sélectionner un GroupeTypeImmo -->
+          <div class="mb-3">
+            <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation <span class="text-danger">*</span></label>
+
+            <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmoEdit">
+              <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
+                formControlName="id_groupe_type_immo" [clearable]="true"
+                placeholder="Sélectionnez le Groupe type de l'Immobilisation">
+              </ng-select>
+               <div
+                *ngIf="editVehicule.get('id_groupe_type_immo')?.invalid && editVehicule.get('id_groupe_type_immo')?.touched">
+                <small class="text-danger"> *Le Groupe Type Immo est obligatoire</small>
+              </div> 
+            </ng-container>
+
+            <!-- Message si aucun GroupeTypeImmo n'existe -->
+            <ng-template #noGroupeTypeImmoEdit>
+              <div class="alert alert-danger"
+                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                <i class="feather icon-alert-circle"></i> Aucun Groupe Type Immo. Veuillez en créer.
+              </div>
+            </ng-template>
+          </div>
+
+
 
 
 

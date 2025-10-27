@@ -229,6 +229,10 @@ export interface Vehicule {
   updated_at: string;
   nbreannee_amortissement?: number;
   date_amortissement?: string;
+  id_sous_type_immo: number;
+  sous_type_immo?: SousTypeImmo;
+  id_groupe_type_immo: number;
+  groupe_type_immo?: GroupeTypeImmo;
 }
 
 export interface MouvementStock {
