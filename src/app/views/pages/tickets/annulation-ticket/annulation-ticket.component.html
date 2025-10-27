@@ -179,7 +179,7 @@
             <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
               [attr.max]="ancienQteDuMvt" min="1"
               [class.invalid]="addAnnulationTicket.get('qte')?.invalid && addAnnulationTicket.get('qte')?.touched"
-              formControlName="qte">
+              formControlName="qte" readonly>
             <div *ngIf="addAnnulationTicket.get('qte')?.invalid && addAnnulationTicket.get('qte')?.touched">
               <small *ngIf="addAnnulationTicket.get('qte')?.errors?.['required']" class="text-danger">* La quantité est
                 obligatoire</small>
