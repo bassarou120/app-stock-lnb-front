@@ -128,122 +128,103 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
 
-      <!-- Contenu du modal -->
+      <!-- Contenu du modal //Nouveau -->
       <div class="modal-body">
         <form class="forms-sample" [formGroup]="addRetourTicket" (ngSubmit)="onClickSubmitAddRetourTicket()" novalidate>
-
-          <!-- Sélectionner le mouvement de sortie -->
-          <div class="mb-3">
-            <label for="mouvementTicket_id" class="form-label">Code Mouvement Ticket <span class="text-danger">*</span></label>
-            <ng-container *ngIf="mouvementsTickets && mouvementsTickets.length > 0; else noMouvementTicket">
-              <ng-select [items]="mouvementsTickets" bindLabel="reference" bindValue="id" formControlName="mouvementTicket_id"
-                [clearable]="true" placeholder="Sélectionnez le mouvement ticket" (change)="getMouvementtInfo()">
-              </ng-select>
-              <div
-                *ngIf="addRetourTicket.get('mouvementTicket_id')?.invalid && addRetourTicket.get('mouvementTicket_id')?.touched">
-                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
-              </div>
-            </ng-container>
-            <div class="text-danger mt-2">
-              <small>Ancienne Quantité Sortie: {{ ancienQteDuMvt }}</small>
+    
+            <div class="row">
+                <div class="col-md-12"> <div class="mb-3">
+                        <label for="mouvementTicket_id" class="form-label">Code Mouvement Ticket <span class="text-danger">*</span></label>
+                        <ng-container *ngIf="mouvementsTickets && mouvementsTickets.length > 0; else noMouvementTicket">
+                            <ng-select [items]="mouvementsTickets" bindLabel="reference" bindValue="id" formControlName="mouvementTicket_id"
+                                [clearable]="true" placeholder="Sélectionnez le mouvement ticket" (change)="getMouvementtInfo()">
+                            </ng-select>
+                            <div
+                                *ngIf="addRetourTicket.get('mouvementTicket_id')?.invalid && addRetourTicket.get('mouvementTicket_id')?.touched">
+                                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
+                            </div>
+                        </ng-container>
+                        <ng-template #noMouvementTicket>
+                            <div class="alert alert-danger"
+                                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                                <i class="feather icon-alert-circle"></i> Plus d'attribution de Ticket disponible pour un retour.
+                            </div>
+                        </ng-template>
+                    </div>
+                </div>
+    
+                </div>
+            
+            <input type="hidden" formControlName="compagnie_petrolier_id">
+    
+            <div formArrayName="retours_coupons" *ngIf="retoursCouponsArray && retoursCouponsArray.length > 0" class="mt-4">
+                <h5 class="text-info mb-3">Coupons à retourner ({{ retoursCouponsArray.length }} lignes)</h5>
+    
+                <div *ngFor="let couponForm of retoursCouponsArray.controls; let i = index" [formGroupName]="i" class="card mb-3 p-3 border-secondary">
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Coupon (Compagnie)</label>
+                                <input type="text" class="form-control" [value]="couponForm.get('libelle_affichage')?.value" readonly>
+                            </div>
+                        </div>
+    
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Quantité Maximale Retournable</label>
+                                <input type="number" class="form-control" [value]="couponForm.get('quantite_max_retournable')?.value" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="qte_retournee_{{i}}" class="form-label">Quantité à Retourner <span class="text-danger">*</span></label>
+                                <input type="number" id="qte_retournee_{{i}}" class="form-control" 
+                                    formControlName="qte_retournee" 
+                                    placeholder="Quantité à retourner"
+                                    [class.invalid]="couponForm.get('qte_retournee')?.invalid && couponForm.get('qte_retournee')?.touched">
+                                
+                                <div *ngIf="couponForm.get('qte_retournee')?.invalid && couponForm.get('qte_retournee')?.touched">
+                                    <small *ngIf="couponForm.get('qte_retournee')?.errors?.['required']" class="text-danger">
+                                        *La quantité à retourner est obligatoire.
+                                    </small>
+                                    <small *ngIf="couponForm.get('qte_retournee')?.errors?.['max']" class="text-danger">
+                                        *La quantité ne peut pas dépasser {{ couponForm.get('quantite_max_retournable')?.value }}.
+                                    </small>
+                                    <small *ngIf="couponForm.get('qte_retournee')?.errors?.['min']" class="text-danger">
+                                        *La quantité doit être au moins 1.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <input type="hidden" formControlName="mouvement_ticket_id">
+                    <input type="hidden" formControlName="coupon_ticket_id">
+                    <input type="hidden" formControlName="compagnie_petrolier_id">
+                </div>
             </div>
-            <ng-template #noMouvementTicket>
-              <div class="alert alert-danger"
+    
+            <div *ngIf="addRetourTicket.get('mouvementTicket_id')?.valid && retoursCouponsArray && retoursCouponsArray.length === 0" class="alert alert-warning mt-3"
                 style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Plus d'attribution de Ticket disponible pour un retour.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- Sélectionner une compagnie_petrolier -->
-          <div class="mb-3">
-            <label for="compagniePetrolieres" class="form-label">Compagnie Pétrolière <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolier">
-              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id" formControlName="compagnie_petrolier_id"
-                [clearable]="true" placeholder="" readonly>
-              </ng-select>
-
-              <div *ngIf="addRetourTicket.get('compagnie_petrolier_id')?.invalid && addRetourTicket.get('compagnie_petrolier_id')?.touched">
-                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucune Compagnie_petrolier n'existe -->
-            <ng-template #noCompagnie_petrolier>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolière. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-          <!-- Sélectionner un coupon -->
-          <div class="mb-3">
-            <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
-
-            <ng-container *ngIf="couponsTickets && couponsTickets.length > 0; else noCouponTickets">
-              <ng-select [items]="couponsTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
-                [clearable]="true" placeholder="" readonly>
-              </ng-select>
-
-              <div *ngIf="addRetourTicket.get('coupon_ticket_id')?.invalid && addRetourTicket.get('coupon_ticket_id')?.touched">
-                <small class="text-danger"> *Le coupon est obligatoire</small>
-              </div>
-            </ng-container>
-
-            <!-- Message si aucun CouponTicket n'existe -->
-            <ng-template #noCouponTickets>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <!-- Qte -->
-          <div class="mb-3">
-            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [class.invalid]="addRetourTicket.get('qte')?.invalid && addRetourTicket.get('qte')?.touched" formControlName="qte">
-              <div *ngIf="addRetourTicket.get('qte')?.invalid && addRetourTicket.get('qte')?.touched">
-                <small *ngIf="addRetourTicket.get('qte')?.errors?.['required']" class="text-danger">* La quantité est obligatoire</small>
-                <small *ngIf="addRetourTicket.get('qte')?.errors?.['min']" class="text-danger">* La quantité doit être au moins 1</small>
-                <small *ngIf="addRetourTicket.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas dépasser {{ ancienQteDuMvt }}</small>
-              </div>
-          </div>
-
-
-
-
-
-
-          <!--  date_mouvement -->
-          <!-- <label for="date" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
-          <div class="input-group mb-5">
-            <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAdd.toggle()">
-              <i data-feather="calendar"></i>
-            </button>
-            <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAdd"
-              [(ngModel)]="currentDate" ngbDatepicker #dAdd="ngbDatepicker" formControlName="date">
-          </div>
-
-          <div *ngIf="addEntree.get('date')?.invalid && addEntree.get('date')?.touched">
-            <small class="text-danger"> *la date du mouvement est obligatoire</small>
-          </div> -->
-
-
-          <!-- Boutons centrés -->
-          <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary" [disabled]="isAdding">
-              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isAdding" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
-              {{ isAdding ? 'Ajout en cours...' : 'Ajouter' }}
-            </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
-          </div>
+                <i class="feather icon-alert-circle"></i> Tous les tickets de cette sortie ont déjà été retournés.
+            </div>
+    
+    
+            <div class="modal-footer d-flex justify-content-center gap-2">
+                <button type="submit" class="btn btn-primary" [disabled]="isAdding || addRetourTicket.invalid || !retoursCouponsArray || retoursCouponsArray.length === 0">
+                    <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isAdding" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    {{ isAdding ? 'Ajout en cours...' : 'Enregistrer le(s) Retour(s)' }}
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            </div>
         </form>
-      </div>
+    </div>
     </div>
   </div>
 </div>

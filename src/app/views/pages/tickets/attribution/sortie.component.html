@@ -515,7 +515,7 @@
                   role="status" aria-hidden="true">
                   <span class="visually-hidden">Loading...</span>
                 </span>
-                {{ isAddingSortie ? "Ajout en cours..." : "Ajouter" }}
+                {{ isAddingSortie ? "Ajout en cours..." : "Enregistrer" }}
               </button>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                 Annuler
@@ -952,7 +952,7 @@
 
       <div class="modal-footer d-flex justify-content-center gap-2">
         <button type="button" class="btn btn-primary" (click)="onClickSubmitKilometrageFin(modal)">
-          Ajouter
+          Enregistrer
         </button>
         <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">
           Annuler
