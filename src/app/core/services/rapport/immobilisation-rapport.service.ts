@@ -6,7 +6,15 @@ import { catchError, map, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 
 // Importe les interfaces nécessaires
-import { Immobilisation, PaginatedResponse, BackendPostResource, Transfert, Intervention } from '../interface/models';
+import { Immobilisation, PaginatedResponse, BackendPostResource, Transfert, Intervention, CodeAsset } from '../interface/models';
+
+interface CodesApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    codes: CodeAsset[]; 
+  };
+}
 
 @Injectable({
   providedIn: 'root'
@@ -250,6 +258,22 @@ export class ImmobilisationRapportService {
     );
   }
 
+// Dans votre service (ex: rapport.service.ts)
+
+getAllCode_vehiculeImmo(): Observable<CodeAsset[]> { 
+    
+    return this.http.get<CodesApiResponse>(
+      `${this.apiUrl}/rapports/getcodes` // Assurez-vous que l'URL est correcte
+    ).pipe(
+      map(response => {
+        // CORRECTION DÉFINITIVE : Utiliser '?? []' pour garantir un tableau vide
+        // Si response.data est undefined OU si response.data.codes est undefined,
+        // cette expression retourne un tableau vide []
+        return response.data?.codes ?? []; 
+      })
+    );
+}
+  
 
 
 }

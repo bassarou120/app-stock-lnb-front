@@ -216,6 +216,7 @@ export interface Article {
 export interface Vehicule {
   id: number;
   libelle?: string;
+  code: string;
   marque_id?: number;
   marque?: Marque; // Relation chargée
   modele_id?: number;
@@ -233,6 +234,16 @@ export interface Vehicule {
   sous_type_immo?: SousTypeImmo;
   id_groupe_type_immo: number;
   groupe_type_immo?: GroupeTypeImmo;
+    //
+  montant_ttc: number;
+  observation?: string;
+  date_acquisition: string; // format YYYY-MM-DD
+  //id_status_immo: number;
+  //statusImmo?: StatusImmo; 
+  bureau_id?: number;
+  bureau?: Bureau;
+  fournisseur?: Fournisseur;
+  fournisseur_id?: number;
 }
 
 export interface MouvementStock {
@@ -624,4 +635,19 @@ export interface ImportError {
   type: 'Validation' | 'Critique';
   message: string;
   details?: string[];
+}
+
+export interface CodeAsset {
+  id: number;
+  code: string;
+  type: 'immobilisation' | 'vehicule'; // Type plus précis pour le frontend
+}
+
+// Définir la structure exacte de la réponse API
+export interface CodesApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    codes: CodeAsset[]; // C'est la structure correcte !
+  };
 }

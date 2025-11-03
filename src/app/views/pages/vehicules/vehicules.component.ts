@@ -2,7 +2,7 @@ import { Component, ViewChild, OnInit, inject, TemplateRef,ViewEncapsulation } f
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { VehiculeService } from '../../../core/services/vehicules/vehicules.service';
-import { Vehicule, Modele, Marque, Immobilisation, SousTypeImmo, GroupeTypeImmo } from '../../../core/services/interface/models';
+import { Vehicule, Modele, Marque, Immobilisation,Fournisseur,StatusImmo, Bureau, SousTypeImmo, GroupeTypeImmo } from '../../../core/services/interface/models';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from "@angular/forms";
 import { CommonModule } from '@angular/common';
@@ -60,9 +60,15 @@ export class VehiculesComponent implements OnInit {
   modeles: Modele[] = [];
   marques: Marque[] = [];
 
+  statusImmo: StatusImmo[] = [];
+  etatOptions: string[] = ['Bon', 'Usé', 'Défectueux / En panne', 'Irréparable'];
+
+  fournisseurs: Fournisseur[] = [];
   sousTypeImmo: SousTypeImmo[] = [];
   groupeTypeImmo: GroupeTypeImmo[] = [];
 
+  bureaux: Bureau[] = [];
+  codesImmo: any[] = [];
 
   alertAjoutVisible: boolean = false;
   alertModifVisible: boolean = false;
@@ -88,6 +94,8 @@ export class VehiculesComponent implements OnInit {
   public toastMessage: string = '';
   public ignoredLines: string[] = []; // Pour stocker les lignes ignorées
 
+  selectedSousCompte: string = '0';
+  selectedGroupeCompte: string = '0';
 
   @ViewChild('table') table!: DatatableComponent;
   @ViewChild('addVehiculeContent') addVehiculeContent!: TemplateRef<any>;
@@ -113,11 +121,15 @@ export class VehiculesComponent implements OnInit {
       this.loadVehicules();
       this.loadSousTypeImmo();
       this.loadGroupeTypeImmo();
+      this.loadFournisseurs();
+      this.loadBureaux();
+      this.loadStatusImmo();
       this.initForm();
     }
 
     this.editVehicule = this.formBuilder.group({
       id: [0, [Validators.required]],
+      code: [null, [Validators.required]],
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
       immatriculation: ["", [Validators.required]],
@@ -131,6 +143,15 @@ export class VehiculesComponent implements OnInit {
       date_amortissement: [""],
       id_groupe_type_immo: [null, [Validators.required]],
       id_sous_type_immo: [null, [Validators.required]],
+      //
+      bureau_id: [null, []],
+      fournisseur_id: [null, []],
+      etat: ["", [Validators.required]],
+      taux_ammortissement: ["", [Validators.required]],
+      date_acquisition: [null, [Validators.required]],
+      observation: [""],
+      id_status_immo: [null, [Validators.required]],
+      montant_ttc: ["", [Validators.required]],
     });
 
     this.deleteVehicule = this.formBuilder.group({
@@ -191,6 +212,7 @@ export class VehiculesComponent implements OnInit {
 
     this.editVehicule = this.formBuilder.group({
         id: [0, [Validators.required]],
+        code: [null, [Validators.required]],
         marque_id: [null, [Validators.required]],
         modele_id: [null, [Validators.required]],
         immatriculation: ["", [Validators.required, Validators.pattern(/^[A-Z0-9\s-]+$/)]],
@@ -206,6 +228,15 @@ export class VehiculesComponent implements OnInit {
         date_amortissement: [{ value: '', disabled: false }],
         id_groupe_type_immo: [null, [Validators.required]],
         id_sous_type_immo: [null, [Validators.required]],
+        //
+        bureau_id: [null, []],
+        fournisseur_id: [null, []],
+        etat: ["", [Validators.required]],
+        taux_ammortissement: ["", [Validators.required]],
+        date_acquisition: [null, [Validators.required]],
+        observation: [""],
+        id_status_immo: [null, [Validators.required]],
+        montant_ttc: ["", [Validators.required]],
     });
 
     this.deleteVehicule = this.formBuilder.group({ id: [null, [Validators.required]] });
@@ -218,6 +249,7 @@ export class VehiculesComponent implements OnInit {
 
   createVehiculeFormGroup(): FormGroup {
     const group = this.formBuilder.group({
+      code: [null, [Validators.required]],
       marque_id: [null, [Validators.required]],
       modele_id: [null, [Validators.required]],
       immatriculation: ["", [Validators.required]],
@@ -231,6 +263,15 @@ export class VehiculesComponent implements OnInit {
       date_amortissement: [""],
       id_groupe_type_immo: [null, [Validators.required]],
       id_sous_type_immo: [null, [Validators.required]],
+      //
+      bureau_id: [null, []],
+      fournisseur_id: [null, []],
+      etat: ["", [Validators.required]],
+      taux_ammortissement: ["", [Validators.required]],
+      date_acquisition: [null, [Validators.required]],
+      observation: [""],
+      id_status_immo: [null, [Validators.required]],
+      montant_ttc: ["", [Validators.required]],
     });
 
     // 🔹 Abonne-toi aux changements pour recalculer automatiquement
@@ -296,8 +337,8 @@ export class VehiculesComponent implements OnInit {
           console.log("id_sous_type:", vehicule.id_sous_type_immo);
           console.log("id_groupe_type:", vehicule.id_groupe_type_immo);
 
-          
-          
+
+
         const dateMiseEnService = this.formatDate(vehicule.date_mise_en_service);
         const nbreannee = vehicule.nbreannee_amortissement || 5;
 
@@ -309,7 +350,16 @@ export class VehiculesComponent implements OnInit {
           date_amortissement :dateAmortissementCalculee,
           nbreannee_amortissement: nbreannee,
           id_sous_type_immo: vehicule.id_sous_type_immo,
-          id_groupe_type_immo: vehicule.id_groupe_type_immo
+          id_groupe_type_immo: vehicule.id_groupe_type_immo,
+          //
+          date_acquisition: this.formatDate(vehicule.date_acquisition),
+          montant_ttc:vehicule.montant_ttc,
+          observation:vehicule.observation,
+          bureau_id: vehicule.bureau_id,
+          fournisseur_id: vehicule.fournisseur_id,
+          id_status_immo: vehicule.id_status_immo,
+          etat: vehicule.etat,
+          taux_ammortissement: vehicule.taux_ammortissement,
         };
       });
 
@@ -353,6 +403,16 @@ export class VehiculesComponent implements OnInit {
     }
   }
 
+  // Fonction utilitaire pour convertir NgbDateStruct en string "YYYY-MM-DD"
+  private ngbDateToString(ngbDate: any): string | null {
+    if (!ngbDate || !ngbDate.year || !ngbDate.month || !ngbDate.day) return null;
+
+    const year = ngbDate.year;
+    const month = ngbDate.month.toString().padStart(2, '0'); // 01, 02 ...
+    const day = ngbDate.day.toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+  }
 
   onClickSubmitEditVehicule() {
     console.log('onClickSubmitEditVehicule appelé. Valeur du formulaire:', this.editVehicule.value);
@@ -372,17 +432,25 @@ export class VehiculesComponent implements OnInit {
       const dateMiseEnServiceFormatted = this.formatDate(this.editVehicule.value.date_mise_en_service);
       // Utiliser la valeur du formulaire, ou 5 par défaut si elle est nulle/vide
       const nbreannee = this.editVehicule.value.nbreannee_amortissement || 5;
+      const code = this.editVehicule.value.code;
+
+      //this.editVehicule.value.date_acquisition
+      const date_acquisitionNgb = this.editVehicule.value.date_acquisition;
+      const date_acquisitionFormatted = this.ngbDateToString(date_acquisitionNgb);
 
       // 2. Calculer la date d'amortissement
       const dateAmortissementCalculee = this.calculerDateAmortissement(dateMiseEnServiceFormatted, nbreannee);
 
       const formData = {
         ...this.editVehicule.value,
+        date_acquisition: date_acquisitionFormatted,
         date_mise_en_service: this.formatDate(this.editVehicule.value.date_mise_en_service),
+
       // Champs mis à jour/calculés :
       //date_mise_en_service: dateMiseEnServiceFormatted,
       date_amortissement : dateAmortissementCalculee,
-      nbreannee_amortissement: nbreannee // Assurez-vous que cette clé est bien celle attendue par le backend
+      nbreannee_amortissement: nbreannee ,// Assurez-vous que cette clé est bien celle attendue par le backend
+
 
 
       };
@@ -543,6 +611,7 @@ export class VehiculesComponent implements OnInit {
     console.log("Row reçu dans getEditForm :", row);
     this.editVehicule.patchValue({
       id: row.id,
+      code: row.code,
       marque_id: row.marque_id,
       modele_id: row.modele_id,
       immatriculation: row.immatriculation,
@@ -555,7 +624,16 @@ export class VehiculesComponent implements OnInit {
       nbreannee_amortissement: row.nbreannee_amortissement,
       date_amortissement: this.formatDateUpdate(row.date_amortissement),
       id_sous_type_immo: row.id_sous_type_immo ?? row.sous_type_immo?.id,
-      id_groupe_type_immo: row.id_groupe_type_immo ?? row.groupe_type_immo?.id
+      id_groupe_type_immo: row.id_groupe_type_immo ?? row.groupe_type_immo?.id,
+      //
+      montant_ttc: row.montant_ttc,
+      taux_ammortissement: row.taux_ammortissement,
+      date_acquisition: this.convertToNgbDate(row.date_acquisition),
+      observation: row.observation,
+      bureau_id: row.bureau_id,
+      fournisseur_id: row.fournisseur_id,
+      etat: row.etat,
+      id_status_immo: row.id_status_immo,
     });
     this.modalService.open(this.editVehiculeContent, { centered: true });
   }
@@ -813,11 +891,16 @@ private updateDateAmortissement(): void {
   const dateMiseEnServiceValue = this.editVehicule.get("date_mise_en_service")?.value;
   const nbreAnnees = this.editVehicule.get("nbreannee_amortissement")?.value;
   const dateAmortissementControl = this.editVehicule.get("date_amortissement");
+  const date_acquisition = this.editVehicule.get("date_amortissement");
+  console.log("date_acqui 1", date_acquisition);
+  const date_acquisition_Formatted = this.convertToNgbDate(date_acquisition?.value);
+  console.log("date_acqui 2 format", date_acquisition_Formatted);
 
   if (dateMiseEnServiceValue && nbreAnnees && Number(nbreAnnees) > 0) {
 
       // ⭐ ÉTAPE CLÉ : Convertir la valeur du Form Control (Objet ou String) en String YYYY-MM-DD
       const dateMiseEnServiceFormatted = this.formatDate(dateMiseEnServiceValue);
+      
 
       // Vérification de sécurité au cas où formatDate renverrait null
       if (!dateMiseEnServiceFormatted) {
@@ -839,7 +922,12 @@ private updateDateAmortissement(): void {
 // NOTE : Votre fonction this.formatDate doit être capable de gérer l'objet NgbDateStruct
 // et le convertir en string "YYYY-MM-DD".
 
-
+onSousTypeChange(sousType: any) {
+  this.selectedSousCompte = sousType ? String(sousType.compte) : '0';
+}
+onGroupeTypeChange(groupeType: any) {
+  this.selectedGroupeCompte = groupeType ? String(groupeType.compte) : '0';
+}
 
 
   private updateDateAmortissementForGroup(group: FormGroup): void {
@@ -917,8 +1005,40 @@ private updateDateAmortissement(): void {
     }, 5000);
   }
 
+  loadFournisseurs(): void {
+    this.immobilisationService.getAllFournisseurs().subscribe({
+      next: (data) => {
+        this.fournisseurs = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des fournisseurs :", err);
+      }
+    });
+  }
 
-    loadSousTypeImmo(): void {
+  loadBureaux(): void {
+    this.immobilisationService.getAllBureaux().subscribe({
+      next: (data) => {
+        this.bureaux = data;
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des bureaux :", err);
+      }
+    });
+  }
+
+  loadStatusImmo(): void {
+    this.immobilisationService.getAllStatusImmos().subscribe({
+      next: (data) => {
+        this.statusImmo = data.filter(status => status.libelle_status_immo !== 'En service');
+      },
+      error: (err) => {
+        console.error("Erreur lors du chargement des StatusImmo :", err);
+      }
+    });
+  }
+
+  loadSousTypeImmo(): void {
     this.immobilisationService.getAllSousTypeImmos().subscribe({
       next: (data) => {
         this.sousTypeImmo = data;

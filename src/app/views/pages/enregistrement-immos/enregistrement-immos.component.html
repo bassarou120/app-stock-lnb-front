@@ -201,15 +201,8 @@
           <!-- code de l' Immobilisation -->
           <div class="mb-3">
             <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
-            <ng-select
-              [items]="codesImmo"
-              bindLabel="code"
-              bindValue="code"
-              formControlName="code"
-              [addTag]="true"
-              [clearable]="true"
-              placeholder="Sélectionnez ou entrez un code">
-            </ng-select>
+
+            <input type="text" class="form-control" placeholder="Entrez le code de l'immobilisation" formControlName="code">
 
             <div *ngIf="addImmobilisation.get('code')?.invalid && addImmobilisation.get('code')?.touched">
               <small class="text-danger"> *le code de l'immobilisation est obligatoire</small>

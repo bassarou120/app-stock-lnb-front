@@ -11,7 +11,7 @@ import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon
 
 // Services
 import { ImmobilisationRapportService } from '../../../../core/services/rapport/immobilisation-rapport.service';
-import { BackendPostResource } from '../../../../core/services/interface/models';
+import { BackendPostResource, CodeAsset } from '../../../../core/services/interface/models';
 import { BureauxService } from '../../../../core/services/bureaux/bureaux.service';
 import { EmployesService } from '../../../../core/services/employes/employes.service';
 import { FournisseursService } from '../../../../core/services/fournisseurs/fournisseurs.service';
@@ -36,6 +36,14 @@ import { map, distinct } from 'rxjs/operators';
 interface TypeRapportImmo {
   id: string; // Utiliser un string comme identifiant unique
   libelle: string;
+}
+
+interface CodesApiResponse {
+  success: boolean;
+  message: string;
+  data: {
+    codes: CodeAsset[]; 
+  };
 }
 
 @Component({
@@ -398,7 +406,7 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
     );
   }
 
-  loadImmobilisationCodes(): void {
+/*   loadImmobilisationCodes(): void {
     console.log('Loading immobilisation codes...');
     this.immobilisationsService.getAllImmobilisations().pipe(
       map((immobilisations: Immobilisation[]) => immobilisations.map((immo: Immobilisation) => immo.code)),
@@ -413,7 +421,49 @@ export class RapportImmobilisationsComponent implements OnInit, OnDestroy {
         console.error('Erreur lors du chargement des codes d\'immobilisation:', error);
       }
     );
-  }
+  } */ 
+
+  loadImmobilisationCodes(): void {
+    console.log('Loading immobilisation codes...');
+    
+    this.immobilisationsService.getAllCode_vehiculeImmo().pipe(
+      map((codeAssets: CodeAsset[]) => {
+          
+        console.log('1. Codes bruts reçus du service (CodeAsset[]):', codeAssets); // DIAG 1
+          
+        if (!codeAssets || !Array.isArray(codeAssets)) {
+            console.warn("L'API n'a pas retourné de tableau de codes valide.");
+            return [];
+        }
+        
+        // 1. Extraire la propriété 'code' de chaque objet CodeAsset
+        const codesArray = codeAssets.map((asset: CodeAsset) => asset.code);
+        
+        console.log('2. Codes extraits avant unicité (string[]):', codesArray); // DIAG 2
+        
+        // 2. Utiliser un Set pour garantir l'unicité des codes (sans doublons)
+        const uniqueCodes = [...new Set(codesArray)];
+        
+        console.log('3. Codes uniques après Set:', uniqueCodes); // DIAG 3
+        
+        return uniqueCodes;
+      }),
+      takeUntil(this.destroy$)
+    ).subscribe(
+      (codes: string[]) => {
+        
+        console.log('4. Codes reçus par le Subscriber (avant filtre):', codes); // DIAG 4
+          
+        // Filtrage des codes vides/nulls
+        this.immobilisationCodes = codes.filter(code => code !== null && code !== undefined && code !== '');
+        
+        console.log('Codes d\'immobilisation chargés (pour rapport d\'enregistrement):', this.immobilisationCodes.length, 'codes.');
+      },
+      (error) => {
+        console.error('Erreur lors du chargement des codes d\'immobilisation:', error);
+      }
+    );
+}
 
   loadImmobilisationsForFilter(): void {
     console.log('Loading immobilisations for general filter...');

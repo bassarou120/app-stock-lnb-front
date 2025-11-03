@@ -3,9 +3,13 @@ import { Observable, of } from 'rxjs';
 
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { environment } from "../../../../environments/environment";
-import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule, TypeIntervention, Bureau, Employe } from "../interface/models";
+import { Immobilisation, Fournisseur, StatusImmo, SousTypeImmo, GroupeTypeImmo, Vehicule, TypeIntervention, Bureau, Employe, CodeAsset } from "../interface/models";
 import { catchError, map, tap } from 'rxjs/operators';
+import { BackendPostResource } from '../interface/models';
+import { CodesApiResponse } from '../interface/models';
 
+
+// Assurez-vous d'avoir défini CodeAsset
 @Injectable({
   providedIn: 'root',
 })
@@ -24,6 +28,19 @@ export class ImmobilisationsService {
       )
     );
   }
+
+getAllCode_vehiculeImmo(): Observable<CodeAsset[]> { 
+    // CORRECTION DU TYPAGE : Utiliser CodesApiResponse
+    return this.http.get<CodesApiResponse>(
+      `${this.url}/rapports/getcodes`
+    ).pipe(
+      // CORRECTION DE L'EXTRACTION :
+      map((response: CodesApiResponse) =>
+        // Extraction correcte et sécurité : on prend 'codes', sinon on retourne un tableau vide
+        response.data?.codes ?? [] 
+      )
+    );
+}
 
   saveImmobilisation(data: Immobilisation): Observable<Immobilisation> {
     return this.http.post<Immobilisation>(`${this.url}/immobilisations`, data);
