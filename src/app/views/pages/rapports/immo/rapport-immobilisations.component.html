@@ -667,7 +667,7 @@
                           <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
                       </ng-container>
 
-                                            <ng-container *ngIf="selectedReportTypeId === 'bureau'">
+                      <ng-container *ngIf="selectedReportTypeId === 'bureau'">
                           <ngx-datatable-column name="N°">
                               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                                   {{ rowIndex + 1 }}
