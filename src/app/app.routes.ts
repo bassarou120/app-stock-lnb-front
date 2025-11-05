@@ -68,6 +68,10 @@ export const routes: Routes = [
         loadChildren: () => import('./views/pages/parametres/parametres.routes')
       },
       {
+        path: 'sortie-patrimoines',
+        loadChildren: () => import('./views/pages/sortie-patrimoines/sortie-patrimoines.routes')
+      },
+      {
         path: 'rapports',
         loadChildren: () => import('./views/pages/rapports/rapports.routes')
       },

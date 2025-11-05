@@ -154,6 +154,19 @@ export const MENU: MenuItem[] = [
       },
     ]
   },
+  //
+  {
+    label: 'Sorties Patrimoine',
+    isTitle: true,
+    module: 'Gestion Rapport',
+  },
+  {
+    label: 'Sortie De Patrimoine',
+    icon: 'file',
+    link: '/sortie-patrimoines',
+    module: 'Gestion Rapport',
+  },
+  //
   {
     label: 'Rapports',
     isTitle: true,

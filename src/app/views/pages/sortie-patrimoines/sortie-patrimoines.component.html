@@ -1,0 +1,439 @@
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
+
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Sorties de Patrimoine</a></li>
+    </ol>
+  </nav>
+
+  <!-- Alerte pour ajout avec succès -->
+  <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Sortie de Patrimoine Ajouté avec succès
+  </ngb-alert>
+  <!-- Alerte pour ajout avec succès -->
+
+  <!-- Alerte pour mofifier avec succès -->
+  <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Sortie de Patrimoine Modifié avec succès
+  </ngb-alert>
+  <!-- Alerte pour mofifier avec succès -->
+
+  <!-- Alerte pour supprimer avec succès -->
+  <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+    Sortie de Patrimoine Supprimé avec succès
+  </ngb-alert>
+  <!-- Alerte pour supprimer avec succès -->
+
+  <!-- Alerte pour import avec succès -->
+  <ngb-alert *ngIf="alertImportVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Sortie de Patrimoine importés avec succès
+  </ngb-alert>
+  <!-- Alerte pour import avec succès -->
+
+<div *ngIf="toastVisible"
+     [ngClass]="['alert', 'alert-' + toastType]"
+     role="alert"
+     style="
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1050;
+        width: 400px;
+        opacity: 1 !important;
+        background-color: white !important;
+     ">
+    <h4 class="alert-heading">{{ toastTitle }}</h4>
+    <p>{{ toastMessage }}</p>
+
+    <ng-container *ngIf="toastType === 'black' && ignoredLines.length > 0">
+        <hr>
+        <p class="mb-0">Détails des lignes ignorées:</p>
+        <ul class="text-start">
+            <li *ngFor="let line of ignoredLines.slice(0, 5)">{{ line }}</li>
+            <li *ngIf="ignoredLines.length > 5">... et {{ ignoredLines.length }} autres lignes.</li>
+        </ul>
+    </ng-container>
+
+    <button type="button" class="btn-close" (click)="toastVisible = false" aria-label="Close"></button>
+  </div>
+
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body d-flex justify-content-between">
+        <div>
+          <h4 class="card-title">Liste des Sorties de Patrimoine</h4>
+          <p class="text-secondary">Liste des Sorties de Patrimoine</p>
+        </div>
+        <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
+          data-bs-target="#add_sortie_patrimoine">
+          Ajouter une Sortie de Patrimoine
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
+<div class="row" *ngIf="hasPageAccess">
+  <div class="col-md-12 stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-title">Liste des Sorties de Patrimoine</h6>
+        <div class="row">
+          <div class="col-xl-3 col-md-4">
+            <input type="text" class="form-control form-control-sm" placeholder="Designation de l'immo..."
+              (keyup)="updateFilter($event)" />
+          </div>
+        </div>
+        <div class="table-responsive">
+          <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+            [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
+            <ngx-datatable-column name="N°">
+              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                {{ rowIndex + 1 }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Code Immo" prop="code_immo"></ngx-datatable-column>
+            <ngx-datatable-column name="Designation" prop="designation_immo"></ngx-datatable-column>
+            <ngx-datatable-column name="Type Immo" prop="type_immo"></ngx-datatable-column>
+            <ngx-datatable-column name="Valeur" prop="valeur"></ngx-datatable-column>
+            <ngx-datatable-column name="Date de sortie" prop="date_sortie">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+            <ngx-datatable-column name="Actions" [frozenRight]="true"
+            [width]="130" [headerClass]="'actions-header'"
+                      [cellClass]="'actions-cell'">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
+                  <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
+                    <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
+                  </a>
+                  <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#edit_sortie_patrimoine" (click)="getEditForm(row)">
+                      <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
+                    </a>
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                      data-bs-target="#delete_sortie_patrimoine" (click)="getDeleteForm(row)">
+                      <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
+                    </a>
+                  </div>
+                </div>
+              </ng-template>
+            </ngx-datatable-column>
+          </ngx-datatable>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add article Modal -->
+<div id="add_sortie_patrimoine" class="modal fade" tabindex="-1" aria-labelledby="addSortieLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-fullscreen">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="addSortieLabel">Ajouter plusieurs Sorties de Patrimoine</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body p-4">
+        <form class="forms-sample" [formGroup]="addSortiePatrimoine" (ngSubmit)="onClickSubmitAddSortiePatrimoines()" novalidate>
+
+          <!-- En-têtes du tableau avec meilleur espacement -->
+          <div class="row mb-3 fw-bold border-bottom pb-2">
+            <!-- <div class="col-2 text-center">Code<span class="text-danger">*</span></div> -->
+            <div class="col-2 text-center">Code Immo<span class="text-danger">*</span></div>
+            <div class="col-3 text-center">Designation<span class="text-danger">*</span></div>
+            <div class="col-1 text-center">Valeur<span class="text-danger">*</span></div>
+            <div class="col-2 text-center">Date de sortie<span class="text-danger">*</span></div>
+            <div class="col-3 text-center">Observation<span class="text-danger"></span></div>
+            <div class="col-1 text-center">Action</div>
+          </div>
+
+          <!-- Formulaire dynamique pour les articles -->
+          <div formArrayName="sortiepatrimoines" class="mb-4">
+            <div *ngFor="let sortiePatrimoineForm of sortiepatrimoinesArray.controls; let i = index" [formGroupName]="i"
+              class="row mb-4 align-items-start border-bottom pb-3">
+
+        <div class="col-2">
+            <ng-container *ngIf="immobilisationCodes && immobilisationCodes.length > 0; else noimmobilisationCode">
+                <ng-select 
+                  [items]="immobilisationCodes"
+                  formControlName="code_immo"
+                  bindLabel="code"
+                  bindValue="id" [clearable]="true"
+                  placeholder="Sélectionnez un code"
+                  (change)="onCodeChange($event, sortiePatrimoineForm)">
+                </ng-select>
+            </ng-container>
+        </div>
+
+              <!-- Nom de l'article -->
+              <div class="col-3">
+                <input type="text" class="form-control form-control-lg" placeholder="Nom de l'Article"
+                  formControlName="designation_immo" readonly
+                  [class.is-invalid]="sortiePatrimoineForm.get('designation_immo')?.invalid && sortiePatrimoineForm.get('designation_immo')?.touched">
+                  <div *ngIf="sortiePatrimoineForm.get('designation_immo')?.invalid && sortiePatrimoineForm.get('designation_immo')?.touched"
+                    class="invalid-feedback">
+                    La designation de de l'immo est obligatoire
+                  </div>
+              </div>
+
+              <!-- Valeure -->
+              <div class="col-1">
+                <input type="text" class="form-control form-control-lg" placeholder="45000"
+                  formControlName="valeur"
+                  [class.is-invalid]="sortiePatrimoineForm.get('valeur')?.invalid && sortiePatrimoineForm.get('valeur')?.touched">
+                  <div *ngIf="sortiePatrimoineForm.get('valeur')?.invalid && sortiePatrimoineForm.get('valeur')?.touched"
+                    class="invalid-feedback">
+                    La valeur est obligatoire
+                  </div>
+              </div>
+
+              <div class="col-md-2">
+                  <div class="input-group mb-5">
+                    <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="addSortie.toggle()">
+                      <i data-feather="calendar"></i>
+                    </button>
+                    <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAcquisition"
+                      ngbDatepicker #addSortie="ngbDatepicker"
+                      formControlName="date_sortie">
+                  </div>
+
+                  <div *ngIf="sortiePatrimoineForm.get('date_sortie')?.invalid && sortiePatrimoineForm.get('date_sortie')?.touched">
+                    <small class="text-danger"> *la date de sortie de l'immobilisation est obligatoire</small>
+                  </div>
+              </div>
+
+              <!-- Description -->
+              <div class="col-3">
+                  <textarea class="form-control" id="observation" rows="2"
+                  [class.is-invalid]="sortiePatrimoineForm.get('observation')?.invalid && sortiePatrimoineForm.get('observation')?.touched"
+                  placeholder="Entrez la description ici..." formControlName="observation"></textarea>
+
+                  <div *ngIf="sortiePatrimoineForm.get('observation')?.invalid && sortiePatrimoineForm.get('observation')?.touched"
+                    class="invalid-feedback">
+                    La description est obligatoire
+                  </div>
+              </div>
+
+              <!-- Bouton de suppression -->
+              <div class="col-1 text-center">
+                <button type="button" class="btn btn-outline-danger btn-lg" (click)="removeSortiePatrimoine(i)"
+                  [disabled]="sortiepatrimoinesArray.length === 1">
+                  <i class="feather icon-trash-2"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bouton pour ajouter un nouvel article -->
+          <div class="d-flex justify-content-start mb-4">
+            <button type="button" class="btn btn-outline-primary btn-lg" (click)="addNewSortiePatrimoine()">
+              <i class="feather icon-plus me-2"></i>Ajouter une sortie de patrimoine
+            </button>
+          </div>
+
+          <!-- Boutons d'actions -->
+          <div class="d-flex justify-content-center gap-3 mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="isAdding">
+              <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isAdding" role="status">
+                <span class="visually-hidden">Chargement...</span>
+              </div>
+              {{ isAdding ? 'Ajout en cours...' : 'Enregistrer les sorties de patrimoine' }}
+            </button>
+            <!-- NOUVEAU BOUTON : Importer Excel -->
+<!--             <button type="button" class="btn btn-outline-success btn-lg px-4" data-bs-toggle="modal" data-bs-target="#importArticlesExcel">
+              <i class="feather icon-upload me-2"></i>Importer Excel
+            </button> -->
+            <button type="button" class="btn btn-secondary btn-lg px-4" data-bs-dismiss="modal">
+              <i class="feather icon-x me-2"></i>Annuler
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Add article  Modal -->
+
+<!-- /Add Article Modal -->
+
+<!-- NOUVEAU MODAL : Importation de véhicules par Excel -->
+<div id="importArticlesExcel" class="modal fade" tabindex="-1" aria-labelledby="importSortieExcelLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="importSortieExcelLabel">Importer des sorties de patrimoine par fichier Excel</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-secondary mb-3">Veuillez sélectionner un fichier Excel (.xlsx, .xls) contenant les données des articles à importer.</p>
+        <div class="mb-3">
+          <label for="excelFile" class="form-label">Fichier Excel</label>
+          <input type="file" class="form-control" id="excelFile" accept=".xlsx, .xls" (change)="onFileSelected($event)">
+        </div>
+        <div class="d-flex justify-content-center gap-2 mt-4">
+          <button type="button" class="btn btn-primary" (click)="uploadExcelFile()" [disabled]="isImporting">
+            <span *ngIf="isImporting" class="spinner-border spinner-border-sm text-light me-2 spinner-import-article" role="status" aria-hidden="true"></span>
+            <i *ngIf="!isImporting" class="btn-icon-prepend" data-feather="upload" appFeatherIcon></i>
+            {{ isImporting ? 'Importation en cours...' : 'Importer' }}
+          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Edit Article Immo Modal -->
+<div id="edit_sortie_patrimoine" class="modal fade" tabindex="-1" aria-labelledby="editSortieLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editSortieLabel">Modifier une sortie de patrimoine</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="editSortiePatrimoine" (ngSubmit)="onClickSubmitEditSortiePatrimoine()" novalidate>
+
+                <div class="mb-3">
+                  <label for="" class="form-label">Code Immo <span
+                class="text-danger">*</span></label>
+                  <ng-container *ngIf="immobilisationCodes && immobilisationCodes.length > 0; else noimmobilisationCode">
+                    <ng-select [items]="immobilisationCodes" formControlName="code_immo"
+                      [clearable]="true" placeholder="Sélectionnez un code (Optionnel)">
+                    </ng-select>
+                  </ng-container>
+                  <ng-template #noimmobilisationCode>
+                    <div class="alert alert-danger"
+                        style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
+                        <i class="feather icon-alert-circle"></i> Aucun Immobilisation. Veuillez en créer.
+                    </div>
+                  </ng-template>
+                </div>
+
+              <!-- Nom de l'article -->
+              <div class="mb-3">
+                <label for="" class="form-label">Désignation <span
+                class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg" placeholder="Nom de l'Article"
+                  formControlName="designation_immo"
+                  [class.is-invalid]="editSortiePatrimoine.get('designation_immo')?.invalid && editSortiePatrimoine.get('designation_immo')?.touched">
+                  <div *ngIf="editSortiePatrimoine.get('designation_immo')?.invalid && editSortiePatrimoine.get('designation_immo')?.touched"
+                    class="invalid-feedback">
+                    La designation de de l'immo est obligatoire
+                  </div>
+              </div>
+
+              <!-- Valeure -->
+              <div class="mb-3">
+                <label for="" class="form-label">Valeur de l'immobilisation <span
+                class="text-danger">*</span></label>
+                <input type="text" class="form-control form-control-lg" placeholder="45000"
+                  formControlName="valeur"
+                  [class.is-invalid]="editSortiePatrimoine.get('valeur')?.invalid && editSortiePatrimoine.get('valeur')?.touched">
+                  <div *ngIf="editSortiePatrimoine.get('valeur')?.invalid && editSortiePatrimoine.get('valeur')?.touched"
+                    class="invalid-feedback">
+                    La valeur est obligatoire
+                  </div>
+              </div>
+
+              <div class="mb-3">
+                <label for="" class="form-label">Date de sortie <span
+                class="text-danger">*</span></label>
+                  <div class="input-group mb-5">
+                    <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="addSortie.toggle()">
+                      <i data-feather="calendar"></i>
+                    </button>
+                    <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpAcquisition"
+                      ngbDatepicker #addSortie="ngbDatepicker"
+                      formControlName="date_sortie">
+                  </div>
+
+                  <div *ngIf="editSortiePatrimoine.get('date_sortie')?.invalid && editSortiePatrimoine.get('date_sortie')?.touched">
+                    <small class="text-danger"> *la date de sortie de l'immobilisation est obligatoire</small>
+                  </div>
+              </div>
+
+              <!-- Description -->
+              <div class="mb-3">
+                <label for="" class="form-label">Observation <span
+                class="text-danger">*</span></label>
+                  <textarea class="form-control" id="observation" rows="2"
+                  [class.is-invalid]="editSortiePatrimoine.get('observation')?.invalid && editSortiePatrimoine.get('observation')?.touched"
+                  placeholder="Entrez la description ici..." formControlName="observation"></textarea>
+
+                  <div *ngIf="editSortiePatrimoine.get('observation')?.invalid && editSortiePatrimoine.get('observation')?.touched"
+                    class="invalid-feedback">
+                    La description est obligatoire
+                  </div>
+              </div>
+
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-primary">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerModif" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Modifier
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Edit Article Modal -->
+
+
+
+<!-- delete Article Modal -->
+<div id="delete_sortie_patrimoine" class="modal fade" tabindex="-1" aria-labelledby="deleteArticleLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <!-- En-tête du modal -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteArticleLabel">Suppression d' Article</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <!-- Contenu du modal -->
+      <div class="modal-body">
+        <form class="forms-sample" [formGroup]="deleteSortiePatrimoine" (ngSubmit)="onClickSubmitDeleteSortiePatrimoine()">
+          <div class="mb-3">
+            <p class="text-secondary">Voulez-vous vraiment supprimer cette sortie patrimoine ?</p>
+          </div>
+          <input type="hidden" formControlName="id">
+          <!-- Boutons centrés -->
+          <div class="d-flex justify-content-center gap-2">
+            <button type="submit" class="btn btn-danger">
+              <div class="spinner-border spinner-border-sm text-light d-none spinnerDelete" role="status">
+                <span class="visually-hidden">Loading...</span>
+              </div> Supprimer
+            </button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /delete article Type d'Immobilisation Modal -->

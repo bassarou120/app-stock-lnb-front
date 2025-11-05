@@ -141,7 +141,7 @@
                 {{ row.employe?.fullnameEmploye || 'Non défini' }}
               </ng-template>
             </ngx-datatable-column> -->
-            <ngx-datatable-column name="Date de création" prop="date_acquisition"></ngx-datatable-column>
+            <ngx-datatable-column name="Date d'acquisition" prop="date_acquisition"></ngx-datatable-column>
             <ngx-datatable-column *ngIf="canModifyImmo || canDeleteImmo" name="Actions" [frozenRight]="true"
   [width]="130" [headerClass]="'actions-header'"
                       [cellClass]="'actions-cell'">

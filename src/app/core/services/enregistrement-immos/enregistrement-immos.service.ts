@@ -151,4 +151,8 @@ getAllCode_vehiculeImmo(): Observable<CodeAsset[]> {
       return of(result as T);
     };
   }
+
+  getDesignationByCode(code: string): Observable<any> {
+    return this.http.get(`${this.url}/immobilisations/designation-by-code/${code}`);
+  }
 }

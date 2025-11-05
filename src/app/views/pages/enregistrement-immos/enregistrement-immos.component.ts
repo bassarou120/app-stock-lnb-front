@@ -595,7 +595,8 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
 
   getEditForm(row: any) {
     const ngbDateAcquisition = this.convertToNgbDate(row.date_acquisition);
-
+  console.log('Liste des fournisseurs (items pour ng-select):', this.fournisseurs); 
+  console.log('taux:', row.taux_ammortissement);
     this.editImmobilisation.patchValue({
       id: row.id,
       bureau_id: row.bureau_id,
@@ -618,7 +619,8 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
       id_status_immo: row.id_status_immo,
       montant_ttc: row.montant_ttc,
       reference_estampillonnage: row.reference_estampillonnage,
-    });
+    }, { emitEvent: false });
+    console.log('taux:', row.taux_ammortissement);
     // NOUVEAU: Déclenchez le calcul de la durée amortie lors de l'ouverture du formulaire d'édition
     // C'est important si la date d'acquisition est déjà remplie à l'ouverture du modal
     console.log('Debug: Patching date_acquisition (Edit Form):', ngbDateAcquisition); // Debug log

@@ -239,7 +239,7 @@ export interface Vehicule {
   observation?: string;
   date_acquisition: string; // format YYYY-MM-DD
   //id_status_immo: number;
-  //statusImmo?: StatusImmo; 
+  //statusImmo?: StatusImmo;
   bureau_id?: number;
   bureau?: Bureau;
   fournisseur?: Fournisseur;
@@ -650,4 +650,23 @@ export interface CodesApiResponse {
   data: {
     codes: CodeAsset[]; // C'est la structure correcte !
   };
+}
+
+export interface ActifCode {
+  id: number;
+  code: string;
+  type: string;
+  designation_complete: string;
+}
+
+export interface SortiePatrimoine {
+  id: number;
+  code_immo: string;
+  designation_immo: string; 
+  type_immo: string; 
+  valeur: number; 
+  date_sortie: string; 
+  observation: string | null; 
+  exercice_id: number; 
+  isdeleted: boolean; 
 }
