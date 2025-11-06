@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject, ViewEncapsulation, OnDestroy } from '@angular/core'; // Ajout de OnDestroy
+import { Component, ViewChild, OnInit, inject, ViewEncapsulation, OnDestroy, ChangeDetectorRef  } from '@angular/core'; // Ajout de OnDestroy
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { ImmobilisationsService } from '../../../core/services/enregistrement-immos/enregistrement-immos.service';
@@ -93,7 +93,12 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private immobilisationService: ImmobilisationsService, private formBuilder: FormBuilder, private router: Router) { }
+  constructor(
+    private immobilisationService: ImmobilisationsService,
+     private formBuilder: FormBuilder,
+      private router: Router,
+      private cdRef: ChangeDetectorRef
+    ) { }
 
   ngOnInit(): void {
     // INITIALISER LES PERMISSIONS EN PREMIER
@@ -551,19 +556,24 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
   }
 
 
-  loadImmobilisations(): void {
+loadImmobilisations(): Promise<void> {
+  return new Promise((resolve) => {
     this.immobilisationService.getAllImmobilisations().subscribe(
       (data: Immobilisation[]) => {
         this.temp = [...data];
         this.rows = data;
         this.loadingIndicator = false;
+        resolve();
       },
       error => {
         console.error('Erreur lors du chargement des Immobilisations', error);
         this.loadingIndicator = false;
+        resolve();
       }
     );
-  }
+  });
+}
+
 
   // ✅ nouvelle méthode pour charger les codes existants
   getAllCodes() {
@@ -698,16 +708,26 @@ onGroupeTypeChange(groupeType: any) {
     });
   }
 
-  loadStatusImmo(): void {
-    this.immobilisationService.getAllStatusImmos().subscribe({
-      next: (data) => {
-        this.statusImmo = data.filter(status => status.libelle_status_immo !== 'En service');
-      },
-      error: (err) => {
-        console.error("Erreur lors du chargement des StatusImmo :", err);
-      }
-    });
-  }
+loadStatusImmo(): void {
+  this.immobilisationService.getAllStatusImmos().subscribe({
+    next: (data) => {
+      const excluded = ["Sortie de patrimoine", "Au parc", "Au pool"];
+      this.statusImmo = data.filter(status => !excluded.includes(status.libelle_status_immo));
+      
+      // 🔄 Forcer Angular à détecter les changements
+      this.cdRef.detectChanges();
+    },
+    error: (err) => {
+      console.error("Erreur lors du chargement des StatusImmo :", err);
+    }
+  });
+}
+
+openAddImmobilisationModal() {
+  this.loadStatusImmo(); // Charger les statuts avant affichage
+  const modal = new bootstrap.Modal(document.getElementById('addImmobilisationModal'));
+  modal.show();
+}
 
   loadSousTypeImmo(): void {
     this.immobilisationService.getAllSousTypeImmos().subscribe({
@@ -885,91 +905,89 @@ private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: 
   /**
    * Envoie le fichier Excel sélectionné au backend pour importation.
    */
-    uploadExcelFile(): void {
-    if (!this.selectedFile) {
-      //alert('Veuillez sélectionner un fichier Excel à importer.');
-      const modal = document.getElementById('importImmobilisationsExcel');
-      const bsModal = bootstrap.Modal.getInstance(modal);
-      bsModal?.hide();
+uploadExcelFile(): void {
+  if (!this.selectedFile) {
+    const modal = document.getElementById('importImmobilisationsExcel');
+    const bsModal = bootstrap.Modal.getInstance(modal);
+    bsModal?.hide();
 
-      this.showToast('warning', 'Alerte', 'Veuillez sélectionner un fichier Excel à importer.');
-      return;
-    }
-
-    this.isImporting = true;
-    const spinner = document.querySelector('.spinner-import-immobilisation'); // Assurez-vous d'avoir un spinner dans votre HTML pour l'import
-    if (spinner) {
-      spinner.classList.remove('d-none');
-    }
-
-    const formData = new FormData();
-    formData.append('file', this.selectedFile, this.selectedFile.name);
-
-    // Assurez-vous que l'URL correspond à votre route d'importation dans Laravel
-    // Ex: 'http://localhost:8000/api/vehicules/import'
-this.immobilisationService.importImmobilisations(formData).subscribe({
-        next: (response) => {
-            console.log('Importation réussie:', response);
-            this.loadImmobilisations();
-            this.isImporting = false;
-            if (spinner) {
-                spinner.classList.add('d-none');
-            }
-            // Fermer le modal
-            const modal = document.getElementById('importImmobilisationsExcel');
-            const bsModal = bootstrap.Modal.getInstance(modal);
-            bsModal?.hide();
-
-            // Gestion de la notification de SUCCÈS (avec lignes ignorées)
-            if (response.ignored && response.ignored.length > 0) {
-                this.ignoredLines = response.ignored;
-                this.showToast(
-                    'warning',
-                    'Importation Partielle Réussie',
-                    response.message || 'L\'importation est partielle, veuillez consulter la liste des lignes ignorées ci-dessous.'
-                );
-            } else {
-                this.ignoredLines = [];
-                this.showToast(
-                    'success',
-                    'Importation Réussie !',
-                    response.message || 'Toutes les immobilisations ont été importées avec succès.'
-                );
-            }
-
-            this.selectedFile = null; // Réinitialiser le fichier sélectionné
-            const fileInput = document.getElementById('excelFile') as HTMLInputElement;
-            if (fileInput) {
-                fileInput.value = ''; // important pour pouvoir re-sélectionner le même fichier
-            }
-        },
-        error: (error) => {
-            console.error('Erreur lors de l\'importation des Immobilisations:', error);
-            this.isImporting = false;
-            if (spinner) {
-                spinner.classList.add('d-none');
-            }
-
-            // Gestion de la notification d'ERREUR
-            let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
-            if (error.error && error.error.errors) {
-                // Erreurs de validation Laravel
-                errorMessage = 'Erreurs de validation:';
-                for (const key in error.error.errors) {
-                    if (error.error.errors.hasOwnProperty(key)) {
-                        errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
-                    }
-                }
-            } else if (error.error && error.error.error) {
-                // Message d'erreur général du contrôleur Laravel
-                errorMessage = error.error.error;
-            }
-
-            this.ignoredLines = []; // Aucune ligne ignorée en cas d'erreur totale
-            this.showToast('danger', 'Erreur d\'Importation', errorMessage);
-        }
-    });
+    this.showToast('warning', 'Alerte', 'Veuillez sélectionner un fichier Excel à importer.');
+    return;
   }
+
+  this.isImporting = true;
+  const spinner = document.querySelector('.spinner-import-immobilisation');
+  if (spinner) spinner.classList.remove('d-none');
+
+  const formData = new FormData();
+  formData.append('file', this.selectedFile, this.selectedFile.name);
+
+  this.immobilisationService.importImmobilisations(formData).subscribe({
+    next: (response) => {
+      console.log('Importation réussie:', response);
+
+    this.loadImmobilisations().then(() => {
+      // 🔄 Forcer Angular à rafraîchir la vue après que le DOM soit mis à jour
+      setTimeout(() => {
+        this.cdRef.detectChanges();
+      }, 0);
+    });
+
+      this.isImporting = false;
+      if (spinner) spinner.classList.add('d-none');
+
+      // ✅ Fermer le modal après un petit délai
+      setTimeout(() => {
+        const modal = document.getElementById('importImmobilisationsExcel');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+      }, 200);
+
+      // ✅ Notifications
+      if (response.ignored && response.ignored.length > 0) {
+        this.ignoredLines = response.ignored;
+        this.showToast(
+          'warning',
+          'Importation Partielle Réussie',
+          response.message || 'L\'importation est partielle, veuillez consulter la liste des lignes ignorées ci-dessous.'
+        );
+      } else {
+        this.ignoredLines = [];
+        this.showToast(
+          'success',
+          'Importation Réussie !',
+          response.message || 'Toutes les immobilisations ont été importées avec succès.'
+        );
+      }
+
+      // ✅ Réinitialiser l’input file
+      this.selectedFile = null;
+      const fileInput = document.getElementById('excelFile') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    },
+    error: (error) => {
+      console.error('Erreur lors de l\'importation des Immobilisations:', error);
+      this.isImporting = false;
+      if (spinner) spinner.classList.add('d-none');
+
+      let errorMessage = 'Une erreur est survenue lors de l\'importation. Veuillez vérifier le fichier et réessayer.';
+      if (error.error && error.error.errors) {
+        errorMessage = 'Erreurs de validation:';
+        for (const key in error.error.errors) {
+          if (error.error.errors.hasOwnProperty(key)) {
+            errorMessage += `\n- ${error.error.errors[key].join(', ')}`;
+          }
+        }
+      } else if (error.error && error.error.error) {
+        errorMessage = error.error.error;
+      }
+
+      this.ignoredLines = [];
+      this.showToast('danger', 'Erreur d\'Importation', errorMessage);
+    }
+  });
+}
+
 
   showToast(type: 'success' | 'danger' | 'warning' | 'black', title: string, message: string): void {
     this.toastType = type;

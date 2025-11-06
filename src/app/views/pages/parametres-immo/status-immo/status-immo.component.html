@@ -94,7 +94,7 @@
             <ngx-datatable-column name="Actions">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
-                  <button class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}" [disabled]="row.libelle_status_immo === 'En magazin' || row.libelle_status_immo === 'En service' || row.libelle_status_immo === 'En panne' ">
+                  <button class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}" [disabled]="row.libelle_status_immo === 'En magazin' || row.libelle_status_immo === 'En service' || row.libelle_status_immo === 'En panne' || row.libelle_status_immo === 'Sortie de patrimoine' ">
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </button>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">

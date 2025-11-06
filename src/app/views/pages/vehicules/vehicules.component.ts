@@ -1030,13 +1030,18 @@ onGroupeTypeChange(groupeType: any) {
   loadStatusImmo(): void {
     this.immobilisationService.getAllStatusImmos().subscribe({
       next: (data) => {
-        this.statusImmo = data.filter(status => status.libelle_status_immo !== 'En service');
+        // 🔹 Statuts à exclure
+        const excluded = ['En service', 'En magasin', 'Sortie de patrimoine'];
+        
+        // 🔹 On filtre les statuts
+        this.statusImmo = data.filter(status => !excluded.includes(status.libelle_status_immo));
       },
       error: (err) => {
         console.error("Erreur lors du chargement des StatusImmo :", err);
       }
     });
   }
+
 
   loadSousTypeImmo(): void {
     this.immobilisationService.getAllSousTypeImmos().subscribe({
