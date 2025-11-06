@@ -527,45 +527,57 @@
                       [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
 
                       <!-- COLONNES DYNAMIQUES EN FONCTION DU TYPE DE RAPPORT -->
-                      <ng-container *ngIf="selectedReportTypeId === 'enregistrement'">
+                      <ng-container *ngIf="selectedReportTypeId === 'enregistrement' || selectedReportTypeId === 'inventaire'">
                           <ngx-datatable-column name="N°">
                               <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
                                   {{ rowIndex + 1 }}
                               </ng-template>
                           </ngx-datatable-column>
+
                           <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
+
                           <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
+
                           <ngx-datatable-column name="Montant TTC">
                               <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.montant_ttc | number:'1.2-2' }}
+                                  {{ row.montant_ttc ? (row.montant_ttc | number:'1.2-2') : 'N/A' }}
                               </ng-template>
                           </ngx-datatable-column>
-                          <ngx-datatable-column name="Status">
+
+                          <ngx-datatable-column name="Date Acquisition">
                               <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.status_immo?.libelle_status_immo || 'N/A' }}
+                                  {{ row.date_acquisition | date:'dd/MM/yyyy' }}
                               </ng-template>
                           </ngx-datatable-column>
-                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
-                          <ngx-datatable-column name="Groupe type immo">
+
+                          <ngx-datatable-column name="Statut">
                               <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
+                                  {{ row.status_immo?.libelle_status_immo || row.statut_immo || 'N/A' }}
                               </ng-template>
                           </ngx-datatable-column>
-                          <ngx-datatable-column name="Sous type immo">
-                              <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.sous_type_immo?.libelle || 'N/A' }}
-                              </ng-template>
-                          </ngx-datatable-column>
+
                           <ngx-datatable-column name="Personnel">
                               <ng-template let-row="row" ngx-datatable-cell-template>
                                   {{ row.employe?.fullnameEmploye || 'Non défini' }}
                               </ng-template>
                           </ngx-datatable-column>
-                          <ngx-datatable-column name="Date de création">
+
+                          <ngx-datatable-column name="Groupe">
                               <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.date_acquisition | date:'dd/MM/yyyy' }}
+                                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
                               </ng-template>
                           </ngx-datatable-column>
+
+                          <ngx-datatable-column name="Sous-Type">
+                              <ng-template let-row="row" ngx-datatable-cell-template>
+                                  {{ row.sous_type_immo?.libelle || 'N/A' }}
+                              </ng-template>
+                          </ngx-datatable-column>
+
+                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
+
+                          <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
+
                       </ng-container>
 
                       <ng-container *ngIf="selectedReportTypeId === 'transfert'">
@@ -622,50 +634,7 @@
                           <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
                       </ng-container>
 
-                      <!-- NOUVEAU: COLONNES SPÉCIFIQUES À LA FICHE D'INVENTAIRE -->
-                      <ng-container *ngIf="selectedReportTypeId === 'inventaire'">
-                          <ngx-datatable-column name="N°">
-                              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                                  {{ rowIndex + 1 }}
-                              </ng-template>
-                          </ngx-datatable-column>
-                          <ngx-datatable-column name="Code" prop="code"></ngx-datatable-column>
-                          <ngx-datatable-column name="Désignation" prop="designation"></ngx-datatable-column>
 
-                          <ngx-datatable-column name="Date Acquisition">
-                              <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.date_acquisition | date:'dd/MM/yyyy' }}
-                              </ng-template>
-                          </ngx-datatable-column>
-
-                          <ngx-datatable-column name="Fournisseur" prop="fournisseur.nom"></ngx-datatable-column>
-                          <ngx-datatable-column name="Groupe">
-                              <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.groupe_type_immo?.libelle || 'N/A' }}
-                              </ng-template>
-                          </ngx-datatable-column>
-                          <ngx-datatable-column name="Sous-Type">
-                              <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.sous_type_immo?.libelle || 'N/A' }}
-                              </ng-template>
-                          </ngx-datatable-column>
-                          <ngx-datatable-column name="Statut">
-                              <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.status_immo?.libelle_status_immo || 'N/A' }}
-                              </ng-template>
-                          </ngx-datatable-column>
-                          <ngx-datatable-column name="Localisation">
-                              <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.bureau?.libelle_bureau || 'N/A' }}
-                              </ng-template>
-                          </ngx-datatable-column>
-                          <ngx-datatable-column name="Affecté à">
-                              <ng-template let-row="row" ngx-datatable-cell-template>
-                                  {{ row.employe?.fullnameEmploye || 'N/A' }}
-                              </ng-template>
-                          </ngx-datatable-column>
-                          <ngx-datatable-column name="Observation" prop="observation"></ngx-datatable-column>
-                      </ng-container>
 
                       <ng-container *ngIf="selectedReportTypeId === 'bureau'">
                           <ngx-datatable-column name="N°">
