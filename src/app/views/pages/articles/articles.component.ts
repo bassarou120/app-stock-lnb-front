@@ -96,6 +96,7 @@ importError: ImportError | null = null;
       id_cat: [null, [Validators.required]],
       stock_alerte: [0, [Validators.required]],
       description: [""],
+      demande_intermittent: [''],
    });
     this.deleteArticle = this.formBuilder.group({
       id: [0, [Validators.required]],
@@ -153,10 +154,10 @@ importError: ImportError | null = null;
   createArticleFormGroup(): FormGroup {
     return this.formBuilder.group({
       libelle: ['', [Validators.required]],
-//       code_article: ['', [Validators.required]],
       id_cat: [null, [Validators.required]],
       description: [''],
-      stock_alerte: [0, [Validators.required]]
+      stock_alerte: [0, [Validators.required]],
+      demande_intermittent: ['non']
     });
   }
   // Ajouter un nouveau groupe d'article
@@ -182,11 +183,13 @@ importError: ImportError | null = null;
   // ---------------------------------------------------------------------
 
   onClickSubmitAddArticles(): void {
+
     // 1. Vérifier si une soumission est déjà en cours
     if (this.isAdding) {
       console.warn('Ajout d\'articles déjà en cours. Opération annulée.');
       return;
     }
+    console.log("donnes", this.addArticle.value.articles);
 
     console.log(this.addArticle.value);
     // const spinner = document.querySelector('.spinner-border'); // Ce spinner sera géré par [disabled] et le texte du bouton
@@ -446,6 +449,7 @@ updateFilter(event: KeyboardEvent): void {
      code_article:row.code_article,
      stock_alerte:row.stock_alerte,
      description:row.description,
+    demande_intermittent: row.demande_intermittent
     })
   }
 
