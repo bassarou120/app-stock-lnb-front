@@ -74,6 +74,10 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 //   departsList: Depart[] = [];
 //   arriversList: Arriver[] = [];
 
+  public globalCouponDetails: any[] = [];
+  public totalCoupons: number = 0; // 💡 Total Qté
+  public totalMontant: number = 0; // 💡 Total Montant
+
   // Types de rapports de tickets
   typeRapportsTicket: TypeRapportTicket[] = [
     { id: 'entree ticket', libelle: 'Rapport d\'Entrée de Tickets' },
@@ -948,18 +952,56 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 
     this.loadingIndicator = true;
     this.errorMessage = '';
+    // Réinitialiser les données pour l'affichage
+    this.rows = []; 
+    this.globalCouponDetails = [];
+    this.totalCoupons = 0;
+    this.totalMontant = 0;
+
 
     this.mouvementTicketService.getRapportPeriodiqueMontant(annee, periode)
       .subscribe({
-        next: (data) => {
-          console.log('Résultats du rapport:', data);
-          this.rows = data;
-          this.temp = [...data];
-          this.loadingIndicator = false;
+        next: (response: any) => {
+          // 1. Assurez-vous d'accéder à l'objet 'data' retourné par PostResource
+          const dataPayload = response?.data || response;
+
+          console.log('Réponse serveur inattendue (DEBUG):', response);
+          
+          if (
+              dataPayload && 
+              Array.isArray(dataPayload.rapport_periodique) && 
+              Array.isArray(dataPayload.details_coupons_global)
+          ) {
+              
+              // 1. Tableau 1 (Rapport Périodique)
+              this.rows = dataPayload.rapport_periodique;
+              this.temp = [...this.rows];
+              
+              // 2. Tableau 2 (Détails Globaux)
+              this.globalCouponDetails = dataPayload.details_coupons_global; 
+              
+              // 3. Calcul des totaux (Option 1 recommandée)
+              this.totalCoupons = this.globalCouponDetails.reduce(
+                  (acc, detail) => acc + (detail.nombre_coupons || 0), 0
+              );
+              this.totalMontant = this.globalCouponDetails.reduce(
+                  (acc, detail) => acc + (detail.montant_total || 0), 0
+              );
+              
+              this.loadingIndicator = false;
+              this.errorMessage = ''; // Succès
+
+          } else {
+              // Si la structure attendue n'est pas là, c'est une structure invalide.
+              console.error('Réponse serveur inattendue:', response);
+              this.errorMessage = "Structure de données invalide reçue du serveur. (Vérifiez la console pour les détails)";
+              this.loadingIndicator = false;
+          }
         },
         error: (err) => {
           console.error('Erreur lors du chargement du rapport:', err);
-          this.errorMessage = `Erreur lors du chargement du rapport: ${err.message || 'Veuillez réessayer.'}`;
+          // Afficher le message d'erreur du backend s'il existe
+          this.errorMessage = `Erreur lors du chargement du rapport: ${err.error?.message || err.message || 'Veuillez réessayer.'}`;
           this.loadingIndicator = false;
         }
       });

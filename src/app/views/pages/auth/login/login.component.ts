@@ -31,6 +31,7 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
 
   // PROPRIÉTÉ POUR LE NOM DU SITE (AJOUTÉE)
   siteName: string = 'Chargement...';
+  passwordVisible = false;
 
   // SUBJECT POUR GÉRER LA DÉSINSCRIPTION (AJOUTÉ)
   private destroy$ = new Subject<void>();
@@ -102,6 +103,10 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
     if (spinner) spinner.classList.add('d-none');
     alert("Désolé, le formulaire n'est pas bien renseigné");
   }
+  }
+
+  togglePasswordVisibility() {
+    this.passwordVisible = !this.passwordVisible;
   }
 
 loadexerciceEnCours(): void {

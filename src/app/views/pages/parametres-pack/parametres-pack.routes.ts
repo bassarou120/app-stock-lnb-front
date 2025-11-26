@@ -14,6 +14,10 @@ export default [
     loadComponent: () => import('./marques/marques.component').then(c => c.MarquesComponent),
   },
   {
+    path: 'modeles',
+    loadComponent: () => import('./modeles/modeles.component').then(c => c.ModelesComponent),
+  },
+  {
     path: 'communes',
     loadComponent: () => import('./communes/communes.component').then(c => c.CommunesComponent),
   },

@@ -272,6 +272,11 @@ export const MENU: MenuItem[] = [
         fonctionnalites: ['Voir Parametres Parc']
       },
       {
+        label: 'Modeles',
+        link: '/parametres-pack/modeles',
+        fonctionnalites: ['Voir Parametres Parc']
+      },
+      {
         label: 'Communes',
         link: '/parametres-pack/communes',
         fonctionnalites: ['Voir Parametres Parc']

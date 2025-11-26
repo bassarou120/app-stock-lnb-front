@@ -28,16 +28,38 @@
                       class="text-danger"> *l'email est obligatoire</small>
                   </div>
                 </div>
-                <div class="mb-3">
-                  <label for="exampleInputPassword1" class="form-label">Mot de passe</label>
-                  <input type="password" class="form-control" id="exampleInputPassword1" autocomplete="current-password"
-                    placeholder="Mot de passe" value="12345678" formControlName="password"
-                    [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-                  <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
-                    <small *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
-                      class="text-danger"> *le mot de passe est obligatoire</small>
-                  </div>
-                </div>
+<div class="mb-3">
+  <label for="exampleInputPassword1" class="form-label">Mot de passe</label>
+
+  <div class="input-group">
+    <input
+      [type]="passwordVisible ? 'text' : 'password'"
+      class="form-control"
+      id="exampleInputPassword1"
+      autocomplete="current-password"
+      placeholder="Mot de passe"
+      formControlName="password"
+      [class.invalid]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched"
+    />
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="togglePasswordVisibility()"
+    >
+      <i class="fas text-dark"
+        [ngClass]="passwordVisible ? 'fa-eye-slash' : 'fa-eye'"
+        style="font-size:16px; cursor:pointer">
+      </i>
+    </button>
+
+  </div>
+
+  <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+    <small class="text-danger">*le mot de passe est obligatoire</small>
+  </div>
+</div>
+
                 <!-- <div class="form-check mb-3">
                   <input type="checkbox" class="form-check-input" id="authCheck">
                   <label class="form-check-label" for="authCheck">

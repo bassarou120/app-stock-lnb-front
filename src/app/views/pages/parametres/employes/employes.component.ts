@@ -40,6 +40,10 @@ export class EmployesComponent implements OnInit {
   alertModifVisible: boolean = false;  // Pour gérer la visibilité de l'alerte mofid
   alertSuppVisible: boolean = false;  // Pour gérer la visibilité de l'alerte supp
 
+public alertErreurVisible: boolean = false; 
+// Propriété pour stocker le message d'erreur spécifique à afficher
+public erreurMessage: string = '';
+
   // --- NOUVELLES PROPRIÉTÉS POUR GÉRER LES CLICS MULTIPLES ---
   isAdding: boolean = false;    // Indicateur pour l'opération d'ajout
   isEditing: boolean = false;   // Indicateur pour l'opération de modification
@@ -154,38 +158,69 @@ export class EmployesComponent implements OnInit {
   // if (spinner) spinner.classList.remove('d-none'); // Géré par isAdding
 
   this.employeService.saveEmploye(this.addEmploye.value).subscribe({
-    next: (data: any) => {
-      this.loadEmployes();
-      // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-      this.addEmploye.reset();
+    next: (data: any) => {
+      this.loadEmployes();
+      this.addEmploye.reset();
 
-      // Fermer le modal manuellement
-      const modal = document.getElementById('add_employe');
-      // @ts-ignore - pour éviter les erreurs TypeScript
-      const bsModal = bootstrap.Modal.getInstance(modal);
-      bsModal?.hide();
+      // 1. FERMETURE DU MODAL (Succès)
+      const modal = document.getElementById('add_employe');
+      // @ts-ignore - pour éviter les erreurs TypeScript
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      bsModal?.hide();
 
-      // Attendre que le modal soit fermé avant d'afficher l'alerte
-      setTimeout(() => {
-        this.alertAjoutVisible = true;
-        console.log('Alert visible après fermeture du modal:', this.alertAjoutVisible);
+      // 2. AFFICHAGE DE L'ALERTE DE SUCCÈS (après un court délai)
+      setTimeout(() => {
+        this.alertAjoutVisible = true;
+        setTimeout(() => {
+          this.alertAjoutVisible = false;
+        }, 2000); 
+      }, 600); 
+    },
+    error: (error: any) => {
+      console.error('Erreur lors de l\'ajout de l\'employe :', error);
+      
+      // 1. FERMETURE DU MODAL (Échec) ⬅️ C'est l'ajout critique !
+      const modal = document.getElementById('add_employe');
+      // @ts-ignore - pour éviter les erreurs TypeScript
+      const bsModal = bootstrap.Modal.getInstance(modal);
+      bsModal?.hide(); // Le modal se ferme immédiatement
 
-        // Utilisation de la transition pour faire apparaitre l'alerte
-        setTimeout(() => {
-          this.alertAjoutVisible = false;
-        }, 2000); // L'alerte disparaît après 2 secondes
-      }, 200); // L'alerte apparaît 200ms après la fermeture du modal
-    },
-    error: (error: any) => {
-      console.error('Erreur lors de l\'ajout de l\'employe :', error);
-      // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-      alert('Une erreur s\'est produite. Veuillez réessayer.');
-    },
+      // 2. GESTION DU MESSAGE D'ERREUR
+      let errorMessage = 'Une erreur s\'est produite. Veuillez réessayer.';
+
+      if (error.status === 422 && error.error) {
+        const validationErrors = error.error; 
+        this.isAdding = false;
+        
+        if (validationErrors.telephone) {
+          errorMessage = validationErrors.telephone[0]; 
+        } else if (validationErrors.email) {
+          errorMessage = validationErrors.email[0]; 
+        }
+      }
+
+      // 3. AFFICHAGE DE L'ALERTE D'ERREUR TEMPORAIRE
+      // Vous pouvez ajouter un petit 'setTimeout' ici si vous avez des transitions
+      // longues sur le modal, mais souvent ce n'est pas nécessaire.
+      this.afficherErreurTemporaire(errorMessage);
+    },
     complete: () => {
-      // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
+      // 4. Désactiver l'indicateur de chargement
       this.isAdding = false;
     }
-  });
+  });
+}
+
+private afficherErreurTemporaire(message: string): void {
+    this.erreurMessage = message;
+    this.alertErreurVisible = true;
+    console.log('Alerte d\'erreur visible:', this.alertErreurVisible);
+
+    // L'alerte disparaît après 4 secondes (ajustez si besoin)
+    setTimeout(() => {
+        this.alertErreurVisible = false;
+        this.erreurMessage = ''; // Nettoyer le message
+    }, 4000); 
 }
 
 onClickSubmitEditEmploye (){

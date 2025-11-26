@@ -1,0 +1,10 @@
+/* Ajoutez ceci à votre fichier CSS du composant */
+.fixed-top-alert {
+    position: fixed;
+    top: 20px; /* Distance du haut */
+    left: 50%;
+    transform: translateX(-50%); /* Centrer l'alerte */
+    z-index: 1050; /* S'assurer qu'il est au-dessus des modals (z-index 1040) */
+    width: auto;
+    max-width: 500px;
+}
