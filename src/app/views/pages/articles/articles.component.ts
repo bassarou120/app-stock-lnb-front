@@ -230,7 +230,7 @@ importError: ImportError | null = null;
           // Utilisation de la transition pour faire apparaitre l'alerte
           setTimeout(() => {
             this.alertAjoutVisible = false;
-          }, 2000); // L'alerte disparaît après 2 secondes
+          }, 5000); // L'alerte disparaît après 2 secondes
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       error: (error: any) => {
