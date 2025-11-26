@@ -1,23 +1,17 @@
 <nav class="sidebar">
   <div class="sidebar-header" style="background-color:white;">
 
-    <!-- LOGO ET NOM DU SITE DYNAMIQUES -->
-    <!-- Cette section a été modifiée pour afficher le logo et le nom du site depuis le service -->
     <a routerLink="/" class="sidebar-brand d-flex align-items-center">
-<!--       <img
-        src="logoUrl"
-        alt="logo du site"
+      <img
+        [src]="logoUrl || 'public/images/logo_bg.png'" 
+        alt="Logo du site"
         style="height: 40px; width: auto; object-fit: contain; margin-right: 8px;"
         (error)="logoUrl = 'public/images/logo_bg.png'"
-      /> -->
-      <img src="/images/logo_bg.png" alt="Logo" >
+      />
 
-      <!-- <span class="fw-bold">{{ siteName }}</span> Affichage du nom du site -->
+      <!-- <span class="fw-bold">{{ siteName }}</span>  -->
     </a>
 
-    <!-- FIN DE LA SECTION LOGO ET NOM DU SITE DYNAMIQUES -->
-
-    <!--- Toggler -->
     <div class="sidebar-toggler" #sidebarToggler (click)="toggleSidebar($event)">
       <span style="background-color:green !important"></span>
       <span style="background-color:green !important"></span>
@@ -25,10 +19,8 @@
     </div>
     
   </div>
-  <hr style="border: solide; height: 3px; background-color: #00993E;" class="mt-0">
+  <hr style="border: solid; height: 3px; background-color: #00993E;" class="mt-0">
   <div class="sidebar-body" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()">
-
-    <!--- Sidemenu start -->
 
     <ng-scrollbar orientation="vertical" appearance="compact">
 
@@ -36,15 +28,12 @@
 
         @for (item of filteredMenu; track item.label) {
 
-          <!-- nav item title -->
           @if (item.isTitle) {
             <li class="nav-item nav-category">{{ item.label }}</li>
           }
 
-          <!-- nav item -->
           @else {
             <li class="nav-item">
-              <!-- nav item with submenu -->
               @if (hasItems(item)) {
                 <a class="nav-link" href="javascript:void(0);">
                   <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
@@ -54,7 +43,6 @@
                 <ul class="sidebar-nav sub-menu nav-second-level" aria-expanded="false">
                   @for (subitem of item.subItems; track subitem.label) {
                     <li class="nav-item" [ngClass]="{'side-nav-item': hasItems(subitem)}">
-                      <!-- nav link with submenu -->
                       @if (hasItems(subitem)) {
                         <a class="nav-link side-nav-link-a-ref" href="javascript:void(0);">
                           <span class="link-title"> {{ subitem.label }}</span>
@@ -70,7 +58,6 @@
                           }
                         </ul>
                       }
-                      <!-- nav link without submenu -->
                       @else {
                         <a class="nav-link nav-link-ref" [routerLink]="subitem.link">
                           {{ subitem.label }}
@@ -80,7 +67,6 @@
                   }
                 </ul>
               }
-              <!-- nav item without submenu -->
               @else {
                 <a class="nav-link nav-link-ref" [routerLink]="item.link">
                   <i class="link-icon" [attr.data-feather]="item.icon" appFeatherIcon></i>
@@ -95,18 +81,9 @@
 
         }
 
-        <!-- <li class="nav-item nav-category">Docs</li>
-        <li class="nav-item">
-          <a href="https://www.nobleui.com/angular/documentation/" target="_blank" class="nav-link">
-            <i class="link-icon" data-feather="hash" appFeatherIcon></i>
-            <span class="link-title">Documentation</span>
-          </a>
-        </li> -->
-      </ul>
+        </ul>
 
     </ng-scrollbar>
 
-    <!--- Sidemenu end -->
-
-  </div>
+    </div>
 </nav>

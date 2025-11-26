@@ -23,7 +23,7 @@ import { MENU } from './menu';
 import { MenuItem } from './menu.model';
 
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
-import { SiteSettingsService } from '../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
+import { SiteSettingsService, SiteSettings } from '../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
 import { Subject, takeUntil } from 'rxjs'; // NOUVEAUX IMPORTS POUR GÉRER LES OBSERVABLES
 
 @Component({
@@ -46,8 +46,8 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('sidebarMenu') sidebarMenu: ElementRef;
 
   // PROPRIÉTÉS POUR LE LOGO ET LE NOM DU SITE (AJOUTÉES)
-  siteName: string = 'Chargement...';
-  logoUrl: string = 'images/logo_bg.png'; // Placeholder par défaut
+  // siteName: string = 'Chargement...';
+  // logoUrl: string = 'images/logo_bg.png'; // Placeholder par défaut
 
   permissions: any[] = [];
   accessibleModules: string[] = [];
@@ -55,6 +55,10 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   filteredMenu: MenuItem[] = [];
   private permissionListener: any;
   private destroy$ = new Subject<void>(); // Subject pour gérer la désinscription des observables
+
+  // 💡 PROPRIÉTÉS DU SITE À AJOUTER OU VÉRIFIER
+  siteName: string = 'Nom du Site'; // Valeur par défaut
+  logoUrl: string = 'public/images/logo_bg.png'; // Valeur par défaut
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -98,24 +102,16 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     // Charger le menu au démarrage
     this.loadFilteredMenu();
 
-    // S'abonner aux changements des paramètres du site (AJOUTÉ)
-/*     this.siteSettingsService.siteSettings$.pipe(
-      takeUntil(this.destroy$) // Gérer la désinscription
-    ).subscribe(settings => {
-      this.siteName = settings.companyName;
-      this.logoUrl = settings.logoUrl;
-      console.log('SidebarComponent: Logo et nom du site mis à jour:', { name: this.siteName, logo: this.logoUrl });
-    }); */
 
-
-    // S'abonner aux changements des paramètres du site
-  this.siteSettingsService.siteSettings$.pipe(
-    takeUntil(this.destroy$)
-  ).subscribe(settings => {
-    this.siteName = settings.companyName;
-    this.logoUrl = settings.logoUrl;
-    console.log('SidebarComponent: Logo et nom du site mis à jour:', { name: this.siteName, logo: this.logoUrl });
-  });
+    // 💡 ABONNEMENT CRUCIAL POUR RECEVOIR LES MISES À JOUR
+    this.siteSettingsService.siteSettings$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((settings: SiteSettings) => { 
+            // Mise à jour des propriétés locales pour le template
+            this.siteName = settings.companyName; 
+            this.logoUrl = settings.logoUrl;
+            console.log('SidebarComponent: Logo et nom du site mis à jour:', {name: this.siteName, logo: this.logoUrl});
+        });
 
 
     // Écouter les mises à jour de permissions
