@@ -111,10 +111,10 @@
                     <i class="icon-lg text-white pb-3px" data-feather="more-vertical" appFeatherIcon></i>
                   </a>
                   <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
-                    <!-- <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                    <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
                       data-bs-target="#edit_transfert" (click)="getEditForm(row)" *ngIf="canModifyTransfert">
                       <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i> <span>Modifier</span>
-                    </a> -->
+                    </a>
                     <a ngbDropdownItem class="d-flex align-items-center" data-bs-target="#delete_transfert" (click)="getDeleteForm(row)" *ngIf="canDeleteTransfert">
                       <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i> <span>Supprimer</span>
                     </a>
