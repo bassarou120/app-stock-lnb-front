@@ -35,6 +35,8 @@ declare var bootstrap: any;
   encapsulation: ViewEncapsulation.None
 })
 export class EntreeComponent implements OnInit {
+  @ViewChild('fileInputMultiple') fileInputMultiple!: any;
+
 
   // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
@@ -258,95 +260,106 @@ export class EntreeComponent implements OnInit {
   }
 
   // Soumission d'ajout multiple
-  onClickSubmitAddEntreeMultiple() {
-    // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
-    if (!this.canAddStock || !this.canAddStockMultiple) {
-      alert('Vous n\'avez pas l\'autorisation d\'ajouter du stock.');
-      return;
-    }
+onClickSubmitAddEntreeMultiple() {
 
-    if (this.isAddingMultipleEntrees) {
-        console.warn('Soumission multiple détectée pour Entrée Multiple. Annulation.');
-        return; // Empêche l'exécution si déjà en cours
-    }
-
-    const spinner = document.querySelector('.spinner-multiple-add');
-
-    if (this.addEntreeMultipleForm.valid) {
-      this.isAddingMultipleEntrees = true; // Désactiver le bouton d'ajout multiple
-      if (spinner) spinner.classList.remove('d-none');
-      console.log('isAddingMultipleEntrees mis à true.'); // Log pour le débogage
-
-
-      // Préparer les données du formulaire
-      const formData = new FormData();
-
-      // Ajouter les données communes
-      formData.append('id_fournisseur', this.addEntreeMultipleForm.value.id_fournisseur);
-      formData.append('numero_borderau', this.addEntreeMultipleForm.value.numero_borderau);
-      formData.append('date_mouvement', this.formatDate(this.addEntreeMultipleForm.value.date_mouvement));
-      // Ajouter les articles correctement à FormData
-      this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
-        formData.append(`articles[${index}][id_Article]`, article.id_Article);
-        formData.append(`articles[${index}][id_unite_de_mesure]`, article.id_unite_de_mesure);
-        formData.append(`articles[${index}][description]`, article.description);
-        formData.append(`articles[${index}][qte]`, article.qte);
-        formData.append(`articles[${index}][prixUnitaire]`, article.prixUnitaire);
-      });
-
-      // Ajouter les fichiers si présents
-      if (this.selectedFiles.length > 0) {
-        this.selectedFiles.forEach((file, index) => {
-          formData.append(`piece_jointe_mouvement[${index}]`, file, file.name);
-        });
-      }
-      console.log(formData);
-      // Envoyer la requête
-      this.entreeService.saveMultipleMouvementStockEntree(formData).subscribe(
-        (data: any) => {
-          this.loadEntrees();
-          if (spinner) spinner.classList.add('d-none');
-          this.addEntreeMultipleForm.reset();
-          this.selectedFiles = [];
-
-          // Réinitialiser le FormArray avec un seul élément
-          while (this.articlesArray.length !== 0) {
-            this.articlesArray.removeAt(0);
-          }
-          this.addArticle();
-          this.isAddingMultipleEntrees = false; // Réactiver le bouton
-          console.log('Soumission Entrée Multiple réussie. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
-
-
-          // Fermer le modal
-          const modal = document.getElementById('add_entree_multiple');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          // Afficher l'alerte de succès
-          setTimeout(() => {
-            this.alertAjoutVisible = true;
-            setTimeout(() => {
-              this.alertAjoutVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          console.error('Erreur lors de l\'ajout multiple d\'entrées :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isAddingMultipleEntrees = false; // Réactiver le bouton en cas d'erreur
-          console.error('Soumission Entrée Multiple échouée. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      this.markFormGroupTouched(this.addEntreeMultipleForm);
-      alert("Veuillez remplir correctement tous les champs obligatoires");
-      console.log('Formulaire Entrée Multiple invalide.'); // Log pour le débogage
-    }
+  // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
+  if (!this.canAddStock || !this.canAddStockMultiple) {
+    alert('Vous n\'avez pas l\'autorisation d\'ajouter du stock.');
+    return;
   }
+
+  if (this.isAddingMultipleEntrees) {
+    console.warn('Soumission multiple détectée pour Entrée Multiple. Annulation.');
+    return;
+  }
+
+  const spinner = document.querySelector('.spinner-multiple-add');
+
+  if (this.addEntreeMultipleForm.valid) {
+
+    this.isAddingMultipleEntrees = true;
+    if (spinner) spinner.classList.remove('d-none');
+
+    // Préparer les données du formulaire
+    const formData = new FormData();
+
+    // Données communes
+    formData.append('id_fournisseur', this.addEntreeMultipleForm.value.id_fournisseur);
+    formData.append('numero_borderau', this.addEntreeMultipleForm.value.numero_borderau);
+    formData.append('date_mouvement', this.formatDate(this.addEntreeMultipleForm.value.date_mouvement));
+
+    // Articles
+    this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
+      formData.append(`articles[${index}][id_Article]`, article.id_Article);
+      formData.append(`articles[${index}][id_unite_de_mesure]`, article.id_unite_de_mesure);
+      formData.append(`articles[${index}][description]`, article.description);
+      formData.append(`articles[${index}][qte]`, article.qte);
+      formData.append(`articles[${index}][prixUnitaire]`, article.prixUnitaire);
+    });
+
+    // Fichiers
+    if (this.selectedFiles.length > 0) {
+      this.selectedFiles.forEach((file: any, index: number) => {
+        formData.append(`piece_jointe_mouvement[${index}]`, file, file.name);
+      });
+    }
+
+    // Envoi
+    this.entreeService.saveMultipleMouvementStockEntree(formData).subscribe(
+      (data: any) => {
+
+        this.loadEntrees();
+
+        if (spinner) spinner.classList.add('d-none');
+
+        // Réinitialisation du formulaire
+        this.addEntreeMultipleForm.reset();
+        this.selectedFiles = [];
+
+        // Retirer tous les articles sauf un
+        while (this.articlesArray.length !== 0) {
+          this.articlesArray.removeAt(0);
+        }
+        this.addArticle();
+
+        this.isAddingMultipleEntrees = false;
+
+        // 🔥 CORRECTION IMPORTANTE : vider réellement l’input file
+        if (this.fileInputMultiple && this.fileInputMultiple.nativeElement) {
+          this.fileInputMultiple.nativeElement.value = "";
+        }
+
+        // Fermeture du modal
+        const modal = document.getElementById('add_entree_multiple');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        // Alerte succès
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 2000);
+        }, 200);
+
+      },
+
+      (error: any) => {
+        console.error('Erreur lors de l\'ajout multiple d\'entrées :', error);
+        if (spinner) spinner.classList.add('d-none');
+        this.isAddingMultipleEntrees = false;
+        alert('Une erreur s\'est produite. Veuillez réessayer.');
+      }
+    );
+
+  } else {
+    if (spinner) spinner.classList.add('d-none');
+    this.markFormGroupTouched(this.addEntreeMultipleForm);
+    alert("Veuillez remplir correctement tous les champs obligatoires");
+  }
+}
+
 
   // Soumission d'ajout simple
   onClickSubmitAddEntree() {
