@@ -603,51 +603,72 @@ hasGroupFile(group: any): boolean {
       });
   }
 
+
   onClickSubmitEditAllSortie() {
-      // EMPÊCHEMENT DE CLICS MULTIPLES (basé sur l'exemple de EntreeComponent)
-      if (this.isProcessingAll) {
-        console.warn('Soumission "Tout Traiter" déjà en cours. Opération annulée.');
-        return;
+    if (this.isProcessingAll) {
+      console.warn('Soumission "Tout Traiter" déjà en cours. Opération annulée.');
+      return;
+    }
+
+    if (this.edit_all.invalid) {
+      this.markFormGroupTouched(this.edit_all);
+      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      return;
+    }
+
+    this.isProcessingAll = true;
+
+    const formData = {
+      ...this.edit_all.value,
+      date_mouvement: this.formatDate(this.edit_all.value.date_mouvement),
+    };
+
+  this.mouvementService.validerDemandeGroupee(formData)
+    .pipe(takeUntil(this.destroy$))
+    .subscribe(
+      (data: any) => {
+        this.isProcessingAll = false;
+
+        const modal = document.getElementById('tout_traiter');
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+
+        this.loadGroupedMouvements();
+        this.edit_all.reset();
+
+        setTimeout(() => {
+          this.alertModifAllVisible = true;
+          setTimeout(() => this.alertModifAllVisible = false, 2000);
+        }, 200);
+      },
+      (error: any) => {
+        this.isProcessingAll = false;
+
+        // 🔥 Extraire le message le plus précis
+        const messageBack = error.error?.errors?.[0]
+                          || error.error?.message
+                          || error.error?.error
+                          || "Erreur inconnue du serveur";
+
+        // ✅ 1. Fermer d'abord le premier modal s'il est encore ouvert
+        const modalOuvert = document.getElementById('tout_traiter');
+        const bsModalOuvert = bootstrap.Modal.getInstance(modalOuvert);
+        bsModalOuvert?.hide();
+
+        // ✅ 2. Insérer le message dans le modal d’erreur
+        document.getElementById('messageErreurBack')!.innerText = messageBack;
+        this.loadGroupedMouvements();
+        // ✅ 3. Afficher le modal d’erreur (après un court délai pour laisser le 1er se fermer)
+        setTimeout(() => {
+          const modalErreur = document.getElementById('modalErreurBack');
+          const bsModalErreur = new bootstrap.Modal(modalErreur);
+          bsModalErreur.show();
+        }, 300);
       }
+    );
+}
 
-      if (this.edit_all.invalid) {
-        this.markFormGroupTouched(this.edit_all);
-        alert("Désolé, le formulaire n'est pas bien renseigné.");
-        return;
-      }
 
-      this.isProcessingAll = true;
-
-      const formData = {
-        ...this.edit_all.value,
-        date_mouvement: this.formatDate(this.edit_all.value.date_mouvement),
-      };
-
-      this.mouvementService.validerDemandeGroupee(formData).pipe(takeUntil(this.destroy$)).subscribe(
-        (data: any) => {
-          this.isProcessingAll = false;
-
-          // Fermer le modal
-          const modal = document.getElementById('tout_traiter');
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
-
-          this.loadGroupedMouvements(); // Rafraîchit les données après le traitement
-          this.edit_all.reset();
-
-          setTimeout(() => {
-            this.alertModifAllVisible = true;
-            setTimeout(() => {
-              this.alertModifAllVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-          this.isProcessingAll = false;
-          alert(error.error?.error || "Une erreur s'est produite lors du traitement groupé. Veuillez réessayer.");
-        }
-      );
-  }
 
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
     Object.values(formGroup.controls).forEach(control => {
