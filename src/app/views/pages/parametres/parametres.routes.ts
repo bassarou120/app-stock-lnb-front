@@ -30,5 +30,9 @@ export default [
     path: 'permissions', // The URL path for this route
     loadComponent: () => import('./permissions/permissions.component').then(m => m.PermissionComponent),
   },
+  {
+    path: 'logs-journalisation',
+    loadComponent: () => import('./logs-journalisation/log-journalisation.component').then(c => c.LogJournalisationComponent),
+  },
 
 ] as Routes;

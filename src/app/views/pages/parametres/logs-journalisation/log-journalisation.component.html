@@ -1,0 +1,92 @@
+<div class="row" *ngIf="hasPageAccess">
+
+  <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Tableau de bord</a></li>
+          <li class="breadcrumb-item active" aria-current="page">Journalisation des Actions</li>
+      </ol>
+  </nav>
+
+  <div class="col-md-12 grid-margin stretch-card">
+      <div class="card">
+          <div class="card-body d-flex justify-content-between">
+              <div>
+                  <h4 class="card-title">Journalisation des Actions</h4>
+                  <p class="text-secondary">Liste complète et historique des actions du système</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="row" *ngIf="hasPageAccess">
+  <div class="col-md-12 stretch-card">
+      <div class="card">
+          <div class="card-body">
+              <h6 class="card-title">Liste des Logs</h6>
+              <div class="row">
+                  <div class="col-xl-3 col-md-4 mb-3">
+                      <input type="text" class="form-control form-control-sm" placeholder="Rechercher par action, IP, ID utilisateur..."
+                          (keyup)="updateFilter($event)" />
+                  </div>
+              </div>
+              <div class="table-responsive">
+                  <ngx-datatable table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
+                      [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
+
+                      <ngx-datatable-column name="N°" [maxWidth]="60">
+                          <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
+                              {{ rowIndex + 1 }}
+                          </ng-template>
+                      </ngx-datatable-column>
+
+                      <ngx-datatable-column name="Action" prop="action" [flexGrow]="2"></ngx-datatable-column>
+
+                      <ngx-datatable-column name="ID Utilisateur" prop="user_id" [maxWidth]="100">
+                          <ng-template let-value="value" ngx-datatable-cell-template>
+                              {{ value || 'Système/Invité' }}
+                          </ng-template>
+                      </ngx-datatable-column>
+
+                      <ngx-datatable-column name="Adresse IP" prop="ip_address" [maxWidth]="120"></ngx-datatable-column>
+                      
+                      <ngx-datatable-column name="Date de l'action" prop="date_action" [flexGrow]="1">
+                          <ng-template let-value="value" ngx-datatable-cell-template>
+                              {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+                          </ng-template>
+                      </ngx-datatable-column>
+                      
+                      <ngx-datatable-column name="Détails" [maxWidth]="120">
+                          <ng-template let-row="row" ngx-datatable-cell-template>
+                              <button type="button" class="btn btn-xs btn-outline-primary" (click)="viewDetails(row, detailsModal)">
+                                  Voir Détails
+                              </button>
+                          </ng-template>
+                      </ngx-datatable-column>
+                  </ngx-datatable>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
+
+
+<ng-template #detailsModal let-modal>
+  <div class="modal-header">
+      <h5 class="modal-title" id="detailsModalLabel">Détails du Log: {{ selectedLogAction }}</h5>
+      <button type="button" class="btn-close" (click)="modal.dismiss('Cross click')" aria-label="Close"></button>
+  </div>
+  <div class="modal-body">
+      <p class="mb-3"><strong>Agent Utilisateur (User-Agent):</strong></p>
+      
+      <p class="text-muted small log-detail-box">
+        {{ getDetailUserAgent(selectedLogUserAgent) }}
+      </p>
+      
+      <p class="mb-3 mt-4"><strong>Contenu des Détails (JSON/Texte Brut):</strong></p>
+      <pre class="log-detail-box p-3 border rounded bg-light">{{ selectedLogDetails || 'Aucun détail disponible.' }}</pre>
+  </div>
+  <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.close('Close click')">Fermer</button>
+  </div>
+</ng-template>

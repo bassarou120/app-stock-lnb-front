@@ -34,6 +34,7 @@
     "@rg-software/angular-archwizard": "^17.0.0",
     "@siemens/ngx-datatable": "^22.4.1",
     "@sweetalert2/ngx-sweetalert2": "^12.4.0",
+    "@swimlane/ngx-datatable": "^22.0.0",
     "animate.css": "^4.1.1",
     "apexcharts": "^3.53.0",
     "bootstrap": "^5.3.7",

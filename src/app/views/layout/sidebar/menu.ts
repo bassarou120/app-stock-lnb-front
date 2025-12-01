@@ -366,6 +366,11 @@ export const MENU: MenuItem[] = [
         link: '/parametres/types-intervention',
         fonctionnalites: ['Voir Parametres Généraux']
       },
+      {
+        label: 'Logs des Activités',
+        link: '/parametres/logs-journalisation',
+        fonctionnalites: ['Voir Parametres Généraux']
+      },
 /*       {
         label: 'Listes des rôles',
         link: '/parametres/roles',
