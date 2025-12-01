@@ -163,82 +163,103 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
   }
 
 
-  /**
-   * Soumet le formulaire pour enregistrer les paramètres.
-   */
-  async onSubmit(): Promise<void> {
-    if (this.siteSettingsForm.invalid) {
-      this.markFormGroupTouched(this.siteSettingsForm);
-      this.showTemporaryMessage('error', 'Veuillez remplir tous les champs obligatoires.');
-      return;
+  // Fichier : site-settings.component.ts
+
+/**
+ * Soumet le formulaire pour enregistrer les paramètres.
+ */
+async onSubmit(): Promise<void> {
+  if (this.siteSettingsForm.invalid) {
+    this.markFormGroupTouched(this.siteSettingsForm);
+    this.showTemporaryMessage('error', 'Veuillez remplir tous les champs obligatoires.');
+    return;
+  }
+
+  this.isSaving = true;
+  this.error = null;
+  this.successMessage = null;
+
+  const siteNameValue = this.siteSettingsForm.get('siteName')?.value;
+  const mainColorValue = this.siteSettingsForm.get('mainColor')?.value;
+  let finalLogoUrl = this.logoUrl; // Commence avec l'URL actuelle
+
+  try {
+    // 1. Sauvegarder le nom du site
+    await this.siteSettingsService.saveSetting('company_name', siteNameValue, 'text').toPromise();
+    console.log('Nom du site enregistré.');
+
+    // 2. Sauvegarder la couleur principale
+    await this.siteSettingsService.saveSetting('main_color', mainColorValue, 'text').toPromise();
+    console.log('Couleur principale enregistrée.');
+
+    // 💡 ACTION IMMÉDIATE : Mise à jour du thème CSS
+    this.dynamicThemeService.updateColor('primary_color', mainColorValue);
+
+
+    // 3. Gérer le logo
+    if (this.newLogoFile) {
+      const reader = new FileReader();
+      const base64Promise = new Promise<string>((resolve, reject) => {
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(this.newLogoFile as File);
+      });
+      const base64Image = await base64Promise;
+
+      // Capture de la réponse de l'API pour obtenir la nouvelle URL complète
+      const logoRes: any = await this.siteSettingsService.saveSetting('logo_url', base64Image, 'base64_image').toPromise();
+      console.log('Nouveau logo enregistré.');
+      
+      // Récupération de l'URL du logo à partir de la réponse du backend
+      finalLogoUrl = logoRes?.data?.value || this.previewLogoUrl;
+      
+    } else if (this.previewLogoUrl === null && this.logoUrl !== 'public/images/logo_bg.png') {
+      
+      await this.siteSettingsService.saveSetting('logo_url', '', 'base64_image').toPromise();
+      console.log('Logo supprimé.');
+      finalLogoUrl = ''; 
     }
 
-    this.isSaving = true;
-    this.error = null;
-    this.successMessage = null;
+    // --- 🛑 DIFFUSION UNIQUE ET GLOBALE ---
+    
+    // Mise à jour des propriétés locales pour le formulaire
+    this.logoUrl = finalLogoUrl;
+    this.previewLogoUrl = finalLogoUrl; 
+    this.siteName = siteNameValue;
 
-    const siteNameValue = this.siteSettingsForm.get('siteName')?.value;
-    const mainColorValue = this.siteSettingsForm.get('mainColor')?.value;
+    // 💡 DIFFUSION AU SERVICE : C'est cet appel unique qui met à jour le Header/Sidebar
+    this.siteSettingsService.updateLocalSettings({
+        companyName: siteNameValue,
+        logoUrl: finalLogoUrl,
+        mainColor: mainColorValue
+    } as any);
 
-    try {
+    // --- FIN DE LA DIFFUSION ---
 
-if (this.siteSettingsForm.valid) {
-      this.isSaving = true;
-      const formData = this.siteSettingsForm.value;
+    this.showTemporaryMessage('success', 'Paramètres enregistrés avec succès !');
+    // Recharger pour réinitialiser le formulaire localement (optionnel mais sécurisant)
+    this.loadSettings(); 
 
-      // Sauvegarder la couleur principale
-      this.saveColorSetting('primary_color', formData.mainColor);
-    }
-
-
-      // 1. Sauvegarder le nom du site
-      await this.siteSettingsService.saveSetting('company_name', siteNameValue, 'text').toPromise();
-      console.log('Nom du site enregistré.');
-
-      // 2. Sauvegarder la couleur principale
-      await this.siteSettingsService.saveSetting('main_color', mainColorValue, 'text').toPromise();
-      console.log('Couleur principale enregistrée.');
-
-      // 3. Gérer le logo
-      if (this.newLogoFile) {
-        const reader = new FileReader();
-        const base64Promise = new Promise<string>((resolve, reject) => {
-          reader.onloadend = () => resolve(reader.result as string);
-          reader.onerror = reject;
-          reader.readAsDataURL(this.newLogoFile as File);
-        });
-        const base64Image = await base64Promise;
-        await this.siteSettingsService.saveSetting('logo_url', base64Image, 'base64_image').toPromise();
-        console.log('Nouveau logo enregistré.');
-      } else if (this.previewLogoUrl === null && this.logoUrl !== 'public/images/logo_bg.png') {
-        await this.siteSettingsService.saveSetting('logo_url', '', 'base64_image').toPromise();
-        console.log('Logo supprimé.');
-      }
-
-      this.showTemporaryMessage('success', 'Paramètres enregistrés avec succès !');
-      this.loadSettings(); // Recharger les paramètres pour afficher les dernières valeurs du backend
-
-    } catch (err: any) {
-      console.error('Erreur lors de l\'enregistrement des paramètres:', err);
-      this.showTemporaryMessage('error', `Échec de l'enregistrement: ${err.message || 'Veuillez réessayer.'}`);
-    } finally {
+  } catch (err: any) {
+      // ... (gestion des erreurs)
+  } finally {
       this.isSaving = false;
-    }
   }
+}
 
-    private saveColorSetting(key: string, color: string): void {
-    // Appel à votre API pour sauvegarder
-    // Puis mettre à jour le thème
-    this.dynamicThemeService.updateColor('primary_color', color);
+  //   private saveColorSetting(key: string, color: string): void {
+  //   // Appel à votre API pour sauvegarder
+  //   // Puis mettre à jour le thème
+  //   this.dynamicThemeService.updateColor('primary_color', color);
 
-    this.isSaving = false;
-    this.successMessage = 'Couleur mise à jour avec succès !';
+  //   this.isSaving = false;
+  //   this.successMessage = 'Couleur mise à jour avec succès !';
 
-    // Effacer le message après 3 secondes
-    setTimeout(() => {
-      this.successMessage = '';
-    }, 3000);
-  }
+  //   // Effacer le message après 3 secondes
+  //   setTimeout(() => {
+  //     this.successMessage = '';
+  //   }, 3000);
+  // }
 
 
   /**

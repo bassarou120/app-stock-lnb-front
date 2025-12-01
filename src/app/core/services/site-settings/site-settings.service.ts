@@ -107,27 +107,16 @@ export class SiteSettingsService {
     );
   }
 
-  /**
-   * Met à jour un paramètre spécifique du site ou en crée un nouveau.
-   * Après un enregistrement réussi, déclenche un rechargement des paramètres pour mettre à jour le BehaviorSubject
-   * et notifier tous les abonnés.
-   * @param key La clé du paramètre (ex: 'company_name', 'logo_url').
-   * @param value La valeur du paramètre (texte, URL d'image, ou Base64 pour le logo).
-   * @param type Le type du paramètre (ex: 'text', 'image_url', 'base64_image').
-   * @returns Observable<Setting> Le paramètre mis à jour ou créé.
-   */
-  saveSetting(key: string, value: string | null, type: string): Observable<Setting> {
-    const payload = { key, value, type };
-    return this.http.post<Setting>(`${this.backendBaseUrl}/api/site-settings/store`, payload).pipe(
-      tap(() => {
-        this.getSettings().subscribe({
-          next: () => console.log('SiteSettingsService: Rechargement des paramètres après sauvegarde.'),
-          error: (err) => console.error('SiteSettingsService: Erreur lors du rechargement après sauvegarde:', err)
-        });
-      })
-    );
+    /**
+     * Met à jour un paramètre spécifique du site ou en crée un nouveau.
+     * Cette méthode ne déclenche PLUS de rechargement automatique.
+     */
+    saveSetting(key: string, value: string | null, type: string): Observable<any> {
+      const payload = { key, value, type };
+      // 🛑 TRÈS IMPORTANT : Supprimez le .pipe(tap(() => { this.getSettings().subscribe(...) }))
+      // pour éviter le rechargement automatique après chaque sauvegarde.
+      return this.http.post<any>(`${this.backendBaseUrl}/api/site-settings/store`, payload);
   }
-
   /**
    * Construit l'URL complète pour un fichier stocké publiquement par Laravel.
    * @param relativePath Le chemin relatif du fichier (ex: 'logos/mon_logo.png').
@@ -136,5 +125,14 @@ export class SiteSettingsService {
   getPublicStorageUrl(relativePath: string): string {
     const cleanedPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
     return `${this.backendBaseUrl}/storage/${cleanedPath}`;
+  }
+
+  /**
+     * 💡 NOUVELLE MÉTHODE : Met à jour le BehaviorSubject localement.
+     * Utilisé pour diffuser les changements immédiatement après une série de sauvegardes.
+     */
+  public updateLocalSettings(newSettings: SiteSettings): void {
+    console.log('SiteSettingsService: Diffusion locale des nouveaux paramètres:', newSettings);
+    this._siteSettings.next(newSettings);
   }
 }

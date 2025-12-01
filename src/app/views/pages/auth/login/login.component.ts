@@ -7,7 +7,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { Observable, of } from 'rxjs';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { SiteSettingsService } from '../../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
+import { SiteSettingsService, SiteSettings } from '../../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
 import { Subject, takeUntil } from 'rxjs'; // NOUVEAUX IMPORTS POUR GÉRER LES OBSERVABLES
 import { Exercice, ExerciceResponse } from '../../../../core/services/interface/models';
 
@@ -15,7 +15,7 @@ import { Exercice, ExerciceResponse } from '../../../../core/services/interface/
   selector: 'app-login',
   standalone: true,
   imports: [
-NgStyle,
+    NgStyle,
     RouterLink,
     ReactiveFormsModule,
     NgbAlertModule,
@@ -30,10 +30,12 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
   exerciceEnCours!: Exercice | null;
 
   // PROPRIÉTÉ POUR LE NOM DU SITE (AJOUTÉE)
-  siteName: string = 'Chargement...';
+  //siteName: string = 'Chargement...';
   passwordVisible = false;
 
   // SUBJECT POUR GÉRER LA DÉSINSCRIPTION (AJOUTÉ)
+  // 🛑 PROPRIÉTÉ POUR LE NOM DU SITE ET GESTION DE L'ABONNEMENT
+  siteName: string = 'Gestion de Stock & Parc'; // Valeur par défaut
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -55,12 +57,12 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
 
     this.loadexerciceEnCours();
 
-    // S'abonner aux changements du nom du site (AJOUTÉ)
-    this.siteSettingsService.siteSettings$.pipe(
-      takeUntil(this.destroy$) // Gérer la désinscription
-    ).subscribe(settings => {
-      this.siteName = settings.companyName;
-      console.log('LoginComponent: Nom du site mis à jour:', this.siteName);
+    /// 🛑 ABONNEMENT AUX PARAMÈTRES DU SITE
+    this.siteSettingsService.siteSettings$
+    .pipe(takeUntil(this.destroy$))
+    .subscribe((settings: SiteSettings) => {
+        this.siteName = settings.companyName;
+        console.log('LoginComponent: Nom du site mis à jour:', this.siteName);
     });
 
     // Optionnel: Charger les paramètres du site au démarrage de la page de connexion
