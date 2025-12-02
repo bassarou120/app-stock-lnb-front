@@ -22,7 +22,7 @@ COPY /src/environments/prod.environment.ts /usr/src/app/src/environments/environ
 #RUN npm run build --force
 RUN npm install --legacy-peer-deps
 
-COPY swimlane-ngx-datatable.mjs /usr/node_modules/@swimlane/ngx-datatable/fesm2022/swimlane-ngx-datatable.mjs
+COPY swimlane-ngx-datatable.mjs /usr/src/app/node_modules/@swimlane/ngx-datatable/fesm2022/swimlane-ngx-datatable.mjs
 RUN npm rebuild
 RUN npm run build --force
 
