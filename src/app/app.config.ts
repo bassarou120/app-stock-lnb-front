@@ -1,6 +1,6 @@
 import { ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { routes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 
@@ -11,6 +11,7 @@ import { provideHighlightOptions } from 'ngx-highlightjs';
 import { registerLocaleData } from '@angular/common';
 import localeFr from '@angular/common/locales/fr'; // Importe les données de la locale française
 import { LOCALE_ID } from '@angular/core'; // Pour définir la locale par défaut
+import { AuthInterceptor } from './core/services/auth/interceptor' 
 
 
 // NOUVEAU: Enregistrez les données de la locale
@@ -35,6 +36,16 @@ export const appConfig: ApplicationConfig = {
     importProvidersFrom([SweetAlert2Module.forRoot()]), 
     provideHighlightOptions(highlightOptions), 
     // NOUVEAU: Fournir la locale par défaut pour les pipes
-    { provide: LOCALE_ID, useValue: 'fr' } 
+    { provide: LOCALE_ID, useValue: 'fr' } ,
+    provideHttpClient(
+      withInterceptors([ 
+        (req, next) => {
+          const token = localStorage.getItem('token');
+          const authReq = token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
+          return next(authReq); // ici next est une fonction
+        } 
+      ])
+    )
+
   ],
 };
