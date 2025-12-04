@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgbAlertModule, NgbDropdownModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { LogJournalisation, LogJournalisationService } from '../../../../core/services/logs-journalisation/log-journalisation.service'; 
+import { LogJournalisation, LogJournalisationService } from '../../../../core/services/logs-journalisation/log-journalisation.service';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -29,7 +29,7 @@ export class LogJournalisationComponent implements OnInit {
   hasPageAccess = true;
   selectedLogDetails: string | null = null;
   selectedLogAction: string | null = null;
-  selectedLogUserAgent: string | null = null; 
+  selectedLogUserAgent: string | null = null;
 
   constructor(
     private logService: LogJournalisationService,
@@ -68,10 +68,10 @@ export class LogJournalisationComponent implements OnInit {
 
   getDetailUserAgent(userAgent: string | null): string {
     if (!userAgent) return 'Aucun User-Agent disponible';
-  
+
     let browser = 'Inconnu';
     let os = 'Inconnu';
-  
+
     // Détection simple du navigateur
     if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
       browser = 'Google Chrome';
@@ -84,7 +84,7 @@ export class LogJournalisationComponent implements OnInit {
     } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
       browser = 'Opera';
     }
-  
+
     // Détection simple du système d’exploitation
     if (userAgent.includes('Windows')) {
       os = 'Windows';
@@ -97,10 +97,10 @@ export class LogJournalisationComponent implements OnInit {
     } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
       os = 'iOS';
     }
-  
+
     return `${browser} sur ${os}`;
   }
-  
+
   viewDetails(row: LogJournalisation, content: any): void {
     this.selectedLogDetails = row.details;
     this.selectedLogAction = row.action;
