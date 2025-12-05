@@ -77,6 +77,7 @@ export class RetourTicketComponent implements OnInit {
     this.loadRetourTickets();
     this.loadCompagniePetrolieres();
     this.loadCouponTickets();
+    this.loadMouvementsTickets();
     }
 
     this.addRetourTicket = this.formBuilder.group({
@@ -145,9 +146,9 @@ export class RetourTicketComponent implements OnInit {
 
     return this.formBuilder.group({
         // CHAMPS DU PAYLOAD FINAL (cachés)
-        mouvement_ticket_id: [couponDetail.mouvement_ticket_id, Validators.required], 
+        mouvement_ticket_id: [couponDetail.mouvement_ticket_id, Validators.required],
         coupon_ticket_id: [couponDetail.coupon_ticket_id, Validators.required],
-        compagnie_petrolier_id: [couponDetail.compagnie_petrolier_id, Validators.required], 
+        compagnie_petrolier_id: [couponDetail.compagnie_petrolier_id, Validators.required],
 
         // CHAMPS POUR L'AFFICHAGE/VALIDATION
         libelle_affichage: [couponDetail.libelle_affichage], // Coupon (Compagnie)
@@ -157,11 +158,11 @@ export class RetourTicketComponent implements OnInit {
         qte_retournee: [
             qteMax, // Pré-remplir avec la quantité max pour dégriser
             [
-                Validators.required, 
-                Validators.min(1), 
-                Validators.max(qteMax) 
+                Validators.required,
+                Validators.min(1),
+                Validators.max(qteMax)
             ]
-        ], 
+        ],
     });
 }
 
@@ -250,9 +251,9 @@ export class RetourTicketComponent implements OnInit {
     }
 
     // 2. Validation du Formulaire (Incluant les éléments du FormArray)
-    
+
     // Marquer le formulaire principal et tous les sous-groupes du FormArray comme touchés
-    this.addRetourTicket.markAllAsTouched(); 
+    this.addRetourTicket.markAllAsTouched();
     this.retoursCouponsArray.controls.forEach(control => control.markAllAsTouched());
 
     // Vérifier si le formulaire principal est invalide OU si le FormArray est vide
@@ -267,12 +268,12 @@ export class RetourTicketComponent implements OnInit {
     const payload = {
         retours_coupons: this.retoursCouponsArray.value
     };
-    
+
     console.log('Payload soumis:', payload);
 
     // 4. Activer l'indicateur de chargement
     this.isAdding = true;
-    
+
     // 5. Appel au service (Le nom du service reste le vôtre : saveRetourTicket)
     this.retourTicketService.saveRetourTicket(payload as any).subscribe( // 💡 Changement ici: on envoie 'payload'
       (data: any) => {
@@ -433,12 +434,12 @@ export class RetourTicketComponent implements OnInit {
   // }
   loadAllSortieTicketWhereNotInRetour(): void {
     this.retourTicketService.getAllSortieTicketWhereNotInRetour().subscribe({
-        next: (allMouvements: any[]) => { 
+        next: (allMouvements: any[]) => {
             console.log("Liste des mouvements reçus (avec ID uniques, mais la même référence) :", allMouvements);
 
             // 1. DÉDUPLICATION FRONTEND: Utiliser la PROPRIÉTÉ 'reference' comme clé unique
             const uniqueMouvementsMap = new Map();
-            
+
             allMouvements.forEach((mouvement: any) => {
                 // 💡 CLÉ DE DÉDUPLICATION CHANGÉE : Nous utilisons mouvement.reference
                 if (mouvement.reference && !uniqueMouvementsMap.has(mouvement.reference)) {
@@ -448,7 +449,7 @@ export class RetourTicketComponent implements OnInit {
 
             // 2. Convertir la Map en tableau et assigner à this.mouvementsTickets
             this.mouvementsTickets = Array.from(uniqueMouvementsMap.values());
-            
+
             // Note: Le ng-select affichera la référence, et chaque élément sera unique.
             console.log("Liste des mouvements dédupliqués (par RÉFÉRENCE unique) :", this.mouvementsTickets);
         },
@@ -533,7 +534,7 @@ export class RetourTicketComponent implements OnInit {
 
   get retoursCouponsArray(): FormArray {
     // Note : Le nom du FormArray dans ngOnInit sera 'retours_coupons'
-    return this.addRetourTicket.get('retours_coupons') as FormArray; 
+    return this.addRetourTicket.get('retours_coupons') as FormArray;
 }
 
   // getMouvementtInfo() {
@@ -564,46 +565,57 @@ export class RetourTicketComponent implements OnInit {
   //     }
   //   );
   // }
-  getMouvementtInfo() { //Nouveau
-    const idMouvement = this.addRetourTicket.get('mouvementTicket_id')?.value;
-    console.log('ID du Mouvement sélectionné:', idMouvement);
-    
-    // 1. Vider le FormArray et la compagnie
-    while (this.retoursCouponsArray.length !== 0) {
-        this.retoursCouponsArray.removeAt(0);
-    }
-    this.addRetourTicket.patchValue({ compagnie_petrolier_id: null });
 
-    if (!idMouvement) {
-      console.log('Aucun Mouvement sélectionné ou désélection effectuée');
-      return;
-    }
-    
-    this.retourTicketService.getMouvementInfo(idMouvement).subscribe(
-      (response: any) => { // response doit contenir 'coupons_details'
-        console.log('Info Récupérée:', response);
-        
-        // 2. Remplir le champ principal Compagnie
-        this.addRetourTicket.patchValue({
-          compagnie_petrolier_id: response.compagnie_petrolier_id
-        });
-        
-        // 3. Populer le FormArray
-        if (response.coupons_details && Array.isArray(response.coupons_details)) {
-            response.coupons_details.forEach((coupon: any) => {
-                this.retoursCouponsArray.push(this.createCouponReturnFormGroup(coupon));
-            });
-        }
+    getMouvementtInfo() { //Nouveau
+      const idMouvement = this.addRetourTicket.get('mouvementTicket_id')?.value;
+      console.log('ID du Mouvement sélectionné:', idMouvement);
 
-        if (this.retoursCouponsArray.length === 0) {
-             alert("Tous les coupons de cette sortie ont déjà été retournés, ou il n'y a pas de coupon à retourner.");
-        }
-      },
-      error => {
-        console.error('Erreur lors de la récupération des infos du mouvement:', error);
-        this.addRetourTicket.patchValue({ compagnie_petrolier_id: null });
-        alert('Une erreur est survenue lors de la récupération des détails du mouvement.');
+      // 1. Vider le FormArray et la compagnie
+      while (this.retoursCouponsArray.length !== 0) {
+          this.retoursCouponsArray.removeAt(0);
       }
-    );
-}
+      this.addRetourTicket.patchValue({ compagnie_petrolier_id: null });
+
+      if (!idMouvement) {
+        console.log('Aucun Mouvement sélectionné ou désélection effectuée');
+        return;
+      }
+
+      this.retourTicketService.getMouvementInfo(idMouvement).subscribe(
+        (response: any) => { // response doit contenir 'coupons_details'
+          console.log('Info Récupérée:', response);
+
+          // 2. Remplir le champ principal Compagnie
+          this.addRetourTicket.patchValue({
+            compagnie_petrolier_id: response.compagnie_petrolier_id
+          });
+
+          // 3. Populer le FormArray
+          if (response.coupons_details && Array.isArray(response.coupons_details)) {
+              response.coupons_details.forEach((coupon: any) => {
+                  this.retoursCouponsArray.push(this.createCouponReturnFormGroup(coupon));
+              });
+          }
+
+          if (this.retoursCouponsArray.length === 0) {
+              alert("Tous les coupons de cette sortie ont déjà été retournés, ou il n'y a pas de coupon à retourner.");
+          }
+        },
+        error => {
+          console.error('Erreur lors de la récupération des infos du mouvement:', error);
+          this.addRetourTicket.patchValue({ compagnie_petrolier_id: null });
+          alert('Une erreur est survenue lors de la récupération des détails du mouvement.');
+        }
+      );
+    }
+
+    loadMouvementsTickets() {
+      this.retourTicketService.getMouvementsDisponibles().subscribe(
+        (data) => {
+          this.mouvementsTickets = data;
+        },
+        (err) => console.error(err)
+      );
+    }
+
 }
