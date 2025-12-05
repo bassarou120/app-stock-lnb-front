@@ -40,22 +40,22 @@
                           </ng-template>
                       </ngx-datatable-column>
 
-                      <ngx-datatable-column name="Action" prop="action" [flexGrow]="2"></ngx-datatable-column>
+                      <ngx-datatable-column name="Actions" prop="action" [flexGrow]="2"></ngx-datatable-column>
 
                       <ngx-datatable-column name="Utilisateur" prop="user_name_full" [maxWidth]="150">
                         <ng-template let-value="value" ngx-datatable-cell-template>
-                            {{ value || 'Système/Invité' }} 
+                            {{ value || 'Système/Invité' }}
                         </ng-template>
                       </ngx-datatable-column>
 
                       <ngx-datatable-column name="Adresse IP" prop="ip_address" [maxWidth]="120"></ngx-datatable-column>
-                      
+
                       <ngx-datatable-column name="Date de l'action" prop="date_action" [flexGrow]="1">
                           <ng-template let-value="value" ngx-datatable-cell-template>
                               {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
                           </ng-template>
                       </ngx-datatable-column>
-                      
+
                       <ngx-datatable-column name="Détails" [maxWidth]="120">
                           <ng-template let-row="row" ngx-datatable-cell-template>
                               <button type="button" class="btn btn-xs btn-outline-primary" (click)="viewDetails(row, detailsModal)">
@@ -78,11 +78,11 @@
   </div>
   <div class="modal-body">
       <p class="mb-3"><strong>Agent Utilisateur (User-Agent):</strong></p>
-      
+
       <p class="text-muted small log-detail-box">
         {{ getDetailUserAgent(selectedLogUserAgent) }}
       </p>
-      
+
       <p class="mb-3 mt-4"><strong>Contenu des Détails :</strong></p>
       <pre class="log-detail-box p-3 border rounded bg-light">{{ selectedLogDetails || 'Aucun détail disponible.' }}</pre>
   </div>

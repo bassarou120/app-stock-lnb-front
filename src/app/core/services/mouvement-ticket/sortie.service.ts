@@ -141,7 +141,7 @@ export class MouvementTicketService  {
 
     televerserBon(mouvementId: number, file: File): Observable<any> {
       const formData = new FormData();
-      formData.append('bon_de_sortie', file, file.name);
+      formData.append('bon_de_sortie_file', file, file.name);
       return this.http.post(`${this.apiUrl}/${mouvementId}/televerser-bon`, formData);
     }
 
