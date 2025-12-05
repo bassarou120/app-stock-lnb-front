@@ -141,7 +141,11 @@ export class MouvementTicketService  {
 
     televerserBon(mouvementId: number, file: File): Observable<any> {
       const formData = new FormData();
+
+      // ✅ CORRECTION : Ajouter le fichier sous la clé 'bon_de_sortie_file'
       formData.append('bon_de_sortie_file', file, file.name);
+
+      // Assurez-vous que l'URL est correcte pour atteindre la route Laravel
       return this.http.post(`${this.apiUrl}/${mouvementId}/televerser-bon`, formData);
     }
 
