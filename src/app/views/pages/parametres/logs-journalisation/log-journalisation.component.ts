@@ -10,7 +10,7 @@ import { ReactiveFormsModule } from '@angular/forms';
   selector: 'app-logs-journalisation',
   standalone: true,
   imports: [
-    NgxDatatableModule,  // Import obligatoire pour que <ngx-datatable> fonctionne
+    NgxDatatableModule,
     ReactiveFormsModule,
     CommonModule,
     NgbAlertModule,
