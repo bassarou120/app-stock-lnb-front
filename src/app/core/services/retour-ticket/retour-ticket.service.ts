@@ -69,4 +69,8 @@ export class RetourTicketService  {
         getMouvementInfo(idMouvement: number): Observable<any> {
           return this.http.get<any>(`${this.url}/mouvement-info/${idMouvement}`);
         }
+
+        getMouvementsDisponibles(): Observable<any[]> {
+          return this.http.get<any[]>(`${this.url}/mouvements-disponibles`);
+        }
 }
