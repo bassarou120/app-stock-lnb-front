@@ -24,5 +24,10 @@ export default [
   {
     path: 'reset-password',
     loadComponent: () => import('./reset-password/reset-password.component').then(c => c.ResetPasswordComponent)
-  }
+  },
+    {
+    path: 'profil-user',
+    loadComponent: () => import('./profil-user/profil-user.component').then(c => c.ProfileUserComponent)
+  },
+
 ] as Routes;

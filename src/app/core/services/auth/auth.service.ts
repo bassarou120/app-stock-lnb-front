@@ -1,10 +1,11 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 import { ExerciceResponse, LoginResponse, Permission } from "../interface/models";
 import { environment } from '../../../../environments/environment';
 import { Exercice } from "../interface/models";
 import { switchMap } from 'rxjs/operators';
+import { ProfileResponse, UpdateProfileData } from '../interface/models';
 
 
 @Injectable({
@@ -144,8 +145,6 @@ getExercice(): Observable<ExerciceResponse> {
     return this.http.post(`${this.url}/reset-password`, data);
   }
 
-
-
    logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -161,4 +160,51 @@ getExercice(): Observable<ExerciceResponse> {
   getToken(): string | null {
     return localStorage.getItem('token');
   }
+
+  getCurrentUser(): any {
+    const userData = localStorage.getItem('user');
+    return userData ? JSON.parse(userData) : null;
+  }
+
+/*   updateProfile(data: any): Observable<any> {
+    return this.http.put(`${this.url}/users/update`, data);
+  } */
+
+  private getHeaders(): HttpHeaders {
+    const token = localStorage.getItem('token');
+    return new HttpHeaders({
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    });
+  }
+
+  /**
+   * Récupérer le profil de l'utilisateur connecté
+   */
+    getProfile(): Observable<any> {
+      const token = localStorage.getItem('token');
+      return this.http.get(`${this.url}/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+  /**
+   * Mettre à jour le profil de l'utilisateur
+   */
+
+updateProfile(data: any): Observable<any> {
+  const token = localStorage.getItem('token');
+  return this.http.put(`${this.url}/profile`, data, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    }
+  });
+}
+
+
+
 }
