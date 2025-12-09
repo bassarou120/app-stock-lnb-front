@@ -662,11 +662,28 @@ export interface ActifCode {
 export interface SortiePatrimoine {
   id: number;
   code_immo: string;
-  designation_immo: string; 
-  type_immo: string; 
-  valeur: number; 
-  date_sortie: string; 
-  observation: string | null; 
-  exercice_id: number; 
-  isdeleted: boolean; 
+  designation_immo: string;
+  type_immo: string;
+  valeur: number;
+  date_sortie: string;
+  observation: string | null;
+  exercice_id: number;
+  isdeleted: boolean;
+}
+
+export interface UpdateProfileData {
+  name?: string;
+  surname?: string;
+  email?: string;
+  phone?: string;
+  current_password?: string;
+  new_password?: string;
+  new_password_confirmation?: string;
+}
+
+export interface ProfileResponse {
+  success: boolean;
+  message?: string;
+  data?: User;
+  errors?: any;
 }

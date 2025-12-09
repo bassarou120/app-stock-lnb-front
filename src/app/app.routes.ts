@@ -142,5 +142,12 @@ export const routes: Routes = [
     loadComponent: () => import('./views/pages/error/error.component').then(c => c.ErrorComponent)
   },
 
-  { path: '**', redirectTo: 'error/404', pathMatch: 'full' }
+  { path: '**', redirectTo: 'error/404', pathMatch: 'full' },
+
+  {
+    path: 'profile-user',
+    loadComponent: () =>
+      import('./views/pages/auth/profil-user/profil-user.component').then(m => m.ProfileUserComponent)
+  }
+
 ];
