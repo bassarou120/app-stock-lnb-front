@@ -4,6 +4,8 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { ThemeModeService } from '../../../core/services/theme-mode.service';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { Exercice, ExerciceResponse } from '../../../core/services/interface/models';
+import { ActivatedRoute } from '@angular/router';
+
 
 @Component({
   selector: 'app-navbar',
@@ -19,9 +21,11 @@ export class NavbarComponent implements OnInit {
   exerciceEnCours!: Exercice | null;
   currentTheme: string;
   user: any;
-  constructor(private router: Router, private themeModeService: ThemeModeService, private authService: AuthService) {}
+  constructor(private router: Router, private themeModeService: ThemeModeService, private authService: AuthService, private route: ActivatedRoute) {}
 
   ngOnInit(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    console.log('ID récupéré : ', id);
     this.themeModeService.currentTheme.subscribe( (theme) => {
       this.currentTheme = theme;
       this.showActiveTheme(this.currentTheme);
@@ -31,7 +35,7 @@ export class NavbarComponent implements OnInit {
     if (userData) {
       this.user = JSON.parse(userData);
     }
-    
+
   }
 
   showActiveTheme(theme: string) {
@@ -84,5 +88,13 @@ export class NavbarComponent implements OnInit {
       this.router.navigate(['/auth/login']);
     }
   }
+
+  onEditProfile(e: Event) {
+    e.preventDefault();
+    console.log('clic modifier profil');
+    this.router.navigate(['/auth/profil-user']);
+    console.log('Apres');
+  }
+
 
 }
