@@ -235,13 +235,37 @@ export class InterventionComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de l\'ajout de l\'intervention :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isAddingIntervention = false; // Réactiver le bouton en cas d'erreur
-          // console.error('Soumission Intervention échouée. isAddingIntervention mis à false.'); // Commenté
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+          console.error('Erreur lors de l\'ajout de l\'intervention :', error);
+          if (spinner) spinner.classList.add('d-none');
+          this.isAddingIntervention = false; // Réactiver le bouton en cas d'erreur
+          
+          // --- Logique d'affichage du message améliorée ---
+          let detail = 'Veuillez vérifier vos données et réessayer l\'enregistrement.';
+
+          if (error.status === 422) {
+            // Erreur de validation (champ manquant, date incorrecte, etc.)
+            detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. dates invalides, immobilisation déjà en intervention).';
+            
+            // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+            if (error.error && (error.error.error || error.error.message)) {
+              const serverMessage = error.error.error || error.error.message;
+              detail = `Erreur de Validation : ${serverMessage}`;
+            }
+          } else if (error.status === 401 || error.status === 403) {
+            // Erreur d'autorisation
+            detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer une intervention.';
+          } else if (error.status === 0) {
+            // Erreur de réseau ou serveur injoignable
+            detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+          } else if (error.error && (error.error.error || error.error.message)) {
+            // Message d'erreur général du serveur
+            detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+          }
+
+          // Message final clair
+          alert(`L'enregistrement de la nouvelle intervention a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+        }
+      );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addIntervention); // Marquer les champs comme touchés pour afficher les erreurs
@@ -293,12 +317,41 @@ export class InterventionComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de la modification de l\'intervention :', error);
-          if (spinner) spinner.classList.add('d-none');
-          // this.isEditingIntervention = false; // Ajoutez ceci
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Erreur lors de la modification de l\'intervention :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    // Assurez-vous de réactiver le bouton/masquer le loading si vous utilisez une variable
+                    // this.isEditingIntervention = false; 
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier les données et réessayer la modification.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (champs obligatoires, dates logiques)
+                      detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. la date est invalide, ou le format est erroné).';
+                      
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && (error.error.error || error.error.message)) {
+                        const serverMessage = error.error.error || error.error.message;
+                        detail = `Erreur de Validation : ${serverMessage}`;
+                      }
+                    } else if (error.status === 404) {
+                      // Intervention introuvable
+                      detail = 'L\'intervention que vous tentez de modifier est introuvable. Elle a peut-être été supprimée ou son identifiant est incorrect.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette intervention.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour enregistrer la modification.';
+                    } else if (error.error && (error.error.error || error.error.message)) {
+                      // Message d'erreur général du serveur
+                      detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                    }
+          
+                    // Message final clair
+                    alert(`La modification de l'intervention a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.editIntervention); // Marquer les champs comme touchés
@@ -347,12 +400,32 @@ export class InterventionComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de la supression de l\'intervention :', error);
-          if (spinner) spinner.classList.add('d-none');
-          // this.isDeletingIntervention = false; // Ajoutez ceci
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Erreur lors de la supression de l\'intervention :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    // this.isDeletingIntervention = false; // Réactiver le bouton si besoin
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+          
+                    if (error.status === 404) {
+                      // Erreur 404 si l'intervention à supprimer n'est plus trouvée
+                      detail = 'L\'intervention sélectionnée est introuvable. Elle a peut-être déjà été supprimée ou son identifiant est incorrect.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour supprimer cette intervention.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+                    } else if (error.error && (error.error.message || error.error.error)) {
+                      // Tente d'afficher le message d'erreur spécifique du serveur
+                      const serverMessage = error.error.message || error.error.error;
+                      detail = `Raison : ${serverMessage}. L'intervention n'a pas pu être supprimée.`;
+                    }
+          
+                    // Message final clair
+                    alert(`La suppression de l'intervention a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       alert("Désolé, le formulaire n'est pas bien renseigné");

@@ -388,12 +388,37 @@ export class VehiculesComponent implements OnInit {
           }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de l\'ajout des Vehicules :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isAddingVehicules = false;
-          console.error('Soumission Véhicules échouée. isAddingVehicules mis à false.');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
+          console.error('Erreur lors de l\'ajout des Vehicules :', error);
+          if (spinner) spinner.classList.add('d-none');
+          this.isAddingVehicules = false;
+          console.error('Soumission Véhicules échouée. isAddingVehicules mis à false.');
+          
+          // --- Logique d'affichage du message améliorée ---
+          let detail = 'Veuillez vérifier les données saisies dans la liste des véhicules et réessayer.';
+
+          if (error.status === 422) {
+            // Erreur de validation (champs obligatoires, doublon de plaque, format)
+            detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. plaque d\'immatriculation déjà existante, champ obligatoire vide).';
+            
+            // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+            if (error.error && (error.error.error || error.error.message)) {
+              const serverMessage = error.error.error || error.error.message;
+              detail = `Erreur de Validation : ${serverMessage}`;
+            }
+          } else if (error.status === 401 || error.status === 403) {
+            // Erreur d'autorisation
+            detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer des véhicules.';
+          } else if (error.status === 0) {
+            // Erreur de réseau ou serveur injoignable
+            detail = 'Erreur de connexion : Impossible de communiquer avec le serveur.';
+          } else if (error.error && (error.error.error || error.error.message)) {
+            // Message d'erreur général du serveur
+            detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+          }
+
+          // Message final clair
+          alert(`L'enregistrement des véhicules a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+        }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
@@ -474,12 +499,40 @@ export class VehiculesComponent implements OnInit {
           }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de la modification du Vehicule :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isEditingVehicule = false;
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Erreur lors de la modification du Vehicule :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    this.isEditingVehicule = false;
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier les informations de modification et réessayer.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (champs obligatoires, doublon de plaque, format)
+                      detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. la nouvelle plaque d\'immatriculation est déjà utilisée).';
+                      
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && (error.error.error || error.error.message)) {
+                        const serverMessage = error.error.error || error.error.message;
+                        detail = `Erreur de Validation : ${serverMessage}`;
+                      }
+                    } else if (error.status === 404) {
+                      // Véhicule introuvable
+                      detail = 'Le véhicule que vous tentez de modifier est introuvable. Il a peut-être été supprimé par un autre utilisateur.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier ce véhicule.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour enregistrer la modification.';
+                    } else if (error.error && (error.error.error || error.error.message)) {
+                      // Message d'erreur général du serveur
+                      detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                    }
+          
+                    // Message final clair
+                    alert(`La modification du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.isEditingVehicule = false;

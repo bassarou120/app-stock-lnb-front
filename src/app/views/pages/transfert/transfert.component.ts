@@ -214,7 +214,7 @@ export class TransfertComponent implements OnInit, OnDestroy {
         (error: any) => {
           if (spinner) spinner.classList.add('d-none');
           this.isAddingTransfert = false;
-          alert("Erreur lors de l'enregistrement: " + (error.error?.message || error.message));
+          alert("L'enregistrement du transfert d'immobilisation a échoué.: " + (error.error?.message || error.message));
         }
       );
     } else {
@@ -262,11 +262,39 @@ export class TransfertComponent implements OnInit, OnDestroy {
           }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de la modification du transfert :', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer. ' + (error.error?.message || ''));
-        }
-      );
+                    console.error('Erreur lors de la modification du transfert :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier les informations de modification et réessayer.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (champ manquant, actif non disponible)
+                      detail = 'Erreur de Validation : Les données de modification sont incomplètes ou incorrectes (ex. un champ obligatoire est manquant, ou l\'actif est déjà en cours de transfert).';
+                      
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && (error.error.error || error.error.message)) {
+                        const serverMessage = error.error.error || error.error.message;
+                        detail = `Erreur de Validation : ${serverMessage}`;
+                      }
+                    } else if (error.status === 404) {
+                      // Transfert introuvable
+                      detail = 'Le transfert que vous tentez de modifier est introuvable. Il a peut-être été supprimé ou finalisé.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier ce transfert.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour modifier le transfert.';
+                    } else if (error.error && (error.error.error || error.error.message)) {
+                      // Message d'erreur général du serveur
+                      detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                    }
+          
+                    // Message final clair
+                    alert(`La modification du transfert d'immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.editTransfert);
@@ -304,11 +332,31 @@ export class TransfertComponent implements OnInit, OnDestroy {
           }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de la suppression du transfert :', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer. ' + (error.error?.message || ''));
-        }
-      );
+                    console.error('Erreur lors de la suppression du transfert :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+          
+                    if (error.status === 404) {
+                      // Erreur 404 si le transfert à supprimer n'est plus trouvée
+                      detail = 'Le transfert sélectionné est introuvable. Il a peut-être déjà été supprimé ou est inexistant.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour supprimer ce transfert.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+                    } else if (error.error && (error.error.message || error.error.error)) {
+                      // Tente d'afficher le message d'erreur spécifique du serveur (par exemple, si le transfert est finalisé)
+                      const serverMessage = error.error.message || error.error.error;
+                      detail = `Raison : ${serverMessage}. Le transfert n'a pas pu être supprimé.`;
+                    }
+          
+                    // Message final clair
+                    alert(`La suppression du transfert d'immobilisation a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.deleteTransfert);

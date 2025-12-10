@@ -456,7 +456,7 @@
                         </div>
 
                         <div class="col-md-6 mb-3">
-                          <label for="newBureau" class="form-label">Bureau Actuel</label>
+                          <label for="newBureau" class="form-label">Bureau Actuel <span class="text-danger">*</span></label>
                           <ng-container *ngIf="bureaux && bureaux.length > 0; else noBureaux2">
                             <ng-select
                               [items]="bureaux"
