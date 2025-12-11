@@ -420,6 +420,7 @@ export class TransfertComponent implements OnInit, OnDestroy {
   }
 
   getDeleteForm(row: any) {
+    console.log('getDeleteForm reçu row :', row);
     this.deleteTransfert.patchValue({
       id: row.id,
     })
