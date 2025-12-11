@@ -4,7 +4,7 @@ import { Observable} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
 import { Permission } from "../interface/models";
-import { map } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root',
@@ -16,43 +16,32 @@ export class PermissionService  {
 
   getPermissions(): Observable<Permission[]> {
     return this.http.get<any>(`${this.url}/permissions`).pipe(
-      map(response => response.data.data)
+      tap(response => {
+        console.log('🔍 SERVICE - Réponse API complète:', response);
+        console.log('🔍 SERVICE - Type de response:', typeof response);
+        console.log('🔍 SERVICE - response.data existe?', !!response?.data);
+      }),
+      map(response => {
+        // 🔥 Extraire les données du wrapper Laravel
+        if (response && response.data) {
+          console.log('✅ SERVICE - Extraction de response.data, longueur:', response.data.length);
+          return response.data;
+        }
+        console.warn('⚠️ SERVICE - Structure inattendue, retour response directement');
+        return response;
+      })
     );
   }
 
-   getCurrentUserPermissions(): Observable<Permission[]> {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const roleId = user.role_id;
+  getCurrentUserPermissions(): Observable<Permission[]> {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const roleId = user.role_id;
 
-  return this.http.get<Permission[]>(`${this.url}/permissions/role/${roleId}`);
-} 
-
-/* getCurrentUserPermissions(): Observable<Permission[]> {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const roleId = user.role_id;
-  return this.http.get<any>(`${this.url}/permissions/role/${roleId}`).pipe(
-    map(response => {
-      console.log('🔍 Structure de la réponse getCurrentUserPermissions:', response);
-      // Essayez différentes structures possibles :
-      if (response.data && response.data.data) {
-        return response.data.data; // Structure comme getPermissions()
-      } else if (response.data) {
-        return response.data; // Structure directe dans data
-      } else if (Array.isArray(response)) {
-        return response; // Réponse directe en tableau
-      } else {
-        console.error('Structure de réponse inconnue:', response);
-        return [];
-      }
-    })
-  );
-} */
-
-
-
+    return this.http.get<Permission[]>(`${this.url}/permissions/role/${roleId}`);
+  } 
 
   updatePermission(payload: any): Observable<any> {
-  return this.http.post(`${this.url}/permissions/toggle`, payload);
-}
+    return this.http.post(`${this.url}/permissions/toggle`, payload);
+  }
 
 }

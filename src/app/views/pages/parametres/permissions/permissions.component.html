@@ -1,82 +1,90 @@
-<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
 <div class="row" *ngIf="hasPageAccess">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Rôles et permissions</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Permissions</li>
+    </ol>
+  </nav>
 
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink=".">Rôles et permissions</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Permissions</li>
-  </ol>
-</nav>
-
-<ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Rôle ajouté avec succès !
-</ngb-alert>
-<ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
-  Rôle modifié avec succès !
-</ngb-alert>
-<ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
-  Rôle supprimé avec succès !
-</ngb-alert>
+  <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Rôle ajouté avec succès !
+  </ngb-alert>
+  <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
+    Rôle modifié avec succès !
+  </ngb-alert>
+  <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
+    Rôle supprimé avec succès !
+  </ngb-alert>
 
   <div class="col-md-12 grid-margin stretch-card">
     <div class="card">
-      <div class="card-body d-flex justify-content-between">
+      <div class="card-body d-flex justify-content-between align-items-center">
         <div>
           <h4 class="card-title">Gestion des Permissions</h4>
-          <p class="text-secondary">Liste et gestion des permissions des utilisateurs</p>
+          <p class="text-secondary mb-0">Liste et gestion des permissions des utilisateurs</p>
         </div>
-        <!-- <button type="button" class="btn btn-primary align-self-center" data-bs-toggle="modal"
-          data-bs-target="#add_role">
-          <i class="fas fa-plus"></i> Ajouter un Rôle
-        </button> -->
+        
+        <!-- 🔥 NOUVEAUX BOUTONS DE CONTRÔLE -->
+        <div class="d-flex gap-2" *ngIf="hasUnsavedChanges">
+          <button type="button" class="btn btn-success" (click)="saveAllChanges()">
+            <i class="fas fa-save me-1"></i> Enregistrer les modifications ({{ pendingChanges.size }})
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="cancelChanges()">
+            <i class="fas fa-times me-1"></i> Annuler
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
 <div class="row" *ngIf="hasPageAccess">
   <div class="col-5 col-md-3 pe-0">
     <ul ngbNav #verticalNav="ngbNav" class="nav-tabs nav-tabs-vertical" orientation="vertical" [(activeId)]="activeNavId">
-  <li *ngFor="let role of groupedPermissions | keyvalue; let i = index" [ngbNavItem]="i + 1">
-    <a ngbNavLink>{{ role.key }}</a>
-    <ng-template ngbNavContent>
-      <table class="table table-bordered">
-        <thead>
-          <tr style="background-color: #009b3a; color: white;">
-            <th>Modules</th>
-            <!-- <th class="text-center">Statut</th> -->
-            <th>Fonctionnalités</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let moduleEntry of role.value | keyvalue">
-            <td><strong>{{ moduleEntry.key }}</strong></td>
-            <!-- <td class="text-center">
-              <input
-                type="checkbox"
-                class="form-check-input"
-                [checked]="isModuleFullyChecked(moduleEntry.value)"
-              />
-            </td> -->
-            <td>
-              <ul class="list-unstyled mb-0">
-                <li *ngFor="let p of moduleEntry.value">
-                  <input type="checkbox" class="form-check-input me-1" [checked]="p.is_active" (change)="onPermissionToggle(p)">
-                  {{ p.fonctionnalite.libelle_fonctionnalite }}
-                </li>
-              </ul>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </ng-template>
-  </li>
-</ul>
-
+      <li *ngFor="let role of groupedPermissions | keyvalue; let i = index" [ngbNavItem]="i + 1">
+        <a ngbNavLink>{{ role.key }}</a>
+        <ng-template ngbNavContent>
+          <table class="table table-bordered">
+            <thead>
+              <tr style="background-color: #009b3a; color: white;">
+                <th>Modules</th>
+                <th>Fonctionnalités</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let moduleEntry of role.value | keyvalue">
+                <td><strong>{{ moduleEntry.key }}</strong></td>
+                <td>
+                  <ul class="list-unstyled mb-0">
+                    <li *ngFor="let p of moduleEntry.value" class="mb-1">
+                      <!-- 🔥 MODIFICATION : Utiliser getPermissionState au lieu de p.is_active -->
+                      <input 
+                        type="checkbox" 
+                        class="form-check-input me-2" 
+                        [checked]="getPermissionState(p)" 
+                        (change)="onPermissionToggle(p, $event)"
+                      >
+                      <span [class.text-muted]="!getPermissionState(p)">
+                        {{ p.fonctionnalite.libelle_fonctionnalite }}
+                      </span>
+                      <!-- 🔥 INDICATEUR VISUEL pour les changements en attente -->
+                      <span 
+                        *ngIf="pendingChanges.has(getPermissionKey(p))" 
+                        class="badge bg-warning text-dark ms-2"
+                      >
+                        <i class="fas fa-clock"></i> En attente
+                      </span>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </ng-template>
+      </li>
+    </ul>
   </div>
   <div class="col-7 col-md-9 ps-0">
     <div [ngbNavOutlet]="verticalNav" class="tab-content-vertical border p-3"></div>
   </div>
 </div>
-

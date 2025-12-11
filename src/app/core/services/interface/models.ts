@@ -465,6 +465,8 @@ export interface Immobilisation {
 export interface   Role {
   id: number;
   libelle_role: string;
+  isdeleted: boolean;
+  permissions: Permission[]; // Liste des permissions liées
 }
 
 export interface User {
