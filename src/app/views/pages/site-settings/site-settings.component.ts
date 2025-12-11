@@ -25,13 +25,13 @@ import { ThemeCssVariableService } from '../../../core/services/theme-css-variab
 export class SiteSettingsComponent implements OnInit, OnDestroy {
   siteSettingsForm!: FormGroup;
   siteName: string = 'Nom du Site';
-  logoUrl: string = 'public/images/logo_bg.png';
+  logoUrl: string = 'assets/images/logo_bg.png';
   previewLogoUrl: string | ArrayBuffer | null = null;
   newLogoFile: File | null = null;
 
   // MODIFIÉ: Initialisation de la couleur principale en vert
-  mainColor: string = '#00993E'; // Couleur principale actuellement sauvegardée (Vert Bootstrap)
-  newMainColor: string = '#00993E'; // Couleur sélectionnée dans le champ de saisie
+  //mainColor: string = '#00993E'; // Couleur principale actuellement sauvegardée (Vert Bootstrap)
+  //newMainColor: string = '#00993E'; // Couleur sélectionnée dans le champ de saisie
 
   loading: boolean = true;
   isSaving: boolean = false;
@@ -93,19 +93,20 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
 
         // Mettre à jour les états affichés
         this.siteName = companyNameSetting?.value || 'Nom du Site';
-        this.logoUrl = logoUrlSetting?.value ? this.siteSettingsService.getPublicStorageUrl(logoUrlSetting.value) : 'public/images/logo_bg.png';
+        // this.logoUrl = logoUrlSetting?.value ? logoUrlSetting.value : 'assets/images/logo_bg.png';
+        this.logoUrl = logoUrlSetting?.value ? this.siteSettingsService.getPublicStorageUrl(logoUrlSetting.value) : 'assets/images/logo_bg.png';
         // MODIFIÉ: Utilisation de la couleur verte par défaut si non trouvée
         console.log("site logo url", this.logoUrl);
-        this.mainColor = mainColorSetting?.value || '#00993E'; // Mettre à jour la couleur principale
+        //this.mainColor = mainColorSetting?.value || '#00993E'; // Mettre à jour la couleur principale
 
         // Mettre à jour les valeurs du formulaire
         this.siteSettingsForm.patchValue({
           siteName: this.siteName,
-          mainColor: this.mainColor
+          //mainColor: this.mainColor
         });
         this.previewLogoUrl = this.logoUrl;
         this.newLogoFile = null;
-        this.newMainColor = this.mainColor; // Initialise la couleur du sélecteur avec la couleur actuelle
+        //this.newMainColor = this.mainColor; // Initialise la couleur du sélecteur avec la couleur actuelle
 
         this.loading = false;
       },
