@@ -548,6 +548,30 @@ export class UtilisateurComponent implements OnInit {
     this.modalService.open(this.deleteUserContent, { centered: true }); // <-- NOUVEAU : Ouvre la modale
   }
 
+  // NOUVEAU: Méthode pour basculer le statut Actif/Inactif
+  toggleActive(user: User): void {
+    const newStatus = !user.active;
+    const action = newStatus ? 'activation' : 'désactivation';
+    if (!confirm(`Êtes-vous sûr de vouloir procéder à l'${action} du compte de ${user.name} ?`)) {
+      return;
+    }
+
+    // Assurez-vous que votre UtilisateurService a une méthode toggleUserActiveStatus(id: number)
+    this.utilisateurService.toggleUserActiveStatus(user.id).subscribe({
+      next: (response: any) => {
+        console.log(`Statut ${action} réussi:`, response);
+        // Mise à jour de l'objet utilisateur localement
+        user.active = newStatus;
+        // Afficher l'alerte de modification
+        this.alertModifVisible = true;
+        setTimeout(() => this.alertModifVisible = false, 2000);
+      },
+      error: (error: any) => {
+        console.error(`Erreur lors de l'${action}:`, error);
+        alert(`Échec de l'${action} du compte. Erreur: ${error.error?.message || error.message}`);
+      }
+    });
+  }
 
   // --- Gestion des Alertes ---
   // showAlert(type: 'ajout' | 'modif' | 'supp'): void {

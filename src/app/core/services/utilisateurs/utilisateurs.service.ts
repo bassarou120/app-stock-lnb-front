@@ -61,6 +61,14 @@ export class UtilisateurService {
     return this.http.put<User>(`${this.apiUrl}/users/${id}`, userData);
   }
 
+  toggleUserActiveStatus(id: string): Observable<any> { // 👈 CHANGEMENT: 'id' est maintenant de type 'string'
+    // Note : Nous utilisons une requête PATCH sans corps ({}) car le contrôleur
+    // Laravel utilise l'ID dans l'URL pour déterminer le nouvel état.
+    console.log(`Sending PATCH request to: ${this.apiUrl}/users/${id}/toggle-active`); 
+    
+    // Assurez-vous que l'URL correspond à votre route Laravel (ex: /users/{user}/toggle-active)
+    return this.http.patch<any>(`${this.apiUrl}/users/${id}/toggle-active`, {});
+  }
   // deleteUser(id: number): Observable<any> {
   //   return this.http.delete<any>(`${this.apiUrl}/users/${id}`);
   // }
