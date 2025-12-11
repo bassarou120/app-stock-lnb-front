@@ -689,3 +689,28 @@ export interface ProfileResponse {
   data?: User;
   errors?: any;
 }
+
+// jjjjj
+// 1. Définition des interfaces basées sur votre structure Permission
+// Note: J'utilise 'libelle_module' et 'libelle_fonctionnalite' comme dans votre interface
+
+export interface ModuleGroup {
+  id: number;
+  libelle_module: string; // Utilisé le champ 'libelle_module' de votre Permission
+  fonctionnalites: Permission['fonctionnalite'][]; // Tableau des objets 'fonctionnalite'
+  // On peut aussi stocker l'objet Permission entier si nécessaire, mais ici on veut juste la fonctionnalité.
+}
+
+export interface RoleGroup {
+  roleId: number;
+  // La clé de ce niveau est le nom du rôle (libelle_role)
+  modules: {
+    // Clé: moduleId (string ou number, number est plus précis ici)
+    [moduleId: number]: ModuleGroup;
+  };
+}
+
+export interface GroupedPermissions {
+  // Clé: roleName (libelle_role)
+  [roleName: string]: RoleGroup;
+}

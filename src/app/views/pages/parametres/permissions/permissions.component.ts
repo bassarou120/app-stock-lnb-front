@@ -187,56 +187,56 @@ export class PermissionComponent implements OnInit {
     console.groupEnd();
   }
 
-groupPermissionsByRoleAndModule(): void {
-  this.groupedPermissions = {};
+  groupPermissionsByRoleAndModule(): void {
+    this.groupedPermissions = {};
 
-  if (!this.permissions || this.permissions.length === 0) {
-    console.warn('⚠️ Aucune permission à grouper');
-    return;
-  }
-
-  // 🔥 Filtrer les permissions invalides
-  const validPermissions = this.permissions.filter(p => {
-    const isValid = p && p.role && p.module && p.fonctionnalite;
-    if (!isValid) {
-      console.warn('⚠️ Permission invalide détectée:', p);
-    }
-    return isValid;
-  });
-
-  console.log(`✅ Permissions valides: ${validPermissions.length}/${this.permissions.length}`);
-
-  // 🔥 IMPORTANT : Ne PAS retriez ici, car l'API a déjà trié !
-  // Grouper directement sans modifier l'ordre
-  validPermissions.forEach(permission => {
-    const role = permission.role.libelle_role;
-    const module = permission.module.libelle_module;
-
-    if (!this.groupedPermissions[role]) {
-      this.groupedPermissions[role] = {};
+    if (!this.permissions || this.permissions.length === 0) {
+      console.warn('⚠️ Aucune permission à grouper');
+      return;
     }
 
-    if (!this.groupedPermissions[role][module]) {
-      this.groupedPermissions[role][module] = [];
-    }
-
-    this.groupedPermissions[role][module].push(permission);
-  });
-
-  console.log('📊 Groupement terminé:', {
-    roles: Object.keys(this.groupedPermissions).length,
-    totalGroups: Object.values(this.groupedPermissions)
-      .reduce((sum, roleData) => sum + Object.keys(roleData).length, 0)
-  });
-
-  // 🔥 DIAGNOSTIC : Afficher la structure pour chaque rôle
-  Object.entries(this.groupedPermissions).forEach(([role, modules]) => {
-    console.log(`📋 Rôle: ${role}`);
-    Object.entries(modules).forEach(([module, perms]: [string, any]) => {
-      console.log(`  📦 Module: ${module} - ${perms.length} permissions`);
+    // 🔥 Filtrer les permissions invalides
+    const validPermissions = this.permissions.filter(p => {
+      const isValid = p && p.role && p.fonctionnalite && p.fonctionnalite.libelle_fonctionnalite;
+      if (!isValid) {
+        console.warn('⚠️ Permission invalide détectée:', p);
+      }
+      return isValid;
     });
-  });
-}
+
+    console.log(`✅ Permissions valides: ${validPermissions.length}/${this.permissions.length}`);
+
+    // 🔥 Grouper par rôle et par le module de la fonctionnalité
+    validPermissions.forEach(permission => {
+      const role = permission.role.libelle_role;
+      const module = permission.module.libelle_module; // 🔥 Module de la fonctionnalité
+
+      if (!this.groupedPermissions[role]) {
+        this.groupedPermissions[role] = {};
+      }
+
+      if (!this.groupedPermissions[role][module]) {
+        this.groupedPermissions[role][module] = [];
+      }
+
+      this.groupedPermissions[role][module].push(permission);
+    });
+
+    console.log('📊 Groupement terminé:', {
+      roles: Object.keys(this.groupedPermissions).length,
+      totalGroups: Object.values(this.groupedPermissions)
+        .reduce((sum, roleData) => sum + Object.keys(roleData).length, 0)
+    });
+
+    // 🔥 DIAGNOSTIC : Afficher la structure pour chaque rôle
+    Object.entries(this.groupedPermissions).forEach(([role, modules]) => {
+      console.log(`📋 Rôle: ${role}`);
+      Object.entries(modules).forEach(([module, perms]: [string, any]) => {
+        console.log(`  📦 Module: ${module} - ${perms.length} permissions`);
+        console.log(`      Fonctionnalités:`, perms.map((p: any) => p.fonctionnalite.libelle_fonctionnalite));
+      });
+    });
+  }
 
   isModuleFullyChecked(permissions: Permission[]): boolean {
     return permissions.every(p => {
@@ -467,4 +467,5 @@ groupPermissionsByRoleAndModule(): void {
       id: ["", [Validators.required]],
     });
   }
+  
 }
