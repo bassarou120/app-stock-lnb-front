@@ -42,10 +42,10 @@
 
                       <ngx-datatable-column name="Action" prop="action" [flexGrow]="2"></ngx-datatable-column>
 
-                      <ngx-datatable-column name="ID Utilisateur" prop="user_id" [maxWidth]="100">
-                          <ng-template let-value="value" ngx-datatable-cell-template>
-                              {{ value || 'Système/Invité' }}
-                          </ng-template>
+                      <ngx-datatable-column name="Utilisateur" prop="user_name_full" [maxWidth]="150">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{ value || 'Système/Invité' }} 
+                        </ng-template>
                       </ngx-datatable-column>
 
                       <ngx-datatable-column name="Adresse IP" prop="ip_address" [maxWidth]="120"></ngx-datatable-column>
@@ -83,7 +83,7 @@
         {{ getDetailUserAgent(selectedLogUserAgent) }}
       </p>
       
-      <p class="mb-3 mt-4"><strong>Contenu des Détails (JSON/Texte Brut):</strong></p>
+      <p class="mb-3 mt-4"><strong>Contenu des Détails :</strong></p>
       <pre class="log-detail-box p-3 border rounded bg-light">{{ selectedLogDetails || 'Aucun détail disponible.' }}</pre>
   </div>
   <div class="modal-footer">

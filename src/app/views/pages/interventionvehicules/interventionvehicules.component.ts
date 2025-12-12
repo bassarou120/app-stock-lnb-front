@@ -353,11 +353,39 @@ export class InterventionVehiculeComponent implements OnInit {
         }, 200);
       },
       (error: any) => {
-        console.error('Erreur lors de l\'ajout de l\'intervention du véhicule :', error);
-        this.isAddingInterventionVehicule = false;
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      }
-    );
+                console.error('Erreur lors de l\'ajout de l\'intervention du véhicule :', error);
+                this.isAddingInterventionVehicule = false;
+        
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez vérifier les informations du formulaire et réessayer.';
+        
+                if (error.status === 422) {
+                  // Erreur de validation (champs obligatoires, dates, règles métier)
+                  detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. dates invalides, champ obligatoire manquant ou véhicule déjà en intervention).';
+                  
+                  // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                  if (error.error && (error.error.error || error.error.message)) {
+                    const serverMessage = error.error.error || error.error.message;
+                    detail = `Erreur de Validation : ${serverMessage}`;
+                  }
+                } else if (error.status === 404) {
+                  // Véhicule ou Type d'intervention non trouvé
+                  detail = 'Le véhicule ou le type d\'intervention sélectionné est introuvable sur le serveur.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer cette intervention de véhicule.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+                } else if (error.error && (error.error.error || error.error.message)) {
+                  // Message d'erreur général du serveur
+                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                }
+        
+                // Message final clair
+                alert(`L'enregistrement de l'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+              }
+            );
   }
 
  // interventionvehicules.component.ts
@@ -440,13 +468,41 @@ onClickSubmitEditInterventionVehicule() {
       }, 200);
     },
     (error: any) => {
-      console.error('Erreur lors de la modification de l\'intervention du véhicule :', error);
-      this.isEditingInterventionVehicule = false;
-      // Réinitialiser le fichier même en cas d'erreur
-      this.selectedFile = null; 
-      alert('Une erreur s\'est produite. Veuillez réessayer.');
-    }
-  );
+              console.error('Erreur lors de la modification de l\'intervention du véhicule :', error);
+              this.isEditingInterventionVehicule = false;
+              // Réinitialiser le fichier même en cas d'erreur
+              this.selectedFile = null; 
+              
+              // --- Logique d'affichage du message améliorée ---
+              let detail = 'Veuillez vérifier les informations de modification et réessayer.';
+      
+              if (error.status === 422) {
+                // Erreur de validation (champs obligatoires, dates, règles métier)
+                detail = 'Erreur de Validation : Certaines informations sont manquantes, incorrectes, ou le véhicule n\'est plus disponible pour cette modification.';
+                
+                // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                if (error.error && (error.error.error || error.error.message)) {
+                  const serverMessage = error.error.error || error.error.message;
+                  detail = `Erreur de Validation : ${serverMessage}`;
+                }
+              } else if (error.status === 404) {
+                // Intervention introuvable
+                detail = 'L\'intervention que vous tentez de modifier est introuvable. Elle a peut-être été supprimée ou son identifiant est incorrect.';
+              } else if (error.status === 401 || error.status === 403) {
+                // Erreur d'autorisation
+                detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette intervention de véhicule.';
+              } else if (error.status === 0) {
+                // Erreur de réseau
+                detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour enregistrer la modification.';
+              } else if (error.error && (error.error.error || error.error.message)) {
+                // Message d'erreur général du serveur
+                detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+              }
+      
+              // Message final clair
+              alert(`La modification de l'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+            }
+          );
 }
 
   onClickSubmitDeleteInterventionVehicule() {
@@ -485,11 +541,31 @@ onClickSubmitEditInterventionVehicule() {
         }, 200);
       },
       (error: any) => {
-        console.error('Erreur lors de la suppression de l\'intervention du véhicule :', error);
-        this.isDeletingInterventionVehicule = false;
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      }
-    );
+                console.error('Erreur lors de la suppression de l\'intervention du véhicule :', error);
+                this.isDeletingInterventionVehicule = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+        
+                if (error.status === 404) {
+                  // Erreur 404 si l'intervention à supprimer n'est plus trouvée
+                  detail = 'L\'intervention sélectionnée est introuvable. Elle a peut-être déjà été supprimée ou est inexistant.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour supprimer cette intervention.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+                } else if (error.error && (error.error.message || error.error.error)) {
+                  // Tente d'afficher le message d'erreur spécifique du serveur (ex: intervention bloquée)
+                  const serverMessage = error.error.message || error.error.error;
+                  detail = `Raison : ${serverMessage}. L'intervention n'a pas pu être supprimée.`;
+                }
+        
+                // Message final clair
+                alert(`La suppression de l'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+              }
+            );
   }
 
   // updateFilter amélioré pour inclure la date d'expiration

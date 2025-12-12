@@ -175,16 +175,35 @@ export class SortieComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          // console.error('Erreur lors de l\'ajout de la sortie :', error);
-          // if (spinner) spinner.classList.add('d-none');
-          // alert('Une erreur s\'est produite. Veuillez réessayer.');
-
-          if (spinner) spinner.classList.add('d-none');
-
-          // Afficher directement le message d'erreur de l'API
-          alert(error.error?.error || "Une erreur s'est produite. Veuillez réessayer.");
-        }
-      );
+                    console.error('Erreur lors de l\'ajout de la sortie :', error);
+                    if (spinner) spinner.classList.add('d-none');
+          
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier vos données et réessayer l\'enregistrement.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (quantité insuffisante, champ manquant)
+                      detail = 'Erreur de Validation : Les données fournies sont invalides. Cela peut indiquer une **quantité insuffisante en stock** ou un champ obligatoire manquant.';
+          
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && error.error.error) {
+                        detail = `Erreur de Validation : ${error.error.error}`;
+                      }
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer une sortie de stock.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour enregistrer la sortie.';
+                    } else if (error.error && error.error.error) {
+                      // Afficher le message d'erreur du serveur s'il est disponible
+                      detail = `Erreur Serveur: ${error.error.error}`;
+                    }
+          
+                    // Message final clair
+                    alert(`L'enregistrement de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       alert("Désolé, le formulaire n'est pas bien renseigné");
@@ -226,11 +245,38 @@ export class SortieComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de la modification de la sortie :', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Erreur lors de la modification de la sortie :', error);
+                    if (spinner) spinner.classList.add('d-none');
+          
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier vos données et réessayer l\'enregistrement.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (quantité insuffisante, champ manquant)
+                      detail = 'Erreur de Validation : Les données fournies sont invalides. Assurez-vous que la quantité demandée est inférieure ou égale au stock disponible.';
+          
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && error.error.error) {
+                        detail = `Erreur de Validation : ${error.error.error}`;
+                      }
+                    } else if (error.status === 404) {
+                      // La sortie à modifier n'existe plus
+                      detail = 'La sortie de stock que vous tentez de modifier est introuvable. Elle a peut-être été supprimée par un autre utilisateur.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette sortie de stock.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour modifier la sortie.';
+                    } else if (error.error && error.error.error) {
+                      // Afficher le message d'erreur du serveur s'il est disponible
+                      detail = `Erreur Serveur: ${error.error.error}`;
+                    }
+          
+                    // Message final clair
+                    alert(`La modification de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       alert("Désolé, le formulaire n'est pas bien renseigné");
@@ -267,11 +313,34 @@ export class SortieComponent implements OnInit {
           }, 200); // L'alerte apparaît 200ms après la fermeture du modal
         },
         (error: any) => {
-          console.error('Erreur lors de la supression de la sortie :', error);
-          if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Erreur lors de la supression de la sortie :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+          
+                    if (error.status === 404) {
+                      // Erreur 404 si la sortie à supprimer n'est plus trouvée
+                      detail = 'La sortie de stock sélectionnée est introuvable. Elle a peut-être déjà été supprimée ou n\'existe pas.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour supprimer cette sortie.';
+                    } else if (error.status === 400 || error.status === 500) {
+                      // Erreur si la sortie est bloquée par une règle métier (ex: rapport finalisé)
+                      detail = 'Impossible de supprimer cette sortie. Elle est peut-être liée à une transaction ou son statut ne permet plus la suppression.';
+                      // Tenter d'afficher le message du serveur s'il est plus précis
+                      if (error.error && error.error.error) {
+                        detail = `Raison : ${error.error.error}`;
+                      }
+                    } else if (error.status === 0) {
+                      // Erreur de réseau
+                      detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+                    }
+          
+                    // Message final clair
+                    alert(`La suppression de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       alert("Désolé, le formulaire n'est pas bien renseigné");

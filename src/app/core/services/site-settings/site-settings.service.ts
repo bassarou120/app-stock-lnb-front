@@ -29,7 +29,7 @@ export class SiteSettingsService {
   // BehaviorSubject pour stocker et diffuser les paramètres du site
   private _siteSettings = new BehaviorSubject<SiteSettings>({
     companyName: 'Nom du Site',
-    logoUrl: 'public/images/logo_bg',
+    logoUrl: 'assets/images/logo_bg.png',
     mainColor: '#00993E' // Vert par défaut
   });
 
@@ -66,12 +66,13 @@ export class SiteSettingsService {
         let fullLogoUrl: string;
 
         if (currentLogoPath) {
+          // 💡 CORRECTION : Rétablir l'appel pour pointer vers le backend
           fullLogoUrl = this.getPublicStorageUrl(currentLogoPath);
-          console.log('SiteSettingsService: URL du logo générée:', fullLogoUrl);
-        } else {
-          fullLogoUrl = 'public/images/logo_bg';
-          console.log('SiteSettingsService: Utilisation du logo par défaut');
-        }
+          console.log('SiteSettingsService: URL du logo générée:', fullLogoUrl); // Doit afficher l'URL complète
+      } else {
+          // Garder le chemin de secours Angular
+          fullLogoUrl = 'assets/images/logo_bg.png';
+      }
 
         // Création de l'objet des paramètres du site
         const siteSettingsData = {
@@ -94,7 +95,7 @@ export class SiteSettingsService {
         // En cas d'erreur, utiliser les valeurs par défaut
         const defaultSettings = {
           companyName: 'Nom du Site (Erreur de chargement)',
-          logoUrl: 'public/images/logo_bg',
+          logoUrl: 'assets/images/logo_bg.png',
           mainColor: '#00993E'
         };
 

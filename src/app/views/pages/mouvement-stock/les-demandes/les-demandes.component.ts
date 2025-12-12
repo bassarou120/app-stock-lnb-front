@@ -294,10 +294,29 @@ hasGroupFile(group: any): boolean {
           window.open(fileURL);
         }
       },
-      error: (err: any) => {
-        console.error("Erreur :", err);
-        alert("Erreur inattendue.");
-      }
+      error: (error: any) => {
+                console.error("Erreur lors de la vérification/génération :", error);
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez réessayer. Si le problème persiste, contactez le support technique.';
+        
+                if (error.status === 404) {
+                  // L'objet (Mouvement, Immobilisation, etc.) pour lequel on demande le statut n'existe pas.
+                  detail = 'L\'élément (code: ' + code + ') est introuvable sur le serveur.';
+                } else if (error.status === 400) {
+                  // Erreur côté client (ex: code invalide, données manquantes)
+                  detail = 'Erreur de requête. Vérifiez le code fourni et assurez-vous que toutes les données sont valides.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion. Impossible de contacter le serveur.';
+                } else if (error.error && error.error.message) {
+                  // Tente d'afficher un message spécifique du serveur
+                  detail = `Erreur Serveur: ${error.error.message}`;
+                }
+        
+                // Message final clair
+                alert(`La vérification du statut ou la génération du document a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, contactez le support technique.`);
+              }
     });
   }
 
@@ -596,12 +615,42 @@ hasGroupFile(group: any): boolean {
           }, 200);
         },
         error: (error: any) => {
-          console.error('Erreur lors de la modification du statut :', error);
-          this.isStatutModifLoading = false;
-          alert(error.error?.error || "Une erreur s'est produite. Veuillez réessayer.");
-        }
-      });
-  }
+                    console.error('Erreur lors de la modification du statut :', error);
+                    this.isStatutModifLoading = false;
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier les informations de la demande et réessayer.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (ex: quantité insuffisante pour le nouveau statut)
+                      detail = 'Erreur de Validation : Les données fournies sont incomplètes ou incorrectes (ex. quantité invalide, statut non autorisé).';
+                      
+                      // Tente d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && error.error.error) {
+                        detail = `Erreur de Validation : ${error.error.error}`;
+                      }
+                    } else if (error.status === 404) {
+                      // La demande à modifier n'existe plus
+                      detail = 'La demande de stock à modifier est introuvable. Elle a peut-être été supprimée.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier le statut de cette demande.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour mettre à jour la demande.';
+                    } else if (error.error && error.error.error) {
+                      // S'il y a un message générique d'erreur dans le corps
+                      detail = `Erreur Serveur: ${error.error.error}`;
+                    } else if (error.error && error.error.message) {
+                      // Parfois 'message' est utilisé au lieu de 'error'
+                      detail = `Erreur Serveur: ${error.error.message}`;
+                    }
+          
+                    // Message final clair
+                    alert(`La modification du statut de la demande a échoué.\n\nDétails : ${detail}\n\nVeuillez contacter le support technique si le problème persiste.`);
+                  }
+                });
+    }
 
 
   onClickSubmitEditAllSortie() {

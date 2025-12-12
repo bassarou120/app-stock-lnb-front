@@ -57,12 +57,18 @@ export class LogJournalisationComponent implements OnInit {
 
   updateFilter(event: Event): void {
     const val = (event.target as HTMLInputElement).value.toLowerCase();
+    
+    // Assurez-vous que 'user_name_full' existe sur l'objet LogJournalisation
     this.rows = this.temp.filter(d =>
       d.action.toLowerCase().includes(val) ||
       d.ip_address.toLowerCase().includes(val) ||
+      // Ancienne vérification par user_id (vous pouvez la laisser si vous le souhaitez)
       (d.user_id !== null && d.user_id.toString().includes(val)) ||
+      // Nouvelle vérification pour le nom complet de l'utilisateur
+      ('user_name_full' in d && d['user_name_full']?.toLowerCase().includes(val)) || 
       !val
     );
+    
     if (this.table) this.table.offset = 0;
   }
 

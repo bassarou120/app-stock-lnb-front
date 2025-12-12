@@ -358,14 +358,42 @@ onQteInput(event: any, index: number) {
         }, 200);
       },
       (error: any) => {
-        console.error('Erreur lors de l\'ajout de la sortie :', error);
-        if (spinner) {
-          spinner.classList.add('d-none');
-        }
-        this.isAddingSortie = false;
-        alert('Une erreur s\'est produite. Veuillez réessayer. Détails: ' + (error.error?.message || error.message));
-      }
-    );
+                console.error('Erreur lors de l\'ajout de la sortie :', error);
+                if (spinner) {
+                  spinner.classList.add('d-none');
+                }
+                this.isAddingSortie = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez vérifier les informations du formulaire et réessayer l\'enregistrement.';
+        
+                if (error.status === 422 || error.status === 400) {
+                  // Erreur de validation ou Bad Request
+                  detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. **stock insuffisant**, quantité invalide, ou coupon déjà utilisé).';
+                  
+                  // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                  if (error.error && (error.error.error || error.error.message)) {
+                    const serverMessage = error.error.error || error.error.message;
+                    detail = `Erreur de Validation : ${serverMessage}`;
+                  }
+                } else if (error.status === 404) {
+                  // Article, coupon ou type de sortie non trouvé
+                  detail = 'L\'article ou le coupon sélectionné est introuvable sur le serveur. Veuillez recharger la page.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer une sortie de stock.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+                } else if (error.error && (error.error.error || error.error.message)) {
+                  // Message d'erreur général du serveur
+                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                }
+        
+                // Message final clair
+                alert(`L'enregistrement de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+              }
+            );
   } else {
     // Si le formulaire n'est pas valide
     const spinner = document.querySelector('.spinner-add-sortie');
@@ -475,14 +503,42 @@ onQteInput(event: any, index: number) {
           }, 200);
         },
         (error: any) => {
-          console.error("❌ Erreur API lors de la modification :", error);
-          if (spinner) {
-            spinner.classList.add('d-none');
-            console.log("⏹️ Spinner caché (erreur API)");
-          }
-          alert("Une erreur s'est produite. Veuillez réessayer.");
-        }
-      );
+                    console.error("❌ Erreur API lors de la modification :", error);
+                    if (spinner) {
+                      spinner.classList.add('d-none');
+                      console.log("⏹️ Spinner caché (erreur API)");
+                    }
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier les informations de modification et réessayer.';
+          
+                    if (error.status === 422 || error.status === 400) {
+                      // Erreur de validation ou Bad Request
+                      detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. quantité invalide, ou la modification cause un stock insuffisant).';
+                      
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && (error.error.error || error.error.message)) {
+                        const serverMessage = error.error.error || error.error.message;
+                        detail = `Erreur de Validation : ${serverMessage}`;
+                      }
+                    } else if (error.status === 404) {
+                      // Sortie de stock introuvable
+                      detail = 'La sortie de stock que vous tentez de modifier est introuvable. Elle a peut-être été supprimée par un autre utilisateur.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette sortie de stock.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+                    } else if (error.error && (error.error.error || error.error.message)) {
+                      // Message d'erreur général du serveur
+                      detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                    }
+          
+                    // Message final clair
+                    alert(`La modification de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       console.warn("⚠️ Formulaire invalide :", this.editSortie.value);
       // 🔎 Ajout du détail champ par champ
@@ -531,13 +587,35 @@ onQteInput(event: any, index: number) {
           }, 200);
         },
         (error: any) => {
-          console.error('Erreur lors de la supression de la sortie :', error);
-          if (spinner) {
-            spinner.classList.add('d-none');
-          }
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Erreur lors de la supression de la sortie :', error);
+                    if (spinner) {
+                      spinner.classList.add('d-none');
+                    }
+                    // Assurez-vous de débloquer l'UI en cas d'erreur
+                    // this.isDeletingSortie = false; // Décommenter si cette variable existe
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+          
+                    if (error.status === 404) {
+                      // Erreur 404 si la sortie à supprimer n'est plus trouvée
+                      detail = 'La sortie de stock sélectionnée est introuvable. Elle a peut-être déjà été supprimée.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour supprimer cette sortie de stock.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+                    } else if (error.error && (error.error.message || error.error.error)) {
+                      // Tente d'afficher le message d'erreur spécifique du serveur
+                      const serverMessage = error.error.message || error.error.error;
+                      detail = `Raison : ${serverMessage}. La sortie n'a pas pu être supprimée (ex. sortie bloquée).`;
+                    }
+          
+                    // Message final clair
+                    alert(`La suppression de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) {
         spinner.classList.add('d-none');

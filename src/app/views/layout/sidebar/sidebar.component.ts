@@ -84,6 +84,32 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+
+    // 1. Abonnement aux mises à jour (déjà en place, c'est bien)
+    this.siteSettingsService.siteSettings$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(settings => {
+        if (settings) {
+          this.siteName = settings.companyName;
+          this.logoUrl = settings.logoUrl;
+          console.log('SidebarComponent: Logo et nom du site mis à jour:', { name: this.siteName, logo: this.logoUrl });
+        }
+      });
+      
+    // 2. 💡 CORRECTION : Lancer l'appel d'API pour charger les données
+    // Ceci force le service à aller chercher les vraies données de la DB
+    // et à mettre à jour son BehaviorSubject.
+    this.siteSettingsService.getSettings().pipe(
+      // On ne s'intéresse qu'à ce que le BehaviorSubject soit mis à jour
+      // l'abonnement ci-dessus prendra le relais.
+      takeUntil(this.destroy$)
+    ).subscribe({
+      // Gestion optionnelle des erreurs de chargement initial ici
+      error: (err) => {
+        console.error('Erreur lors du chargement initial des settings:', err);
+      }
+    });
+    
     this.menuItems = MENU;
 
     /**
