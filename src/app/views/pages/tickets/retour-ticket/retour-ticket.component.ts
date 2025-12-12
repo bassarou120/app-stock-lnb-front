@@ -65,6 +65,8 @@ export class RetourTicketComponent implements OnInit {
   public editRetourTicket!: FormGroup;
   public deleteRetourTicket!: FormGroup;
 
+  defaultDate: string = '';
+
   @ViewChild('table') table!: DatatableComponent;
 
   constructor(private retourTicketService: RetourTicketService, private formBuilder: FormBuilder,private router: Router) { }
@@ -79,6 +81,8 @@ export class RetourTicketComponent implements OnInit {
     this.loadCouponTickets();
     this.loadMouvementsTickets();
     }
+
+    this.defaultDate = this.formatDate(new Date());
 
     this.addRetourTicket = this.formBuilder.group({
       mouvementTicket_id: [null, [Validators.required]],
@@ -97,6 +101,11 @@ export class RetourTicketComponent implements OnInit {
     this.deleteRetourTicket = this.formBuilder.group({
       id: [0, [Validators.required]],
     });
+  }
+
+  formatDate(date: Date): string {
+      // Garder cette fonction pour le format YYYY-MM-DD
+      return date.toISOString().split('T')[0];
   }
 
   // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
@@ -163,6 +172,7 @@ export class RetourTicketComponent implements OnInit {
                 Validators.max(qteMax)
             ]
         ],
+        date_retour: [this.defaultDate, Validators.required],
     });
 }
 
@@ -270,6 +280,7 @@ export class RetourTicketComponent implements OnInit {
     };
 
     console.log('Payload soumis:', payload);
+    console.log('Exemple de coupon avec date_retour:', payload.retours_coupons[0]);
 
     // 4. Activer l'indicateur de chargement
     this.isAdding = true;
