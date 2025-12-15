@@ -428,13 +428,36 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
           }, 200);
         },
         (error: any) => {
-          console.error('Debug: Erreur lors de l\'ajout de l\'Immobilisation :', error);
-          if (spinner) spinner.classList.add('d-none');
-          this.isAddingImmobilisation = false;
-          console.error('Debug: Soumission Immobilisation échouée. isAddingImmobilisation mis à false.');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Debug: Erreur lors de l\'ajout de l\'Immobilisation :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    this.isAddingImmobilisation = false;
+                    console.error('Debug: Soumission Immobilisation échouée. isAddingImmobilisation mis à false.');
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier les données du formulaire et réessayer.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (champ obligatoire manquant, format incorrect)
+                      detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. un champ obligatoire pour le véhicule ou l\'actif).';
+          
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && error.error.error) {
+                        detail = `Erreur de Validation : ${error.error.error}`;
+                      } else if (error.error && error.error.message) {
+                        detail = `Erreur de Validation : ${error.error.message}`;
+                      }
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer une nouvelle immobilisation.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau ou serveur injoignable
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur.';
+                    }
+          
+                    // Message final clair
+                    alert(`L'enregistrement de la nouvelle immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addImmobilisation);
@@ -484,12 +507,40 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
           }, 200);
         },
         (error: any) => {
-          console.error('Debug: Erreur lors de la modification de l\'Immobilisation :', error);
-          if (spinner) spinner.classList.add('d-none');
-          // this.isEditingImmobilisation = false;
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
-        }
-      );
+                    console.error('Debug: Erreur lors de la modification de l\'Immobilisation :', error);
+                    if (spinner) spinner.classList.add('d-none');
+                    // this.isEditingImmobilisation = false;
+                    
+                    // --- Logique d'affichage du message améliorée ---
+                    let detail = 'Veuillez vérifier les informations et réessayer.';
+          
+                    if (error.status === 422) {
+                      // Erreur de validation (champ manquant, format incorrect)
+                      detail = 'Erreur de Validation : Certaines données sont manquantes ou incorrectes. Veuillez vérifier tous les champs du formulaire.';
+                      
+                      // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                      if (error.error && (error.error.error || error.error.message)) {
+                        const serverMessage = error.error.error || error.error.message;
+                        detail = `Erreur de Validation : ${serverMessage}`;
+                      }
+                    } else if (error.status === 404) {
+                      // Immobilisation introuvable
+                      detail = 'L\'immobilisation que vous tentez de modifier est introuvable. Elle a peut-être été supprimée par un autre utilisateur.';
+                    } else if (error.status === 401 || error.status === 403) {
+                      // Erreur d'autorisation
+                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette immobilisation.';
+                    } else if (error.status === 0) {
+                      // Erreur de réseau
+                      detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour enregistrer la modification.';
+                    } else if (error.error && (error.error.error || error.error.message)) {
+                      // Message d'erreur général du serveur
+                      detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                    }
+          
+                    // Message final clair
+                    alert(`La modification de l'immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                  }
+                );
     } else {
       if (spinner) spinner.classList.add('d-none');
       alert("Désolé, le formulaire n'est pas bien renseigné");

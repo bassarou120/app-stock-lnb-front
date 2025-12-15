@@ -48,19 +48,19 @@
             <div class="d-flex align-items-center flex-column flex-sm-row">
               <div class="flex-shrink-0 mb-3 mb-sm-0 me-sm-4">
                 <img
-                  [src]="previewLogoUrl || 'public/images/logo_bg.png'"
+                  [src]="previewLogoUrl || 'assets/images/logo_bg.png'"
                   alt="Logo du site"
                   class="img-thumbnail border border-primary"
                   style="width: 100px; height: 100px; object-fit: contain; border-radius: .5rem;"
-                  (error)="previewLogoUrl = 'public/images/logo_bg.png'"
+                  (error)="previewLogoUrl = 'assets/images/logo_bg.png'"
                 />
               </div>
               <div class="text-center text-sm-start">
                 <p class="text-secondary">Nom du site actuel :</p>
                 <h4 class="text-primary fw-bold">{{ siteName }}</h4>
-                <p class="text-secondary">Couleur principale actuelle :</p>
+                <!-- <p class="text-secondary">Couleur principale actuelle :</p>
                 <div class="d-inline-block border border-dark rounded" [style.backgroundColor]="mainColor" style="width: 30px; height: 30px;"></div>
-                <span class="ms-2 fw-bold" [style.color]="mainColor">{{ mainColor }}</span>
+                <span class="ms-2 fw-bold" [style.color]="mainColor">{{ mainColor }}</span> -->
               </div>
             </div>
           </div>
@@ -113,7 +113,7 @@
             </div>
 
             <!-- Couleur Principale -->
-            <div class="mb-3">
+            <!-- <div class="mb-3">
               <label for="mainColor" class="form-label">Couleur Principale <span class="text-danger">*</span></label>
               <div class="d-flex align-items-center">
                 <input
@@ -130,7 +130,7 @@
               <div *ngIf="siteSettingsForm.get('mainColor')?.invalid && siteSettingsForm.get('mainColor')?.touched" class="invalid-feedback d-block">
                 La couleur principale est obligatoire.
               </div>
-            </div>
+            </div> -->
 
             <!-- Bouton de sauvegarde -->
             <div class="d-flex justify-content-end mt-4">

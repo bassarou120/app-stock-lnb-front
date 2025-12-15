@@ -213,7 +213,7 @@ export class EntreeComponent implements OnInit {
       },
       (error: any) => {
         console.error('Erreur lors de l\'ajout de l\'entree :', error);
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        alert(`L'enregistrement de l'entrée de stock a échoué.\n\nDétails`);
       },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -268,9 +268,40 @@ export class EntreeComponent implements OnInit {
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de la modification de l\'entree :', error);
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
+                console.error('Erreur lors de la modification de l\'entree :', error);
+                
+                // Débloquer l'interface utilisateur immédiatement
+                this.isEditing = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez vérifier les informations de modification et réessayer.';
+        
+                if (error.status === 422 || error.status === 400) {
+                  // Erreur de validation ou Bad Request (champs obligatoires, format, quantité invalide)
+                  detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. quantité invalide, ou date incohérente).';
+                  
+                  // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                  if (error.error && (error.error.error || error.error.message)) {
+                    const serverMessage = error.error.error || error.error.message;
+                    detail = `Erreur de Validation : ${serverMessage}`;
+                  }
+                } else if (error.status === 404) {
+                  // Entrée de stock introuvable
+                  detail = 'L\'entrée de stock que vous tentez de modifier est introuvable. Elle a peut-être été supprimée par un autre utilisateur.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette entrée de stock.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+                } else if (error.error && (error.error.error || error.error.message)) {
+                  // Message d'erreur général du serveur
+                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                }
+        
+                // Message final clair
+                alert(`La modification de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+              },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
         this.isEditing = false;
@@ -318,9 +349,32 @@ export class EntreeComponent implements OnInit {
         }, 200); // L'alerte apparaît 200ms après la fermeture du modal
       },
       (error: any) => {
-        console.error('Erreur lors de la supression de l\'entree :', error);
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
+                console.error('Erreur lors de la supression de l\'entree :', error);
+                
+                // Débloquer l'interface utilisateur immédiatement
+                this.isDeleting = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+        
+                if (error.status === 404) {
+                  // Erreur 404 si l'entrée à supprimer n'est plus trouvée
+                  detail = 'L\'entrée de stock sélectionnée est introuvable. Elle a peut-être déjà été supprimée.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour supprimer cette entrée de stock.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+                } else if (error.error && (error.error.message || error.error.error)) {
+                  // Tente d'afficher le message d'erreur spécifique du serveur
+                  const serverMessage = error.error.message || error.error.error;
+                  detail = `Raison : ${serverMessage}. L'entrée n'a pas pu être supprimée.`;
+                }
+        
+                // Message final clair
+                alert(`La suppression de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+              },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
         this.isDeleting = false;

@@ -7,16 +7,18 @@ import { environment } from './../../../../environments/environment';
 // --- INTERFACES ---
 
 export interface LogJournalisation {
-  id: number;
-  action: string;
-  ip_address: string;
-  user_agent: string;
-  user_id: number | null;
-  date_action: string;
-  details: string | null;
-  created_at: string;
-  updated_at: string;
-}
+    id: number;
+    action: string;
+    ip_address: string;
+    user_agent: string;
+    user_id: number | null;
+    // AJOUTEZ CETTE PROPRIÉTÉ :
+    user_name_full: string | null; // Champ récupéré via la jointure dans le contrôleur PHP
+    date_action: string;
+    details: string | null;
+    created_at: string;
+    updated_at: string;
+  }
 
 export interface LogJournalisationResponse {
   success: boolean;

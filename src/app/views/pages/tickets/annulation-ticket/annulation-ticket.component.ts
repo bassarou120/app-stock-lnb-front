@@ -182,9 +182,40 @@ export class AnnulationTicketComponent implements OnInit {
         }, 200);
       },
       (error: any) => {
-        console.error('Erreur lors de l\'ajout de l\'annulation du ticket :', error);
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
+                console.error('Erreur lors de l\'ajout de l\'annulation du ticket :', error);
+                
+                // Débloquer l'interface utilisateur immédiatement
+                this.isAdding = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez vérifier les informations (ticket sélectionné, raison) et réessayer.';
+        
+                if (error.status === 422 || error.status === 400) {
+                  // Erreur de validation (ticket manquant, règles métier, quantité annulée)
+                  detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. le ticket sélectionné ne peut plus être annulé ou la raison est manquante).';
+                  
+                  // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                  if (error.error && (error.error.error || error.error.message)) {
+                    const serverMessage = error.error.error || error.error.message;
+                    detail = `Erreur de Validation : ${serverMessage}`;
+                  }
+                } else if (error.status === 404) {
+                  // Ticket de sortie introuvable
+                  detail = 'Le ticket de sortie sélectionné est introuvable. Veuillez recharger la liste.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer cette annulation.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+                } else if (error.error && (error.error.error || error.error.message)) {
+                  // Message d'erreur général du serveur
+                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                }
+        
+                // Message final clair
+                alert(`L'enregistrement de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+              },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
         this.isAdding = false;
@@ -230,9 +261,40 @@ export class AnnulationTicketComponent implements OnInit {
         }, 200);
       },
       (error: any) => {
-        console.error('Erreur lors de la modification de l\'annulation du ticket:', error);
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
+                console.error('Erreur lors de la modification de l\'annulation du ticket:', error);
+                
+                // Débloquer l'interface utilisateur immédiatement
+                this.isEditing = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez vérifier les informations de modification et réessayer.';
+        
+                if (error.status === 422 || error.status === 400) {
+                  // Erreur de validation (champs obligatoires, règles métier, etc.)
+                  detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. le ticket sélectionné est invalide ou la raison est manquante).';
+                  
+                  // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                  if (error.error && (error.error.error || error.error.message)) {
+                    const serverMessage = error.error.error || error.error.message;
+                    detail = `Erreur de Validation : ${serverMessage}`;
+                  }
+                } else if (error.status === 404) {
+                  // Annulation introuvable
+                  detail = 'L\'annulation de ticket que vous tentez de modifier est introuvable. Elle a peut-être été supprimée par un autre utilisateur.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette annulation.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+                } else if (error.error && (error.error.error || error.error.message)) {
+                  // Message d'erreur général du serveur
+                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                }
+        
+                // Message final clair
+                alert(`La modification de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+              },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
         this.isEditing = false;
@@ -277,9 +339,35 @@ export class AnnulationTicketComponent implements OnInit {
         }, 200);
       },
       (error: any) => {
-        console.error('Erreur lors de la suppression de l\'annulation du ticket :', error);
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
-      },
+                console.error('Erreur lors de la suppression de l\'annulation du ticket :', error);
+                
+                // Débloquer l'interface utilisateur immédiatement
+                this.isDeleting = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+        
+                if (error.status === 404) {
+                  // Erreur 404 si l'annulation à supprimer n'est plus trouvée
+                  detail = 'L\'annulation de ticket sélectionnée est introuvable. Elle a peut-être déjà été supprimée par un autre utilisateur.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour supprimer cette annulation.';
+                } else if (error.status === 422 || error.status === 400) {
+                  // Erreur de validation/règles métier (ex: l'annulation est bloquée)
+                  detail = 'La suppression est impossible. Une règle métier bloque cette opération (ex: l\'entrée de stock est ré-utilisée).';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+                } else if (error.error && (error.error.message || error.error.error)) {
+                  // Tente d'afficher le message d'erreur spécifique du serveur
+                  const serverMessage = error.error.message || error.error.error;
+                  detail = `Raison : ${serverMessage}. L'annulation n'a pas pu être supprimée.`;
+                }
+        
+                // Message final clair
+                alert(`La suppression de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+              },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
         this.isDeleting = false;
@@ -396,9 +484,29 @@ export class AnnulationTicketComponent implements OnInit {
         ]);
         qteControl?.updateValueAndValidity();
       },
-      (error) => {
-        console.error('Erreur lors des Infos:', error);
-      }
-    );
+      (error: any) => {
+                console.error('Erreur lors de la récupération des informations du mouvement:', error);
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez vérifier votre connexion et recharger la page.';
+        
+                if (error.status === 404) {
+                  // Mouvement introuvable
+                  detail = 'Le mouvement de ticket sélectionné est introuvable. Il a peut-être été supprimé ou l\'ID est incorrect.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour consulter cette information.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour récupérer les informations.';
+                } else if (error.error && (error.error.message || error.error.error)) {
+                  // Message d'erreur général du serveur
+                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                }
+        
+                // Message final clair
+                alert(`Échec de la récupération des informations du mouvement.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+              }
+            );
   }
 }
