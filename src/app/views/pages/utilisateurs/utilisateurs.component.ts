@@ -84,7 +84,7 @@ export class UtilisateurComponent implements OnInit {
   @ViewChild('editUserContent') editUserContent!: TemplateRef<any>;
   @ViewChild('deleteUserContent') deleteUserContent!: TemplateRef<any>;
 
-  loading: boolean = false; // Note: this.loading is used for onViewUserProfile, but for CRUD operations, we will use isAdding/isEditing/isDeleting for button control
+  loading: boolean = false; 
 
   constructor(
     private utilisateurService: UtilisateurService,
