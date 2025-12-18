@@ -88,6 +88,11 @@
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
               </ng-template>
             </ngx-datatable-column>
+            <ngx-datatable-column name="Date de retour" prop="date_retour">
+              <ng-template let-value="value" ngx-datatable-cell-template>
+                {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
+              </ng-template>
+            </ngx-datatable-column>
             <ngx-datatable-column *ngIf="canModifyRetourTicket || canDeleteRetourTicket || canVoirRetourTicket" name="Actions" [frozenRight]="true"
   [width]="130" [headerClass]="'actions-header'"
                       [cellClass]="'actions-cell'">
@@ -200,6 +205,23 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-md-6">
+                          <div class="mb-3">
+                            <label for="date_retour_{{i}}" class="form-label">Date de retour <span class="text-danger">*</span></label>
+                            <input type="date" id="date_retour_{{i}}" class="form-control"
+                                  formControlName="date_retour"
+                                  [class.invalid]="couponForm.get('date_retour')?.invalid && couponForm.get('date_retour')?.touched">
+
+                            <div *ngIf="couponForm.get('date_retour')?.invalid && couponForm.get('date_retour')?.touched">
+                              <small *ngIf="couponForm.get('date_retour')?.errors?.['required']" class="text-danger">
+                                *La date de retour est obligatoire.
+                              </small>
+                            </div>
+                          </div>
+                        </div>
+
+
                     </div>
 
                     <input type="hidden" formControlName="mouvement_ticket_id">

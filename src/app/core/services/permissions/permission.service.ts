@@ -61,4 +61,19 @@ export class PermissionService {
       canExport: allowedFonctionnalites.includes('Export Stock')
     };
   }
+
+    // 🔥 MÉTHODE POUR RÉCUPÉRER LES PERMISSIONS DE L'UTILISATEUR CONNECTÉ
+/*   getCurrentUserPermissions(): Observable<any[]> {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const roleId = user.role_id;
+
+    if (!roleId) {
+      console.error('❌ Role ID non trouvé pour l\'utilisateur connecté');
+      return new Observable(observer => observer.next([]));
+    }
+
+    return this.http.get<any>(`${this.apiUrl}/permissions/role/${roleId}`).pipe(
+      map(response => response || [])
+    );
+  } */
 }

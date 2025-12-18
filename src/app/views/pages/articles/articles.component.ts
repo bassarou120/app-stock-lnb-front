@@ -401,17 +401,20 @@ importError: ImportError | null = null;
     });
   }
 
-loadCategories(): void {
+ loadCategories(): void {
   this.articleService.getAllCategories().subscribe({
     next: (data) => {
       this.categories = data; // Stocker la liste des categories
+      const currentCat = this.editArticle.get('id_cat')?.value;
+      if (currentCat) {
+        this.editArticle.patchValue({ id_cat: currentCat });
+      }
     },
     error: (err) => {
       console.error("Erreur lors du chargement des categories :", err);
     }
   });
-}
-
+} 
 
 loadArticles(): void {
     this.articleService.getAllArticles().subscribe(
@@ -441,17 +444,21 @@ updateFilter(event: KeyboardEvent): void {
   this.table.offset = 0;
 }
 
-  getEditForm(row: any){
-    this.editArticle.patchValue({
-     id:row.id,
-     id_cat:row.id_cat,
-     libelle:row.libelle,
-     code_article:row.code_article,
-     stock_alerte:row.stock_alerte,
-     description:row.description,
-    demande_intermittent: row.demande_intermittent
-    })
-  }
+getEditForm(row: any) {
+
+  const demandeIntermittent = row.demande_intermittent ? 'oui' : 'non';
+
+  this.editArticle.patchValue({
+    id: row.id,
+    id_cat: row.id_cat,
+    libelle: row.libelle,
+    code_article: row.code_article,
+    stock_alerte: row.stock_alerte,
+    description: row.description,
+    demande_intermittent: demandeIntermittent
+  });
+}
+
 
   getDeleteForm(row: any){
     this.deleteArticle.patchValue({

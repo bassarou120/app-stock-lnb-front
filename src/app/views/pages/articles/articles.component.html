@@ -107,7 +107,13 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Description" prop="description"></ngx-datatable-column>
             <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
-            <ngx-datatable-column name="Demande intermittent" prop="demande_intermittent"></ngx-datatable-column>
+            
+            <ngx-datatable-column name="Demande intermittent">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                {{ row.demande_intermittent ? 'Oui' : 'Non' }}
+              </ng-template>
+            </ngx-datatable-column>
+
             <ngx-datatable-column name="Date de création" prop="created_at">
               <ng-template let-value="value" ngx-datatable-cell-template>
                 {{ value | date:'dd/MM/yyyy HH:mm:ss' }}
@@ -161,7 +167,7 @@
             <div class="col-3 text-center">Article<span class="text-danger">*</span></div>
             <div class="col-2 text-center">Catégorie<span class="text-danger">*</span></div>
             <div class="col-3 text-center">Description<span class="text-danger"></span></div>
-            <!-- <div class="col-2 text-center">Demande Intermittent<span class="text-danger"></span></div> -->
+             <div class="col-2 text-center">Demande Intermittent<span class="text-danger"></span></div> 
             <div class="col-1 text-center">Stock d'alerte<span class="text-danger">*</span></div>
             <div class="col-1 text-center">Action</div>
           </div>
@@ -229,13 +235,13 @@
               </div>
 
               <!-- Demande Intermittent -->
-<!--               <div class="col-2 text-center">
+               <div class="col-2 text-center">
                 <select class="form-select form-select-lg"
                         formControlName="demande_intermittent">
                   <option value="non">Non</option>
                   <option value="oui">Oui</option>
                 </select>
-              </div> -->
+              </div> 
 
               <!-- Stock d'alerte -->
               <div class="col-1">
@@ -461,8 +467,7 @@
 
           <!-- Demande Intermittent -->
 
-
-<!--           <div class="mb-3">
+           <div class="mb-3">
             <label for="demande_intermittent" class="form-label">Demande Intermittent ? <span class="text-danger">*</span></label>
 
             <ng-container *ngIf="categories && categories.length > 0; else noCategorie">
@@ -473,7 +478,7 @@
               </select>
             </ng-container>
 
-          </div> -->
+          </div> 
 
           <!-- description -->
           <div class="mb-3">
