@@ -14,6 +14,7 @@ import { NgSelectModule } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
 import { Router } from '@angular/router';
 import { environment } from "../../../../environments/environment";
+import Swal from 'sweetalert2';
 
 
 
@@ -292,7 +293,13 @@ export class InterventionVehiculeComponent implements OnInit {
     if (this.addInterventionVehicule.invalid) {
       this.markFormGroupTouched(this.addInterventionVehicule);
       console.error('Formulaire d\'ajout invalide. Erreurs:', this.addInterventionVehicule.errors, 'Controls:', this.addInterventionVehicule.controls);
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -383,7 +390,13 @@ export class InterventionVehiculeComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`L'enregistrement de l'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: 'L\'enregistrement de l\'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               }
             );
   }
@@ -400,7 +413,13 @@ onClickSubmitEditInterventionVehicule() {
   if (this.editInterventionVehicule.invalid) {
     this.markFormGroupTouched(this.editInterventionVehicule);
     console.error('Formulaire d\'édition invalide. Erreurs:', this.editInterventionVehicule.errors, 'Controls:', this.editInterventionVehicule.controls);
-    alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires.',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
     return;
   }
 
@@ -500,7 +519,13 @@ onClickSubmitEditInterventionVehicule() {
               }
       
               // Message final clair
-              alert(`La modification de l'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+              Swal.fire({
+                title: 'Erreur',
+                text: 'La modification de l\'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                icon: 'error',
+                confirmButtonText: 'Réessayer',
+                confirmButtonColor: '#d33'
+              });
             }
           );
 }
@@ -514,7 +539,13 @@ onClickSubmitEditInterventionVehicule() {
 
     if (this.deleteInterventionVehicule.invalid) {
       console.error('Formulaire de suppression invalide. Erreurs:', this.deleteInterventionVehicule.errors, 'Controls:', this.deleteInterventionVehicule.controls);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -563,7 +594,13 @@ onClickSubmitEditInterventionVehicule() {
                 }
         
                 // Message final clair
-                alert(`La suppression de l'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: 'La suppression de l\'intervention du véhicule a échoué.\n\nDétails : ${detail}\n\nEn cas d\'échec répété, veuillez contacter le support technique.',
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               }
             );
   }
@@ -669,7 +706,13 @@ onClickSubmitEditInterventionVehicule() {
     console.log('Programmation d\'un suivi pour l\'intervention:', intervention);
     // Vous pouvez implémenter cette méthode selon vos besoins
     // Par exemple, ouvrir un modal de planification ou rediriger vers une page de suivi
-    alert('Fonctionnalité de programmation de suivi à implémenter');
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Fonctionnalité de programmation de suivi à implémenter',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
   }
 
     // 🔥 MÉTHODE pour obtenir la couleur du badge selon l'état du véhicule
@@ -840,7 +883,13 @@ getDaysExpiredSince(dateExpiration: string): number {
       },
       error => {
         console.error('Erreur lors du téléchargement du PDF des interventions de véhicule:', error);
-        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   }
