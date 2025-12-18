@@ -18,6 +18,7 @@ import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { environment } from '../../../../../environments/environment';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -285,7 +286,13 @@ hasGroupFile(group: any): boolean {
           const reader = new FileReader();
           reader.onload = () => {
             const json = JSON.parse(reader.result as string);
-            alert(json.message || "Erreur lors de la vérification du statut.");
+            Swal.fire({
+              title: 'Erreur',
+              text: 'Erreur lors de la vérification du statut.',
+              icon: 'error',
+              confirmButtonText: 'Réessayer',
+              confirmButtonColor: '#d33'
+            });
           };
           reader.readAsText(res);
         } else {
@@ -315,7 +322,13 @@ hasGroupFile(group: any): boolean {
                 }
         
                 // Message final clair
-                alert(`La vérification du statut ou la génération du document a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, contactez le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: 'La vérification du statut ou la génération du document a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, contactez le support technique.',
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               }
     });
   }
@@ -472,7 +485,13 @@ hasGroupFile(group: any): boolean {
       },
       error: (err) => {
         console.error(err);
-        alert('Erreur serveur ou réseau');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Erreur serveur ou réseau',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
         this.loading = false;
       },
     });
@@ -516,7 +535,13 @@ hasGroupFile(group: any): boolean {
         (error: any) => {
           console.error('Erreur lors de la récupération de la quantité disponible pour statut:', error);
           this.quantiteDisponible = 0;
-          alert('Impossible de récupérer la quantité disponible pour cet article.');
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Impossible de récupérer la quantité disponible pour cet article.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
           this.patchEditStatutSortieForm(detail);
         }
       );
@@ -647,7 +672,13 @@ hasGroupFile(group: any): boolean {
                     }
           
                     // Message final clair
-                    alert(`La modification du statut de la demande a échoué.\n\nDétails : ${detail}\n\nVeuillez contacter le support technique si le problème persiste.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La modification du statut de la demande a échoué.\n\nDétails : ${detail}\n\nVeuillez contacter le support technique si le problème persiste.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 });
     }
@@ -661,7 +692,13 @@ hasGroupFile(group: any): boolean {
 
     if (this.edit_all.invalid) {
       this.markFormGroupTouched(this.edit_all);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 

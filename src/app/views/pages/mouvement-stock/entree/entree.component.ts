@@ -12,6 +12,8 @@ import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { environment } from "../../../../../environments/environment";
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
+
 
 declare var bootstrap: any;
 
@@ -264,7 +266,13 @@ onClickSubmitAddEntreeMultiple() {
 
   // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
   if (!this.canAddStock || !this.canAddStockMultiple) {
-    alert('Vous n\'avez pas l\'autorisation d\'ajouter du stock.');
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Vous n\'avez pas l\'autorisation d\'ajouter du stock.',
+      icon: 'error',
+      confirmButtonText: 'ok',
+      confirmButtonColor: '#d33'
+    });
     return;
   }
 
@@ -368,14 +376,26 @@ onClickSubmitAddEntreeMultiple() {
                 }
         
                 // Message final clair
-                alert(`L'ajout multiple d'entrées a échoué.\n\nDétails.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: 'L\'ajout multiple d\'entrées a échoué.\n\nDétails.',
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               }
             );
 
   } else {
     if (spinner) spinner.classList.add('d-none');
     this.markFormGroupTouched(this.addEntreeMultipleForm);
-    alert("Veuillez remplir correctement tous les champs obligatoires");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Veuillez remplir correctement tous les champs obligatoires',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
   }
 }
 
@@ -383,7 +403,13 @@ onClickSubmitAddEntreeMultiple() {
   // Soumission d'ajout simple
   onClickSubmitAddEntree() {
     if (!this.canAddStock) {
-      alert('Vous n\'avez pas l\'autorisation d\'ajouter du stock.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'ajouter du stock.',
+        icon: 'error',
+        confirmButtonText: 'ok',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -461,12 +487,24 @@ onClickSubmitAddEntreeMultiple() {
                     }
           
                     // Message final clair
-                    alert(`L'enregistrement de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'L\'enregistrement de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       console.log('Formulaire Entrée Simple invalide.'); // Log pour le débogage
     }
 
@@ -564,15 +602,33 @@ onClickSubmitAddEntreeMultiple() {
                     }
           
                     // Message final clair
-                    alert(`L'enregistrement des entrées multiples a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'L\'enregistrement des entrées multiples a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addEntreeMultipleForm);
-      alert("Veuillez remplir correctement tous les champs obligatoires");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Veuillez remplir correctement tous les champs obligatoires',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       console.log('Formulaire Entrée Multiple invalide.'); // Log pour le débogage
-    }  alert('Vous n\'avez pas l\'autorisation de modifier le stock.');
+    }  Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de modifier le stock.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -629,19 +685,37 @@ onClickSubmitAddEntreeMultiple() {
                     }
           
                     // Message final clair
-                    alert(`La modification de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La modification de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
   onClickSubmitDeleteEntree() {
     // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
     if (!this.canDeleteStock) {
-      alert('Vous n\'avez pas l\'autorisation de supprimer du stock.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de supprimer du stock.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -694,12 +768,24 @@ onClickSubmitAddEntreeMultiple() {
                     }
           
                     // Message final clair
-                    alert(`La suppression de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La suppression de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d\'échec répété, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -824,7 +910,13 @@ onClickSubmitAddEntreeMultiple() {
   downloadMouvementsEntreePDF(): void {
     // 🔥 VÉRIFICATION DE PERMISSION AVANT EXPORT
     if (!this.canExportStock) {
-      alert('Vous n\'avez pas l\'autorisation d\'exporter les données de stock.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'exporter les données de stock.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -841,7 +933,13 @@ onClickSubmitAddEntreeMultiple() {
       },
       error => {
         console.error('Erreur lors du téléchargement du PDF des mouvements d\'entrée:', error);
-        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   }

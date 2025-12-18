@@ -13,6 +13,7 @@ import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.di
 import { Router } from '@angular/router';
 import { takeUntil } from 'rxjs/operators';
 import { Subject } from 'rxjs';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -357,7 +358,13 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
 
   onClickSubmitAddImmobilisation() {
     if (!this.canAddImmo) {
-      alert('Vous n\'avez pas l\'autorisation d\'ajouter une immobilisation.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'ajouter une immobilisation.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -455,20 +462,38 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
                     }
           
                     // Message final clair
-                    alert(`L'enregistrement de la nouvelle immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                    title: 'Erreur',
+                    text: 'L\'enregistrement de la nouvelle immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                    icon: 'error',
+                    confirmButtonText: 'Réessayer',
+                    confirmButtonColor: '#d33'
+                  });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addImmobilisation);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       console.log('Debug: Formulaire Immobilisation invalide.');
     }
   }
 
   onClickSubmitEditImmobilisation() {
     if (!this.canModifyImmo) {
-      alert('Vous n\'avez pas l\'autorisation de modifier cette immobilisation.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de modifier cette immobilisation.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -538,18 +563,36 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
                     }
           
                     // Message final clair
-                    alert(`La modification de l'immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La modification de l\'immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
   onClickSubmitDeleteImmobilisation() {
     if (!this.canDeleteImmo) {
-      alert('Vous n\'avez pas l\'autorisation de Supprimer cette immobilisation.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de Supprimer cette immobilisation.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -586,12 +629,24 @@ export class ImmobilisationComponent implements OnInit, OnDestroy { // Implémen
           console.error('Debug: Erreur lors de la supression de l\'Immobilisation :', error);
           if (spinner) spinner.classList.add('d-none');
           // this.isDeletingImmobilisation = false;
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -917,7 +972,13 @@ private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: 
 
   downloadImmosPDF(): void {
     if (!this.canExportImmo) {
-      alert('Vous n\'avez pas l\'autorisation d\'exporter la liste des immobilisations.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'exporter la liste des immobilisations.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -934,7 +995,13 @@ private calculateDureeAmortie(dateAcquisition: NgbDateStruct | null, formGroup: 
       },
       error => {
         console.error('Erreur lors du téléchargement du PDF des immobilisations:', error);
-        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   }

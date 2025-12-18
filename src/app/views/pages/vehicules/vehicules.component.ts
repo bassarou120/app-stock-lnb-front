@@ -13,6 +13,7 @@ import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
 import { HttpEventType, HttpClient } from '@angular/common/http'; // Import HttpClient pour l'upload de fichier
 import { environment } from "../../../../environments/environment";
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any; // Déclaration pour accéder à bootstrap globalement
 

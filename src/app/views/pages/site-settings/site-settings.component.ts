@@ -89,7 +89,7 @@ export class SiteSettingsComponent implements OnInit, OnDestroy {
         console.log('Paramètres reçus du backend:', settings);
         const companyNameSetting = settings.find(s => s.key === 'company_name');
         const logoUrlSetting = settings.find(s => s.key === 'logo_url');
-        const mainColorSetting = settings.find(s => s.key === 'main_color');
+        // const mainColorSetting = settings.find(s => s.key === 'main_color');
 
         // Mettre à jour les états affichés
         this.siteName = companyNameSetting?.value || 'Nom du Site';
