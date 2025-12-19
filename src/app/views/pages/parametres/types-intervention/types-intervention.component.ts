@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common'; // DatePipe n'est plus stricteme
 import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap'; // NgbDatepickerModule et NgbDateStruct sont retirés
 import { NgbTooltipModule } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 
 declare var bootstrap: any; // Pour les modales Bootstrap
@@ -210,7 +211,13 @@ export class TypesInterventionComponent implements OnInit {
 
     if (this.addTypeIntervention.invalid) {
       this.markFormGroupTouched(this.addTypeIntervention);
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -247,7 +254,13 @@ export class TypesInterventionComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erreur lors de l\'ajout de l\'intervention :', error);
-        alert('Une erreur s\'est produite lors de l\'ajout. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         this.isAdding = false;
@@ -264,7 +277,13 @@ export class TypesInterventionComponent implements OnInit {
 
     if (this.editTypeIntervention.invalid) {
       this.markFormGroupTouched(this.editTypeIntervention);
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -297,7 +316,13 @@ export class TypesInterventionComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erreur lors de la modification du Type Intervention :', error);
-        alert('Une erreur s\'est produite lors de la modification. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         this.isEditing = false;
@@ -313,7 +338,13 @@ export class TypesInterventionComponent implements OnInit {
     }
 
     if (this.deleteTypeIntervention.invalid) {
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -337,7 +368,13 @@ export class TypesInterventionComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erreur lors de la suppression du Type Intervention :', error);
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         this.isDeleting = false;

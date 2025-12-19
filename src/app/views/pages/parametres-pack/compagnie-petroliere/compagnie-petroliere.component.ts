@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-compagnie-petroliere',
@@ -141,7 +142,13 @@ export class CompagniePetroliereComponent implements OnInit {
     if (this.addCompagniePetroliere.invalid) {
       this.markFormGroupTouched(this.addCompagniePetroliere); // Marque tous les champs comme touchés pour afficher les erreurs
       // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -198,7 +205,13 @@ export class CompagniePetroliereComponent implements OnInit {
     if (this.editCompagniePetroliere.invalid) {
       this.markFormGroupTouched(this.editCompagniePetroliere);
       // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -255,7 +268,13 @@ export class CompagniePetroliereComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteCompagniePetroliere.invalid) {
       this.markFormGroupTouched(this.deleteCompagniePetroliere);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -322,7 +341,13 @@ export class CompagniePetroliereComponent implements OnInit {
       },
       error: error => {
         console.error('Erreur lors du téléchargement du PDF', error);
-        alert('Une erreur s\'est produite lors du téléchargement du PDF. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite lors du téléchargement du PDF. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 3. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe

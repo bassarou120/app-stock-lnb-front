@@ -8,6 +8,7 @@ import { CommonModule } from '@angular/common';
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 declare var bootstrap: any;
 
 @Component({
@@ -165,7 +166,13 @@ export class StatusImmosComponent implements OnInit {
         error: (error: any) => {
           console.error('Erreur lors de l\'ajout du Status Immo :', error);
           // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         },
         complete: () => {
             this.isAddingStatus = false; // Réactiver le bouton Ajouter une fois l'opération terminée (succès ou erreur)
@@ -175,7 +182,13 @@ export class StatusImmosComponent implements OnInit {
     } else {
       this.markFormGroupTouched(this.addStatusImmo); // Marque tous les champs comme touchés pour afficher les erreurs
       // if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -222,7 +235,13 @@ export class StatusImmosComponent implements OnInit {
         error: (error: any) => {
           console.error('Erreur lors de la modification du StatusImmo :', error);
           // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          Swal.fire({
+  title: 'Erreur',
+  text: 'Une erreur s\'est produite. Veuillez réessayer.',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
         },
         complete: () => {
             this.isEditingStatus = false; // Réactiver le bouton Modifier une fois l'opération terminée
@@ -232,7 +251,13 @@ export class StatusImmosComponent implements OnInit {
     } else {
       this.markFormGroupTouched(this.editStatusImmo);
       // if (spinner) spinner.classList.add('d-none'); // Non nécessaire avec les nouvelles propriétés isEditingStatus
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+  title: 'Erreur',
+  text: 'Désolé, le formulaire n\'est pas bien renseigné',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
     }
   }
 
@@ -278,7 +303,13 @@ export class StatusImmosComponent implements OnInit {
         error: (error: any) => {
           console.error('Erreur lors de la supression du statut immobilier :', error);
           // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          Swal.fire({
+  title: 'Erreur',
+  text: 'Une erreur s\'est produite. Veuillez réessayer.',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
         },
         complete: () => {
             this.isDeletingStatus = false; // Réactiver le bouton Supprimer une fois l'opération terminée
@@ -288,7 +319,13 @@ export class StatusImmosComponent implements OnInit {
     } else {
       this.markFormGroupTouched(this.deleteStatusImmo);
       // if (spinner) spinner.classList.add('d-none'); // Non nécessaire avec les nouvelles propriétés isDeletingStatus
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+  title: 'Erreur',
+  text: 'Désolé, le formulaire n\'est pas bien renseigné',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
     }
   }
 

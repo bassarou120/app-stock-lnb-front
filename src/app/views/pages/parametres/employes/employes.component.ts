@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-employes',
@@ -165,7 +166,13 @@ setupModalReset(): void {
       // 2. Valider le formulaire
       if (this.addEmploye.invalid) {
           this.markFormGroupTouched(this.addEmploye);
-          alert("Désolé, le formulaire n'est pas bien renseigné");
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Désolé, le formulaire n\'est pas bien renseigné',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
           return;
       }
 
@@ -253,7 +260,13 @@ onClickSubmitEditEmploye (){
   if (this.editEmploye.invalid) {
     this.markFormGroupTouched(this.editEmploye);
     // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
     return;
   }
 
@@ -288,7 +301,13 @@ onClickSubmitEditEmploye (){
     error: (error: any) => {
       console.error('Erreur lors de la modification de l\'employe :', error);
       // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-      alert('Une erreur s\'est produite. Veuillez réessayer.');
+      Swal.fire({
+  title: 'Erreur',
+  text: 'Une erreur s\'est produite. Veuillez réessayer.',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
     },
     complete: () => {
       // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -310,7 +329,13 @@ onClickSubmitDeleteEmploye (){
   // 2. Valider le formulaire
   if (this.deleteEmploye.invalid) {
     this.markFormGroupTouched(this.deleteEmploye);
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
     return;
   }
 
@@ -344,7 +369,13 @@ onClickSubmitDeleteEmploye (){
     error: (error: any) => {
       console.error('Erreur lors de la supression de Employe  :', error);
       // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-      alert('Une erreur s\'est produite. Veuillez réessayer.');
+      Swal.fire({
+  title: 'Erreur',
+  text: 'Une erreur s\'est produite. Veuillez réessayer.',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
     },
     complete: () => {
       // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe

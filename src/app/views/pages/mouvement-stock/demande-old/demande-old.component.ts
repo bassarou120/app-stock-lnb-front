@@ -14,6 +14,7 @@ import { Subject, takeUntil } from 'rxjs'; // Importez Subject et takeUntil
 import { map } from 'rxjs/operators';
 import { AbstractControl, ValidatorFn } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 
 declare var bootstrap: any;
@@ -218,12 +219,24 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
             console.error('Erreur lors de la modification du statut :', error);
             if (spinner) spinner.classList.add('d-none');
             this.isStatutModifLoading = false;
-            alert('Une erreur s\'est produite. Veuillez réessayer.'); // Gestion de l'erreur selon votre exemple
+            Swal.fire({
+              title: 'Erreur',
+              text: 'Une erreur s\'est produite. Veuillez réessayer.',
+              icon: 'error',
+              confirmButtonText: 'Réessayer',
+              confirmButtonColor: '#d33'
+            });
           }
         });
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné"); // Gestion de l'erreur de validation selon votre exemple
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       Object.keys(this.editStatutSortie.controls).forEach(key => {
         this.editStatutSortie.get(key)?.markAsTouched();
       });
@@ -271,12 +284,24 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
           if (spinner) spinner.classList.add('d-none');
 
           // Afficher directement le message d'erreur de l'API
-          alert(error.error?.error || "Une erreur s'est produite. Veuillez réessayer.");
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -317,12 +342,24 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
         (error: any) => {
           console.error('Erreur lors de la modification de la sortie :', error);
           if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -358,12 +395,24 @@ export class SortieComponent implements OnInit, OnDestroy { // Implémentez OnDe
         (error: any) => {
           console.error('Erreur lors de la supression de la sortie :', error);
           if (spinner) spinner.classList.add('d-none');
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
