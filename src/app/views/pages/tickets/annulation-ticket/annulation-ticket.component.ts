@@ -57,6 +57,8 @@ export class AnnulationTicketComponent implements OnInit {
   isEditing: boolean = false;   // Indicateur pour l'opération de modification
   isDeleting: boolean = false;  // Indicateur pour l'opération de suppression
   // -------------------------------------------------
+  detailsMouvementSelectionne: any[] = [];
+  libelleCouponSelectionne: string = ''
 
   public addAnnulationTicket!: FormGroup;
   public editAnnulationTicket!: FormGroup;
@@ -174,7 +176,13 @@ export class AnnulationTicketComponent implements OnInit {
       (data: any) => {
         this.loadAnnulationTickets();
         this.loadAllSortieTicketWhereNotInAnnulation(); // Recharger les mouvements disponibles
+        
+        // --- MODIFICATION ICI : Remise à zéro complète ---
         this.addAnnulationTicket.reset();
+        this.detailsMouvementSelectionne = []; // Vide le tableau des coupons
+        this.libelleCouponSelectionne = '';      // Vide le libellé d'affichage
+        this.ancienQteDuMvt = 0;                // Remet le compteur à zéro
+        // ------------------------------------------------
 
         const modal = document.getElementById('add_annulation');
         // @ts-ignore
@@ -189,52 +197,52 @@ export class AnnulationTicketComponent implements OnInit {
         }, 200);
       },
       (error: any) => {
-                console.error('Erreur lors de l\'ajout de l\'annulation du ticket :', error);
-                
-                // Débloquer l'interface utilisateur immédiatement
-                this.isAdding = false;
-                
-                // --- Logique d'affichage du message améliorée ---
-                let detail = 'Veuillez vérifier les informations (ticket sélectionné, raison) et réessayer.';
+                console.error('Erreur lors de l\'ajout de l\'annulation du ticket :', error);
+                
+                // Débloquer l'interface utilisateur immédiatement
+                this.isAdding = false;
+                
+                // --- Logique d'affichage du message améliorée ---
+                let detail = 'Veuillez vérifier les informations (ticket sélectionné, raison) et réessayer.';
         
-                if (error.status === 422 || error.status === 400) {
-                  // Erreur de validation (ticket manquant, règles métier, quantité annulée)
-                  detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. le ticket sélectionné ne peut plus être annulé ou la raison est manquante).';
-                  
-                  // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
-                  if (error.error && (error.error.error || error.error.message)) {
-                    const serverMessage = error.error.error || error.error.message;
-                    detail = `Erreur de Validation : ${serverMessage}`;
-                  }
-                } else if (error.status === 404) {
-                  // Ticket de sortie introuvable
-                  detail = 'Le ticket de sortie sélectionné est introuvable. Veuillez recharger la liste.';
-                } else if (error.status === 401 || error.status === 403) {
-                  // Erreur d'autorisation
-                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer cette annulation.';
-                } else if (error.status === 0) {
-                  // Erreur de réseau ou serveur injoignable
-                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
-                } else if (error.error && (error.error.error || error.error.message)) {
-                  // Message d'erreur général du serveur
-                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
-                }
+                if (error.status === 422 || error.status === 400) {
+                  // Erreur de validation (ticket manquant, règles métier, quantité annulée)
+                  detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. le ticket sélectionné ne peut plus être annulé ou la raison est manquante).';
+                  
+                  // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
+                  if (error.error && (error.error.error || error.error.message)) {
+                    const serverMessage = error.error.error || error.error.message;
+                    detail = `Erreur de Validation : ${serverMessage}`;
+                  }
+                } else if (error.status === 404) {
+                  // Ticket de sortie introuvable
+                  detail = 'Le ticket de sortie sélectionné est introuvable. Veuillez recharger la liste.';
+                } else if (error.status === 401 || error.status === 403) {
+                  // Erreur d'autorisation
+                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer cette annulation.';
+                } else if (error.status === 0) {
+                  // Erreur de réseau ou serveur injoignable
+                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur. Vérifiez votre connexion Internet.';
+                } else if (error.error && (error.error.error || error.error.message)) {
+                  // Message d'erreur général du serveur
+                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
+                }
         
-                // Message final clair
-                Swal.fire({
+                // Message final clair
+                Swal.fire({
                   title: 'Erreur',
                   text: `L'enregistrement de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
                   icon: 'error',
                   confirmButtonText: 'Réessayer',
                   confirmButtonColor: '#d33'
                 });
-              },
+              },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
         this.isAdding = false;
       }
     );
-  }
+}
 
   onClickSubmitEditAnnulationTicket() {
     // 1. Vérifier si une soumission est déjà en cours
@@ -414,15 +422,26 @@ export class AnnulationTicketComponent implements OnInit {
 
   loadAllSortieTicketWhereNotInAnnulation(): void {
     this.annulationTicketService.getAllSortieTicketWhereNotInAnnulation().subscribe({
-      next: (data) => {
-        this.mouvementsTickets = data;
-        console.log("Liste des mouvements de sortie non annulés :", this.mouvementsTickets);
+      next: (res: any) => {
+        // 1. On récupère les données
+        const dataRaw = (res.data || res) as any[];
+  
+        // 2. Filtrage pour ne garder que des références UNIQUES
+        // On ajoute "as MouvementTicket[]" à la fin pour rassurer TypeScript
+        const uniqueMouvements = [
+          ...new Map(dataRaw.map((item: any) => [item['reference'], item])).values()
+        ] as MouvementTicket[]; 
+  
+        // 3. L'assignation fonctionnera sans erreur maintenant
+        this.mouvementsTickets = uniqueMouvements;
+        
+        console.log("Mouvements uniques chargés :", this.mouvementsTickets);
       },
       error: (err) => {
-        console.error("Erreur lors du chargement des mouvements :", err);
+        console.error("Erreur lors du chargement :", err);
       }
     });
-  }
+}
 
   loadAnnulationTickets(): void {
     this.annulationTicketService.getAllAnnulationTicket().subscribe(
@@ -497,59 +516,48 @@ export class AnnulationTicketComponent implements OnInit {
     });
   }
 
-  getMouvementInfo() {
-    const idMouvement = this.addAnnulationTicket.get('mouvementTicket_id')?.value;
-    console.log('ID du Mouvement sélectionné:', idMouvement);
-    if (!idMouvement) {
-      console.log('Aucun Mouvement sélectionné ou désélection effectuée');
+  getMouvementInfo(mouvementSelected: any) {
+    // 1. Si on vide la sélection
+    if (!mouvementSelected) {
+      this.detailsMouvementSelectionne = [];
+      this.addAnnulationTicket.reset();
       return;
     }
-    this.annulationTicketService.getMouvementInfo(idMouvement).subscribe(
-      (response) => {
-        console.log('Info Récupérée:', response);
-        this.addAnnulationTicket.patchValue({
-          compagnie_petrolier_id: response.compagnie_petrolier_id,
-          coupon_ticket_id: response.coupon_ticket_id,
-          qte: response.quantite
-        });
-        this.ancienQteDuMvt = response.quantite; // Supposons que 'quantite' est la propriété contenant la quantité maximale
-        const qteControl = this.addAnnulationTicket.get('qte');
-        qteControl?.setValidators([
-          Validators.required,
-          Validators.min(1),
-          Validators.max(this.ancienQteDuMvt)
-        ]);
-        qteControl?.updateValueAndValidity();
+  
+    // 2. On récupère la référence (ex: MVT-445205522)
+    const ref = mouvementSelected.reference;
+  
+    // 3. On appelle le backend pour avoir tous les coupons de cette référence
+    this.annulationTicketService.getDetailsMouvementParReference(ref).subscribe({
+      next: (data) => {
+        // On stocke les lignes trouvées dans notre tableau
+        this.detailsMouvementSelectionne = data;
+        
+        if (this.detailsMouvementSelectionne.length === 0) {
+          Swal.fire('Info', 'Tous les coupons de ce mouvement sont déjà annulés.', 'info');
+        }
       },
-      (error: any) => {
-                console.error('Erreur lors de la récupération des informations du mouvement:', error);
-                
-                // --- Logique d'affichage du message améliorée ---
-                let detail = 'Veuillez vérifier votre connexion et recharger la page.';
-        
-                if (error.status === 404) {
-                  // Mouvement introuvable
-                  detail = 'Le mouvement de ticket sélectionné est introuvable. Il a peut-être été supprimé ou l\'ID est incorrect.';
-                } else if (error.status === 401 || error.status === 403) {
-                  // Erreur d'autorisation
-                  detail = 'Accès refusé. Vous n\'avez pas les permissions pour consulter cette information.';
-                } else if (error.status === 0) {
-                  // Erreur de réseau ou serveur injoignable
-                  detail = 'Erreur de connexion : Impossible de communiquer avec le serveur pour récupérer les informations.';
-                } else if (error.error && (error.error.message || error.error.error)) {
-                  // Message d'erreur général du serveur
-                  detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
-                }
-        
-                // Message final clair
-                Swal.fire({
-                  title: 'Erreur',
-                  text: `Échec de la récupération des informations du mouvement.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
-                  icon: 'error',
-                  confirmButtonText: 'Réessayer',
-                  confirmButtonColor: '#d33'
-                });
-              }
-            );
+      error: (error) => {
+        console.error('Erreur:', error);
+        Swal.fire('Erreur', 'Impossible de récupérer les détails du mouvement.', 'error');
+      }
+    });
   }
+
+  resetLocalData() {
+    this.detailsMouvementSelectionne = [];
+    this.libelleCouponSelectionne = '';
+    this.addAnnulationTicket.reset();
+}
+  // Fonction pour remplir le formulaire quand on clique sur "Choisir" dans le tableau
+selectionnerLigne(item: any) {
+  this.addAnnulationTicket.patchValue({
+      mouvementTicket_id: item.id, // L'ID unique de la ligne
+      compagnie_petrolier_id: item.compagnie_petrolier?.id,
+      coupon_ticket_id: item.coupon_ticket?.id,
+      qte: item.qte
+  });
+  this.libelleCouponSelectionne = item.coupon_ticket?.libelle;
+  this.ancienQteDuMvt = item.qte;
+}
 }
