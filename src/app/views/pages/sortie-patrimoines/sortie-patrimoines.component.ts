@@ -226,7 +226,13 @@ console.log('Valeurs du formulaire :', this.addSortiePatrimoine.value);
     // 2. Valider le formulaire
     if (this.addSortiePatrimoine.invalid) {
       this.markFormGroupTouched(this.addSortiePatrimoine); 
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -277,7 +283,13 @@ console.log('Valeurs du formulaire :', this.addSortiePatrimoine.value);
       },
       error: (error: any) => {
         console.error('Erreur lors de l\'ajout des sortie patrimoines :', error);
-        alert('Une erreur s\'est produite. vérifiez si ce code n\'existe pas déjà. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. vérifiez si ce code n\'existe pas déjà. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 5. Désactiver l'indicateur de chargement
@@ -291,7 +303,13 @@ onClickSubmitEditSortiePatrimoine(){
 
   if (this.editSortiePatrimoine.invalid) {
     this.markFormGroupTouched(this.editSortiePatrimoine);
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
     return;
   }
 
@@ -328,7 +346,13 @@ onClickSubmitEditSortiePatrimoine(){
     },
     error: (error: any) => {
       console.error('Erreur lors de la modification :', error);
-      alert('Une erreur s\'est produite. Veuillez réessayer.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Une erreur s\'est produite. Veuillez réessayer.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     },
     complete: () => this.isEditing = false
   });
@@ -345,7 +369,13 @@ onClickSubmitDeleteSortiePatrimoine(): void {
   // 2. Valider le formulaire
   if (this.deleteSortiePatrimoine.invalid) {
     this.markFormGroupTouched(this.deleteSortiePatrimoine);
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
     return;
   }
 
@@ -374,7 +404,13 @@ bsModal.hide();
     },
     error: (error: any) => {
       console.error('Erreur lors de la suppression de la sortie patrimoine :', error);
-      alert('Une erreur s\'est produite. Veuillez réessayer.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Une erreur s\'est produite. Veuillez réessayer.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     },
     complete: () => {
       // Désactiver l'indicateur de chargement
