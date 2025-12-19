@@ -46,6 +46,9 @@ export class AnnulationTicketService  {
       );
     }
 
+    getDetailsMouvementParReference(reference: string): Observable<any> {
+      return this.http.get(`${this.url}/details-mouvement/${reference}`);
+  }
     getAllCouponTickets(): Observable<CouponTicket[]> {
         return this.http.get<{ success: boolean; message: string; data: { data: CouponTicket[] } }>(
           `${this.url}/coupon_tickets`

@@ -109,95 +109,74 @@
       </div>
 
       <div class="modal-body">
-        <form class="forms-sample" [formGroup]="addAnnulationTicket" (ngSubmit)="onClickSubmitAddAnnulationTicket()"
-          novalidate>
-
+        <form class="forms-sample" [formGroup]="addAnnulationTicket" (ngSubmit)="onClickSubmitAddAnnulationTicket()" novalidate>
+      
           <div class="mb-3">
-            <label for="mouvementTicket_id" class="form-label">Code Mouvement Ticket <span
-                class="text-danger">*</span></label>
-            <ng-container *ngIf="mouvementsTickets && mouvementsTickets.length > 0; else noMouvementTicket">
-              <ng-select [items]="mouvementsTickets" bindLabel="reference" bindValue="id"
-                formControlName="mouvementTicket_id" [clearable]="true" placeholder="Sélectionnez le mouvement ticket"
-                (change)="getMouvementInfo()">
-              </ng-select>
-              <div
-                *ngIf="addAnnulationTicket.get('mouvementTicket_id')?.invalid && addAnnulationTicket.get('mouvementTicket_id')?.touched">
-                <small class="text-danger"> *Le mouvement ticket est obligatoire</small>
-              </div>
-            </ng-container>
-            <div class="text-danger mt-2">
-              <small>Quantité Sortie Disponible: {{ ancienQteDuMvt }}</small>
-            </div>
-            <ng-template #noMouvementTicket>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Plus d'attribution de Ticket disponible pour une annulation.
-              </div>
-            </ng-template>
+            <label class="form-label">Référence Mouvement Ticket <span class="text-danger">*</span></label>
+            <ng-select 
+              [items]="mouvementsTickets" 
+              bindLabel="reference" 
+              [clearable]="true" 
+              placeholder="Rechercher une référence (ex: MVT-4452...)"
+              (change)="getMouvementInfo($event)"> 
+            </ng-select>
           </div>
-
-          <div class="mb-3">
-            <label for="compagniePetrolieres" class="form-label">Compagnie Pétrolière <span
-                class="text-danger">*</span></label>
-            <ng-container *ngIf="compagniePetrolieres && compagniePetrolieres.length > 0; else noCompagnie_petrolier">
-              <ng-select [items]="compagniePetrolieres" bindLabel="libelle" bindValue="id"
-                formControlName="compagnie_petrolier_id" [clearable]="true" placeholder="" readonly>
-              </ng-select>
-              <div
-                *ngIf="addAnnulationTicket.get('compagnie_petrolier_id')?.invalid && addAnnulationTicket.get('compagnie_petrolier_id')?.touched">
-                <small class="text-danger"> *La compagnie pétrolière est obligatoire</small>
-              </div>
-            </ng-container>
-            <ng-template #noCompagnie_petrolier>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucune Compagnie Pétrolière. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-          <div class="mb-3">
-            <label for="entree" class="form-label">Coupon Ticket <span class="text-danger">*</span></label>
-            <ng-container *ngIf="couponsTickets && couponsTickets.length > 0; else noCouponTickets">
-              <ng-select [items]="couponsTickets" bindLabel="libelle" bindValue="id" formControlName="coupon_ticket_id"
-                [clearable]="true" placeholder="" readonly>
-              </ng-select>
-              <div
-                *ngIf="addAnnulationTicket.get('coupon_ticket_id')?.invalid && addAnnulationTicket.get('coupon_ticket_id')?.touched">
-                <small class="text-danger"> *Le coupon est obligatoire</small>
-              </div>
-            </ng-container>
-            <ng-template #noCouponTickets>
-              <div class="alert alert-danger"
-                style="padding: 5px 10px; font-size: 14px; line-height: 1.2; height: 40px; display: flex; align-items: center;">
-                <i class="feather icon-alert-circle"></i> Aucun Coupon. Veuillez en créer.
-              </div>
-            </ng-template>
-          </div>
-
-          <div class="mb-3">
-            <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-              [attr.max]="ancienQteDuMvt" min="1"
-              [class.invalid]="addAnnulationTicket.get('qte')?.invalid && addAnnulationTicket.get('qte')?.touched"
-              formControlName="qte" readonly>
-            <div *ngIf="addAnnulationTicket.get('qte')?.invalid && addAnnulationTicket.get('qte')?.touched">
-              <small *ngIf="addAnnulationTicket.get('qte')?.errors?.['required']" class="text-danger">* La quantité est
-                obligatoire</small>
-              <small *ngIf="addAnnulationTicket.get('qte')?.errors?.['min']" class="text-danger">* La quantité doit être au
-                moins 1</small>
-              <small *ngIf="addAnnulationTicket.get('qte')?.errors?.['max']" class="text-danger">* La quantité ne peut pas
-                dépasser {{ ancienQteDuMvt }}</small>
+      
+          <div class="mb-3" *ngIf="detailsMouvementSelectionne && detailsMouvementSelectionne.length > 0">
+            <label class="form-label text-primary">Coupons disponibles pour ce mouvement :</label>
+            <div class="table-responsive border rounded" style="max-height: 200px;">
+              <table class="table table-sm table-hover mb-0">
+                <thead class="bg-light sticky-top">
+                  <tr>
+                    <th>Coupon</th>
+                    <th>Compagnie</th>
+                    <th>Qté</th>
+                    <th class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of detailsMouvementSelectionne">
+                    <td>{{ item.coupon_ticket?.libelle }}</td>
+                    <td>{{ item.compagnie_petrolier?.libelle }}</td>
+                    <td>{{ item.qte }}</td>
+                    <td class="text-center">
+                      <button type="button" class="btn btn-xs btn-outline-primary" (click)="selectionnerLigne(item)">
+                        Choisir
+                      </button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-
-          <div class="d-flex justify-content-center gap-2">
-            <button type="submit" class="btn btn-primary" [disabled]="isAdding">
+      
+          <div class="p-3 bg-light rounded mb-3" *ngIf="addAnnulationTicket.get('mouvementTicket_id')?.value">
+              <h6 class="mb-2 small fw-bold text-uppercase text-muted">Détail sélectionné pour annulation</h6>
+              
+              <div class="row">
+                  <div class="col-md-6 mb-2">
+                      <label class="small text-muted mb-0">Coupon</label>
+                      <input type="text" class="form-control form-control-sm" [value]="libelleCouponSelectionne" readonly>
+                  </div>
+                  <div class="col-md-6 mb-2">
+                      <label class="small text-muted mb-0">Quantité à annuler</label>
+                      <input type="number" class="form-control form-control-sm" formControlName="qte" readonly>
+                  </div>
+              </div>
+      
+              <input type="hidden" formControlName="mouvementTicket_id">
+              <input type="hidden" formControlName="compagnie_petrolier_id">
+              <input type="hidden" formControlName="coupon_ticket_id">
+          </div>
+      
+          <div class="d-flex justify-content-center gap-2 mt-4">
+            <button type="submit" class="btn btn-primary" [disabled]="isAdding || addAnnulationTicket.invalid">
               <div class="spinner-border spinner-border-sm text-light me-2" [class.d-none]="!isAdding" role="status">
                 <span class="visually-hidden">Chargement...</span>
               </div>
-              {{ isAdding ? 'Ajout en cours...' : 'Enregistrer' }}
+              {{ isAdding ? 'Enregistrement...' : 'Valider l\'annulation' }}
             </button>
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="resetLocalData()">Annuler</button>
           </div>
         </form>
       </div>

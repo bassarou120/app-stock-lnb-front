@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-coupon-tickets',
@@ -90,12 +91,24 @@ export class CouponTicketsComponent implements OnInit {
       (error: any) => {
         console.error('Erreur lors de l\'ajout du coupon :', error);
         if (spinner) spinner.classList.add('d-none');
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   } else {
     if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
   }
 }
 
@@ -132,12 +145,24 @@ onClickSubmitEditCouponTicket(){
       (error: any) => {
         console.error('Erreur lors de la modification du coupon :', error);
         if (spinner) spinner.classList.add('d-none');
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   } else {
     if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
   }
 }
 
@@ -173,12 +198,24 @@ onClickSubmitDeleteCouponTicket(){
       (error: any) => {
         console.error('Erreur lors de la supression du Coupon :', error);
         if (spinner) spinner.classList.add('d-none');
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   } else {
     if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
   }
 }
 

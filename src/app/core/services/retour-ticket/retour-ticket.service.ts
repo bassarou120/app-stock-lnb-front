@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
 import { RetourTicket, MouvementTicket, CouponTicket, CompagniePetroliere } from "../interface/models";
 import { map } from 'rxjs/operators';
+import Swal from 'sweetalert2';
 
 @Injectable({
   providedIn: 'root',

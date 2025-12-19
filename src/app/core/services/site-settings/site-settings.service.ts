@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of } from 'rxjs';
 import { map, tap, catchError } from 'rxjs/operators';
+import { environment } from '../../../../environments/environment';
 
 // Définition de l'interface pour un paramètre individuel stocké en DB
 interface Setting {
@@ -24,7 +25,8 @@ export interface SiteSettings { // EXPORTÉ pour être utilisable dans d'autres 
   providedIn: 'root' // CECI EST CRUCIAL pour que le service soit disponible partout
 })
 export class SiteSettingsService {
-  private backendBaseUrl = 'http://localhost:8000'; // <--- VÉRIFIEZ ET METTEZ À JOUR CETTE URL
+  // private backendBaseUrl = 'http://localhost:8000'; 
+  private apiUrl = `${environment.backend}`;
 
   // BehaviorSubject pour stocker et diffuser les paramètres du site
   private _siteSettings = new BehaviorSubject<SiteSettings>({
@@ -44,9 +46,9 @@ export class SiteSettingsService {
    * @returns Observable<Setting[]> Un tableau des paramètres bruts du site.
    */
   getSettings(): Observable<Setting[]> {
-    console.log('SiteSettingsService: Début du chargement des paramètres depuis:', `${this.backendBaseUrl}/api/site-settings`);
+    console.log('SiteSettingsService: Début du chargement des paramètres depuis:', `${this.apiUrl}/site-settings`);
 
-    return this.http.get<Setting[]>(`${this.backendBaseUrl}/api/site-settings`).pipe(
+    return this.http.get<Setting[]>(`${this.apiUrl}/site-settings`).pipe(
       tap(settings => {
         console.log('SiteSettingsService: Données reçues de l\'API:', settings);
 
@@ -116,7 +118,7 @@ export class SiteSettingsService {
       const payload = { key, value, type };
       // 🛑 TRÈS IMPORTANT : Supprimez le .pipe(tap(() => { this.getSettings().subscribe(...) }))
       // pour éviter le rechargement automatique après chaque sauvegarde.
-      return this.http.post<any>(`${this.backendBaseUrl}/api/site-settings/store`, payload);
+      return this.http.post<any>(`${this.apiUrl}/site-settings/store`, payload);
   }
   /**
    * Construit l'URL complète pour un fichier stocké publiquement par Laravel.
@@ -124,8 +126,11 @@ export class SiteSettingsService {
    * @returns L'URL complète du fichier.
    */
   getPublicStorageUrl(relativePath: string): string {
-    const cleanedPath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
-    return `${this.backendBaseUrl}/storage/${cleanedPath}`;
+    if (!relativePath) return 'assets/images/logo_bg.png';
+    // On nettoie le chemin pour enlever un éventuel "storage/" déjà présent au début
+    const cleanedPath = relativePath.replace(/^storage\//, '').replace(/^\//, '');
+    const baseUrl = this.apiUrl.replace('/api', ''); 
+    return `${baseUrl}/storage/${cleanedPath}`;
   }
 
   /**

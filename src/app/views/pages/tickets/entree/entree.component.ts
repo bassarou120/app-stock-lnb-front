@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 
 declare var bootstrap: any;
@@ -177,7 +178,13 @@ export class EntreeComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.addEntree.invalid) {
       this.markFormGroupTouched(this.addEntree); // Marque les champs pour afficher les erreurs
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return; // Bloque la soumission si le formulaire est invalide
     }
 
@@ -232,7 +239,13 @@ export class EntreeComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.editEntree.invalid) {
       this.markFormGroupTouched(this.editEntree); // Marque les champs pour afficher les erreurs
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return; // Bloque la soumission si le formulaire est invalide
     }
 
@@ -300,7 +313,13 @@ export class EntreeComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`La modification de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `La modification de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -319,7 +338,13 @@ export class EntreeComponent implements OnInit {
     // 2. Valider le formulaire (bien que pour une suppression par ID, c'est souvent implicitement valide)
     if (this.deleteEntree.invalid) {
       this.markFormGroupTouched(this.deleteEntree); // Marque les champs pour afficher les erreurs
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return; // Bloque la soumission si le formulaire est invalide
     }
 
@@ -373,7 +398,13 @@ export class EntreeComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`La suppression de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `La suppression de l'entrée de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe

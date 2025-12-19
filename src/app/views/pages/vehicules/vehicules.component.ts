@@ -13,6 +13,7 @@ import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
 import { HttpEventType, HttpClient } from '@angular/common/http'; // Import HttpClient pour l'upload de fichier
 import { environment } from "../../../../environments/environment";
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any; // Déclaration pour accéder à bootstrap globalement
 
@@ -417,13 +418,25 @@ export class VehiculesComponent implements OnInit {
           }
 
           // Message final clair
-          alert(`L'enregistrement des véhicules a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+          Swal.fire({
+            title: 'Erreur',
+            text: 'L\'enregistrement des véhicules a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addVehicule);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+            title: 'Erreur',
+            text: 'Désolé, le formulaire n\'est pas bien renseigné',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
       console.log('Formulaire Véhicules invalide.');
     }
   }
@@ -530,14 +543,26 @@ export class VehiculesComponent implements OnInit {
                     }
           
                     // Message final clair
-                    alert(`La modification du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La modification du véhicule a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.isEditingVehicule = false;
       this.markFormGroupTouched(this.editVehicule);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+            title: 'Erreur',
+            text: 'Désolé, le formulaire n\'est pas bien renseigné',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
     }
   }
 
@@ -584,13 +609,25 @@ export class VehiculesComponent implements OnInit {
           if (spinner) spinner.classList.add('d-none');
           this.isDeletingVehicule = false;
           console.error('Suppression échouée. isDeletingVehicule mis à false.');
-          alert(`Une erreur s'est produite lors de la suppression: ${error.message || 'Veuillez réessayer.'}`);
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite lors de la suppression: ${error.message || "Veuillez réessayer."}',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.isDeletingVehicule = false;
-      alert("Désolé, le formulaire de suppression n'est pas bien renseigné (ID manquant).");
+      Swal.fire({
+            title: 'Erreur',
+            text: 'Désolé, le formulaire de suppression n\'est pas bien renseigné (ID manquant).',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
       console.warn('Formulaire de suppression invalide.');
     }
   }
@@ -755,7 +792,13 @@ export class VehiculesComponent implements OnInit {
       },
       error => {
         console.error('Erreur lors du téléchargement du PDF de la liste des vehicules:', error);
-        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+        Swal.fire({
+            title: 'Erreur',
+            text: 'Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
       }
     );
   }
@@ -776,7 +819,13 @@ export class VehiculesComponent implements OnInit {
 
   onClickSubmitCarteGrise(modal: any) {
   if (!this.selectedFile) {
-    alert("Veuillez sélectionner un fichier avant de valider.");
+    Swal.fire({
+            title: 'Erreur',
+            text: 'Veuillez sélectionner un fichier avant de valider.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
     return;
   }
 
@@ -793,7 +842,13 @@ export class VehiculesComponent implements OnInit {
     },
     (err: any) => {
       console.error("Erreur lors de l'ajout de la carte grise :", err);
-      alert("Erreur lors de l'upload de la carte grise.");
+      Swal.fire({
+            title: 'Erreur',
+            text: 'Erreur lors de l\'upload de la carte grise.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
       this.loadVehicules();
     }
   );

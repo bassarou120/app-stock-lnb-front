@@ -12,6 +12,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -83,7 +84,7 @@ export class UtilisateurComponent implements OnInit {
   @ViewChild('editUserContent') editUserContent!: TemplateRef<any>;
   @ViewChild('deleteUserContent') deleteUserContent!: TemplateRef<any>;
 
-  loading: boolean = false; // Note: this.loading is used for onViewUserProfile, but for CRUD operations, we will use isAdding/isEditing/isDeleting for button control
+  loading: boolean = false;   
 
   constructor(
     private utilisateurService: UtilisateurService,
@@ -248,7 +249,13 @@ export class UtilisateurComponent implements OnInit {
   onClickSubmitAddUser(): void {
 
     if (!this.canAddUser) {
-      alert('Vous n\'avez pas l\'autorisation d\'ajouter un utilisateur.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'ajouter un utilisateur.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -266,7 +273,13 @@ export class UtilisateurComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.addUserForm.invalid) {
       this.markFormGroupTouched(this.addUserForm); // Marque les champs pour afficher les erreurs de validation
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -320,7 +333,13 @@ export class UtilisateurComponent implements OnInit {
           }
           alert(errorMessage);
         } else {
-          alert('Une erreur s\'est produite. Veuillez réessayer.');
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite. Veuillez réessayer.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       },
       complete: () => {
@@ -333,7 +352,13 @@ export class UtilisateurComponent implements OnInit {
   onClickSubmitEditUser(): void {
 
     if (!this.canModifyUser) {
-      alert('Vous n\'avez pas l\'autorisation de modifier un utilisateur.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de modifier un utilisateur.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -350,7 +375,13 @@ export class UtilisateurComponent implements OnInit {
     if (this.editUserForm.invalid) {
       this.markFormGroupTouched(this.editUserForm);
       // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-      alert("Désolé, le formulaire de modification n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire de modification n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -384,7 +415,13 @@ export class UtilisateurComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de la modification de l\'utilisateur :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite lors de la modification. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite lors de la modification. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -397,7 +434,13 @@ export class UtilisateurComponent implements OnInit {
   onClickSubmitDeleteUser(): void {
 
     if (!this.canDeleteUser) {
-      alert('Vous n\'avez pas l\'autorisation de supprimer un utilisateur.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de supprimer un utilisateur.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -413,7 +456,13 @@ export class UtilisateurComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteUserForm.invalid) {
       this.markFormGroupTouched(this.deleteUserForm);
-      alert("Erreur: ID de l'utilisateur à supprimer non trouvé.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Erreur: ID de l\'utilisateur à supprimer non trouvé.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -444,7 +493,13 @@ export class UtilisateurComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de la suppression de l\'utilisateur :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite lors de la suppression. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite lors de la suppression. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -463,7 +518,13 @@ export class UtilisateurComponent implements OnInit {
       },
       error: (err) => {
         console.error("Erreur lors du chargement du profil utilisateur :", err);
-        alert("Impossible de charger le profil utilisateur. Vérifiez la console.");
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de charger le profil utilisateur. Vérifiez la console.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
         this.loading = false; // Désactive l'indicateur même en cas d'erreur
       }
     });
@@ -568,7 +629,13 @@ export class UtilisateurComponent implements OnInit {
       },
       error: (error: any) => {
         console.error(`Erreur lors de l'${action}:`, error);
-        alert(`Échec de l'${action} du compte. Erreur: ${error.error?.message || error.message}`);
+        Swal.fire({
+          title: 'Erreur',
+          text: `Échec de l'${action} du compte. Erreur: ${error.error?.message || error.message}`,
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     });
   }

@@ -10,6 +10,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.directive';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -184,7 +185,13 @@ export class InterventionComponent implements OnInit {
   onClickSubmitAddIntervention() {
 
     if (!this.canAddIntervention) {
-      alert('Vous n\'avez pas l\'autorisation d\'ajouter une intervention.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'ajouter une intervention.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -263,13 +270,25 @@ export class InterventionComponent implements OnInit {
           }
 
           // Message final clair
-          alert(`L'enregistrement de la nouvelle intervention a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+          Swal.fire({
+            title: 'Erreur',
+            text: 'L\'enregistrement de la nouvelle intervention a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addIntervention); // Marquer les champs comme touchés pour afficher les erreurs
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       // console.log('Formulaire Intervention invalide.'); // Commenté
     }
   }
@@ -277,7 +296,13 @@ export class InterventionComponent implements OnInit {
   onClickSubmitEditIntervention() {
 
     if (!this.canModifyIntervention) {
-      alert('Vous n\'avez pas l\'autorisation de modifier une intervention.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de modifier une intervention.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -349,20 +374,38 @@ export class InterventionComponent implements OnInit {
                     }
           
                     // Message final clair
-                    alert(`La modification de l'intervention a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La modification de l\'intervention a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.editIntervention); // Marquer les champs comme touchés
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
   onClickSubmitDeleteIntervention() {
 
     if (!this.canDeleteIntervention) {
-      alert('Vous n\'avez pas l\'autorisation de modifier une intervention.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de modifier une intervention.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -423,12 +466,24 @@ export class InterventionComponent implements OnInit {
                     }
           
                     // Message final clair
-                    alert(`La suppression de l'intervention a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La suppression de l\'intervention a échoué.\n\nDétails : ${detail}\n\nEn cas d\'échec répété, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -553,7 +608,13 @@ export class InterventionComponent implements OnInit {
   downloadInterventionsPDF(): void {
 
     if (!this.canExportIntervention) {
-      alert('Vous n\'avez pas l\'autorisation d\'exportr la liste des interventions.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'exportr la liste des interventions.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -570,7 +631,13 @@ export class InterventionComponent implements OnInit {
       },
       error => {
         console.error('Erreur lors du téléchargement du PDF des interventions:', error);
-        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   }

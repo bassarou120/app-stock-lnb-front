@@ -137,10 +137,6 @@ export class MouvementStockService  {
   downloadGroupedFile(code_mouvement: string): void {
     const fullUrl = `${this.url}/download-grouped-file/${encodeURIComponent(code_mouvement)}`;
     window.open(fullUrl, '_blank');
-  }
-
-
-
-
+  } 
 
 }

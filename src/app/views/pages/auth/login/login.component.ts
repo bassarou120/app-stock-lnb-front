@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { SiteSettingsService, SiteSettings } from '../../../../core/services/site-settings/site-settings.service'; // NOUVEL IMPORT
 import { Subject, takeUntil } from 'rxjs'; // NOUVEAUX IMPORTS POUR GÉRER LES OBSERVABLES
 import { Exercice, ExerciceResponse } from '../../../../core/services/interface/models';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
@@ -98,12 +99,24 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
       error: (error) => {
         console.error('Erreur de connexion:', error);
         if (spinner) spinner.classList.add('d-none');
-        alert('Identifiants incorrects ou compte inactif');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Identifiants incorrects ou compte inactif',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     });
     }else {
     if (spinner) spinner.classList.add('d-none');
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+      title: 'Attention',
+      text: "Désolé, le formulaire n'est pas bien renseigné",
+      icon: 'warning',
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#f8bb86'
+    });
   }
   }
 
@@ -126,8 +139,5 @@ loadexerciceEnCours(): void {
     }
   );
 }
-
-
-
 
 }

@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { FormsModule } from '@angular/forms';  // Ajoutez cette importation
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -187,7 +188,13 @@ applyFilters(): void {
   downloadEtatStock() {
     // 🔥 VÉRIFICATION DE PERMISSION AVANT EXPORT
     if (!this.canExportEtatStock) {
-      alert('Vous n\'avez pas l\'autorisation d\'exporter l`\'etat du stock.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'exporter l`\'etat du stock.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 

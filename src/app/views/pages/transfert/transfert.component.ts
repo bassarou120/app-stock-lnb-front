@@ -12,7 +12,7 @@ import { FeatherIconDirective } from '../../../core/feather-icon/feather-icon.di
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -214,19 +214,37 @@ export class TransfertComponent implements OnInit, OnDestroy {
         (error: any) => {
           if (spinner) spinner.classList.add('d-none');
           this.isAddingTransfert = false;
-          alert("L'enregistrement du transfert d'immobilisation a échoué.: " + (error.error?.message || error.message));
+          Swal.fire({
+            title: 'Erreur',
+            text: 'L\'enregistrement du transfert d\'immobilisation a échoué.: ' + (error.error?.message || error.message),
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.addTransfert);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné..',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
   onClickSubmitEditTransfert() {
     if (!this.canModifyTransfert) {
-      alert('Vous n\'avez pas l\'autorisation de mettre à jour une affectation.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de mettre à jour une affectation.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -292,19 +310,37 @@ export class TransfertComponent implements OnInit, OnDestroy {
                     }
           
                     // Message final clair
-                    alert(`La modification du transfert d'immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                    title: 'Erreur',
+                    text: 'La modification du transfert d\'immobilisation a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+                    icon: 'error',
+                    confirmButtonText: 'Réessayer',
+                    confirmButtonColor: '#d33'
+                  });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.editTransfert);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
   onClickSubmitDeleteTransfert() {
     if (!this.canDeleteTransfert) {
-      alert('Vous n\'avez pas l\'autorisation de supprimer cette affectation.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de supprimer cette affectation.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
     console.log(this.deleteTransfert.value);
@@ -354,13 +390,25 @@ export class TransfertComponent implements OnInit, OnDestroy {
                     }
           
                     // Message final clair
-                    alert(`La suppression du transfert d'immobilisation a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: 'La suppression du transfert d\'immobilisation a échoué.\n\nDétails : ${detail}\n\nEn cas d\'échec répété, veuillez contacter le support technique.',
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) spinner.classList.add('d-none');
       this.markFormGroupTouched(this.deleteTransfert);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -509,7 +557,13 @@ export class TransfertComponent implements OnInit, OnDestroy {
           date_mise_en_service: null
         });
         this.onBureauChange(null);
-        alert("Impossible de récupérer les anciennes informations pour cette immobilisation.");
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de récupérer les anciennes informations pour cette immobilisation.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   }
@@ -570,7 +624,13 @@ export class TransfertComponent implements OnInit, OnDestroy {
 
   downloadTransfertsPDF(): void {
     if (!this.canExportTransfert) {
-      alert('Vous n\'avez pas l\'autorisation d\'exporter la liste des transferts.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'exporter la liste des transferts.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -587,7 +647,13 @@ export class TransfertComponent implements OnInit, OnDestroy {
       },
       error => {
         console.error('Erreur lors du téléchargement du PDF des transferts:', error);
-        alert('Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de télécharger le PDF. Veuillez vérifier votre connexion ou contacter l\'administrateur.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   }
@@ -595,7 +661,13 @@ export class TransfertComponent implements OnInit, OnDestroy {
   // Nouvelle méthode pour télécharger le PDF d'un seul transfert
   downloadSingleTransfertPDF(transfertId: number): void {
     if (!this.canExportTransfert) {
-      alert('Vous n\'avez pas l\'autorisation d\'imprimer un transfert.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'imprimer un transfert',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -618,7 +690,13 @@ export class TransfertComponent implements OnInit, OnDestroy {
       },
       error => {
         console.error(`Erreur lors du téléchargement du PDF pour le transfert ${transfertId}:`, error);
-        alert(`Impossible de télécharger le PDF pour le transfert ${transfertId}. Veuillez vérifier votre connexion ou contacter l'administrateur.`);
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de télécharger le PDF pour le transfert ${transfertId}. Veuillez vérifier votre connexion ou contacter l\'administrateur.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     );
   }
