@@ -11,6 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
 declare var bootstrap: any;
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'retour-ticket',
@@ -310,17 +311,17 @@ export class RetourTicketComponent implements OnInit {
       },
       (error: any) => {
                 console.error('Erreur lors de l\'ajout du retour de ticket :', error);
-                
+               
                 // Débloquer l'interface utilisateur immédiatement
                 this.isAdding = false;
-                
+               
                 // --- Logique d'affichage du message améliorée ---
                 let detail = 'Veuillez vérifier les informations du formulaire (ticket, quantité) et réessayer.';
-        
+
                 if (error.status === 422 || error.status === 400) {
                   // Erreur de validation ou Bad Request (quantité, ticket déjà retourné)
                   detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. quantité de retour supérieure à la quantité sortie, ou ticket déjà retourné).';
-                  
+                 
                   // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
                   if (error.error && (error.error.error || error.error.message)) {
                     const serverMessage = error.error.error || error.error.message;
@@ -339,7 +340,7 @@ export class RetourTicketComponent implements OnInit {
                   // Message d'erreur général du serveur
                   detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
                 }
-        
+
                 // Message final clair
                 alert(`L'enregistrement du retour de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
               },
@@ -398,17 +399,17 @@ export class RetourTicketComponent implements OnInit {
       },
       (error: any) => {
                 console.error('Erreur lors de la modification du retour Ticket:', error);
-                
+               
                 // Débloquer l'interface utilisateur immédiatement
                 this.isEditing = false;
-                
+               
                 // --- Logique d'affichage du message améliorée ---
                 let detail = 'Veuillez vérifier les informations de modification et réessayer.';
-        
+
                 if (error.status === 422 || error.status === 400) {
                   // Erreur de validation (quantité, ticket, règles métier)
                   detail = 'Erreur de Validation : Certaines informations sont manquantes ou incorrectes (ex. quantité de retour invalide ou ticket non modifiable).';
-                  
+                 
                   // Tenter d'extraire le message d'erreur du serveur s'il est plus précis
                   if (error.error && (error.error.error || error.error.message)) {
                     const serverMessage = error.error.error || error.error.message;
@@ -427,7 +428,7 @@ export class RetourTicketComponent implements OnInit {
                   // Message d'erreur général du serveur
                   detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
                 }
-        
+
                 // Message final clair
                 alert(`La modification du retour de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
               },
@@ -485,13 +486,13 @@ export class RetourTicketComponent implements OnInit {
       },
       (error: any) => {
                 console.error('Erreur lors de la suppression du retour Ticket :', error);
-                
+               
                 // Débloquer l'interface utilisateur immédiatement
                 this.isDeleting = false;
-                
+               
                 // --- Logique d'affichage du message améliorée ---
                 let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
-        
+
                 if (error.status === 404) {
                   // Erreur 404 si le retour à supprimer n'est plus trouvé
                   detail = 'Le retour de ticket sélectionné est introuvable. Il a peut-être déjà été supprimé.';
@@ -501,7 +502,7 @@ export class RetourTicketComponent implements OnInit {
                 } else if (error.status === 422 || error.status === 400) {
                   // Erreur de validation/règles métier (ex: le ticket associé est utilisé)
                   detail = 'La suppression est impossible. Une règle métier bloque cette opération (ex: le ticket de sortie est utilisé ou bloqué).';
-                  
+                 
                   // Tente d'afficher le message d'erreur spécifique du serveur
                   if (error.error && (error.error.message || error.error.error)) {
                     const serverMessage = error.error.message || error.error.error;
@@ -514,7 +515,7 @@ export class RetourTicketComponent implements OnInit {
                   // Message d'erreur général du serveur
                   detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
                 }
-        
+
                 // Message final clair
                 alert(`La suppression du retour de ticket a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
               },
@@ -702,16 +703,24 @@ export class RetourTicketComponent implements OnInit {
           }
 
           if (this.retoursCouponsArray.length === 0) {
-              alert("Tous les coupons de cette sortie ont déjà été retournés, ou il n'y a pas de coupon à retourner.");
-          }
+              //alert("Tous les coupons de cette sortie ont déjà été retournés, ou il n'y a pas de coupon à retourner.");
+              Swal.fire({
+                title: 'Erreur',
+                text: "Tous les coupons de cette sortie ont déjà été retournés. Il n'y a pas de coupon à retourner.",
+                icon: 'error',
+                confirmButtonText: 'Ok',
+                confirmButtonColor: '#d33'
+              });
+
+            }
         },
         (error: any) => {
                     console.error('Erreur lors de la récupération des infos du mouvement:', error);
                     this.addRetourTicket.patchValue({ compagnie_petrolier_id: null });
-                    
+                   
                     // --- Logique d'affichage du message améliorée ---
                     let detail = 'Veuillez vérifier votre connexion et recharger la page.';
-          
+
                     if (error.status === 404) {
                       // Mouvement introuvable
                       detail = 'Le mouvement de ticket sélectionné est introuvable. Il a peut-être été supprimé ou l\'ID est incorrect.';
@@ -725,7 +734,7 @@ export class RetourTicketComponent implements OnInit {
                       // Message d'erreur général du serveur
                       detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
                     }
-          
+
                     // Message final clair
                     alert(`Échec de la récupération des détails du mouvement pour le retour de ticket.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
                   }
@@ -735,10 +744,13 @@ export class RetourTicketComponent implements OnInit {
     loadMouvementsTickets() {
       this.retourTicketService.getMouvementsDisponibles().subscribe(
         (data) => {
-          this.mouvementsTickets = data;
+          this.mouvementsTickets = data.filter(
+            m => m && m.reference && m.reference.trim() !== ''
+          );
         },
         (err) => console.error(err)
       );
     }
+
 
 }
