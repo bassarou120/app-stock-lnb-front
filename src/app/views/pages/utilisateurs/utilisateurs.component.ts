@@ -84,7 +84,7 @@ export class UtilisateurComponent implements OnInit {
   @ViewChild('editUserContent') editUserContent!: TemplateRef<any>;
   @ViewChild('deleteUserContent') deleteUserContent!: TemplateRef<any>;
 
-  loading: boolean = false; 
+  loading: boolean = false;   
 
   constructor(
     private utilisateurService: UtilisateurService,

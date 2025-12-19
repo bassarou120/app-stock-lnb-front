@@ -10,6 +10,7 @@ import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 declare var bootstrap: any;
 
 @Component({
@@ -250,7 +251,13 @@ export class RetourTicketComponent implements OnInit {
   onClickSubmitAddRetourTicket() {
 
     if (!this.canAddRetourTicket) {
-      alert('Vous n\'avez pas l\'autorisation d\'effectuer un retour de ticket.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'effectuer un retour de ticket.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -269,7 +276,13 @@ export class RetourTicketComponent implements OnInit {
     // Vérifier si le formulaire principal est invalide OU si le FormArray est vide
     if (this.addRetourTicket.invalid || this.retoursCouponsArray.length === 0) {
       console.log("Formulaire Invalide ou FormArray vide. État actuel:", this.addRetourTicket.value);
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier la Référence de Sortie et les quantités à retourner pour chaque coupon.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier la Référence de Sortie et les quantités à retourner pour chaque coupon.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return; // Bloque la soumission si le formulaire est invalide
     }
 
@@ -341,7 +354,13 @@ export class RetourTicketComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`L'enregistrement du retour de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `L'enregistrement du retour de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 6. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -353,7 +372,13 @@ export class RetourTicketComponent implements OnInit {
   onClickSubmitEditRetourTicket() {
 
     if (!this.canModifyRetourTicket) {
-      alert('Vous n\'avez pas l\'autorisation de mettre à jour un retour de ticket.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de mettre à jour un retour de ticket.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
     // 1. Vérifier si une soumission est déjà en cours
@@ -365,7 +390,13 @@ export class RetourTicketComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.editRetourTicket.invalid) {
       this.markFormGroupTouched(this.editRetourTicket);
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -428,8 +459,13 @@ export class RetourTicketComponent implements OnInit {
                   detail = `Erreur Serveur: ${error.error.error || error.error.message}`;
                 }
         
-                // Message final clair
-                alert(`La modification du retour de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `La modification du retour de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -441,7 +477,13 @@ export class RetourTicketComponent implements OnInit {
   onClickSubmitDeleteRetourTicket() {
 
     if (!this.canDeleteRetourTicket) {
-      alert('Vous n\'avez pas l\'autorisation de supprimer un retour de ticket.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation de supprimer un retour de ticket.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
     // 1. Vérifier si une soumission est déjà en cours
@@ -453,7 +495,13 @@ export class RetourTicketComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteRetourTicket.invalid) {
       this.markFormGroupTouched(this.deleteRetourTicket);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -516,7 +564,13 @@ export class RetourTicketComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`La suppression du retour de ticket a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `La suppression du retour de ticket a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -702,7 +756,13 @@ export class RetourTicketComponent implements OnInit {
           }
 
           if (this.retoursCouponsArray.length === 0) {
-              alert("Tous les coupons de cette sortie ont déjà été retournés, ou il n'y a pas de coupon à retourner.");
+            Swal.fire({
+              title: 'Erreur',
+              text: 'Tous les coupons de cette sortie ont déjà été retournés, ou il n\'y a pas de coupon à retourner.',
+              icon: 'error',
+              confirmButtonText: 'Réessayer',
+              confirmButtonColor: '#d33'
+            });
           }
         },
         (error: any) => {
@@ -727,7 +787,13 @@ export class RetourTicketComponent implements OnInit {
                     }
           
                     // Message final clair
-                    alert(`Échec de la récupération des détails du mouvement pour le retour de ticket.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: `Échec de la récupération des détails du mouvement pour le retour de ticket.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     }

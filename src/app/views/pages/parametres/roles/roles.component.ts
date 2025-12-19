@@ -9,6 +9,7 @@ import { NgbAlertModule, NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { HttpClientModule } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { PermissionService } from '../../../../core/services/permissions/permissions.service'; // 🔥 AJOUT
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -140,7 +141,13 @@ export class RoleComponent implements OnInit {
       error: (err) => {
         console.error('Erreur lors du chargement des rôles :', err);
         this.loadingIndicator = false;
-        alert('Impossible de charger les rôles. Veuillez réessayer plus tard.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de charger les rôles. Veuillez réessayer plus tard.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     });
   }
@@ -215,7 +222,13 @@ export class RoleComponent implements OnInit {
 
   onClickSubmitAddRole(): void {
     if (!this.canAddRole) {
-      alert('Vous n\'avez pas l\'autorisation d\'ajouter de role.');
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'ajouter de role.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -228,7 +241,13 @@ export class RoleComponent implements OnInit {
 
     if (this.addRoleForm.invalid) {
       this.markFormGroupTouched(this.addRoleForm);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -279,7 +298,13 @@ export class RoleComponent implements OnInit {
 
     if (this.editRoleForm.invalid) {
       this.markFormGroupTouched(this.editRoleForm);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -332,7 +357,13 @@ export class RoleComponent implements OnInit {
     }
 
     if (this.deleteRoleForm.invalid) {
-      alert("Erreur: ID du rôle à supprimer non trouvé.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Erreur: ID du rôle à supprimer non trouvé.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -363,7 +394,13 @@ export class RoleComponent implements OnInit {
       },
       error: (error: any) => {
         console.error('Erreur lors de la suppression du rôle :', error);
-        alert('Une erreur s\'est produite lors de la suppression. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite lors de la suppression. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         this.isDeleting = false;

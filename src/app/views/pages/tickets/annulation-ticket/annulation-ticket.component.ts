@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -155,7 +156,13 @@ export class AnnulationTicketComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.addAnnulationTicket.invalid) {
       this.markFormGroupTouched(this.addAnnulationTicket); // Marque les champs pour afficher les erreurs de validation
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return; // Bloque la soumission si le formulaire est invalide
     }
 
@@ -214,7 +221,13 @@ export class AnnulationTicketComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`L'enregistrement de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `L'enregistrement de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
@@ -233,7 +246,13 @@ export class AnnulationTicketComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.editAnnulationTicket.invalid) {
       this.markFormGroupTouched(this.editAnnulationTicket);
-      alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires et la quantité.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -293,7 +312,13 @@ export class AnnulationTicketComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`La modification de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `La modification de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
@@ -312,7 +337,13 @@ export class AnnulationTicketComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteAnnulationTicket.invalid) {
       this.markFormGroupTouched(this.deleteAnnulationTicket);
-      alert("Désolé, le formulaire n'est pas bien renseigné.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -366,7 +397,13 @@ export class AnnulationTicketComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`La suppression de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `La suppression de l'annulation de ticket a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               },
       () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' de l'observable
@@ -505,7 +542,13 @@ export class AnnulationTicketComponent implements OnInit {
                 }
         
                 // Message final clair
-                alert(`Échec de la récupération des informations du mouvement.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `Échec de la récupération des informations du mouvement.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               }
             );
   }
