@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-magazins',
@@ -139,7 +140,13 @@ export class MagazinsComponent implements OnInit {
     if (this.addMagazin.invalid) {
       this.markFormGroupTouched(this.addMagazin); // Marque tous les champs comme touchés pour afficher les erreurs
       // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -173,7 +180,13 @@ export class MagazinsComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de l\'ajout du magasin :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -196,7 +209,13 @@ export class MagazinsComponent implements OnInit {
     if (this.editMagazin.invalid) {
       this.markFormGroupTouched(this.editMagazin);
       // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -231,7 +250,13 @@ export class MagazinsComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de la modification du magasin :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -253,7 +278,13 @@ export class MagazinsComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteMagazin.invalid) {
       this.markFormGroupTouched(this.deleteMagazin);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -287,7 +318,13 @@ export class MagazinsComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de la suppression du magasin :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Identifiants incorrects ou compte inactif',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe

@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 
 @Component({
@@ -139,7 +140,13 @@ export class TypeMouvementComponent implements OnInit {
     if (this.addTypeMouvement.invalid) {
       this.markFormGroupTouched(this.addTypeMouvement);
       // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+  title: 'Erreur',
+  text: 'Désolé, le formulaire n\'est pas bien renseigné',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
       return;
     }
 
@@ -173,7 +180,13 @@ export class TypeMouvementComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de l\'ajout du TypeMouvement :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+  title: 'Erreur',
+  text: 'Une erreur s\'est produite. Veuillez réessayer.',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -196,7 +209,13 @@ onClickSubmitEditTypeMouvement(){
   if (this.editTypeMouvement.invalid) {
     this.markFormGroupTouched(this.editTypeMouvement);
     // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+    Swal.fire({
+  title: 'Erreur',
+  text: 'Désolé, le formulaire n\'est pas bien renseigné',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
     return;
   }
 
@@ -231,7 +250,13 @@ onClickSubmitEditTypeMouvement(){
       error: (error: any) => {
         console.error('Erreur lors de la modification du TypeMouvement :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+  title: 'Erreur',
+  text: 'Une erreur s\'est produite. Veuillez réessayer.',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
@@ -252,7 +277,13 @@ onClickSubmitDeleteTypeMouvement(){
 
     // 2. Valider le formulaire
   if (this.deleteTypeMouvement.invalid) {
-    alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+    title: 'Erreur',
+    text: 'Désolé, le formulaire n\'est pas bien renseigné',
+    icon: 'error',
+    confirmButtonText: 'Réessayer',
+    confirmButtonColor: '#d33'
+  });
     return;
   }
 
@@ -286,7 +317,13 @@ onClickSubmitDeleteTypeMouvement(){
       error: (error: any) => {
         console.error('Erreur lors de la supression du TypeMouvement  :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+  title: 'Erreur',
+  text: 'Une erreur s\'est produite. Veuillez réessayer.',
+  icon: 'error',
+  confirmButtonText: 'Réessayer',
+  confirmButtonColor: '#d33'
+});
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe

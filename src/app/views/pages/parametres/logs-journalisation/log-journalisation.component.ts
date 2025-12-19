@@ -6,6 +6,7 @@ import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { User } from '../../../../core/services/interface/models';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-logs-journalisation',
@@ -177,7 +178,13 @@ export class LogJournalisationComponent implements OnInit {
       error: (err) => {
         console.error("Erreur lors de l'exportation des logs", err);
         this.loadingIndicator = false;
-        alert("Une erreur est survenue lors de la génération du PDF.");
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur est survenue lors de la génération du PDF.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     });
   }

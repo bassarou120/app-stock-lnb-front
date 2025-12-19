@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 declare var bootstrap: any;
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-modeles',
@@ -139,7 +140,13 @@ export class ModelesComponent implements OnInit {
     if (this.addModele.invalid) {
       this.markFormGroupTouched(this.addModele); // Marque tous les champs comme touchés pour afficher les erreurs
       // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -196,7 +203,13 @@ export class ModelesComponent implements OnInit {
     if (this.editModele.invalid) {
       this.markFormGroupTouched(this.editModele);
       // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -253,7 +266,13 @@ export class ModelesComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteModele.invalid) {
       this.markFormGroupTouched(this.deleteModele);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -287,7 +306,13 @@ export class ModelesComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de la suppression de la modele :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe

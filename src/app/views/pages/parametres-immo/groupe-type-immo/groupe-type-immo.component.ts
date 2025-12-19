@@ -9,6 +9,7 @@ import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { NgbDropdownModule } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 declare var bootstrap: any;
 
 @Component({
@@ -148,7 +149,13 @@ export class GroupeTypeImmoComponent implements OnInit {
     if (this.addGroupeTypeImmo.invalid) {
       this.markFormGroupTouched(this.addGroupeTypeImmo); // Marque tous les champs comme touchés pour afficher les erreurs
       // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -205,7 +212,13 @@ export class GroupeTypeImmoComponent implements OnInit {
     if (this.editGroupeTypeImmo.invalid) {
       this.markFormGroupTouched(this.editGroupeTypeImmo);
       // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -262,7 +275,13 @@ export class GroupeTypeImmoComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteGroupeTypeImmo.invalid) {
       this.markFormGroupTouched(this.deleteGroupeTypeImmo);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -296,7 +315,13 @@ export class GroupeTypeImmoComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de la suppression du groupe Type d\'Immo :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe

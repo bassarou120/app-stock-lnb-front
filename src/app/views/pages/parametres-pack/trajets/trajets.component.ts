@@ -11,6 +11,7 @@ import { NgSelectComponent as MyNgSelectComponent } from '@ng-select/ng-select';
 import { FeatherIconDirective } from '../../../../core/feather-icon/feather-icon.directive';
 import { TrajetsService } from '../../../../core/services/trajets/trajets.service';
 import { Router } from '@angular/router';
+import Swal from 'sweetalert2';
 
 
 declare var bootstrap: any;
@@ -165,7 +166,13 @@ export class TrajetComponent implements OnInit {
     if (this.addTrajet.invalid) {
       this.markFormGroupTouched(this.addTrajet); // Marque tous les champs comme touchés pour afficher les erreurs
       // if (spinner) spinner.classList.add('d-none'); // Géré par isAdding
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -222,7 +229,13 @@ export class TrajetComponent implements OnInit {
     if (this.editTrajet.invalid) {
       this.markFormGroupTouched(this.editTrajet);
       // if (spinner) spinner.classList.add('d-none'); // Géré par isEditing
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -279,7 +292,13 @@ export class TrajetComponent implements OnInit {
     // 2. Valider le formulaire
     if (this.deleteTrajet.invalid) {
       this.markFormGroupTouched(this.deleteTrajet);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
       return;
     }
 
@@ -313,7 +332,13 @@ export class TrajetComponent implements OnInit {
       error: (error: any) => {
         console.error('Erreur lors de la suppression du trajet :', error);
         // if (spinner) spinner.classList.add('d-none'); // Géré par complete
-        alert('Une erreur s\'est produite. Veuillez réessayer.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur s\'est produite. Veuillez réessayer.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       },
       complete: () => {
         // 4. Désactiver l'indicateur de chargement dans le bloc 'complete' du subscribe
