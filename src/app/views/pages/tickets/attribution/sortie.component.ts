@@ -15,6 +15,7 @@ import { catchError } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { ChangeDetectorRef } from '@angular/core';
 import { CategorieSortieTicketService } from '../../../../core/services/categorie-sortie-ticket/categorie-sortie-ticket.service';
+import Swal from 'sweetalert2';
 
 declare var bootstrap: any;
 
@@ -305,7 +306,13 @@ onQteInput(event: any, index: number) {
 
       if (!selectedItem) {
         console.error("Erreur: Un coupon sélectionné n'a pas été trouvé.");
-        alert("Erreur lors de la soumission: un coupon sélectionné est invalide.");
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Erreur lors de la soumission: un coupon sélectionné est invalide.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
         this.isAddingSortie = false;
         if (spinner) {
           spinner.classList.add('d-none');
@@ -391,7 +398,13 @@ onQteInput(event: any, index: number) {
                 }
         
                 // Message final clair
-                alert(`L'enregistrement de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                Swal.fire({
+                  title: 'Erreur',
+                  text: `L'enregistrement de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                  icon: 'error',
+                  confirmButtonText: 'Réessayer',
+                  confirmButtonColor: '#d33'
+                });
               }
             );
   } else {
@@ -400,7 +413,13 @@ onQteInput(event: any, index: number) {
     if (spinner) {
       spinner.classList.add('d-none');
     }
-    alert("Désolé, le formulaire n'est pas bien renseigné. Veuillez vérifier les champs obligatoires et les quantités.");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Désolé, le formulaire n\'est pas bien renseigné. Veuillez vérifier les champs obligatoires et les quantités.',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
   }
 }
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
@@ -443,7 +462,13 @@ onQteInput(event: any, index: number) {
           console.log("✅ IDs réels => coupon:", actualCouponId, "compagnie:", actualCompagnieId);
         } else {
           console.error("❌ Erreur: Élément introuvable dans couponTicketsWithCompagnies !");
-          alert("Erreur lors de la soumission: Coupon sélectionné invalide pour l'édition.");
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Erreur lors de la soumission: Coupon sélectionné invalide pour l\'édition.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
           if (spinner) {
             spinner.classList.add('d-none');
             console.log("⏹️ Spinner caché (erreur coupon introuvable)");
@@ -467,7 +492,13 @@ onQteInput(event: any, index: number) {
 
       if (sortieId === null || sortieId === undefined) {
         console.error("❌ Erreur: ID de sortie non défini. Arrêt de la requête.");
-        alert("Impossible de modifier, l'identifiant de la sortie est manquant.");
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Impossible de modifier, l\'identifiant de la sortie est manquant.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
         if (spinner) {
           spinner.classList.add('d-none');
         }
@@ -536,7 +567,13 @@ onQteInput(event: any, index: number) {
                     }
           
                     // Message final clair
-                    alert(`La modification de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: `La modification de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.`,
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
@@ -555,7 +592,13 @@ onQteInput(event: any, index: number) {
         console.log("⏹️ Spinner caché (formulaire invalide)");
       }
       this.markFormGroupTouched(this.editSortie);
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -613,14 +656,26 @@ onQteInput(event: any, index: number) {
                     }
           
                     // Message final clair
-                    alert(`La suppression de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`);
+                    Swal.fire({
+                      title: 'Erreur',
+                      text: `La suppression de la sortie de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d'échec répété, veuillez contacter le support technique.`,
+                      icon: 'error',
+                      confirmButtonText: 'Réessayer',
+                      confirmButtonColor: '#d33'
+                    });
                   }
                 );
     } else {
       if (spinner) {
         spinner.classList.add('d-none');
       }
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
@@ -683,7 +738,13 @@ onQteInput(event: any, index: number) {
 
   onClickSubmitKilometrageFin(modal: any) {
   if (this.addKilometrageFin.invalid) {
-    alert("Veuillez entrer un kilométrage valide.");
+    Swal.fire({
+      title: 'Erreur',
+      text: 'Veuillez entrer un kilométrage valide.',
+      icon: 'error',
+      confirmButtonText: 'Réessayer',
+      confirmButtonColor: '#d33'
+    });
     return;
   }
 
@@ -695,11 +756,23 @@ onQteInput(event: any, index: number) {
     (res: any) => {
       modal.close();
       console.log("Kilométrage de fin mis à jour avec succès :", res);
-      alert("Mise à jour réussie !");
+      Swal.fire({
+        title: 'Succès',
+        text: 'Mise à jour réussie !f',
+        icon: 'success',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     },
     (err: any) => {
       console.error("Erreur lors de la mise à jour du kilométrage :", err);
-      alert("Erreur lors de la mise à jour du kilométrage.");
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Erreur lors de la mise à jour du kilométrage.',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   );
 }
@@ -1052,7 +1125,13 @@ updateQuantiteDisponible(index: number, couponId: number, compagnieId: number): 
       },
       error: (error) => {
         console.error('Erreur lors de la génération du bon de sortie', error);
-        alert('Une erreur est survenue lors de la génération du bon.');
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Une erreur est survenue lors de la génération du bon.',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
       }
     });
   }
