@@ -24,6 +24,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { map, distinct } from 'rxjs/operators';
 import { ActifCode } from '../../../core/services/interface/models';
 import { SortiePatrimoineService } from '../../../core/services/sortie-patrimoine/sortie-patrimoine.service';
+import Swal from 'sweetalert2';
 
 
 interface CodesApiResponse {
