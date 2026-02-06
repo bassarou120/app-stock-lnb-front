@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@swimlane/ngx-datatable';
 import { NgbAlertModule, NgbDateStruct, NgbDropdownModule, NgbInputDatepicker, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { LogFilters, LogJournalisation, LogJournalisationService } from '../../../../core/services/logs-journalisation/log-journalisation.service'; 
+import { LogFilters, LogJournalisation, LogJournalisationService } from '../../../../core/services/logs-journalisation/log-journalisation.service';
 import { RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -32,12 +32,12 @@ export class LogJournalisationComponent implements OnInit {
   hasPageAccess = true;
   selectedLogDetails: string | null = null;
   selectedLogAction: string | null = null;
-  selectedLogUserAgent: string | null = null; 
+  selectedLogUserAgent: string | null = null;
 
   // NOUVELLE PROPRIÉTÉ : Formulaire de filtre
   filterForm!: FormGroup;
   users: User[] = []; // Liste des utilisateurs pour le filtre (à charger via un autre service)
-  
+
   constructor(
     private logService: LogJournalisationService,
     private modalService: NgbModal,
@@ -52,7 +52,7 @@ export class LogJournalisationComponent implements OnInit {
       date_debut: [null], // Pour NgbDateStruct
       date_fin: [null],   // Pour NgbDateStruct
     });
-    
+
     // 2. Initialisation : Charger les données sans filtre au démarrage
     // Le chargement des utilisateurs (this.loadUsers()) doit être appelé ici si nécessaire
     this.applyFilters(); // Utilise le formulaire vide pour charger la liste complète
@@ -70,25 +70,25 @@ export class LogJournalisationComponent implements OnInit {
     }
     return undefined;
   }
-  
+
   /**
    * UTILITAIRE : Construit l'objet LogFilters à partir du formulaire.
    */
   private getFiltersFromForm(): LogFilters {
     const formValues = this.filterForm.value;
-    
+
     // Ne retourne que les valeurs définies pour que l'API ignore les filtres vides
     const filters: LogFilters = {};
-    
+
     if (formValues.action) {
         filters.action = formValues.action;
     }
-    
+
     // Le NgSelect peut retourner null ou l'ID. On s'assure que c'est bien l'ID (number)
     if (formValues.user_id !== null && formValues.user_id !== undefined) {
-        filters.user_id = Number(formValues.user_id); 
+        filters.user_id = Number(formValues.user_id);
     }
-    
+
     const dateDebut = this.formatDate(formValues.date_debut);
     if (dateDebut) {
         filters.date_debut = dateDebut;
@@ -98,7 +98,7 @@ export class LogJournalisationComponent implements OnInit {
     if (dateFin) {
         filters.date_fin = dateFin;
     }
-    
+
     return filters;
   }
 
@@ -108,12 +108,12 @@ export class LogJournalisationComponent implements OnInit {
    */
   fetchLogs(filters?: LogFilters): void {
     this.loadingIndicator = true;
-    this.logService.getLogs(filters).subscribe({ 
+    this.logService.getLogs(filters).subscribe({
       next: (response) => {
         this.rows = response.data;
         this.temp = [...response.data]; // Mise à jour de la copie locale si nécessaire
         this.loadingIndicator = false;
-        if (this.table) this.table.offset = 0; 
+        if (this.table) this.table.offset = 0;
       },
       error: (err) => {
         console.error("Erreur lors du chargement des logs", err);
@@ -153,7 +153,7 @@ export class LogJournalisationComponent implements OnInit {
     this.filterForm.patchValue({ action: val });
     this.applyFilters();
   }
-  
+
   /**
    * DÉCLENCHÉ PAR LE BOUTON 'EXPORTER PDF'
    * Génère le PDF en utilisant les filtres courants.
@@ -161,7 +161,7 @@ export class LogJournalisationComponent implements OnInit {
   printLogs(): void {
     const filters = this.getFiltersFromForm();
     this.loadingIndicator = true;
-    
+
     this.logService.exportLogs(filters).subscribe({
       next: (blob: Blob) => {
         const fileURL = URL.createObjectURL(blob);
@@ -191,10 +191,10 @@ export class LogJournalisationComponent implements OnInit {
 
   getDetailUserAgent(userAgent: string | null): string {
     if (!userAgent) return 'Aucun User-Agent disponible';
-  
+
     let browser = 'Inconnu';
     let os = 'Inconnu';
-  
+
     // Détection simple du navigateur
     if (userAgent.includes('Chrome') && !userAgent.includes('Edge')) {
       browser = 'Google Chrome';
@@ -207,7 +207,7 @@ export class LogJournalisationComponent implements OnInit {
     } else if (userAgent.includes('OPR') || userAgent.includes('Opera')) {
       browser = 'Opera';
     }
-  
+
     // Détection simple du système d’exploitation
     if (userAgent.includes('Windows')) {
       os = 'Windows';
@@ -220,10 +220,10 @@ export class LogJournalisationComponent implements OnInit {
     } else if (userAgent.includes('iPhone') || userAgent.includes('iPad')) {
       os = 'iOS';
     }
-  
+
     return `${browser} sur ${os}`;
   }
-  
+
   viewDetails(row: LogJournalisation, content: any): void {
     this.selectedLogDetails = row.details;
     this.selectedLogAction = row.action;
