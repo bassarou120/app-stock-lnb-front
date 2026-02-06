@@ -609,13 +609,33 @@ export class RetourTicketComponent implements OnInit {
       );
     }
 
+    // loadMouvementsTickets() {
+    //   this.retourTicketService.getMouvementsDisponibles().subscribe(
+    //     (data) => {
+    //       this.mouvementsTickets = data;
+    //     },
+    //     (err) => console.error(err)
+    //   );
+    // }
     loadMouvementsTickets() {
-      this.retourTicketService.getMouvementsDisponibles().subscribe(
-        (data) => {
-          this.mouvementsTickets = data;
-        },
-        (err) => console.error(err)
-      );
-    }
+  this.retourTicketService.getMouvementsDisponibles().subscribe(
+    (data: any[]) => { // Assurez-vous que le type est un tableau
+      // 1. FILTRER : Retirer les objets où la 'reference' n'est pas définie ou est vide.
+      const cleanedData = data.filter(item => item.reference && item.reference.trim() !== '');
+
+      // 2. Appliquer la logique d'unicité (Map pour gérer les doublons)
+      const uniqueMouvementsMap = new Map();
+      cleanedData.forEach((item: any) => {
+        if (!uniqueMouvementsMap.has(item.reference)) {
+          uniqueMouvementsMap.set(item.reference, item);
+        }
+      });
+
+      // 3. Assigner les données uniques et propres
+      this.mouvementsTickets = Array.from(uniqueMouvementsMap.values());
+    },
+    (err) => console.error(err)
+  );
+}
 
 }
