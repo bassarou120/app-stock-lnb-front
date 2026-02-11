@@ -5,7 +5,9 @@
 
 export const environment = {
   production: true,
-  backend: 'http://127.0.0.1:8000/api',
-  base_url_backend: 'http://127.0.0.1:8000',
+  // backend: 'http://127.0.0.1:8000/api',
+  // base_url_backend: 'http://127.0.0.1:8000',
+  backend: 'https://apim-stock.loteriebenin.bj/api',
+  base_url_backend: 'https://apim-stock.loteriebenin.bj',
   // accet_url: "http://127.0.0.1:8000/storage",
 };

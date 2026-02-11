@@ -3,7 +3,8 @@
 
     <a routerLink="/" class="sidebar-brand d-flex align-items-center">
       <img
-        [src]="logoUrl || 'assets/images/logo_bg.png'" 
+        src="images/logo_bg.png"
+
         alt="Logo du site"
         style="height: 40px; width: auto; object-fit: contain; margin-right: 8px;"
         (error)="logoUrl = 'assets/images/logo_bg.png'"
@@ -17,7 +18,7 @@
       <span style="background-color:green !important"></span>
       <span style="background-color:green !important"></span>
     </div>
-    
+
   </div>
   <hr style="border: solid; height: 3px; background-color: #00993E;" class="mt-0">
   <div class="sidebar-body" (mouseenter)="operSidebarFolded()" (mouseleave)="closeSidebarFolded()">
