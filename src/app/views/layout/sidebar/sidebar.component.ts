@@ -58,7 +58,8 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // 💡 PROPRIÉTÉS DU SITE À AJOUTER OU VÉRIFIER
   siteName: string = 'Nom du Site'; // Valeur par défaut
-  logoUrl: string = 'public/images/logo_bg.png'; // Valeur par défaut
+  // logoUrl: string = 'public/images/logo_bg.png'; // Valeur par défaut
+  logoUrl: string = 'assets/images/logo_bg.png'; // Valeur par défaut
 
   constructor(
     @Inject(DOCUMENT) private document: Document,
@@ -95,7 +96,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
           console.log('SidebarComponent: Logo et nom du site mis à jour:', { name: this.siteName, logo: this.logoUrl });
         }
       });
-      
+
     // 2. 💡 CORRECTION : Lancer l'appel d'API pour charger les données
     // Ceci force le service à aller chercher les vraies données de la DB
     // et à mettre à jour son BehaviorSubject.
@@ -109,7 +110,7 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
         console.error('Erreur lors du chargement initial des settings:', err);
       }
     });
-    
+
     this.menuItems = MENU;
 
     /**
@@ -132,9 +133,9 @@ export class SidebarComponent implements OnInit, AfterViewInit, OnDestroy {
     // 💡 ABONNEMENT CRUCIAL POUR RECEVOIR LES MISES À JOUR
     this.siteSettingsService.siteSettings$
         .pipe(takeUntil(this.destroy$))
-        .subscribe((settings: SiteSettings) => { 
+        .subscribe((settings: SiteSettings) => {
             // Mise à jour des propriétés locales pour le template
-            this.siteName = settings.companyName; 
+            this.siteName = settings.companyName;
             this.logoUrl = settings.logoUrl;
             console.log('SidebarComponent: Logo et nom du site mis à jour:', {name: this.siteName, logo: this.logoUrl});
         });
