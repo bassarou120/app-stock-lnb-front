@@ -5,6 +5,7 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { FormGroup, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
+import Swal from "sweetalert2";
 
 
 
@@ -48,12 +49,28 @@ export class ForgotPasswordComponent implements OnInit {
         },
         error: () => {
           if (spinner) spinner.classList.add('d-none');
-          alert("Email invalide ou inexistant.");
+          // alert("Email invalide ou inexistant.");
+
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Email invalide ou inexistant.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         }
       });
     } else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+      // alert("Désolé, le formulaire n'est pas bien renseigné");
+
+      Swal.fire({
+        title: 'Attention',
+        text: "Désolé, le formulaire n'est pas bien renseigné",
+        icon: 'warning',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#f8bb86'
+      });
     }
 
   }

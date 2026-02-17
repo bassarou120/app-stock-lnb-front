@@ -5,6 +5,7 @@ import { AuthService } from '../../../../core/services/auth/auth.service';
 import { FormGroup, FormBuilder, ReactiveFormsModule, Validators } from "@angular/forms";
 import { NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
 import { CommonModule } from '@angular/common';
+import Swal from "sweetalert2";
 
 
 
@@ -58,11 +59,25 @@ export class ResetPasswordComponent implements OnInit {
         error: () => {
           if (spinner) spinner.classList.add('d-none');
           alert("Une erreur s'est produite")
+          Swal.fire({
+            title: 'Erreur',
+            text: 'Une erreur s\'est produite',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
         },
       });
     }else {
       if (spinner) spinner.classList.add('d-none');
-      alert("Désolé, le formulaire n'est pas bien renseigné");
+
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
     }
   }
 
