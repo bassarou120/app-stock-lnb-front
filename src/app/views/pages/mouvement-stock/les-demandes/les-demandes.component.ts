@@ -41,7 +41,7 @@ declare var bootstrap: any;
 })
 export class SortieStockGroupedComponent implements OnInit, OnDestroy {
     private url: string = environment.backend;
-
+selectedCodeMouvement: string = '';
   // 🔥 PROPRIÉTÉS POUR LA GESTION DES PERMISSIONS
   allowedFonctionnalites: string[] = [];
   canViewDemande: boolean = true; // 🔥 DÉFAUT À TRUE pour éviter les blocages
@@ -220,6 +220,7 @@ export class SortieStockGroupedComponent implements OnInit, OnDestroy {
   }
 
   openToutTraiterModal(code: string) {
+     this.selectedCodeMouvement = code;
     this.edit_all.reset();
     this.edit_all.patchValue({
       code_mouvement: code,
@@ -303,10 +304,10 @@ hasGroupFile(group: any): boolean {
       },
       error: (error: any) => {
                 console.error("Erreur lors de la vérification/génération :", error);
-                
+               
                 // --- Logique d'affichage du message améliorée ---
                 let detail = 'Veuillez réessayer. Si le problème persiste, contactez le support technique.';
-        
+
                 if (error.status === 404) {
                   // L'objet (Mouvement, Immobilisation, etc.) pour lequel on demande le statut n'existe pas.
                   detail = 'L\'élément (code: ' + code + ') est introuvable sur le serveur.';
@@ -320,7 +321,7 @@ hasGroupFile(group: any): boolean {
                   // Tente d'afficher un message spécifique du serveur
                   detail = `Erreur Serveur: ${error.error.message}`;
                 }
-        
+
                 // Message final clair
                 Swal.fire({
                   title: 'Erreur',
@@ -517,6 +518,7 @@ hasGroupFile(group: any): boolean {
 
 
   getStatutForm(detail: MouvementStock): void {
+     this.selectedCodeMouvement = detail.code_mouvement ?? '';
     console.log('--- Démarrage getStatutForm ---');
     console.log('Objet "detail" complet reçu :', detail);
     console.log('Valeur de detail.id_Article :', detail.id_Article);
@@ -642,14 +644,14 @@ hasGroupFile(group: any): boolean {
         error: (error: any) => {
                     console.error('Erreur lors de la modification du statut :', error);
                     this.isStatutModifLoading = false;
-                    
+                   
                     // --- Logique d'affichage du message améliorée ---
                     let detail = 'Veuillez vérifier les informations de la demande et réessayer.';
-          
+
                     if (error.status === 422) {
                       // Erreur de validation (ex: quantité insuffisante pour le nouveau statut)
                       detail = 'Erreur de Validation : Les données fournies sont incomplètes ou incorrectes (ex. quantité invalide, statut non autorisé).';
-                      
+                     
                       // Tente d'extraire le message d'erreur du serveur s'il est plus précis
                       if (error.error && error.error.error) {
                         detail = `Erreur de Validation : ${error.error.error}`;
@@ -670,7 +672,7 @@ hasGroupFile(group: any): boolean {
                       // Parfois 'message' est utilisé au lieu de 'error'
                       detail = `Erreur Serveur: ${error.error.message}`;
                     }
-          
+
                     // Message final clair
                     Swal.fire({
                       title: 'Erreur',
