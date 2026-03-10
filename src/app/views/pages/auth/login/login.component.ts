@@ -104,7 +104,7 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
           text: 'Identifiants incorrects ou compte inactif',
           icon: 'error',
           confirmButtonText: 'Réessayer',
-          confirmButtonColor: '#d33'
+          confirmButtonColor: '#28a745'
         });
       }
     });
@@ -115,7 +115,7 @@ export class LoginComponent implements OnInit, OnDestroy { // Implémente OnDest
       text: "Désolé, le formulaire n'est pas bien renseigné",
       icon: 'warning',
       confirmButtonText: 'OK',
-      confirmButtonColor: '#f8bb86'
+      confirmButtonColor: '#28a745'
     });
   }
   }

@@ -761,7 +761,7 @@ onQteInput(event: any, index: number) {
         text: 'Mise à jour réussie !f',
         icon: 'success',
         confirmButtonText: 'Réessayer',
-        confirmButtonColor: '#d33'
+        confirmButtonColor: '#28a745'
       });
     },
     (err: any) => {
