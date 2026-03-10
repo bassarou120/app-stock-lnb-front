@@ -1,0 +1,171 @@
+<nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a routerLink=".">Immobilisations</a></li>
+    <li class="breadcrumb-item active">Demandes d'acquisition</li>
+  </ol>
+</nav>
+
+<div class="row" *ngIf="hasPageAccess">
+  <div class="col-md-12">
+    <ngb-alert *ngIf="alertModifVisible" [dismissible]="true" (closed)="alertModifVisible=false" class="alerte" [type]="'success'">
+      Opération effectuée avec succès.
+    </ngb-alert>
+  </div>
+
+  <div class="col-md-12 grid-margin stretch-card">
+    <div class="card">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h4 class="card-title">Gestion des Demandes d'Immobilisation</h4>
+            <p class="text-secondary">Validez les acquisitions et clôturez avec les fiches de décharge.</p>
+          </div>
+          <input type="text" class="form-control w-25" placeholder="Rechercher une référence ou un nom..." (keyup)="updateFilter($event)">
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-hover">
+            <thead>
+              <tr>
+                <th>Référence</th>
+                <th>Personnel</th>
+                <th>GroupeType Immo</th>
+                <th>Date Demande</th>
+                <th>Statut</th>
+                <th class="text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let d of filteredDemandes">
+                <td><span class="fw-bold text-primary">{{ d.ref_demande }}</span></td>
+                <td>{{ d.employe?.nom }} {{ d.employe?.prenom }}</td>
+                <td>{{ d.groupe_type_immo?.libelle }}</td>
+                <td>{{ d.date_demande | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <span class="badge rounded-pill" [ngClass]="{
+                    'bg-warning text-dark': d.status === 'EN_ATTENTE',
+                    'bg-success': d.status === 'VALIDE',
+                    'bg-danger': d.status === 'REJETE',
+                    'bg-info': d.status === 'CLOTUREE'
+                  }">{{ d.status }}</span>
+                </td>
+                <td class="text-center">
+                  <ng-container *ngIf="d.status === 'EN_ATTENTE'">
+                    <button class="btn btn-sm btn-success me-1" (click)="openValidationModal(d)" title="Valider">
+                      <i class="mdi mdi-check-circle"></i> Valider
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger me-1" (click)="confirmRejet(d)" title="Rejeter">
+                      Rejeter
+                    </button>
+                  </ng-container>
+                
+                  <ng-container *ngIf="d.status === 'VALIDE'">
+                    <button class="btn btn-sm btn-outline-primary me-1" (click)="downloadBonSortie(d)" title="Imprimer le bon de sortie">
+                      <i class="mdi mdi-printer"></i> Bon de sortie
+                    </button>
+                
+                    <button class="btn btn-sm btn-info me-1 text-white" (click)="openClotureModal(d)" title="Clôturer la demande">
+                      <i class="mdi mdi-file-upload"></i> Clôturer
+                    </button>
+                  </ng-container>
+                
+                  <a *ngIf="d.url_fiche" [href]="d.url_fiche" target="_blank" class="btn btn-sm btn-outline-secondary" title="Voir la fiche signée">
+                    <i class="mdi mdi-file-document"></i> Fiche
+                  </a>
+                </td>
+              </tr>
+              <tr *ngIf="filteredDemandes.length === 0 && !loading">
+                <td colspan="6" class="text-center text-muted">Aucune demande trouvée.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div *ngIf="loading" class="text-center p-4">
+            <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2">Chargement des données...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalValidation" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">Validation : {{ selectedDemande?.ref_demande }}</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning small">
+          La validation générera automatiquement un mouvement de transfert pour cet employé.
+        </div>
+        <form [formGroup]="validationForm">
+          <div class="mb-3">
+            <label class="form-label fw-bold">Code Immobilisation <span class="text-danger">*</span></label>
+            <ng-select [items]="immobilisations" 
+                       bindLabel="code" 
+                       bindValue="id" 
+                       formControlName="immo_id"
+                       (change)="onImmoChange($event)"
+                       placeholder="Sélectionner le code...">
+            </ng-select>
+          </div>
+        
+          <div class="mb-3">
+            <label class="form-label fw-bold text-muted">Désignation de l'immobilisation</label>
+            <input type="text" 
+                   class="form-control" 
+                   [value]="selectedImmoDesignation" 
+                   readonly 
+                   placeholder="La désignation s'affichera ici...">
+          </div>
+        
+          <div class="mb-3">
+            <label class="form-label fw-bold">Bureau d'affectation <span class="text-danger">*</span></label>
+            <ng-select [items]="bureaux" 
+                       bindLabel="libelle_bureau" 
+                       bindValue="id" 
+                       formControlName="bureau_id"
+                       placeholder="Choisir le bureau...">
+            </ng-select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-success" 
+                [disabled]="validationForm.invalid || isProcessing" 
+                (click)="updateStatus('VALIDE', validationForm.value)">
+          <span *ngIf="isProcessing" class="spinner-border spinner-border-sm me-1"></span>
+          Confirmer & Transférer
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalCloture" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-info text-white">
+        <h5 class="modal-title">Clôture de la demande</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center">
+        <i class="mdi mdi-upload-network text-info" style="font-size: 3rem;"></i>
+        <p class="mt-3">Veuillez joindre la <strong>décharge signée</strong> (PDF ou Image) pour clôturer définitivement le dossier.</p>
+        <input type="file" class="form-control mt-3" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+        <button type="button" class="btn btn-info text-white" 
+                [disabled]="!selectedFile || isProcessing" 
+                (click)="updateStatus('CLOTUREE')">
+          <span *ngIf="isProcessing" class="spinner-border spinner-border-sm me-1"></span>
+          Finaliser la clôture
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

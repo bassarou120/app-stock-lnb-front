@@ -59,6 +59,13 @@ export const MENU: MenuItem[] = [
     fonctionnalites: ['Voir les immobilisations']
   },
   {
+    label: 'Les demandes d\'immobilisation',
+    icon: 'download',
+    link: '/demande-immos',
+    module: 'Gestion de immobilisation',
+    fonctionnalites: ['Voir les immobilisations']
+  },
+  {
     label: 'Affectations/Transfert',
     icon: 'send',
     link: '/transfert',
