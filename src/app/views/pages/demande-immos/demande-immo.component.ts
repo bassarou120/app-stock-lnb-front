@@ -39,6 +39,7 @@ export class DemandeImmoComponent implements OnInit, OnDestroy {
   selectedDemande: any = null;
   selectedFile: File | null = null;
   selectedImmoDesignation: string = '';
+  immobilisationsFiltrees: any[] = [];
   
   public validationForm!: FormGroup;
   public clotureForm!: FormGroup;
@@ -102,6 +103,11 @@ export class DemandeImmoComponent implements OnInit, OnDestroy {
   openValidationModal(demande: any) {
     this.selectedDemande = demande;
     this.selectedImmoDesignation = '';
+
+    this.immobilisationsFiltrees = this.immobilisations.filter(immo => 
+      immo.id_groupe_type_immo === demande.id_groupe_type_immo
+    );
+
     this.validationForm.reset({ 
       status: 'VALIDE', 
       employe_id: demande.id_employe // Pré-remplissage pour le transfert Laravel
