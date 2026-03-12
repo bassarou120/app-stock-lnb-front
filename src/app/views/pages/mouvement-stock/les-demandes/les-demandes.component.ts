@@ -76,6 +76,8 @@ selectedCodeMouvement: string = '';
   isLoading: boolean = true;
   listOfAvailableFiles: string[] = [];
 
+  selectedStatus: string = 'Tous';
+
 
   public editvaliderDemande!: FormGroup;
 
@@ -469,6 +471,24 @@ hasGroupFile(group: any): boolean {
       }
     });
   }
+
+  selectStatus(status: string) {
+  this.selectedStatus = status;
+  this.filterByStatus();
+}
+
+filterByStatus() {
+
+  if (this.selectedStatus === 'Tous') {
+    this.filteredMouvementsGrouped = this.mouvementsGrouped;
+    return;
+  }
+
+  this.filteredMouvementsGrouped = this.mouvementsGrouped.filter(group =>
+    group.details.some(detail => detail.statut === this.selectedStatus)
+  );
+
+}
 
 
 
