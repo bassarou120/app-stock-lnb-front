@@ -59,6 +59,48 @@
 </div>
 
 
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <button class="nav-link"
+            [class.active]="selectedStatus === 'Tous'"
+            (click)="selectStatus('Tous')">
+      Tous
+    </button>
+  </li>
+
+  <li class="nav-item">
+    <button class="nav-link"
+            [class.active]="selectedStatus === 'En attente'"
+            (click)="selectStatus('En attente')">
+      En attente
+    </button>
+  </li>
+
+  <li class="nav-item">
+    <button class="nav-link"
+            [class.active]="selectedStatus === 'Accordé'"
+            (click)="selectStatus('Accordé')">
+      Accordé
+    </button>
+  </li>
+
+  <li class="nav-item">
+    <button class="nav-link"
+            [class.active]="selectedStatus === 'Refusé'"
+            (click)="selectStatus('Refusé')">
+      Refusé
+    </button>
+  </li>
+
+  <li class="nav-item">
+    <button class="nav-link"
+            [class.active]="selectedStatus === 'Cloturé'"
+            (click)="selectStatus('Cloturé')">
+      Cloturé
+    </button>
+  </li>
+</ul>
+
 <table class="table table-bordered" *ngIf="!loading">
   <thead>
     <tr>
