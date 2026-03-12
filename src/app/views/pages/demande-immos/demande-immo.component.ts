@@ -26,6 +26,8 @@ export class DemandeImmoComponent implements OnInit, OnDestroy {
   loading = false;
   isProcessing = false;
 
+  selectedStatus: string = 'Tous';
+
   // Permissions
   canViewDemande = true;
   canValidDemande = true;
@@ -91,13 +93,36 @@ export class DemandeImmoComponent implements OnInit, OnDestroy {
     this.immoService.getAllDemandesImmo().pipe(takeUntil(this.destroy$)).subscribe({
       next: (res) => {
         this.demandes = res;
-        this.filteredDemandes = [...this.demandes];
+        this.filterByStatus(); // On filtre dès le chargement initial
         this.loading = false;
       },
       error: () => this.loading = false
     });
   }
 
+  // --- LOGIQUE DE FILTRAGE PAR ONGLET ---
+  selectStatus(status: string) {
+    this.selectedStatus = status;
+    this.filterByStatus();
+  }
+
+  filterByStatus() {
+    if (this.selectedStatus === 'Tous') {
+      this.filteredDemandes = [...this.demandes];
+    } else {
+      // Correspondance entre le libellé de l'onglet et le code status en base
+      const statusMap: { [key: string]: string } = {
+        'En attente': 'EN_ATTENTE',
+        'Validée': 'VALIDE',
+        'Refusée': 'REJETE',
+        'Clôturée': 'CLOTUREE'
+      };
+      
+      const statusCode = statusMap[this.selectedStatus];
+      this.filteredDemandes = this.demandes.filter(d => d.status === statusCode);
+    }
+  }
+  
   // --- GESTION DES MODAUX ---
 
   openValidationModal(demande: any) {
@@ -247,7 +272,9 @@ export class DemandeImmoComponent implements OnInit, OnDestroy {
 
   updateFilter(event: any) {
     const val = event.target.value.toLowerCase();
-    this.filteredDemandes = this.demandes.filter(d => 
+    // On filtre à l'intérieur de la liste déjà filtrée par l'onglet pour plus de cohérence
+    this.filterByStatus(); 
+    this.filteredDemandes = this.filteredDemandes.filter(d => 
       d.ref_demande.toLowerCase().includes(val) || 
       (d.employe?.nom && d.employe.nom.toLowerCase().includes(val))
     );

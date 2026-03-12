@@ -23,6 +23,30 @@
           <input type="text" class="form-control w-25" placeholder="Rechercher une référence ou un nom..." (keyup)="updateFilter($event)">
         </div>
 
+        <!-- BARRE D'ONGLETS (TABS) -->
+        <ul class="nav nav-tabs nav-tabs-line mb-3">
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="selectedStatus === 'Tous'" 
+              (click)="selectStatus('Tous')" href="javascript:;">Toutes</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="selectedStatus === 'En attente'" 
+              (click)="selectStatus('En attente')" href="javascript:;">En attente</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="selectedStatus === 'Accordée'" 
+              (click)="selectStatus('Validée')" href="javascript:;">Validées</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="selectedStatus === 'Refusée'" 
+              (click)="selectStatus('Refusée')" href="javascript:;">Refusées</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" [class.active]="selectedStatus === 'Clôturée'" 
+              (click)="selectStatus('Clôturée')" href="javascript:;">Clôturées</a>
+          </li>
+        </ul>
+
         <div class="table-responsive">
           <table class="table table-hover">
             <thead>

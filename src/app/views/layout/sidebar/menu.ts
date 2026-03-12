@@ -60,7 +60,7 @@ export const MENU: MenuItem[] = [
   },
   {
     label: 'Les demandes d\'immobilisation',
-    icon: 'download',
+    icon: 'file-text',
     link: '/demande-immos',
     module: 'Gestion de immobilisation',
     fonctionnalites: ['Voir les immobilisations']
