@@ -1,13 +1,13 @@
 version: '3.8'
 
 services:
-  front_lnb_stock-app:
+  front_lnb_stock-app_v2:
     build:
       context: ./
       dockerfile: ./deploy_preprod/Dockerfile
 
 #    image: front-lnb-stock:latest
-    container_name: front_lnb_stock
+    container_name: front_lnb_stock_v2
     restart: always
 
     ports:
