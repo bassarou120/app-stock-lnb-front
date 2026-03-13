@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  front_lnb_stock-app:
+    build:
+      context: ./
+      dockerfile: ./deploy_preprod/Dockerfile
+
+#    image: front-lnb-stock:latest
+    container_name: front_lnb_stock
+    restart: always
+
+    ports:
+      - 8680:80
+#    networks:
+#      - web
+#
+#
+networks:
+  default:
+    external : true
+    name: lnb-network
