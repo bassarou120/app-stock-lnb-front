@@ -13,7 +13,7 @@ ENV PATH /usr/src/app/node_modules/.bin:$PATH
 COPY . /usr/src/app
 
 # Copie de l'env prod vers env courant
-COPY /src/environments/prod.environment.ts /usr/src/app/src/environments/environment.ts
+COPY /src/environments/preprod_v2.environment.ts /usr/src/app/src/environments/environment.ts
 
 # Installation des dépendances
 #RUN npm install --force
