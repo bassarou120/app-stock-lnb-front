@@ -156,14 +156,14 @@
 
           <!-- Compte du Type d'Immobilisation -->
           <div class="mb-3">
-            <label for="soustypeImmoCompte" class="form-label">Compte du Type d'Immobilisation <span class="text-danger">*</span></label>
+            <label for="soustypeImmoCompte" class="form-label">Compte du Sous Type d'Immobilisation <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="soustypeImmoCompte" formControlName="compte"
                    placeholder="2000" autocomplete="off"
                    [class.invalid]="addSousTypeImmo.get('compte')?.invalid && addSousTypeImmo.get('compte')?.touched"
                    data-base-value="">
             <div *ngIf="addSousTypeImmo.get('compte')?.invalid && addSousTypeImmo.get('compte')?.touched">
               <small *ngIf="addSousTypeImmo.get('compte')?.invalid && addSousTypeImmo.get('compte')?.touched"
-                     class="text-danger"> *le Compte du Type d'Immobilisation est obligatoire</small>
+                     class="text-danger"> *le Compte du sous Type d'Immobilisation est obligatoire</small>
             </div>
           </div>
 
