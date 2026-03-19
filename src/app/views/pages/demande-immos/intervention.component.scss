@@ -1,0 +1,22 @@
+/* Colonnes d'actions figées */
+.actions-header, .actions-cell {
+  background-color: white !important;
+  border-left: 1px solid #dee2e6 !important;
+  z-index: 10 !important;
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* S'assurer que le texte est lisible */
+.actions-cell, .actions-header {
+  color: #333 !important;
+  font-weight: 500 !important;
+}
+
+/* Thème sombre Bootstrap */
+[data-bs-theme="dark"] .actions-header,
+[data-bs-theme="dark"] .actions-cell {
+  background-color: #0C1427 !important;
+  border-left: 1px solid #4a5568 !important;
+  color: #e2e8f0 !important;
+  box-shadow: -2px 0 4px rgba(0, 0, 0, 0.3) !important;
+}
