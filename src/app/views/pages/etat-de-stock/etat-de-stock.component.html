@@ -1,89 +1,133 @@
-<!-- 🔥 CORRECTION : Changer !hasPageAccess en hasPageAccess -->
 <div class="row" *ngIf="hasPageAccess">
   <nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a routerLink=".">Etat du Stock</a></li>
-  </ol>
-</nav>
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a routerLink=".">Etat du Stock</a></li>
+    </ol>
+  </nav>
 
   <div class="col-md-12 grid-margin stretch-card">
-    <div class="card">
-      <div class="card-body d-flex justify-content-between">
+    <div class="card shadow-sm">
+      <div class="card-body d-flex justify-content-between align-items-center">
         <div>
-          <h4 class="card-title">Etat du Stock</h4>
-          <p class="text-secondary">Etat du Stock</p>
+          <h4 class="card-title mb-0">Etat du Stock</h4>
+          <p class="text-muted small">Visualisation et correction du stock en temps réel</p>
         </div>
         <div class="d-flex gap-2">
-        <button type="button" *ngIf="canExportEtatStock" class="btn btn-outline-primary btn-icon-text align-self-center" (click)="downloadEtatStock()">
-          <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
-          Imprimer
-        </button>
-      </div>
+          <button type="button" *ngIf="canExportEtatStock" class="btn btn-outline-primary" (click)="downloadEtatStock()">
+            <i class="feather icon-printer me-1"></i> Imprimer
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-
 <div class="row" *ngIf="hasPageAccess">
   <div class="col-md-12 stretch-card">
     <div class="card">
       <div class="card-body">
-        <h6 class="card-title">Etat du Stock</h6>
-        <div class="row mb-3 d-flex justify-content-between">
-          <div class="col-xl-3 col-md-4">
-            <input type="text" class="form-control form-control-sm" placeholder="Rechercher..."
-              (keyup)="updateFilter($event)" />
+        <div class="row mb-3 align-items-center">
+          <div class="col-md-4">
+            <input type="text" class="form-control" placeholder="Rechercher un article..." (keyup)="updateFilter($event)" />
           </div>
-          <div class="col-xl-3 col-md-4 ml-2">
-            <ng-select
-              [items]="categories"
-              bindLabel="libelle_categorie_article"
-              bindValue="id"
-              placeholder="Toutes les catégories"
-              clearable="true"
-              (change)="filterByCategory($event)"
-              [(ngModel)]="selectedCategoryId">
+          <div class="col-md-4">
+            <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
+              placeholder="Toutes les catégories" [(ngModel)]="selectedCategoryId" (change)="filterByCategory($event)">
             </ng-select>
           </div>
         </div>
+
         <div class="table-responsive">
           <ngx-datatable #table class="bootstrap" [rows]="rows" [loadingIndicator]="loadingIndicator"
             [columnMode]="ColumnMode.force" [footerHeight]="50" [limit]="10" rowHeight="auto" [scrollbarH]="true">
-            <!-- <ngx-datatable-column name="ID" prop="id"></ngx-datatable-column> -->
-            <ngx-datatable-column name="N°">
-              <ng-template let-rowIndex="rowIndex" ngx-datatable-cell-template>
-                {{ rowIndex + 1 }}
-              </ng-template>
-            </ngx-datatable-column>
-            <ngx-datatable-column name="Code" prop="code_article"></ngx-datatable-column>
-            <ngx-datatable-column name="Articles" prop="libelle"></ngx-datatable-column>
-            <ngx-datatable-column name="CMP">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                {{ row.stock?.cout_moyen_pondere }}
-              </ng-template>
-            </ngx-datatable-column>
+            
+            <ngx-datatable-column name="Code" prop="code_article" [width]="100"></ngx-datatable-column>
+            <ngx-datatable-column name="Articles" prop="libelle" [width]="250"></ngx-datatable-column>
+            
             <ngx-datatable-column name="Catégorie">
               <ng-template let-row="row" ngx-datatable-cell-template>
                 {{ getCategoryName(row.id_cat) || 'N/A' }}
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Qte Actuelle">
-              <ng-template let-row="row" ngx-datatable-cell-template>
-                <div
 
-                  [ngStyle]="{
-                    'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
-                  }" class="text-white p-1 rounded d-inline-block"
-                        style="min-width: 50px; text-align: center;">
+            <ngx-datatable-column name="Qte Actuelle" [width]="120">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <span [ngClass]="(row.stock?.Qte_actuel || 0) <= row.stock_alerte ? 'badge bg-danger' : 'badge bg-success'"
+                      style="font-size: 0.9rem; padding: 0.5em 0.8em;">
                   {{ row.stock?.Qte_actuel || 0 }}
-                </div>
+                </span>
               </ng-template>
             </ngx-datatable-column>
-            <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
+
+            <!-- NOUVELLE COLONNE ACTIONS -->
+            <ngx-datatable-column name="Actions" [sortable]="false">
+              <ng-template let-row="row" ngx-datatable-cell-template>
+                <button class="btn btn-sm btn-outline-warning" title="Corriger le stock" (click)="openCorrectionModal(correctionModal, row)">
+                  <i class="feather icon-edit-3"></i> Correction
+                </button>
+              </ng-template>
+            </ngx-datatable-column>
+
           </ngx-datatable>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- MODAL DE CORRECTION MISE À JOUR (ENTRÉE/SORTIE COMPENSATOIRE) -->
+<ng-template #correctionModal let-modal>
+  <div class="modal-header bg-warning text-dark">
+    <h5 class="modal-title">Correction de stock : {{ selectedArticleForCorrection?.libelle }}</h5>
+    <button type="button" class="btn-close" (click)="modal.dismiss()"></button>
+  </div>
+  <form [formGroup]="correctionForm" (ngSubmit)="onSubmitCorrection()">
+    <div class="modal-body">
+      
+      <!-- Alerte dynamique selon le type d'action -->
+      <div class="alert" [ngClass]="correctionForm.get('type_action')?.value === 'addition' ? 'alert-info border-info' : 'alert-danger border-danger'">
+        <i class="feather" [ngClass]="correctionForm.get('type_action')?.value === 'addition' ? 'icon-plus-circle' : 'icon-minus-circle'"></i>
+        Attention : Cette action va 
+        <strong>{{ correctionForm.get('type_action')?.value === 'addition' ? 'AUGMENTER' : 'DIMINUER' }}</strong> 
+        le stock actuel. Stock actuel : <strong>{{ selectedArticleForCorrection?.stock?.Qte_actuel || 0 }}</strong>
+      </div>
+
+      <div class="row g-3">
+        <!-- Nouveau champ : Type d'action -->
+        <div class="col-md-12">
+          <label class="form-label">Type de correction*</label>
+          <select class="form-select" formControlName="type_action">
+            <option value="addition">Ajouter au stock (Correction positive)</option>
+            <option value="subtraction">Retirer du stock (Correction négative)</option>
+          </select>
+        </div>
+
+        <div class="col-md-6">
+          <label class="form-label">Quantité*</label>
+          <input type="number" class="form-control" formControlName="quantite" placeholder="Ex: 10">
+        </div>
+        
+        <div class="col-md-6">
+          <label class="form-label">Date d'opération*</label>
+          <input type="date" class="form-control" formControlName="date_correction">
+        </div>
+
+        <div class="col-md-12">
+          <label class="form-label">Motif de la correction*</label>
+          <textarea class="form-control" formControlName="motif" rows="3" 
+            placeholder="Justifiez cette régularisation..."></textarea>
+          <div class="text-danger small mt-1" *ngIf="correctionForm.get('motif')?.invalid && correctionForm.get('motif')?.touched">
+            Le motif est obligatoire (min. 5 caractères).
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-light" (click)="modal.dismiss()">Annuler</button>
+      <button type="submit" class="btn btn-warning" [disabled]="correctionForm.invalid || isSubmittingCorrection">
+        <span *ngIf="isSubmittingCorrection" class="spinner-border spinner-border-sm me-1"></span>
+        Confirmer la régularisation
+      </button>
+    </div>
+  </form>
+</ng-template>
