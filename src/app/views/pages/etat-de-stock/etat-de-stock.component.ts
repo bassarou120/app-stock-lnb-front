@@ -32,7 +32,7 @@ export class EtatStockComponent implements OnInit {
   canViewEtatStock: boolean = true;    // DÉFAUT À TRUE pour éviter les blocages
   canExportEtatStock: boolean = true; // DÉFAUT À TRUE pour éviter les blocages
   hasPageAccess: boolean = true;  //  DÉFAUT À TRUE pour éviter les blocages
-  canCorrectStock: boolean = true;
+  // canCorrectStock: boolean = true;
 
 
   rows: Article[] = [];
@@ -44,7 +44,7 @@ export class EtatStockComponent implements OnInit {
   selectedCategoryId: number | null = null;  // Ajoutez cette propriété
 
   // GESTION CORRECTION
-  correctionForm!: FormGroup; // Utilisez ! pour indiquer qu'il sera initialisé
+  // correctionForm!: FormGroup; // Utilisez ! pour indiquer qu'il sera initialisé
   selectedArticleForCorrection: Article | null = null;
   isSubmittingCorrection: boolean = false;
 
@@ -60,7 +60,7 @@ export class EtatStockComponent implements OnInit {
   searchText: string = '';
   ngOnInit(): void {
     // Initialiser le formulaire IMMÉDIATEMENT
-    this.initCorrectionForm();
+    // this.initCorrectionForm();
 
     // 🔥 INITIALISER LES PERMISSIONS EN PREMIER
     this.initializePermissions();
@@ -71,87 +71,87 @@ export class EtatStockComponent implements OnInit {
     }
   }
 
-  initCorrectionForm() {
-    this.correctionForm = this.fb.group({
-      article_id: [null, Validators.required],
-      type_action: ['addition', Validators.required], // 'addition' par défaut
-      quantite: [null, [Validators.required, Validators.min(1)]],
-      motif: ['', [Validators.required, Validators.minLength(5)]],
-      date_correction: [new Date().toISOString().split('T')[0], Validators.required]
-    });
-  }
+  // initCorrectionForm() {
+  //   this.correctionForm = this.fb.group({
+  //     article_id: [null, Validators.required],
+  //     type_action: ['addition', Validators.required], // 'addition' par défaut
+  //     quantite: [null, [Validators.required, Validators.min(1)]],
+  //     motif: ['', [Validators.required, Validators.minLength(5)]],
+  //     date_correction: [new Date().toISOString().split('T')[0], Validators.required]
+  //   });
+  // }
 
   // --- OUVERTURE MODAL CORRECTION ---
-  openCorrectionModal(content: TemplateRef<any>, article: Article) {
-    this.selectedArticleForCorrection = article;
+  // openCorrectionModal(content: TemplateRef<any>, article: Article) {
+  //   this.selectedArticleForCorrection = article;
     
-    if (!this.correctionForm) {
-      this.initCorrectionForm();
-    }
+  //   if (!this.correctionForm) {
+  //     this.initCorrectionForm();
+  //   }
 
-    this.correctionForm.patchValue({
-      article_id: article.id,
-      type_action: 'addition',
-      quantite: null,
-      motif: '',
-      date_correction: new Date().toISOString().split('T')[0]
-    });
+  //   this.correctionForm.patchValue({
+  //     article_id: article.id,
+  //     type_action: 'addition',
+  //     quantite: null,
+  //     motif: '',
+  //     date_correction: new Date().toISOString().split('T')[0]
+  //   });
 
-    this.modalService.open(content, { centered: true, backdrop: 'static' });
-  }
+  //   this.modalService.open(content, { centered: true, backdrop: 'static' });
+  // }
 
   // --- SOUMISSION DE LA CORRECTION ---
-  onSubmitCorrection() {
-    if (this.correctionForm.invalid) return;
+  // onSubmitCorrection() {
+  //   if (this.correctionForm.invalid) return;
 
-    this.isSubmittingCorrection = true;
-    const formValue = this.correctionForm.value;
+  //   this.isSubmittingCorrection = true;
+  //   const formValue = this.correctionForm.value;
 
-    this.articleService.createEntreeCompensatoire(formValue).subscribe({
-      next: (res: any) => {
-        this.isSubmittingCorrection = false;
-        this.modalService.dismissAll();
+  //   this.articleService.createEntreeCompensatoire(formValue).subscribe({
+  //     next: (res: any) => {
+  //       this.isSubmittingCorrection = false;
+  //       this.modalService.dismissAll();
         
-        // --- MISE À JOUR DYNAMIQUE SANS RECHARGER LA PAGE ---
-        // On cherche l'article dans nos tableaux locaux (rows et temp)
-        const updatedArticleId = formValue.article_id;
-        const newStockValue = res.new_stock;
+  //       // --- MISE À JOUR DYNAMIQUE SANS RECHARGER LA PAGE ---
+  //       // On cherche l'article dans nos tableaux locaux (rows et temp)
+  //       const updatedArticleId = formValue.article_id;
+  //       const newStockValue = res.new_stock;
 
-        const updateLocalList = (list: Article[]) => {
-          const index = list.findIndex(a => a.id === updatedArticleId);
-          if (index !== -1) {
-            // On met à jour la propriété de stock (Qte_actuel ou stock_actuel selon votre modèle)
-            // Note: Adaptez le nom de la propriété selon votre interface Article
-            if (list[index].stock) {
-               list[index].stock!.Qte_actuel = newStockValue;
-            } else {
-               // Si l'objet stock n'existe pas encore sur l'article
-               (list[index] as any).stock = { Qte_actuel: newStockValue };
-            }
-          }
-        };
+  //       const updateLocalList = (list: Article[]) => {
+  //         const index = list.findIndex(a => a.id === updatedArticleId);
+  //         if (index !== -1) {
+  //           // On met à jour la propriété de stock (Qte_actuel ou stock_actuel selon votre modèle)
+  //           // Note: Adaptez le nom de la propriété selon votre interface Article
+  //           if (list[index].stock) {
+  //              list[index].stock!.Qte_actuel = newStockValue;
+  //           } else {
+  //              // Si l'objet stock n'existe pas encore sur l'article
+  //              (list[index] as any).stock = { Qte_actuel: newStockValue };
+  //           }
+  //         }
+  //       };
 
-        updateLocalList(this.rows);
-        updateLocalList(this.temp);
+  //       updateLocalList(this.rows);
+  //       updateLocalList(this.temp);
         
-        // Déclencher la détection de changement de ngx-datatable
-        this.rows = [...this.rows];
+  //       // Déclencher la détection de changement de ngx-datatable
+  //       this.rows = [...this.rows];
 
-        Swal.fire({
-          title: 'Succès !',
-          text: `Le stock a été mis à jour (${newStockValue} en stock).`,
-          icon: 'success',
-          timer: 2000,
-          showConfirmButton: false
-        });
-      },
-      error: (err) => {
-        this.isSubmittingCorrection = false;
-        const errorMsg = err.error?.message || 'Impossible de corriger le stock';
-        Swal.fire('Erreur', errorMsg, 'error');
-      }
-    });
-  }
+  //       Swal.fire({
+  //         title: 'Succès !',
+  //         text: `Le stock a été mis à jour (${newStockValue} en stock).`,
+  //         icon: 'success',
+  //         timer: 2000,
+  //         showConfirmButton: false
+  //       });
+  //     },
+  //     error: (err) => {
+  //       this.isSubmittingCorrection = false;
+  //       const errorMsg = err.error?.message || 'Impossible de corriger le stock';
+  //       Swal.fire('Erreur', errorMsg, 'error');
+  //     }
+  //   });
+  // }
 
     // 🔥 NOUVELLE MÉTHODE : Initialiser les permissions
   private initializePermissions(): void {
