@@ -3,7 +3,7 @@ import { Observable, of} from 'rxjs';
 
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import {environment} from "../../../../environments/environment";
-import { MouvementStock, Article, Fournisseur, UniteDeMesure } from "../interface/models";
+import { MouvementStock, Article, Fournisseur, UniteDeMesure,MouvementStockGrouped } from "../interface/models";
 import { catchError, map, tap } from 'rxjs/operators';
 
 @Injectable({
@@ -24,6 +24,10 @@ export class MouvementStockService  {
       )
     );
   }
+
+  saveCorrectionEntreeStock(data: any): Observable<any> {
+  return this.http.post(`${this.url}/mouvement-stock/entree-correction`, data);
+}
 
   saveMouvementStockEntree(formData: FormData): Observable<MouvementStock> {
     return this.http.post<MouvementStock>(`${this.url}/mouvement-stock/entree`, formData);
@@ -122,6 +126,12 @@ private buildHttpParams(params: any): HttpParams {
     });
     return httpParams;
   }
+
+
+
+  getSortieStockGrouped(): Observable<{ success: boolean; message: string; data: MouvementStockGrouped[] }> {
+      return this.http.get<{ success: boolean; message: string; data: MouvementStockGrouped[] }>(`${this.url}/mouvement-stock/sortie/indexSortieStockGrouped`);
+    }
 
 
 }
