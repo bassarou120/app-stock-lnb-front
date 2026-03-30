@@ -1,4 +1,4 @@
-import { Component, ViewChild, OnInit, inject,ViewEncapsulation  } from '@angular/core';
+import { Component, ViewChild, OnInit, inject, ViewEncapsulation } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ColumnMode, DatatableComponent, NgxDatatableModule } from '@siemens/ngx-datatable';
 import { MouvementStockService } from '../../../../core/services/mouvementstock/entree.service';
@@ -70,6 +70,7 @@ export class EntreeComponent implements OnInit {
   public editEntree!: FormGroup;
   public deleteEntree!: FormGroup;
   public addEntreeMultipleForm: FormGroup;
+  public correctionEntreeForm: FormGroup;
   public selectedEntree: any = null;
 
   public url: string = environment.base_url_backend;
@@ -77,6 +78,7 @@ export class EntreeComponent implements OnInit {
   mouvements: MouvementStock[] = [];
   loading: boolean = false;
   errorMessage: string = '';
+  mouvementsSortie: any[] = [];
 
   isAddingSingleEntree: boolean = false;
   isAddingMultipleEntrees: boolean = false;
@@ -86,7 +88,15 @@ export class EntreeComponent implements OnInit {
 
   @ViewChild('table') table!: DatatableComponent;
 
-  constructor(private entreeService: MouvementStockService, private formBuilder: FormBuilder, private router: Router) { }
+
+
+// VARIABLES
+mouvementsGrouped: any[] = [];
+articlesByCode: any[] = [];
+selectedArticle: any = null;
+isLoadingCorrection: boolean = false;
+
+  constructor(private entreeService: MouvementStockService,private mouvementStockService: MouvementStockService, private formBuilder: FormBuilder, private router: Router) { }
 
   ngOnInit(): void {
     console.log('🔄 EntreeComponent ngOnInit démarré');
@@ -101,7 +111,36 @@ export class EntreeComponent implements OnInit {
       this.loadEntrees();
       this.loadUniteDeMesures();
       this.initializeForms();
+      this.loadMouvementsGrouped();
     }
+
+
+
+    // Quand on choisit un code
+  this.correctionEntreeForm.get('code_mouvement_sortie')?.valueChanges.subscribe(code => {
+
+    const groupe = this.mouvementsGrouped.find(
+      (g: any) => g.code_mouvement === code
+    );
+
+    if (!groupe) return;
+
+    this.articlesByCode = groupe.details.map((d: any) => ({
+  id_Article: d.id_Article,
+  libelle: d.article?.libelle,
+  qte: d.qte,
+  qteDemande: d.qteDemande,
+  statut: d.statut
+}));
+
+  });
+
+  // Quand on choisit un article
+  this.correctionEntreeForm.get('id_article')?.valueChanges.subscribe(id => {
+    this.selectedArticle = this.articlesByCode.find(
+      (a: any) => a.id_Article == id
+    );
+  });
 
     console.log('✅ EntreeComponent ngOnInit terminé');
   }
@@ -125,7 +164,7 @@ export class EntreeComponent implements OnInit {
       this.canModifyStock = allowedFonctionnalites.includes('Modification du Stock');
       this.canDeleteStock = allowedFonctionnalites.includes('Suppression du Stock');
       this.canExportStock = allowedFonctionnalites.includes('Export Stock');
-      this.canViewEntries = allowedFonctionnalites.includes('Voir les entrées') ;
+      this.canViewEntries = allowedFonctionnalites.includes('Voir les entrées');
 
       // 🔥 ACCÈS À LA PAGE : Si au moins une fonctionnalité de stock est autorisée
       this.hasPageAccess = this.canViewEntries;
@@ -214,6 +253,18 @@ export class EntreeComponent implements OnInit {
         this.createArticleFormGroup()
       ])
     });
+
+    this.correctionEntreeForm = this.formBuilder.group({
+      fournisseur: ['FOURNISSEUR COMPENSATION', Validators.required],
+      numero_borderau: ['NUM-BOR-COMPENSATION', Validators.required],
+      date_mouvement: ['', Validators.required],
+      code_mouvement_sortie: ['', Validators.required],
+      description: ['', Validators.required],
+      id_article: ['', Validators.required],
+      qte: [1, [Validators.required, Validators.min(1)]],
+      id_unite_de_mesure: ['', Validators.required],
+      prixUnitaire: [0, [Validators.required, Validators.min(0)]]
+    });
   }
 
   // Getter pour accéder facilement au FormArray des articles
@@ -250,154 +301,155 @@ export class EntreeComponent implements OnInit {
     }
   }
 
-/*   onFileSelectedOnefile(event: any) {
-    if (event.target.files && event.target.files.length > 0) {
-      this.selectedFile = event.target.files[0];
-      console.log('Fichier sélectionné (simple):', this.selectedFile.name);
-    }
-  } */
+  /*   onFileSelectedOnefile(event: any) {
+      if (event.target.files && event.target.files.length > 0) {
+        this.selectedFile = event.target.files[0];
+        console.log('Fichier sélectionné (simple):', this.selectedFile.name);
+      }
+    } */
 
-    onFileSelectedOnefile(event: any) {
+  onFileSelectedOnefile(event: any) {
     this.selectedFile = event.target.files[0];
   }
 
+
   // Soumission d'ajout multiple
-onClickSubmitAddEntreeMultiple() {
+  onClickSubmitAddEntreeMultiple() {
 
-  // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
-  if (!this.canAddStock || !this.canAddStockMultiple) {
-    Swal.fire({
-      title: 'Erreur',
-      text: 'Vous n\'avez pas l\'autorisation d\'ajouter du stock.',
-      icon: 'error',
-      confirmButtonText: 'ok',
-      confirmButtonColor: '#d33'
-    });
-    return;
-  }
-
-  if (this.isAddingMultipleEntrees) {
-    console.warn('Soumission multiple détectée pour Entrée Multiple. Annulation.');
-    return;
-  }
-
-  const spinner = document.querySelector('.spinner-multiple-add');
-
-  if (this.addEntreeMultipleForm.valid) {
-
-    this.isAddingMultipleEntrees = true;
-    if (spinner) spinner.classList.remove('d-none');
-
-    // Préparer les données du formulaire
-    const formData = new FormData();
-
-    // Données communes
-    formData.append('id_fournisseur', this.addEntreeMultipleForm.value.id_fournisseur);
-    formData.append('numero_borderau', this.addEntreeMultipleForm.value.numero_borderau);
-    formData.append('date_mouvement', this.formatDate(this.addEntreeMultipleForm.value.date_mouvement));
-
-    // Articles
-    this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
-      formData.append(`articles[${index}][id_Article]`, article.id_Article);
-      formData.append(`articles[${index}][id_unite_de_mesure]`, article.id_unite_de_mesure);
-      formData.append(`articles[${index}][description]`, article.description);
-      formData.append(`articles[${index}][qte]`, article.qte);
-      formData.append(`articles[${index}][prixUnitaire]`, article.prixUnitaire);
-    });
-
-    // Fichiers
-    if (this.selectedFiles.length > 0) {
-      this.selectedFiles.forEach((file: any, index: number) => {
-        formData.append(`piece_jointe_mouvement[${index}]`, file, file.name);
+    // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
+    if (!this.canAddStock || !this.canAddStockMultiple) {
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Vous n\'avez pas l\'autorisation d\'ajouter du stock.',
+        icon: 'error',
+        confirmButtonText: 'ok',
+        confirmButtonColor: '#d33'
       });
+      return;
     }
 
-    // Envoi
-    this.entreeService.saveMultipleMouvementStockEntree(formData).subscribe(
-      (data: any) => {
+    if (this.isAddingMultipleEntrees) {
+      console.warn('Soumission multiple détectée pour Entrée Multiple. Annulation.');
+      return;
+    }
 
-        this.loadEntrees();
+    const spinner = document.querySelector('.spinner-multiple-add');
 
-        if (spinner) spinner.classList.add('d-none');
+    if (this.addEntreeMultipleForm.valid) {
 
-        // Réinitialisation du formulaire
-        this.addEntreeMultipleForm.reset();
-        this.selectedFiles = [];
+      this.isAddingMultipleEntrees = true;
+      if (spinner) spinner.classList.remove('d-none');
 
-        // Retirer tous les articles sauf un
-        while (this.articlesArray.length !== 0) {
-          this.articlesArray.removeAt(0);
-        }
-        this.addArticle();
+      // Préparer les données du formulaire
+      const formData = new FormData();
 
-        this.isAddingMultipleEntrees = false;
+      // Données communes
+      formData.append('id_fournisseur', this.addEntreeMultipleForm.value.id_fournisseur);
+      formData.append('numero_borderau', this.addEntreeMultipleForm.value.numero_borderau);
+      formData.append('date_mouvement', this.formatDate(this.addEntreeMultipleForm.value.date_mouvement));
 
-        // 🔥 CORRECTION IMPORTANTE : vider réellement l’input file
-        if (this.fileInputMultiple && this.fileInputMultiple.nativeElement) {
-          this.fileInputMultiple.nativeElement.value = "";
-        }
+      // Articles
+      this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
+        formData.append(`articles[${index}][id_Article]`, article.id_Article);
+        formData.append(`articles[${index}][id_unite_de_mesure]`, article.id_unite_de_mesure);
+        formData.append(`articles[${index}][description]`, article.description);
+        formData.append(`articles[${index}][qte]`, article.qte);
+        formData.append(`articles[${index}][prixUnitaire]`, article.prixUnitaire);
+      });
 
-        // Fermeture du modal
-        const modal = document.getElementById('add_entree_multiple');
-        // @ts-ignore
-        const bsModal = bootstrap.Modal.getInstance(modal);
-        bsModal?.hide();
+      // Fichiers
+      if (this.selectedFiles.length > 0) {
+        this.selectedFiles.forEach((file: any, index: number) => {
+          formData.append(`piece_jointe_mouvement[${index}]`, file, file.name);
+        });
+      }
 
-        // Alerte succès
-        setTimeout(() => {
-          this.alertAjoutVisible = true;
+      // Envoi
+      this.entreeService.saveMultipleMouvementStockEntree(formData).subscribe(
+        (data: any) => {
+
+          this.loadEntrees();
+
+          if (spinner) spinner.classList.add('d-none');
+
+          // Réinitialisation du formulaire
+          this.addEntreeMultipleForm.reset();
+          this.selectedFiles = [];
+
+          // Retirer tous les articles sauf un
+          while (this.articlesArray.length !== 0) {
+            this.articlesArray.removeAt(0);
+          }
+          this.addArticle();
+
+          this.isAddingMultipleEntrees = false;
+
+          // 🔥 CORRECTION IMPORTANTE : vider réellement l’input file
+          if (this.fileInputMultiple && this.fileInputMultiple.nativeElement) {
+            this.fileInputMultiple.nativeElement.value = "";
+          }
+
+          // Fermeture du modal
+          const modal = document.getElementById('add_entree_multiple');
+          // @ts-ignore
+          const bsModal = bootstrap.Modal.getInstance(modal);
+          bsModal?.hide();
+
+          // Alerte succès
           setTimeout(() => {
-            this.alertAjoutVisible = false;
-          }, 2000);
-        }, 200);
+            this.alertAjoutVisible = true;
+            setTimeout(() => {
+              this.alertAjoutVisible = false;
+            }, 2000);
+          }, 200);
 
-      },
+        },
 
-      (error: any) => {
-                console.error('Erreur lors de l\'ajout multiple d\'entrées :', error);
-                if (spinner) spinner.classList.add('d-none');
-                this.isAddingMultipleEntrees = false;
-        
-                // --- Logique d'affichage du message améliorée ---
-                let detail = 'Veuillez vérifier votre connexion et les données du formulaire, puis réessayer.';
-        
-                if (error.status === 422) {
-                  // Erreur de validation (données manquantes ou incorrectes)
-                  detail = 'Certaines informations de votre formulaire sont manquantes ou incorrectes. Veuillez vérifier tous les champs (codes articles, quantités, prix).';
-                } else if (error.status === 401 || error.status === 403) {
-                  // Erreur d'autorisation
-                  detail = 'Vous n\'êtes pas autorisé à effectuer cette opération. Veuillez vérifier vos permissions.';
-                } else if (error.status === 0) {
-                  // Erreur de réseau ou serveur injoignable
-                  detail = 'Impossible de se connecter au serveur. Vérifiez votre connexion Internet.';
-                } else if (error.error && error.error.message) {
-                  // Afficher le message d'erreur du serveur s'il est disponible
-                  detail = `Erreur Serveur: ${error.error.message}`;
-                }
-        
-                // Message final clair
-                Swal.fire({
-                  title: 'Erreur',
-                  text: 'L\'ajout multiple d\'entrées a échoué.\n\nDétails.',
-                  icon: 'error',
-                  confirmButtonText: 'Réessayer',
-                  confirmButtonColor: '#d33'
-                });
-              }
-            );
+        (error: any) => {
+          console.error('Erreur lors de l\'ajout multiple d\'entrées :', error);
+          if (spinner) spinner.classList.add('d-none');
+          this.isAddingMultipleEntrees = false;
 
-  } else {
-    if (spinner) spinner.classList.add('d-none');
-    this.markFormGroupTouched(this.addEntreeMultipleForm);
-    Swal.fire({
-      title: 'Erreur',
-      text: 'Veuillez remplir correctement tous les champs obligatoires',
-      icon: 'error',
-      confirmButtonText: 'Réessayer',
-      confirmButtonColor: '#d33'
-    });
+          // --- Logique d'affichage du message améliorée ---
+          let detail = 'Veuillez vérifier votre connexion et les données du formulaire, puis réessayer.';
+
+          if (error.status === 422) {
+            // Erreur de validation (données manquantes ou incorrectes)
+            detail = 'Certaines informations de votre formulaire sont manquantes ou incorrectes. Veuillez vérifier tous les champs (codes articles, quantités, prix).';
+          } else if (error.status === 401 || error.status === 403) {
+            // Erreur d'autorisation
+            detail = 'Vous n\'êtes pas autorisé à effectuer cette opération. Veuillez vérifier vos permissions.';
+          } else if (error.status === 0) {
+            // Erreur de réseau ou serveur injoignable
+            detail = 'Impossible de se connecter au serveur. Vérifiez votre connexion Internet.';
+          } else if (error.error && error.error.message) {
+            // Afficher le message d'erreur du serveur s'il est disponible
+            detail = `Erreur Serveur: ${error.error.message}`;
+          }
+
+          // Message final clair
+          Swal.fire({
+            title: 'Erreur',
+            text: 'L\'ajout multiple d\'entrées a échoué.\n\nDétails.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
+        }
+      );
+
+    } else {
+      if (spinner) spinner.classList.add('d-none');
+      this.markFormGroupTouched(this.addEntreeMultipleForm);
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Veuillez remplir correctement tous les champs obligatoires',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
+      });
+    }
   }
-}
 
 
   // Soumission d'ajout simple
@@ -414,8 +466,8 @@ onClickSubmitAddEntreeMultiple() {
     }
 
     if (this.isAddingSingleEntree) {
-        console.warn('Soumission multiple détectée pour Entrée Simple. Annulation.');
-        return; // Empêche l'exécution si déjà en cours
+      console.warn('Soumission multiple détectée pour Entrée Simple. Annulation.');
+      return; // Empêche l'exécution si déjà en cours
     }
 
     console.log(this.addEntree.value);
@@ -464,38 +516,38 @@ onClickSubmitAddEntreeMultiple() {
           }, 200);
         },
         (error: any) => {
-                    console.error('Erreur lors de l\'ajout de l\'entrée :', error);
-                    if (spinner) spinner.classList.add('d-none');
-                    this.isAddingSingleEntree = false; // Réactiver le bouton en cas d'erreur
-                    console.error('Soumission Entrée Simple échouée. isAddingSingleEntree mis à false.'); // Log pour le débogage
-          
-                    // --- Logique d'affichage du message améliorée ---
-                    let detail = 'Veuillez vérifier vos données et réessayer.';
-          
-                    if (error.status === 422) {
-                      // Erreur de validation (données manquantes ou incorrectes)
-                      detail = 'Certaines informations sont manquantes ou incorrectes. Veuillez vérifier tous les champs du formulaire d\'entrée.';
-                    } else if (error.status === 401 || error.status === 403) {
-                      // Erreur d'autorisation
-                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer une entrée.';
-                    } else if (error.status === 0) {
-                      // Erreur de réseau ou serveur injoignable
-                      detail = 'Erreur de connexion. Le serveur est injoignable. Vérifiez votre connexion Internet.';
-                    } else if (error.error && error.error.message) {
-                      // Afficher le message d'erreur du serveur s'il est disponible
-                      detail = `Erreur Serveur: ${error.error.message}`;
-                    }
-          
-                    // Message final clair
-                    Swal.fire({
-                      title: 'Erreur',
-                      text: 'L\'enregistrement de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
-                      icon: 'error',
-                      confirmButtonText: 'Réessayer',
-                      confirmButtonColor: '#d33'
-                    });
-                  }
-                );
+          console.error('Erreur lors de l\'ajout de l\'entrée :', error);
+          if (spinner) spinner.classList.add('d-none');
+          this.isAddingSingleEntree = false; // Réactiver le bouton en cas d'erreur
+          console.error('Soumission Entrée Simple échouée. isAddingSingleEntree mis à false.'); // Log pour le débogage
+
+          // --- Logique d'affichage du message améliorée ---
+          let detail = 'Veuillez vérifier vos données et réessayer.';
+
+          if (error.status === 422) {
+            // Erreur de validation (données manquantes ou incorrectes)
+            detail = 'Certaines informations sont manquantes ou incorrectes. Veuillez vérifier tous les champs du formulaire d\'entrée.';
+          } else if (error.status === 401 || error.status === 403) {
+            // Erreur d'autorisation
+            detail = 'Accès refusé. Vous n\'avez pas les permissions pour enregistrer une entrée.';
+          } else if (error.status === 0) {
+            // Erreur de réseau ou serveur injoignable
+            detail = 'Erreur de connexion. Le serveur est injoignable. Vérifiez votre connexion Internet.';
+          } else if (error.error && error.error.message) {
+            // Afficher le message d'erreur du serveur s'il est disponible
+            detail = `Erreur Serveur: ${error.error.message}`;
+          }
+
+          // Message final clair
+          Swal.fire({
+            title: 'Erreur',
+            text: 'L\'enregistrement de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
+        }
+      );
     } else {
       if (spinner) spinner.classList.add('d-none');
       Swal.fire({
@@ -513,116 +565,116 @@ onClickSubmitAddEntreeMultiple() {
   onClickSubmitEditEntree() {
     // 🔥 VÉRIFICATION DE PERMISSION AVANT SOUMISSION
     if (!this.canModifyStock) {
-        if (this.isAddingMultipleEntrees) {
+      if (this.isAddingMultipleEntrees) {
         console.warn('Soumission multiple détectée pour Entrée Multiple. Annulation.');
         return; // Empêche l'exécution si déjà en cours
-    }
-
-    const spinner = document.querySelector('.spinner-multiple-add');
-
-    if (this.addEntreeMultipleForm.valid) {
-      this.isAddingMultipleEntrees = true; // Désactiver le bouton d'ajout multiple
-      if (spinner) spinner.classList.remove('d-none');
-      console.log('isAddingMultipleEntrees mis à true.'); // Log pour le débogage
-
-
-      // Préparer les données du formulaire
-      const formData = new FormData();
-
-      // Ajouter les données communes
-      formData.append('id_fournisseur', this.addEntreeMultipleForm.value.id_fournisseur);
-      formData.append('numero_borderau', this.addEntreeMultipleForm.value.numero_borderau);
-      formData.append('date_mouvement', this.formatDate(this.addEntreeMultipleForm.value.date_mouvement));
-      // Ajouter les articles correctement à FormData
-      this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
-        formData.append(`articles[${index}][id_Article]`, article.id_Article);
-        formData.append(`articles[${index}][description]`, article.description);
-        formData.append(`articles[${index}][qte]`, article.qte);
-      });
-
-      // Ajouter les fichiers si présents
-      if (this.selectedFiles.length > 0) {
-        this.selectedFiles.forEach((file, index) => {
-          formData.append(`piece_jointe_mouvement[${index}]`, file, file.name);
-        });
       }
-      console.log(formData);
-      // Envoyer la requête
-      this.entreeService.saveMultipleMouvementStockEntree(formData).subscribe(
-        (data: any) => {
-          this.loadEntrees();
-          if (spinner) spinner.classList.add('d-none');
-          this.addEntreeMultipleForm.reset();
-          this.selectedFiles = [];
 
-          // Réinitialiser le FormArray avec un seul élément
-          while (this.articlesArray.length !== 0) {
-            this.articlesArray.removeAt(0);
-          }
-          this.addArticle();
-          this.isAddingMultipleEntrees = false; // Réactiver le bouton
-          console.log('Soumission Entrée Multiple réussie. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
+      const spinner = document.querySelector('.spinner-multiple-add');
+
+      if (this.addEntreeMultipleForm.valid) {
+        this.isAddingMultipleEntrees = true; // Désactiver le bouton d'ajout multiple
+        if (spinner) spinner.classList.remove('d-none');
+        console.log('isAddingMultipleEntrees mis à true.'); // Log pour le débogage
 
 
-          // Fermer le modal
-          const modal = document.getElementById('add_entree_multiple');
-          // @ts-ignore
-          const bsModal = bootstrap.Modal.getInstance(modal);
-          bsModal?.hide();
+        // Préparer les données du formulaire
+        const formData = new FormData();
 
-          // Afficher l'alerte de succès
-          setTimeout(() => {
-            this.alertAjoutVisible = true;
+        // Ajouter les données communes
+        formData.append('id_fournisseur', this.addEntreeMultipleForm.value.id_fournisseur);
+        formData.append('numero_borderau', this.addEntreeMultipleForm.value.numero_borderau);
+        formData.append('date_mouvement', this.formatDate(this.addEntreeMultipleForm.value.date_mouvement));
+        // Ajouter les articles correctement à FormData
+        this.addEntreeMultipleForm.value.articles.forEach((article: any, index: number) => {
+          formData.append(`articles[${index}][id_Article]`, article.id_Article);
+          formData.append(`articles[${index}][description]`, article.description);
+          formData.append(`articles[${index}][qte]`, article.qte);
+        });
+
+        // Ajouter les fichiers si présents
+        if (this.selectedFiles.length > 0) {
+          this.selectedFiles.forEach((file, index) => {
+            formData.append(`piece_jointe_mouvement[${index}]`, file, file.name);
+          });
+        }
+        console.log(formData);
+        // Envoyer la requête
+        this.entreeService.saveMultipleMouvementStockEntree(formData).subscribe(
+          (data: any) => {
+            this.loadEntrees();
+            if (spinner) spinner.classList.add('d-none');
+            this.addEntreeMultipleForm.reset();
+            this.selectedFiles = [];
+
+            // Réinitialiser le FormArray avec un seul élément
+            while (this.articlesArray.length !== 0) {
+              this.articlesArray.removeAt(0);
+            }
+            this.addArticle();
+            this.isAddingMultipleEntrees = false; // Réactiver le bouton
+            console.log('Soumission Entrée Multiple réussie. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
+
+
+            // Fermer le modal
+            const modal = document.getElementById('add_entree_multiple');
+            // @ts-ignore
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            bsModal?.hide();
+
+            // Afficher l'alerte de succès
             setTimeout(() => {
-              this.alertAjoutVisible = false;
-            }, 2000);
-          }, 200);
-        },
-        (error: any) => {
-                    console.error('Erreur lors de l\'ajout multiple d\'entrées :', error);
-                    if (spinner) spinner.classList.add('d-none');
-                    this.isAddingMultipleEntrees = false; // Réactiver le bouton en cas d'erreur
-                    console.error('Soumission Entrée Multiple échouée. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
-          
-                    // --- Logique d'affichage du message améliorée ---
-                    let detail = 'Veuillez vérifier vos données et réessayer.';
-          
-                    if (error.status === 422) {
-                      // Erreur de validation (données manquantes ou incorrectes)
-                      detail = 'Erreur de validation : Un ou plusieurs articles n\'ont pas été correctement remplis. Veuillez vérifier les codes, les quantités et les prix de **toutes les lignes** d\'entrée.';
-                    } else if (error.status === 401 || error.status === 403) {
-                      // Erreur d'autorisation
-                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour effectuer un ajout multiple d\'entrées.';
-                    } else if (error.status === 0) {
-                      // Erreur de réseau ou serveur injoignable
-                      detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
-                    } else if (error.error && error.error.message) {
-                      // Afficher le message d'erreur du serveur s'il est disponible
-                      detail = `Erreur Serveur: ${error.error.message}`;
-                    }
-          
-                    // Message final clair
-                    Swal.fire({
-                      title: 'Erreur',
-                      text: 'L\'enregistrement des entrées multiples a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
-                      icon: 'error',
-                      confirmButtonText: 'Réessayer',
-                      confirmButtonColor: '#d33'
-                    });
-                  }
-                );
-    } else {
-      if (spinner) spinner.classList.add('d-none');
-      this.markFormGroupTouched(this.addEntreeMultipleForm);
-      Swal.fire({
-        title: 'Erreur',
-        text: 'Veuillez remplir correctement tous les champs obligatoires',
-        icon: 'error',
-        confirmButtonText: 'Réessayer',
-        confirmButtonColor: '#d33'
-      });
-      console.log('Formulaire Entrée Multiple invalide.'); // Log pour le débogage
-    }  Swal.fire({
+              this.alertAjoutVisible = true;
+              setTimeout(() => {
+                this.alertAjoutVisible = false;
+              }, 2000);
+            }, 200);
+          },
+          (error: any) => {
+            console.error('Erreur lors de l\'ajout multiple d\'entrées :', error);
+            if (spinner) spinner.classList.add('d-none');
+            this.isAddingMultipleEntrees = false; // Réactiver le bouton en cas d'erreur
+            console.error('Soumission Entrée Multiple échouée. isAddingMultipleEntrees mis à false.'); // Log pour le débogage
+
+            // --- Logique d'affichage du message améliorée ---
+            let detail = 'Veuillez vérifier vos données et réessayer.';
+
+            if (error.status === 422) {
+              // Erreur de validation (données manquantes ou incorrectes)
+              detail = 'Erreur de validation : Un ou plusieurs articles n\'ont pas été correctement remplis. Veuillez vérifier les codes, les quantités et les prix de **toutes les lignes** d\'entrée.';
+            } else if (error.status === 401 || error.status === 403) {
+              // Erreur d'autorisation
+              detail = 'Accès refusé. Vous n\'avez pas les permissions pour effectuer un ajout multiple d\'entrées.';
+            } else if (error.status === 0) {
+              // Erreur de réseau ou serveur injoignable
+              detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+            } else if (error.error && error.error.message) {
+              // Afficher le message d'erreur du serveur s'il est disponible
+              detail = `Erreur Serveur: ${error.error.message}`;
+            }
+
+            // Message final clair
+            Swal.fire({
+              title: 'Erreur',
+              text: 'L\'enregistrement des entrées multiples a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+              icon: 'error',
+              confirmButtonText: 'Réessayer',
+              confirmButtonColor: '#d33'
+            });
+          }
+        );
+      } else {
+        if (spinner) spinner.classList.add('d-none');
+        this.markFormGroupTouched(this.addEntreeMultipleForm);
+        Swal.fire({
+          title: 'Erreur',
+          text: 'Veuillez remplir correctement tous les champs obligatoires',
+          icon: 'error',
+          confirmButtonText: 'Réessayer',
+          confirmButtonColor: '#d33'
+        });
+        console.log('Formulaire Entrée Multiple invalide.'); // Log pour le débogage
+      } Swal.fire({
         title: 'Erreur',
         text: 'Vous n\'avez pas l\'autorisation de modifier le stock.',
         icon: 'error',
@@ -661,39 +713,39 @@ onClickSubmitAddEntreeMultiple() {
           }, 200);
         },
         (error: any) => {
-                    console.error('Erreur lors de la modification de l\'entree :', error);
-                    if (spinner) spinner.classList.add('d-none');
-                    
-                    // --- Logique d'affichage du message améliorée ---
-                    let detail = 'Veuillez vérifier vos données et réessayer.';
-          
-                    if (error.status === 422) {
-                      // Erreur de validation (données manquantes ou incorrectes)
-                      detail = 'Erreur de validation : Certaines informations sont manquantes ou incorrectes. Veuillez vérifier tous les champs du formulaire de modification.';
-                    } else if (error.status === 404) {
-                      // Erreur 404 si l'entrée à modifier n'est plus trouvée
-                      detail = 'L\'entrée de stock que vous tentez de modifier est introuvable ou a été supprimée par un autre utilisateur. Rechargez la page.';
-                    } else if (error.status === 401 || error.status === 403) {
-                      // Erreur d'autorisation
-                      detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette entrée.';
-                    } else if (error.status === 0) {
-                      // Erreur de réseau ou serveur injoignable
-                      detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
-                    } else if (error.error && error.error.message) {
-                      // Afficher le message d'erreur du serveur s'il est disponible
-                      detail = `Erreur Serveur: ${error.error.message}`;
-                    }
-          
-                    // Message final clair
-                    Swal.fire({
-                      title: 'Erreur',
-                      text: 'La modification de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
-                      icon: 'error',
-                      confirmButtonText: 'Réessayer',
-                      confirmButtonColor: '#d33'
-                    });
-                  }
-                );
+          console.error('Erreur lors de la modification de l\'entree :', error);
+          if (spinner) spinner.classList.add('d-none');
+
+          // --- Logique d'affichage du message améliorée ---
+          let detail = 'Veuillez vérifier vos données et réessayer.';
+
+          if (error.status === 422) {
+            // Erreur de validation (données manquantes ou incorrectes)
+            detail = 'Erreur de validation : Certaines informations sont manquantes ou incorrectes. Veuillez vérifier tous les champs du formulaire de modification.';
+          } else if (error.status === 404) {
+            // Erreur 404 si l'entrée à modifier n'est plus trouvée
+            detail = 'L\'entrée de stock que vous tentez de modifier est introuvable ou a été supprimée par un autre utilisateur. Rechargez la page.';
+          } else if (error.status === 401 || error.status === 403) {
+            // Erreur d'autorisation
+            detail = 'Accès refusé. Vous n\'avez pas les permissions pour modifier cette entrée.';
+          } else if (error.status === 0) {
+            // Erreur de réseau ou serveur injoignable
+            detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+          } else if (error.error && error.error.message) {
+            // Afficher le message d'erreur du serveur s'il est disponible
+            detail = `Erreur Serveur: ${error.error.message}`;
+          }
+
+          // Message final clair
+          Swal.fire({
+            title: 'Erreur',
+            text: 'La modification de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nSi le problème persiste, veuillez contacter le support technique.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
+        }
+      );
     } else {
       if (spinner) spinner.classList.add('d-none');
       Swal.fire({
@@ -743,40 +795,40 @@ onClickSubmitAddEntreeMultiple() {
           }, 200);
         },
         (error: any) => {
-                    console.error('Erreur lors de la suppression de l\'entree :', error);
-                    if (spinner) spinner.classList.add('d-none');
-                    
-                    // --- Logique d'affichage du message améliorée ---
-                    let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
-          
-                    if (error.status === 404) {
-                      // Erreur 404 si l'entrée à supprimer n'est plus trouvée
-                      detail = 'L\'entrée de stock sélectionnée est introuvable. Elle a peut-être déjà été supprimée ou le système a un décalage. Rechargez la page.';
-                    } else if (error.status === 401 || error.status === 403) {
-                      // Erreur d'autorisation
-                      detail = 'Accès refusé. Vous n\'avez pas les permissions nécessaires pour supprimer cette entrée.';
-                    } else if (error.status === 400 || error.status === 500) {
-                      // Erreur possible si l'entrée a des dépendances (ex: déjà utilisée dans des sorties)
-                      detail = 'Impossible de supprimer cette entrée. Elle est peut-être déjà liée à des mouvements de stock (sorties) et ne peut être retirée.';
-                      // Tenter d'afficher le message du serveur s'il est plus précis
-                      if (error.error && error.error.message) {
-                        detail = `Erreur Serveur: ${error.error.message}.`;
-                      }
-                    } else if (error.status === 0) {
-                      // Erreur de réseau
-                      detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
-                    }
-          
-                    // Message final clair
-                    Swal.fire({
-                      title: 'Erreur',
-                      text: 'La suppression de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d\'échec répété, veuillez contacter le support technique.',
-                      icon: 'error',
-                      confirmButtonText: 'Réessayer',
-                      confirmButtonColor: '#d33'
-                    });
-                  }
-                );
+          console.error('Erreur lors de la suppression de l\'entree :', error);
+          if (spinner) spinner.classList.add('d-none');
+
+          // --- Logique d'affichage du message améliorée ---
+          let detail = 'Veuillez réessayer l\'opération. Si l\'erreur persiste, contactez le support.';
+
+          if (error.status === 404) {
+            // Erreur 404 si l'entrée à supprimer n'est plus trouvée
+            detail = 'L\'entrée de stock sélectionnée est introuvable. Elle a peut-être déjà été supprimée ou le système a un décalage. Rechargez la page.';
+          } else if (error.status === 401 || error.status === 403) {
+            // Erreur d'autorisation
+            detail = 'Accès refusé. Vous n\'avez pas les permissions nécessaires pour supprimer cette entrée.';
+          } else if (error.status === 400 || error.status === 500) {
+            // Erreur possible si l'entrée a des dépendances (ex: déjà utilisée dans des sorties)
+            detail = 'Impossible de supprimer cette entrée. Elle est peut-être déjà liée à des mouvements de stock (sorties) et ne peut être retirée.';
+            // Tenter d'afficher le message du serveur s'il est plus précis
+            if (error.error && error.error.message) {
+              detail = `Erreur Serveur: ${error.error.message}.`;
+            }
+          } else if (error.status === 0) {
+            // Erreur de réseau
+            detail = 'Erreur de connexion : Le serveur est injoignable. Veuillez vérifier votre connexion Internet.';
+          }
+
+          // Message final clair
+          Swal.fire({
+            title: 'Erreur',
+            text: 'La suppression de l\'entrée de stock a échoué.\n\nDétails : ${detail}\n\nEn cas d\'échec répété, veuillez contacter le support technique.',
+            icon: 'error',
+            confirmButtonText: 'Réessayer',
+            confirmButtonColor: '#d33'
+          });
+        }
+      );
     } else {
       if (spinner) spinner.classList.add('d-none');
       Swal.fire({
@@ -829,7 +881,7 @@ onClickSubmitAddEntreeMultiple() {
       },
       error: (err) => {
         console.error("Erreur lors du chargement des uniteDeMesures :", err);
-      } 
+      }
     });
   }
 
@@ -846,6 +898,85 @@ onClickSubmitAddEntreeMultiple() {
       }
     );
   }
+
+
+  loadMouvementsGrouped() {
+  // Charger les mouvements groupés
+  this.mouvementStockService.getSortieStockGrouped().subscribe({
+    next: (res: any) => {
+      this.mouvementsGrouped = res.data;
+    }
+  });
+}
+
+
+
+onClickSubmitCorrectionEntreeStock(): void {
+
+  // 🔥 Vérification formulaire
+  if (this.correctionEntreeForm.invalid) {
+    this.correctionEntreeForm.markAllAsTouched();
+    return;
+  }
+
+  this.isLoadingCorrection = true;
+
+  const data = this.correctionEntreeForm.value;
+
+  // 🔥 Vérification logique métier
+  if (this.selectedArticle && data.qte > this.selectedArticle.qte) {
+    alert("❌ La quantité dépasse la quantité sortie !");
+    this.isLoadingCorrection = false;
+    return;
+  }
+
+  // 🔥 Envoi au backend
+  this.mouvementStockService
+    .saveCorrectionEntreeStock(data) // 👉 on va créer cette méthode juste après
+    .subscribe({
+      next: (response: any) => {
+        console.log("✅ Correction réussie", response);
+
+        alert("✅ Correction effectuée avec succès");
+
+        // 🔄 Reset formulaire
+        this.correctionEntreeForm.reset();
+
+        // 🔄 Reset états
+        this.articlesByCode = [];
+        this.selectedArticle = null;
+
+        this.isLoadingCorrection = false;
+
+        // 👉 fermer modal (optionnel)
+        const modal = document.getElementById('correction_entree');
+        if (modal) {
+          (window as any).bootstrap.Modal.getInstance(modal)?.hide();
+        }
+      },
+
+      error: (error) => {
+        console.error("❌ Erreur correction", error);
+
+        alert(error?.error?.message || "Erreur lors de la correction");
+
+        this.isLoadingCorrection = false;
+      }
+    });
+}
+
+
+
+onArticleChange(articleId: number) {
+
+  this.selectedArticle = this.articlesByCode.find(
+    a => a.id_Article === articleId
+  );
+
+  this.correctionEntreeForm.patchValue({
+    id_article: articleId
+  });
+}
 
   // updateFilter(event: KeyboardEvent): void {
   //   const val = (event.target as HTMLInputElement).value.toLowerCase();

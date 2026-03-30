@@ -65,21 +65,20 @@
               Ajouter un
             </button> -->
 
-            <button *ngIf="canAddStockMultiple"
-                    type="button"
-                    class="btn btn-primary align-self-center"
-                    data-bs-toggle="modal"
-                    data-bs-target="#add_entree_multiple"
-                    title="Ajouter plusieurs mouvements d'entrée">
+            <button *ngIf="canAddStockMultiple" type="button" class="btn btn-primary align-self-center"
+              data-bs-toggle="modal" data-bs-target="#add_entree_multiple"
+              title="Ajouter plusieurs mouvements d'entrée">
               <i class="feather icon-plus-circle me-1"></i>
               Ajouter plusieurs
             </button>
+            <button *ngIf="canAddStockMultiple" type="button" class="btn btn-primary align-self-center"
+              data-bs-toggle="modal" data-bs-target="#correction_entree">
+              <!-- <i class="feather icon-plus-circle me-1"></i> -->
+              Correction
+            </button>
 
-            <button *ngIf="canExportStock"
-                    type="button"
-                    class="btn btn-outline-primary btn-icon-text align-self-center"
-                    (click)="downloadMouvementsEntreePDF()"
-                    title="Exporter la liste des entrées">
+            <button *ngIf="canExportStock" type="button" class="btn btn-outline-primary btn-icon-text align-self-center"
+              (click)="downloadMouvementsEntreePDF()" title="Exporter la liste des entrées">
               <i class="btn-icon-prepend" data-feather="printer" appFeatherIcon></i>
               Imprimer
             </button>
@@ -98,7 +97,7 @@
                 Ajout autorisé
               </span>
             </div>
-<!--
+            <!--
             <div *ngIf="!canAddStock && canExportStock" class="align-self-center">
               <span class="badge bg-secondary">
                 <i class="feather icon-download me-1"></i>
@@ -182,8 +181,7 @@
               </ngx-datatable-column> -->
               <!-- 🔥 COLONNE ACTIONS CONDITIONNELLE -->
               <ngx-datatable-column *ngIf="canModifyStock || canDeleteStock" name="Actions" [frozenRight]="true"
-  [width]="130" [headerClass]="'actions-header'"
-                      [cellClass]="'actions-cell'">
+                [width]="130" [headerClass]="'actions-header'" [cellClass]="'actions-cell'">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   <div ngbDropdown container="body" placement="bottom-right" class="mb-2">
                     <a class="no-dropdown-toggle-icon btn btn-primary" ngbDropdownToggle id="dropdownBasic_{{row.id}}">
@@ -192,33 +190,22 @@
                     <div ngbDropdownMenu [attr.aria-labelledby]="'dropdownBasic_' + row.id">
 
                       <!-- 🔥 BOUTON VOIR PLUS -->
-                      <a ngbDropdownItem
-                        class="d-flex align-items-center"
-                        data-bs-toggle="modal"
-                        data-bs-target="#voir_plus"
-                        (click)="getViewForm(row)">
+                      <a ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                        data-bs-target="#voir_plus" (click)="getViewForm(row)">
                         <i data-feather="eye" appFeatherIcon class="icon-sm me-2"></i>
                         <span>Voir plus</span>
                       </a>
 
                       <!-- 🔥 BOUTON MODIFIER CONDITIONNEL -->
-                      <a *ngIf="canModifyStock"
-                         ngbDropdownItem
-                         class="d-flex align-items-center"
-                         data-bs-toggle="modal"
-                         data-bs-target="#edit_entree"
-                         (click)="getEditForm(row)">
+                      <a *ngIf="canModifyStock" ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                        data-bs-target="#edit_entree" (click)="getEditForm(row)">
                         <i data-feather="edit-2" appFeatherIcon class="icon-sm me-2"></i>
                         <span>Modifier</span>
                       </a>
 
                       <!-- 🔥 BOUTON SUPPRIMER CONDITIONNEL -->
-                      <a *ngIf="canDeleteStock"
-                         ngbDropdownItem
-                         class="d-flex align-items-center"
-                         data-bs-toggle="modal"
-                         data-bs-target="#delete_entree"
-                         (click)="getDeleteForm(row)">
+                      <a *ngIf="canDeleteStock" ngbDropdownItem class="d-flex align-items-center" data-bs-toggle="modal"
+                        data-bs-target="#delete_entree" (click)="getDeleteForm(row)">
                         <i data-feather="trash" appFeatherIcon class="icon-sm me-2"></i>
                         <span>Supprimer</span>
                       </a>
@@ -241,7 +228,8 @@
   <!-- 🔥 MODALS CONDITIONNELS -->
 
   <!-- Add mouvement entrée (affiché seulement si canAddStock) -->
-  <div *ngIf="canAddStock" id="add_entree" class="modal fade" tabindex="-1" aria-labelledby="addEntreeLabel" aria-hidden="true">
+  <div *ngIf="canAddStock" id="add_entree" class="modal fade" tabindex="-1" aria-labelledby="addEntreeLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -307,7 +295,8 @@
                 <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
                   formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
                 </ng-select>
-                <div *ngIf="addEntree.get('id_unite_de_mesure')?.invalid && addEntree.get('id_unite_de_mesure')?.touched">
+                <div
+                  *ngIf="addEntree.get('id_unite_de_mesure')?.invalid && addEntree.get('id_unite_de_mesure')?.touched">
                   <small class="text-danger"> *L'unite de mesure est obligatoire</small>
                 </div>
               </ng-container>
@@ -325,14 +314,16 @@
               <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
                 [class.invalid]="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" formControlName="qte">
               <div *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched">
-                <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" class="text-danger"> *la qte
+                <small *ngIf="addEntree.get('qte')?.invalid && addEntree.get('qte')?.touched" class="text-danger"> *la
+                  qte
                   est obligatoire</small>
               </div>
             </div>
 
             <!-- prixUnitaire -->
             <div class="mb-3">
-              <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+              <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span
+                  class="text-danger">*</span></label>
               <input type="number" class="form-control" id="prixUnitaire" placeholder="1000" autocomplete="off"
                 [class.invalid]="addEntree.get('prixUnitaire')?.invalid && addEntree.get('prixUnitaire')?.touched"
                 formControlName="prixUnitaire">
@@ -384,7 +375,7 @@
   </div>
 
 
-    <!-- Voir entree Modal  -->
+  <!-- Voir entree Modal  -->
   <div id="voir_plus" class="modal fade" tabindex="-1" aria-labelledby="voirEntreeLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
@@ -459,7 +450,7 @@
               </div>
               <div class="card-body">
                 <p class="text-muted mb-0">
-                   {{ selectedEntree.description || 'Aucune description disponible' }}
+                  {{ selectedEntree.description || 'Aucune description disponible' }}
                 </p>
               </div>
             </div>
@@ -472,9 +463,7 @@
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-6" *ngFor="let piece of selectedEntree.pieces_jointes">
-                    <a [href]="url + '/' + piece.url"
-                       target="_blank"
-                       class="btn btn-outline-primary btn-sm mb-2 w-100">
+                    <a [href]="url + '/' + piece.url" target="_blank" class="btn btn-outline-primary btn-sm mb-2 w-100">
                       <i class="feather icon-download me-2"></i>
                       Télécharger le document
                     </a>
@@ -505,13 +494,8 @@
 
         <!-- 🔥 FOOTER AVEC BOUTONS D'ACTION -->
         <div class="modal-footer">
-          <button *ngIf="canModifyStock"
-                  type="button"
-                  class="btn btn-primary"
-                  data-bs-toggle="modal"
-                  data-bs-target="#edit_entree"
-                  data-bs-dismiss="modal"
-                  (click)="getEditForm(selectedEntree)">
+          <button *ngIf="canModifyStock" type="button" class="btn btn-primary" data-bs-toggle="modal"
+            data-bs-target="#edit_entree" data-bs-dismiss="modal" (click)="getEditForm(selectedEntree)">
             <i class="feather icon-edit me-2"></i>
             Modifier ce mouvement
           </button>
@@ -525,7 +509,8 @@
   </div>
 
   <!-- Edit entree Modal (affiché seulement si canModifyStock) -->
-  <div *ngIf="canModifyStock" id="edit_entree" class="modal fade" tabindex="-1" aria-labelledby="editEntreeLabel" aria-hidden="true">
+  <div *ngIf="canModifyStock" id="edit_entree" class="modal fade" tabindex="-1" aria-labelledby="editEntreeLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -591,7 +576,8 @@
                 <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
                   formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez l'unité de mesure">
                 </ng-select>
-                <div *ngIf="editEntree.get('id_unite_de_mesure')?.invalid && editEntree.get('id_unite_de_mesure')?.touched">
+                <div
+                  *ngIf="editEntree.get('id_unite_de_mesure')?.invalid && editEntree.get('id_unite_de_mesure')?.touched">
                   <small class="text-danger"> *L'unite de mesure est obligatoire</small>
                 </div>
               </ng-container>
@@ -607,7 +593,8 @@
             <div class="mb-3">
               <label for="qte" class="form-label">Quantité <span class="text-danger">*</span></label>
               <input type="number" class="form-control" id="qte" placeholder="1" autocomplete="off"
-                [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" formControlName="qte">
+                [class.invalid]="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched"
+                formControlName="qte">
               <div *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched">
                 <small *ngIf="editEntree.get('qte')?.invalid && editEntree.get('qte')?.touched" class="text-danger"> *la
                   qte est obligatoire</small>
@@ -616,7 +603,8 @@
 
             <!-- prixUnitaire -->
             <div class="mb-3">
-              <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
+              <label for="prixUnitaire" class="form-label">Prix Unitaire (en FCFA) <span
+                  class="text-danger">*</span></label>
               <input type="number" class="form-control" id="prixUnitaire" placeholder="100" autocomplete="off"
                 [class.invalid]="editEntree.get('prixUnitaire')?.invalid && editEntree.get('prixUnitaire')?.touched"
                 formControlName="prixUnitaire">
@@ -655,7 +643,8 @@
   </div>
 
   <!-- Delete mouvement Modal (affiché seulement si canDeleteStock) -->
-  <div *ngIf="canDeleteStock" id="delete_entree" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel" aria-hidden="true">
+  <div *ngIf="canDeleteStock" id="delete_entree" class="modal fade" tabindex="-1" aria-labelledby="deleteEntreeLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
@@ -684,7 +673,8 @@
   </div>
 
   <!-- Add mouvement entrée multiple (affiché seulement si canAddStock) -->
-  <div *ngIf="canAddStock" id="add_entree_multiple" class="modal fade" tabindex="-1" aria-labelledby="addEntreeMultipleLabel" aria-hidden="true">
+  <div *ngIf="canAddStock" id="add_entree_multiple" class="modal fade" tabindex="-1"
+    aria-labelledby="addEntreeMultipleLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -692,7 +682,8 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <form class="forms-sample" [formGroup]="addEntreeMultipleForm" (ngSubmit)="onClickSubmitAddEntreeMultiple()" novalidate>
+          <form class="forms-sample" [formGroup]="addEntreeMultipleForm" (ngSubmit)="onClickSubmitAddEntreeMultiple()"
+            novalidate>
             <!-- Informations communes -->
             <div class="row mb-3">
               <div class="col-md-6">
@@ -703,7 +694,8 @@
                     <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="id_fournisseur"
                       [clearable]="true" placeholder="Sélectionnez le Fournisseur">
                     </ng-select>
-                    <div *ngIf="addEntreeMultipleForm.get('id_fournisseur')?.invalid && addEntreeMultipleForm.get('id_fournisseur')?.touched">
+                    <div
+                      *ngIf="addEntreeMultipleForm.get('id_fournisseur')?.invalid && addEntreeMultipleForm.get('id_fournisseur')?.touched">
                       <small class="text-danger"> *Le fournisseur est obligatoire</small>
                     </div>
                   </ng-container>
@@ -719,12 +711,14 @@
               <div class="col-md-6">
                 <!-- Numéro de bordereau -->
                 <div class="mb-3">
-                  <label for="numero_borderau" class="form-label">Numéro de Bordereau <span class="text-danger">*</span></label>
-                  <input type="text" class="form-control" id="numero_borderau" placeholder="Entrez le numéro du bordereau"
-                    autocomplete="off"
+                  <label for="numero_borderau" class="form-label">Numéro de Bordereau <span
+                      class="text-danger">*</span></label>
+                  <input type="text" class="form-control" id="numero_borderau"
+                    placeholder="Entrez le numéro du bordereau" autocomplete="off"
                     [class.invalid]="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched"
                     formControlName="numero_borderau">
-                  <div *ngIf="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched">
+                  <div
+                    *ngIf="addEntreeMultipleForm.get('numero_borderau')?.invalid && addEntreeMultipleForm.get('numero_borderau')?.touched">
                     <small class="text-danger"> *Le numéro de bordereau est obligatoire</small>
                   </div>
                 </div>
@@ -735,16 +729,19 @@
               <!-- Date commune du mouvement -->
               <div class="col-md-6">
                 <div class="mb-3">
-                  <label for="date_mouvement" class="form-label">Date du mouvement <span class="text-danger">*</span></label>
+                  <label for="date_mouvement" class="form-label">Date du mouvement <span
+                      class="text-danger">*</span></label>
                   <div class="input-group">
-                    <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dAddMultiple.toggle()">
+                    <button class="btn btn-outline-primary btn-icon calendar" type="button"
+                      (click)="dAddMultiple.toggle()">
                       <i data-feather="calendar"></i>
                     </button>
                     <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd"
                       name="dpAddMultiple" [(ngModel)]="currentDate" ngbDatepicker #dAddMultiple="ngbDatepicker"
                       formControlName="date_mouvement">
                   </div>
-                  <div *ngIf="addEntreeMultipleForm.get('date_mouvement')?.invalid && addEntreeMultipleForm.get('date_mouvement')?.touched">
+                  <div
+                    *ngIf="addEntreeMultipleForm.get('date_mouvement')?.invalid && addEntreeMultipleForm.get('date_mouvement')?.touched">
                     <small class="text-danger"> *La date du mouvement est obligatoire</small>
                   </div>
                 </div>
@@ -754,8 +751,8 @@
               <div class="col-md-6">
                 <div class="mb-3">
                   <label for="piece_jointe_mouvement_multiple" class="form-label">Pièces jointes</label>
-                  <input type="file" class="form-control" id="piece_jointe_mouvement_multiple" multiple #fileInputMultiple
-                    (change)="onFileSelected($event)">
+                  <input type="file" class="form-control" id="piece_jointe_mouvement_multiple" multiple
+                    #fileInputMultiple (change)="onFileSelected($event)">
                   <div class="mb-2"></div>
                   <small class="text-muted">Vous pouvez sélectionner plusieurs fichiers</small>
                 </div>
@@ -818,11 +815,13 @@
                     <div class="col-md-6">
                       <div class="mb-3">
                         <label for="unite" class="form-label">Unité de Mesure <span class="text-danger">*</span></label>
-                        <ng-container *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesuresMultiple">
+                        <ng-container
+                          *ngIf="uniteDeMesures && uniteDeMesures.length > 0; else noUniteDeMesuresMultiple">
                           <ng-select [items]="uniteDeMesures" bindLabel="libelle" bindValue="id"
                             formControlName="id_unite_de_mesure" [clearable]="true" placeholder="Sélectionnez...">
                           </ng-select>
-                          <div *ngIf="articleForm.get('id_unite_de_mesure')?.invalid && articleForm.get('id_unite_de_mesure')?.touched">
+                          <div
+                            *ngIf="articleForm.get('id_unite_de_mesure')?.invalid && articleForm.get('id_unite_de_mesure')?.touched">
                             <small class="text-danger"> *L'unite de mesure est obligatoire</small>
                           </div>
                         </ng-container>
@@ -839,8 +838,10 @@
                       <!-- prixUnitaire -->
                       <div class="mb-3">
                         <label class="form-label">Prix Unitaire (en FCFA) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" placeholder="100" formControlName="prixUnitaire" min="1">
-                        <div *ngIf="articleForm.get('prixUnitaire')?.invalid && articleForm.get('prixUnitaire')?.touched">
+                        <input type="number" class="form-control" placeholder="100" formControlName="prixUnitaire"
+                          min="1">
+                        <div
+                          *ngIf="articleForm.get('prixUnitaire')?.invalid && articleForm.get('prixUnitaire')?.touched">
                           <small class="text-danger">*Le prix Unitaire est obligatoire</small>
                         </div>
                       </div>
@@ -878,4 +879,149 @@
       </div>
     </div>
   </div>
+
+
+
+  <!-- -----------------------------corection stock------------------------------- -->
+
+                    
+<!-- MODAL CORRECTION STOCK -->
+<div class="modal fade" id="correction_entree" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+
+      <!-- HEADER -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          Correction d'entrée de stock
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- BODY -->
+      <div class="modal-body">
+
+        <form [formGroup]="correctionEntreeForm"
+              (ngSubmit)="onClickSubmitCorrectionEntreeStock()">
+
+          <!-- INFOS GENERALES -->
+          <div class="row">
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Fournisseur <span class="text-danger">*</span></label>
+              <input type="text" class="form-control"
+                     formControlName="fournisseur" readonly>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Numéro bordereau <span class="text-danger">*</span></label>
+              <input type="text" class="form-control"
+                     formControlName="numero_borderau" readonly>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Date <span class="text-danger">*</span></label>
+              <input type="date" class="form-control"
+                     formControlName="date_mouvement">
+            </div>
+
+          </div>
+
+          <hr>
+
+          <!-- CODE MOUVEMENT -->
+          <div class="mb-3">
+            <label class="form-label">Code mouvement sortie <span class="text-danger">*</span></label>
+
+            <ng-select
+              [items]="mouvementsGrouped"
+              bindLabel="code_mouvement"
+              bindValue="code_mouvement"
+              formControlName="code_mouvement_sortie"
+              placeholder="Sélectionnez un code">
+            </ng-select>
+          </div>
+
+          <!-- ARTICLE -->
+          <div class="mb-3">
+            <label class="form-label">Article <span class="text-danger">*</span></label>
+
+            <ng-select
+              [items]="articlesByCode"
+              bindLabel="libelle"
+              bindValue="id_Article"
+              formControlName="id_article"
+              placeholder="Sélectionnez un article">
+            </ng-select>
+          </div>
+
+          <!-- INFO -->
+          <div *ngIf="selectedArticle" class="alert alert-info p-2">
+            Quantité demandée : {{ selectedArticle.qteDemande }} <br>
+            Quantité accordée : {{ selectedArticle.qte }}
+          </div>
+
+          <!-- CORRECTION -->
+          <div class="row">
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Quantité <span class="text-danger">*</span></label>
+              <input type="number" class="form-control"
+                     formControlName="qte" min="1">
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Unité <span class="text-danger">*</span></label>
+              <ng-select
+                [items]="uniteDeMesures"
+                bindLabel="libelle"
+                bindValue="id"
+                formControlName="id_unite_de_mesure">
+              </ng-select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Prix *</label>
+              <input type="number" class="form-control"
+                     formControlName="prixUnitaire">
+            </div>
+
+            <div class="col-12 mb-3">
+  <label class="form-label">Description <span class="text-danger">*</span></label>
+
+  <textarea class="form-control"
+            formControlName="description"
+            rows="2"
+            placeholder="Décrivez la raison de la correction"></textarea>
+</div>
+
+          </div>
+
+          
+
+          <!-- ACTION -->
+          <div class="d-flex justify-content-center gap-2 mt-4">
+            <button type="submit"
+                    class="btn btn-primary"
+                    [disabled]="correctionEntreeForm.invalid || isLoadingCorrection">
+
+              <span *ngIf="isLoadingCorrection"
+                    class="spinner-border spinner-border-sm me-2"></span>
+
+              {{ isLoadingCorrection ? 'Traitement...' : 'Enregistrer' }}
+            </button>
+
+            <button type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal">
+              Annuler
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+    </div>
+  </div>
+</div>
 </div>
