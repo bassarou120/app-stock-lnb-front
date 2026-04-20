@@ -22,38 +22,38 @@
     </div>
   </div>
 </div>
-
+ 
 <div *ngIf="hasPageAccess">
   <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
       <li class="breadcrumb-item"><a routerLink=".">Véhicules</a></li>
     </ol>
   </nav>
-
+ 
   <!-- Alerte pour ajout avec succès -->
   <ngb-alert *ngIf="alertAjoutVisible" [dismissible]="false" class="alerte" [type]="'primary'">
     Véhicule Ajouté avec succès
   </ngb-alert>
   <!-- Alerte pour ajout avec succès -->
-
+ 
   <!-- Alerte pour mofifier avec succès -->
   <ngb-alert *ngIf="alertModifVisible" [dismissible]="false" class="alerte" [type]="'primary'">
     Véhicule Modifié avec succès
   </ngb-alert>
   <!-- Alerte pour mofifier avec succès -->
-
+ 
   <!-- Alerte pour supprimer avec succès -->
   <ngb-alert *ngIf="alertSuppVisible" [dismissible]="false" class="alerte" [type]="'danger'">
     Véhicule Supprimé avec succès
   </ngb-alert>
   <!-- Alerte pour supprimer avec succès -->
-
+ 
   <!-- Alerte pour import avec succès -->
   <ngb-alert *ngIf="alertImportVisible" [dismissible]="false" class="alerte" [type]="'primary'">
     Véhicules importés avec succès
   </ngb-alert>
   <!-- Alerte pour import avec succès -->
-
+ 
 <div *ngIf="toastVisible"
      [ngClass]="['alert', 'alert-' + toastType]"
      role="alert"
@@ -69,7 +69,7 @@
      ">
     <h4 class="alert-heading">{{ toastTitle }}</h4>
     <p>{{ toastMessage }}</p>
-
+ 
     <ng-container *ngIf="toastType === 'black' && ignoredLines.length > 0">
         <hr>
         <p class="mb-0">Détails des lignes ignorées:</p>
@@ -78,10 +78,10 @@
             <li *ngIf="ignoredLines.length > 5">... et {{ ignoredLines.length }} autres lignes.</li>
         </ul>
     </ng-container>
-
+ 
     <button type="button" class="btn-close" (click)="toastVisible = false" aria-label="Close"></button>
 </div>
-
+ 
   <div class="row">
     <div class="col-md-12 grid-margin stretch-card">
       <div class="card">
@@ -105,7 +105,7 @@
       </div>
     </div>
   </div>
-
+ 
   <div class="row">
     <div class="col-md-12 stretch-card">
       <div class="card">
@@ -142,7 +142,7 @@
                   {{ row.sous_type_immo?.libelle || 'N/A' }}
                 </ng-template>
               </ngx-datatable-column>
-
+ 
               <ngx-datatable-column name="Groupe">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   {{ row.groupe_type_immo?.libelle || 'N/A' }}
@@ -163,7 +163,7 @@
                       class="btn btn-sm btn-outline-primary me-2">
                       Voir
                     </a>
-
+ 
                     <!-- Si carte grise absente -->
                     <button *ngIf="!row.carte_grise"
                             class="btn btn-sm btn-outline-success"
@@ -216,7 +216,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- --- MODAL D'AJOUT DE VÉHICULE (ng-template) --- -->
 <div id="addVehicule" class="modal fade" tabindex="-1" aria-labelledby="addArticleLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-fullscreen">
@@ -225,20 +225,20 @@
     <h5 class="modal-title" id="addVehiculeLabel">Ajouter plusieurs véhicules</h5>
     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
   </div>
-
+ 
   <div class="modal-body p-4">
     <form class="forms-sample" [formGroup]="addVehicule" (ngSubmit)="onClickSubmitAddVehicules()" novalidate>
-
+ 
       <!-- En-têtes du tableau avec meilleur espacement -->
-
-
+ 
+ 
       <!-- Formulaire dynamique pour les vehicules -->
       <div formArrayName="vehicules" class="mb-4">
         <div *ngFor="let vehiculeForm of vehiculesArray.controls; let i = index" [formGroupName]="i"
           class="card p-3 mb-3 shadow-sm">
-
+ 
           <div class="row g-3">
-
+ 
           <!-- code de l' Immobilisation -->
           <div class="col-md-3">
             <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
@@ -247,8 +247,8 @@
               <small class="text-danger"> *le code de l'immobilisation est obligatoire</small>
             </div>
           </div>
-
-
+ 
+ 
             <!-- Marque -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Marque <span class="text-danger">*</span></label>
@@ -256,7 +256,7 @@
                 formControlName="marque_id" placeholder="Choisir une marque">
               </ng-select>
             </div>
-
+ 
             <!-- Modèle -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Modèle <span class="text-danger">*</span></label>
@@ -264,100 +264,100 @@
                 formControlName="modele_id" placeholder="Choisir un modèle">
               </ng-select>
             </div>
-
+ 
             <!-- Immatriculation -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Immatriculation <span class="text-danger">*</span></label>
               <input type="text" class="form-control" placeholder="BJ1234AA" formControlName="immatriculation">
             </div>
-
+ 
             <!-- Numéro de châssis -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Numéro de châssis</label>
               <input type="text" class="form-control" placeholder="VF1AB1234567890123" formControlName="numero_chassis">
             </div>
-
+ 
             <!-- Kilométrage -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Kilométrage (km)<span class="text-danger">*</span></label>
               <input type="number" class="form-control" placeholder="120000" formControlName="kilometrage">
             </div>
-
+ 
             <!-- Puissance -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Puissance (CV) <span class="text-danger">*</span></label>
               <input type="text" class="form-control" placeholder="11" formControlName="puissance">
             </div>
-
+ 
             <!-- Places assises -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Places assises <span class="text-danger">*</span></label>
               <input type="number" class="form-control" placeholder="4" formControlName="places_assises">
             </div>
-
+ 
             <!-- Energie -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Énergie <span class="text-danger">*</span></label>
               <ng-select [items]="typeEnergies" formControlName="energie" placeholder="Type d'énergie">
               </ng-select>
             </div>
-
+ 
             <!-- Date mise en service -->
-
+ 
                 <div class="col-md-3">
-
+ 
                   <label class="form-label fw-bold">Date de mise en service <span class="text-danger">*</span></label>
-
+ 
                   <div class="input-group input-group-lg">
-
+ 
                     <button class="btn btn-outline-primary btn-icon calendar" type="button" (click)="dMiseEnService.toggle()">
-
+ 
                       <i data-feather="calendar"></i>
-
+ 
                     </button>
-
+ 
                     <input class="form-control border-primary bg-transparent" placeholder="yyyy-mm-dd" name="dpMiseEnService"
-
+ 
                      ngbDatepicker #dMiseEnService="ngbDatepicker"
-
+ 
                       formControlName="date_mise_en_service"
-
+ 
                       [class.is-invalid]="vehiculeForm.get('date_mise_en_service')?.invalid && vehiculeForm.get('date_mise_en_service')?.touched">
-
+ 
                   </div>
-
+ 
                   <div *ngIf="vehiculeForm.get('date_mise_en_service')?.invalid && vehiculeForm.get('date_mise_en_service')?.touched"
-
+ 
                     class="invalid-feedback">
-
+ 
                     La date de mise en service est obligatoire
-
+ 
                   </div>
-
+ 
                 </div>
-
-
-
+ 
+ 
+ 
             <!-- Durée d'amortissement -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Durée d'amortissement (années)</label>
               <input type="number" class="form-control" formControlName="nbreannee_amortissement">
             </div>
-
+ 
             <!-- Date d'amortissement (auto-calculée) -->
             <div class="col-md-3">
               <label class="form-label fw-bold">Date d’amortissement</label>
-
+ 
               <input type="date" class="form-control"
                     placeholder="yyyy-mm-dd"
                     formControlName="date_amortissement"
                     readonly>
             </div>
-
+ 
           <!-- Sélectionner un SousTypeImmo -->
           <div class="col-md-3">
             <label for="sousTypeImmo" class="form-label">Sous Type Immo <span class="text-danger">*</span></label>
-
+ 
             <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmoEdit">
               <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
                 [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation">
@@ -367,7 +367,7 @@
                 <small class="text-danger"> *Le Sous Type Immo est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun sousTypeImmo n'existe -->
             <ng-template #noSousTypeImmoEdit>
               <div class="alert alert-danger"
@@ -376,11 +376,11 @@
               </div>
             </ng-template>
           </div>
-
+ 
           <!-- Sélectionner un GroupeTypeImmo -->
           <div class="col-md-3">
             <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation <span class="text-danger">*</span></label>
-
+ 
             <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmoEdit">
               <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
                 formControlName="id_groupe_type_immo" [clearable]="true"
@@ -391,7 +391,7 @@
                 <small class="text-danger"> *Le Groupe Type Immo est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun GroupeTypeImmo n'existe -->
             <ng-template #noGroupeTypeImmoEdit>
               <div class="alert alert-danger"
@@ -400,8 +400,8 @@
               </div>
             </ng-template>
           </div>
-
-
+ 
+ 
                     <!-- montant ttc de l' Immobilisation -->
           <div class="col-md-3">
             <label for="montant_ttc" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>
@@ -414,22 +414,22 @@
                 class="text-danger"> *le montant ttc de l'immobilisation est obligatoire</small>
             </div>
           </div>
-
+ 
           <!-- Sélectionner un fournisseur -->
           <div class="col-md-3">
             <label for="fournisseur" class="form-label">Fournisseur</label>
-
+ 
             <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
               <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="fournisseur_id"
                 [clearable]="true" placeholder="Sélectionnez le Fournisseur">
               </ng-select>
-
+ 
               <div
                 *ngIf="vehiculeForm.get('fournisseur_id')?.invalid && vehiculeForm.get('fournisseur_id')?.touched">
                 <small class="text-danger"> *Le fournisseur est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun Fournisseur n'existe -->
             <ng-template #noFournisseur>
               <div class="alert alert-danger"
@@ -438,7 +438,7 @@
               </div>
             </ng-template>
           </div>
-
+ 
           <!-- taux_ammortissement de l' Immobilisation -->
           <div class="col-md-3">
             <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
@@ -452,7 +452,7 @@
                 class="text-danger"> *le taux d'ammortissement de l'immobilisation est obligatoire</small>
             </div>
           </div>
-
+ 
           <!-- date_acquisition de l'Immobilisation -->
           <div class="col-md-3">
             <label for="date_acquisition" class="form-label">
@@ -466,13 +466,13 @@
                 ngbDatepicker #addAcquisition="ngbDatepicker"
                 formControlName="date_acquisition">
             </div>
-
+ 
             <div *ngIf="vehiculeForm.get('date_acquisition')?.invalid && vehiculeForm.get('date_acquisition')?.touched">
               <small class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
             </div>
           </div>
-
-
+ 
+ 
             <div class="col-md-3">
               <div class="">
                 <label for="nouveauBureau" class="form-label">Bureau/Localisation</label>
@@ -487,11 +487,11 @@
                 </ng-template>
               </div>
             </div>
-
+ 
           <!-- Sélectionner un StatusImmo -->
           <div class="col-md-3">
             <label for="statusImmo" class="form-label">Status <span class="text-danger">*</span></label>
-
+ 
             <ng-container *ngIf="statusImmo && statusImmo.length > 0; else noStatusImmo">
               <ng-select [items]="statusImmo" bindLabel="libelle_status_immo" bindValue="id"
                 formControlName="id_status_immo" [clearable]="true" placeholder="Sélectionnez le Status">
@@ -501,7 +501,7 @@
                 <small class="text-danger"> *Le status est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun StatusImmo n'existe -->
             <ng-template #noStatusImmo>
               <div class="alert alert-danger"
@@ -510,19 +510,19 @@
               </div>
             </ng-template>
           </div>
-
+ 
           <div class="col-md-3" style="margin-top:-10px;">
             <label class="form-label">État <span class="text-danger">*</span></label>
             <ng-select [items]="etatOptions" formControlName="etat" [clearable]="true"
               placeholder="Sélectionnez l'état">
             </ng-select>
-
+ 
             <div *ngIf="vehiculeForm.get('etat')?.invalid && vehiculeForm.get('etat')?.touched">
               <small class="text-danger"> *L'état est obligatoire</small>
             </div>
           </div>
-
-
+ 
+ 
           <!-- observation -->
           <div class="col-md-9" style="margin-top:-10px;">
             <label for="observation" class="form-label">Observation</label>
@@ -535,11 +535,11 @@
                 class="text-danger"> *l' observation est obligatoire</small>
             </div>
           </div>
-
-
-
+ 
+ 
+ 
           </div>
-
+ 
           <!-- Actions -->
           <div class="d-flex justify-content-end mt-3">
             <button type="button" class="btn btn-outline-danger btn-sm" (click)="removeVehicule(i)"
@@ -549,15 +549,15 @@
           </div>
         </div>
       </div>
-
-
+ 
+ 
       <!-- Bouton pour ajouter un nouveau véhicule -->
       <div class="d-flex justify-content-start mb-4">
         <button type="button" class="btn btn-outline-primary btn-lg" (click)="addNewVehicule()">
           <i class="feather icon-plus me-2"></i>Ajouter un véhicule
         </button>
       </div>
-
+ 
       <!-- Boutons d'actions -->
       <div class="d-flex justify-content-center gap-3 mt-4">
         <button
@@ -608,7 +608,7 @@
     </div>
   </div>
 </div>
-
+ 
 <!-- --- MODAL DE MODIFICATION DE VÉHICULE (ng-template) --- -->
 <ng-template #editVehiculeContent let-modal>
   <div class="modal-header">
@@ -618,7 +618,7 @@
   <form [formGroup]="editVehicule" (ngSubmit)="onClickSubmitEditVehicule()">
     <div class="modal-body">
       <input type="hidden" formControlName="id">
-
+ 
       <div class="mb-3">
         <label for="code" class="form-label">Code <span class="text-danger">*</span></label>
         <input type="text" class="form-control" placeholder="Entrez le code de l'immobilisation" formControlName="code">
@@ -626,7 +626,7 @@
              <small class="text-danger"> *le code de l'immobilisation est obligatoire</small>
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_marque_id" class="form-label">Marque <span class="text-danger">*</span></label>
         <ng-select [items]="marques" bindLabel="libelle" bindValue="id"
@@ -636,7 +636,7 @@
           La marque est obligatoire.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_modele_id" class="form-label">Modèle <span class="text-danger">*</span></label>
         <ng-select [items]="modeles" bindLabel="libelle_modele" bindValue="id"
@@ -646,7 +646,7 @@
           Le modèle est obligatoire.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_immatriculation" class="form-label">Immatriculation <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="edit_immatriculation" formControlName="immatriculation">
@@ -654,7 +654,7 @@
           L'immatriculation est obligatoire.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_numero_chassis" class="form-label">Numéro de Châssis <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="edit_numero_chassis" formControlName="numero_chassis">
@@ -662,7 +662,7 @@
           Le numéro de châssis est obligatoire.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_kilometrage" class="form-label">Kilométrage (km) <span class="text-danger">*</span></label>
         <input type="number" class="form-control" id="edit_kilometrage" formControlName="kilometrage">
@@ -670,7 +670,7 @@
           Le kilométrage est obligatoire et doit être un nombre positif.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_places_assises" class="form-label">Places assises <span class="text-danger">*</span></label>
         <input type="number" class="form-control" id="edit_places_assises" formControlName="places_assises">
@@ -678,7 +678,7 @@
           places assises est obligatoire et doit être un nombre positif.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_puissance" class="form-label">puissance (CV) <span class="text-danger">*</span></label>
         <input type="text" class="form-control" id="edit_puissance" formControlName="puissance">
@@ -686,7 +686,7 @@
           La puissance est obligatoire.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label for="edit_puissance" class="form-label">Energie<span class="text-danger">*</span></label>
         <ng-select [items]="typeEnergies" formControlName="energie" [clearable]="true"
@@ -697,7 +697,7 @@
               L'energie est obligatoire
             </div>
       </div>
-
+ 
             <!-- Durée d'amortissement -->
             <div class="mb-3">
               <label class="form-label fw-bold">Durée d'amortissement (années)</label>
@@ -706,7 +706,7 @@
                 Le nombre d'année amortissement est obligatoire.
               </div>
             </div>
-
+ 
       <div class="mb-3">
         <label for="edit_date_mise_en_service" class="form-label">Date de Mise en Service <span class="text-danger">*</span></label>
         <div class="input-group">
@@ -720,20 +720,20 @@
           La date de mise en service est obligatoire.
         </div>
       </div>
-
+ 
       <div class="mb-3">
         <label class="form-label fw-bold">Date d’amortissement</label>
-
+ 
         <input  class="form-control"
               placeholder="yyyy-mm-dd"
               formControlName="date_amortissement" id="edit_date_amortissement"
               readonly>
       </div>
-
+ 
           <!-- Sélectionner un SousTypeImmo -->
           <div class="mb-3">
             <label for="sousTypeImmo" class="form-label">Sous Type Immo <span class="text-danger">*</span></label>
-
+ 
             <ng-container *ngIf="sousTypeImmo && sousTypeImmo.length > 0; else noSousTypeImmoEdit">
               <ng-select [items]="sousTypeImmo" bindLabel="libelle" bindValue="id" formControlName="id_sous_type_immo"
                 [clearable]="true" placeholder="Sélectionnez le Sous Type de l'Immobilisation">
@@ -743,7 +743,7 @@
                 <small class="text-danger"> *Le Sous Type Immo est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun sousTypeImmo n'existe -->
             <ng-template #noSousTypeImmoEdit>
               <div class="alert alert-danger"
@@ -752,11 +752,11 @@
               </div>
             </ng-template>
           </div>
-
+ 
           <!-- Sélectionner un GroupeTypeImmo -->
           <div class="mb-3">
             <label for="groupeTypeImmo" class="form-label">Groupe Type Immobilisation <span class="text-danger">*</span></label>
-
+ 
             <ng-container *ngIf="groupeTypeImmo && groupeTypeImmo.length > 0; else noGroupeTypeImmoEdit">
               <ng-select [items]="groupeTypeImmo" bindLabel="libelle" bindValue="id"
                 formControlName="id_groupe_type_immo" [clearable]="true"
@@ -767,7 +767,7 @@
                 <small class="text-danger"> *Le Groupe Type Immo est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun GroupeTypeImmo n'existe -->
             <ng-template #noGroupeTypeImmoEdit>
               <div class="alert alert-danger"
@@ -776,7 +776,7 @@
               </div>
             </ng-template>
           </div>
-
+ 
                     <!-- montant ttc de l' Immobilisation -->
           <div class="mb-3">
             <label for="montant_ttc" class="form-label">Montant TTC (en FCFA) <span class="text-danger">*</span></label>
@@ -789,22 +789,22 @@
                 class="text-danger"> *le montant ttc de l'immobilisation est obligatoire</small>
             </div>
           </div>
-
+ 
           <!-- Sélectionner un fournisseur -->
           <div class="mb-3">
             <label for="fournisseur" class="form-label">Fournisseur</label>
-
+ 
             <ng-container *ngIf="fournisseurs && fournisseurs.length > 0; else noFournisseur">
               <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id" formControlName="fournisseur_id"
                 [clearable]="true" placeholder="Sélectionnez le Fournisseur">
               </ng-select>
-
+ 
               <div
                 *ngIf="editVehicule.get('fournisseur_id')?.invalid && editVehicule.get('fournisseur_id')?.touched">
                 <small class="text-danger"> *Le fournisseur est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun Fournisseur n'existe -->
             <ng-template #noFournisseur>
               <div class="alert alert-danger"
@@ -813,7 +813,7 @@
               </div>
             </ng-template>
           </div>
-
+ 
           <!-- taux_ammortissement de l' Immobilisation -->
           <div class="mb-3">
             <label for="taux_ammortissement" class="form-label">Taux ammortissement (en %) <span class="text-danger">*</span></label>
@@ -827,7 +827,7 @@
                 class="text-danger"> *le taux d'ammortissement de l'immobilisation est obligatoire</small>
             </div>
           </div>
-
+ 
           <!-- date_acquisition de l'Immobilisation -->
           <div class="mb-3">
             <label for="date_acquisition" class="form-label">
@@ -841,13 +841,13 @@
                 ngbDatepicker #addAcquisition="ngbDatepicker"
                 formControlName="date_acquisition">
             </div>
-
+ 
             <div *ngIf="editVehicule.get('date_acquisition')?.invalid && editVehicule.get('date_acquisition')?.touched">
               <small class="text-danger"> *la date d'acquisition de l'immobilisation est obligatoire</small>
             </div>
           </div>
-
-
+ 
+ 
             <div class="mb-3">
               <div class="mb-3">
                 <label for="nouveauBureau" class="form-label">Bureau/Localisation</label>
@@ -862,11 +862,11 @@
                 </ng-template>
               </div>
             </div>
-
+ 
                       <!-- Sélectionner un StatusImmo -->
           <div class="mb-3">
             <label for="statusImmo" class="form-label">Status <span class="text-danger">*</span></label>
-
+ 
             <ng-container *ngIf="statusImmo && statusImmo.length > 0; else noStatusImmo">
               <ng-select [items]="statusImmo" bindLabel="libelle_status_immo" bindValue="id"
                 formControlName="id_status_immo" [clearable]="true" placeholder="Sélectionnez le Status">
@@ -876,7 +876,7 @@
                 <small class="text-danger"> *Le status est obligatoire</small>
               </div>
             </ng-container>
-
+ 
             <!-- Message si aucun StatusImmo n'existe -->
             <ng-template #noStatusImmo>
               <div class="alert alert-danger"
@@ -885,18 +885,18 @@
               </div>
             </ng-template>
           </div>
-
+ 
           <div class="mb-3">
             <label class="form-label">État <span class="text-danger">*</span></label>
             <ng-select [items]="etatOptions" formControlName="etat" [clearable]="true"
               placeholder="Sélectionnez l'état">
             </ng-select>
-
+ 
             <div *ngIf="editVehicule.get('etat')?.invalid && editVehicule.get('etat')?.touched">
               <small class="text-danger"> *L'état est obligatoire</small>
             </div>
           </div>
-
+ 
           <!-- observation -->
           <div class="mb-3">
             <label for="observation" class="form-label">Observation</label>
@@ -909,9 +909,9 @@
                 class="text-danger"> *l' observation est obligatoire</small>
             </div>
           </div>
-
-
-
+ 
+ 
+ 
     </div>
     <div class="modal-footer d-flex justify-content-center gap-2">
       <button type="submit" class="btn btn-primary" [disabled]="isEditingVehicule || editVehicule.invalid">
@@ -923,8 +923,8 @@
     </div>
   </form>
 </ng-template>
-
-
+ 
+ 
 <!-- --- MODAL DE CONFIRMATION DE SUPPRESSION (ng-template) --- -->
 <ng-template #deleteVehiculeContent let-modal>
   <div class="modal-header">
@@ -943,14 +943,14 @@
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
   </div>
 </ng-template>
-
-
+ 
+ 
 <ng-template #carteGriseContent let-modal>
   <div class="modal-header">
     <h5 class="modal-title">Ajout de la carte grise</h5>
     <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss('Cross click')"></button>
   </div>
-
+ 
   <div class="modal-body">
     <div class="mb-3">
       <label for="piece_jointe_intervention" class="form-label">Carte Grise</label>
@@ -960,7 +960,7 @@
       </div>
     </div>
   </div>
-
+ 
   <div class="modal-footer d-flex justify-content-center gap-2">
     <button type="button" class="btn btn-primary" (click)="onClickSubmitCarteGrise(modal)">
       Enregistrer
@@ -968,3 +968,5 @@
     <button type="button" class="btn btn-secondary" (click)="modal.dismiss('cancel')">Annuler</button>
   </div>
 </ng-template>
+ 
+ 
