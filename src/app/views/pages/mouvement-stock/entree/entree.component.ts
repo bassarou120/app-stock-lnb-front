@@ -255,11 +255,11 @@ isLoadingCorrection: boolean = false;
     });
 
     this.correctionEntreeForm = this.formBuilder.group({
-      id_fournisseur: ['', Validators.required],
+      fournisseur: ['FOURNISSEUR COMPENSATION', Validators.required],
       numero_borderau: ['NUM-BOR-COMPENSATION', Validators.required],
       date_mouvement: ['', Validators.required],
       code_mouvement_sortie: ['', Validators.required],
-
+      description: ['', Validators.required],
       id_article: ['', Validators.required],
       qte: [1, [Validators.required, Validators.min(1)]],
       id_unite_de_mesure: ['', Validators.required],

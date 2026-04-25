@@ -909,18 +909,14 @@
 
             <div class="col-md-6 mb-3">
               <label class="form-label">Fournisseur <span class="text-danger">*</span></label>
-              <ng-select
-                [items]="fournisseurs"
-                bindLabel="nom"
-                bindValue="id"
-                formControlName="id_fournisseur" placeholder="Sélectionnez le Fournisseur">
-              </ng-select>
+              <input type="text" class="form-control"
+                     formControlName="fournisseur" readonly>
             </div>
 
             <div class="col-md-6 mb-3">
               <label class="form-label">Numéro bordereau <span class="text-danger">*</span></label>
               <input type="text" class="form-control"
-                     formControlName="numero_borderau">
+                     formControlName="numero_borderau" readonly>
             </div>
 
             <div class="col-md-6 mb-3">
@@ -990,7 +986,18 @@
                      formControlName="prixUnitaire">
             </div>
 
+            <div class="col-12 mb-3">
+  <label class="form-label">Description <span class="text-danger">*</span></label>
+
+  <textarea class="form-control"
+            formControlName="description"
+            rows="2"
+            placeholder="Décrivez la raison de la correction"></textarea>
+</div>
+
           </div>
+
+          
 
           <!-- ACTION -->
           <div class="d-flex justify-content-center gap-2 mt-4">
