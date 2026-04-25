@@ -552,17 +552,6 @@ filterByStatus() {
         (response: any) => {
           console.log('Quantité disponible pour statut:', response.data);
           this.quantiteDisponible = response.data;
-
-          const qteControl = this.editStatutSortie.get('qte');
-          
-          qteControl?.setValidators([
-            Validators.required,
-            Validators.min(1),
-            Validators.max(this.quantiteDisponible)
-          ]);
-          
-          qteControl?.updateValueAndValidity();
-          
           this.patchEditStatutSortieForm(detail);
         },
         (error: any) => {
@@ -804,20 +793,9 @@ filterByStatus() {
   }
 
   isGroupCompletelyAccorded(group: any): boolean {
-    if (!group.details || group.details.length === 0) return false;
-    // On exclut les articles refusés du calcul :
-    // le groupe est considéré "accordé" si tous les articles non-refusés sont "Accordé"
-    // et qu'il y en a au moins un (évite le cas d'un groupe 100% refusé)
-    const nonRefuses = group.details.filter((detail: any) => detail.statut !== 'Refusé');
-    return nonRefuses.length > 0 && nonRefuses.every((detail: any) => detail.statut === 'Accordé');
-  }
-
-  // À ajouter dans les-demandes.component.ts
-  hasArticleACloturer(demande: any): boolean {
-    if (!demande.details || demande.details.length === 0) return false;
-    // On affiche le bouton si au moins un article est 'Accordée'
-    // (Peu importe si d'autres sont 'Refusée')
-    return demande.details.some((detail: any) => detail.statut === 'Accordé');
+    // Vérifie si le groupe contient des détails et si tous leurs statuts sont "Accordé"
+    return group.details && group.details.every((detail: any) => detail.statut === 'Accordé');
   }
 
 }
+

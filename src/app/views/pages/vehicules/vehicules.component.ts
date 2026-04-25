@@ -242,11 +242,6 @@ export class VehiculesComponent implements OnInit {
 
     this.deleteVehicule = this.formBuilder.group({ id: [null, [Validators.required]] });
     this.carteGrise = this.formBuilder.group({ id: [null, [Validators.required]] });
-
-    // ÉCOUTEUR EDITION : On surveille le Taux pour calculer la Durée
-    this.editVehicule.get('taux_ammortissement')?.valueChanges.subscribe(val => {
-      this.calculateDuree(this.editVehicule, val);
-    });
   }
 
   get vehiculesArray(): FormArray {
@@ -288,23 +283,7 @@ export class VehiculesComponent implements OnInit {
       this.updateDateAmortissementForGroup(group);
     });
 
-    // ÉCOUTEUR AJOUT BATCH : On surveille le Taux pour calculer la Durée
-    group.get('taux_ammortissement')?.valueChanges.subscribe(val => {
-      this.calculateDuree(group, val);
-    });
-
     return group;
-  }
-
-  // LOGIQUE DE CALCUL : Durée = 100 / Taux
-  calculateDuree(group: FormGroup, tauxInput: any) {
-    const taux = parseFloat(tauxInput);
-    if (!isNaN(taux) && taux > 0) {
-      const duree = Math.round(100 / taux);
-      group.get('nbreannee_amortissement')?.patchValue(duree, { emitEvent: false });
-    } else {
-      group.get('nbreannee_amortissement')?.patchValue(null, { emitEvent: false });
-    }
   }
 
 
