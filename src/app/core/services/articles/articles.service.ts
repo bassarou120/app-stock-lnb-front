@@ -102,4 +102,28 @@ export class ArticleService {
       return of(result as T);
     };
   }
+
+  /**
+   * ✅ Enregistrer une nouvelle entrée compensatoire
+   * Impacte le stock et historise le motif
+   */
+  createEntreeCompensatoire(data: any): Observable<any> {
+    return this.http.post<any>(`${this.url}/mouvements-stock/entree-compensatoire`, data).pipe(
+      tap(response => console.log('Service Article: Réponse correction stock:', response)),
+      catchError(this.handleError<any>('createEntreeCompensatoire'))
+    );
+  }
+
+  /**
+   * ✅ Récupérer l'historique des corrections effectuées
+   */
+  getHistoriqueCorrections(): Observable<any[]> {
+    return this.http.get<{ success: boolean; data: any[] }>(
+      `${this.url}/mouvements-stock/historique-corrections`
+    ).pipe(
+      map(response => response.data),
+      tap(data => console.log('Service Article: Historique corrections récupéré:', data)),
+      catchError(this.handleError<any[]>('getHistoriqueCorrections', []))
+    );
+  }
 }
