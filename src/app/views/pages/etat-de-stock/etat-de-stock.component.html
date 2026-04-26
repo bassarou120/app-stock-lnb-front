@@ -73,7 +73,7 @@
                 <span [ngClass]="(row.stock?.Qte_actuel || 0) <= row.stock_alerte ? 'badge bg-danger' : 'badge bg-success'"
                       style="font-size: 0.9rem; padding: 0.6em 0.8em;">
                   {{ row.stock?.Qte_actuel || 0 }}
-                </div>
+              </span>
               </ng-template>
             </ngx-datatable-column>
             <ngx-datatable-column name="Stock d'alerte" prop="stock_alerte"></ngx-datatable-column>
