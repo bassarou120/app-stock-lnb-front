@@ -114,8 +114,62 @@ export class VehiculesComponent implements OnInit {
   ) { }
 
 
+  // ngOnInit(): void {
+  //   this.initializePermissions();
+  //   if (this.hasPageAccess) {
+  //     this.loadMarques();
+  //     this.loadModeles();
+  //     this.loadVehicules();
+  //     this.loadSousTypeImmo();
+  //     this.loadGroupeTypeImmo();
+  //     this.loadFournisseurs();
+  //     this.loadBureaux();
+  //     this.loadStatusImmo();
+  //     this.initForm();
+  //   }
+
+  //   this.editVehicule = this.formBuilder.group({
+  //     id: [0, [Validators.required]],
+  //     code: [null, [Validators.required]],
+  //     marque_id: [null, [Validators.required]],
+  //     modele_id: [null, [Validators.required]],
+  //     immatriculation: ["", [Validators.required]],
+  //     numero_chassis: [""],
+  //     puissance: [""],
+  //     places_assises: [0],
+  //     energie: [""],
+  //     kilometrage: [0, [Validators.required, Validators.min(0)]],
+  //     date_mise_en_service: ["", [Validators.required]],
+  //     nbreannee_amortissement: [5, [Validators.min(1)]], // Valeur par défaut 5 ans
+  //     date_amortissement: [""],
+  //     id_groupe_type_immo: [null, [Validators.required]],
+  //     id_sous_type_immo: [null, [Validators.required]],
+  //     //
+  //     bureau_id: [null, []],
+  //     fournisseur_id: [null, []],
+  //     etat: ["", [Validators.required]],
+  //     taux_ammortissement: ["", [Validators.required]],
+  //     date_acquisition: [null, [Validators.required]],
+  //     observation: [""],
+  //     id_status_immo: [null, [Validators.required]],
+  //     montant_ttc: ["", [Validators.required]],
+  //   });
+
+  //   this.deleteVehicule = this.formBuilder.group({
+  //     id: [null, [Validators.required]],
+  //   });
+  //   this.carteGrise = this.formBuilder.group({
+  //     id: [null, [Validators.required]],
+  //   });
+
+  //   // 🔹 Ecoute les changements sur date_mise_en_service et nbreannee_amortissement
+  //   this.setupAmortissementListeners();
+  //   // Appel initial pour calculer la date d'amortissement par défaut au chargement
+  //   this.updateDateAmortissement();
+  // }
   ngOnInit(): void {
     this.initializePermissions();
+  
     if (this.hasPageAccess) {
       this.loadMarques();
       this.loadModeles();
@@ -125,47 +179,20 @@ export class VehiculesComponent implements OnInit {
       this.loadFournisseurs();
       this.loadBureaux();
       this.loadStatusImmo();
-      this.initForm();
+      
+      // 1. Cette méthode centralise déjà toute la création des formulaires 
+      // et l'activation des calculs automatiques (valueChanges).
+      this.initForm(); 
     }
-
-    this.editVehicule = this.formBuilder.group({
-      id: [0, [Validators.required]],
-      code: [null, [Validators.required]],
-      marque_id: [null, [Validators.required]],
-      modele_id: [null, [Validators.required]],
-      immatriculation: ["", [Validators.required]],
-      numero_chassis: [""],
-      puissance: [""],
-      places_assises: [0],
-      energie: [""],
-      kilometrage: [0, [Validators.required, Validators.min(0)]],
-      date_mise_en_service: ["", [Validators.required]],
-      nbreannee_amortissement: [5, [Validators.min(1)]], // Valeur par défaut 5 ans
-      date_amortissement: [""],
-      id_groupe_type_immo: [null, [Validators.required]],
-      id_sous_type_immo: [null, [Validators.required]],
-      //
-      bureau_id: [null, []],
-      fournisseur_id: [null, []],
-      etat: ["", [Validators.required]],
-      taux_ammortissement: ["", [Validators.required]],
-      date_acquisition: [null, [Validators.required]],
-      observation: [""],
-      id_status_immo: [null, [Validators.required]],
-      montant_ttc: ["", [Validators.required]],
-    });
-
-    this.deleteVehicule = this.formBuilder.group({
-      id: [null, [Validators.required]],
-    });
-    this.carteGrise = this.formBuilder.group({
-      id: [null, [Validators.required]],
-    });
-
-  // 🔹 Ecoute les changements sur date_mise_en_service et nbreannee_amortissement
+  
+    // 2. ACTIVE les écouteurs pour la date de mise en service
     this.setupAmortissementListeners();
-    // Appel initial pour calculer la date d'amortissement par défaut au chargement
+  
+    // 3. Calcul initial au chargement
     this.updateDateAmortissement();
+    
+    // NOTE : J'ai supprimé les blocs "this.editVehicule = ...", "this.deleteVehicule = ..." 
+    // car ils faisaient double emploi avec initForm() et cassaient la logique.
   }
 
   private initializePermissions(): void {
