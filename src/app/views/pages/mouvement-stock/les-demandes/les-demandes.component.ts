@@ -814,6 +814,7 @@ filterByStatus() {
 
   // À ajouter dans les-demandes.component.ts
   //ici--
+  
   hasArticleACloturer(demande: any): boolean {
     if (!demande.details || demande.details.length === 0) return false;
     // On affiche le bouton si au moins un article est 'Accordée'
