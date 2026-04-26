@@ -70,12 +70,8 @@
             </ngx-datatable-column>
             <ngx-datatable-column name="Qte Actuelle">
               <ng-template let-row="row" ngx-datatable-cell-template>
-                <div
-
-                  [ngStyle]="{
-                    'background-color': (row.stock?.Qte_actuel || 0) <= row.stock_alerte ? '#ff3366' : '#198754'
-                  }" class="text-white p-1 rounded d-inline-block"
-                        style="min-width: 50px; text-align: center;">
+                <span [ngClass]="(row.stock?.Qte_actuel || 0) <= row.stock_alerte ? 'badge bg-danger' : 'badge bg-success'"
+                      style="font-size: 0.9rem; padding: 0.6em 0.8em;">
                   {{ row.stock?.Qte_actuel || 0 }}
                 </div>
               </ng-template>
