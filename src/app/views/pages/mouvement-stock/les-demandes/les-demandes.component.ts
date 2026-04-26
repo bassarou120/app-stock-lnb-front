@@ -787,6 +787,7 @@ filterByStatus() {
     );
 }
 
+//here
 
 
   markFormGroupTouched(formGroup: FormGroup | FormArray) {
@@ -798,11 +799,11 @@ filterByStatus() {
       }
     });
   }
-
+//here
   isGroupTraitable(group: MouvementStockGrouped): boolean {
     return group.details?.some(detail => detail.statut !== 'Accordé');
   }
-
+//here
   isGroupCompletelyAccorded(group: any): boolean {
     if (!group.details || group.details.length === 0) return false;
     // On exclut les articles refusés du calcul :
@@ -811,10 +812,10 @@ filterByStatus() {
     const nonRefuses = group.details.filter((detail: any) => detail.statut !== 'Refusé');
     return nonRefuses.length > 0 && nonRefuses.every((detail: any) => detail.statut === 'Accordé');
   }
-
+//here
   // À ajouter dans les-demandes.component.ts
   //ici--
-  
+
   hasArticleACloturer(demande: any): boolean {
     if (!demande.details || demande.details.length === 0) return false;
     // On affiche le bouton si au moins un article est 'Accordée'
