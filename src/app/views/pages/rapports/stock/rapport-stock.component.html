@@ -282,6 +282,11 @@
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+              <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ getCategorieLabel(row.article?.categorie) }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
               <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column>
               <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column>
@@ -307,6 +312,11 @@
               <ngx-datatable-column name="Code Mouvement" prop="code_mouvement"></ngx-datatable-column>
               <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
               <!-- <ngx-datatable-column name="Code Article" prop="article.code"></ngx-datatable-column> -->
+              <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ getCategorieLabel(row.article?.categorie) }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
               <!-- <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column> -->
               <!-- <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column> -->
@@ -335,6 +345,11 @@
               </ngx-datatable-column>
               <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
               <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+              <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ getCategorieLabel(row.article?.categorie) }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="CMP">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   {{ row.stock_actuel?.cmp }}
@@ -405,6 +420,11 @@
                   </ng-template>
                 </ngx-datatable-column>
                 <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+                <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ getCategorieLabel(row.article?.categorie) }}
+                  </ng-template>
+                </ngx-datatable-column>
                 <ngx-datatable-column name="Stock Init." prop="stock_initial_ligne"></ngx-datatable-column>
                 <ngx-datatable-column name="Entrées" prop="entrees"></ngx-datatable-column>
                 <ngx-datatable-column name="Sorties" prop="sorties"></ngx-datatable-column>

@@ -32,7 +32,7 @@ export interface RapportEtatStockArticle {
     libelle: string;
     code_article: string;
     description: string;
-    categorie: string;
+    categorie: string | { libelle_categorie_article: string; libelle?: string };
     stock_alerte: number;
     unite_de_mesure?: string;
   };
@@ -675,9 +675,11 @@ apiCall.pipe(takeUntil(this.destroy$)).subscribe(
         const derniereSortieDateStr = derniereSortieDate ? derniereSortieDate.toLocaleDateString('fr-FR') : '';
         const stockActuelDateMajStr = stockActuelDateMaj ? stockActuelDateMaj.toLocaleDateString('fr-FR') : '';
 
+        const articleCategorie = this.getCategorieLabel(item.article?.categorie);
+
         match = (item.article?.libelle?.toLowerCase().includes(val) || false) ||
                 (item.article?.code_article?.toLowerCase().includes(val) || false) ||
-                (item.article?.categorie?.toLowerCase().includes(val) || false) ||
+                (articleCategorie?.toLowerCase().includes(val) || false) ||
                 (derniereEntreeDateStr?.toLowerCase().includes(val) || false) ||
                 (derniereSortieDateStr?.toLowerCase().includes(val) || false) ||
                 (stockActuelDateMajStr?.toLowerCase().includes(val) || false);
@@ -695,6 +697,7 @@ apiCall.pipe(takeUntil(this.destroy$)).subscribe(
                 (item.numero_borderau?.toLowerCase().includes(val) || false) ||
                 (item.article?.libelle?.toLowerCase().includes(val) || false) ||
                 (item.article?.code_article?.toLowerCase().includes(val) || false) ||
+                (this.getCategorieLabel(item.article?.categorie).toLowerCase().includes(val) || false) ||
                 ((item.fournisseur && item.fournisseur.nom) ? item.fournisseur.nom.toLowerCase().includes(val) : false) ||
                 ((item.type_mouvement && item.type_mouvement.libelle_type_mouvement) ? item.type_mouvement.libelle_type_mouvement.toLowerCase().includes(val) : false) ||
                 (dateMouvementStr?.toLowerCase().includes(val) || false);
@@ -705,6 +708,12 @@ apiCall.pipe(takeUntil(this.destroy$)).subscribe(
     if (this.table) {
       this.table.offset = 0;
     }
+  }
+
+  getCategorieLabel(categorie: any): string {
+    if (!categorie) return '-';
+    if (typeof categorie === 'string') return categorie;
+    return categorie.libelle_categorie_article || categorie.libelle || '-';
   }
 
 }
