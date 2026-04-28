@@ -117,7 +117,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
   typeRapportsStock: TypeRapportStock[] = [
     { id: 'entree', libelle: 'Ordre d\'Entrée' },
     { id: 'sortie', libelle: 'Ordre de Sortie' },
-    { id: 'etat_stock', libelle: 'État de Stock' },
+    { id: 'etat_stock', libelle: 'État de Stock récent' },
     { id: 'individuel', libelle: 'Rapport Individuel' },
   ];
   selectedReportTypeId: string | null = null;
