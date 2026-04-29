@@ -20,7 +20,7 @@ import { BureauxService } from './../../../../core/services/bureaux/bureaux.serv
 
 // Interfaces
 import {
-  MouvementStock, Article, Fournisseur, TypeMouvement, Employe, PaginatedResponse, Bureau
+  MouvementStock, Article, Fournisseur, TypeMouvement, Employe, PaginatedResponse, Bureau, Categorie
 } from '../../../../core/services/interface/models';
 
 import { Observable, Subject, takeUntil } from 'rxjs';
@@ -108,6 +108,8 @@ export class RapportStockComponent implements OnInit, OnDestroy {
 
   // Listes pour les dropdowns de filtrage
   articles: Article[] = [];
+  filteredArticles: Article[] = []; // Articles filtrés selon la catégorie sélectionnée
+  categories: Categorie[] = [];
   fournisseurs: Fournisseur[] = [];
   typeMouvements: TypeMouvement[] = [];
   employes: Employe[] = [];
@@ -150,6 +152,10 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     this.loadFilterData();
     this.rapportForm.get('id_type_rapport')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(typeRapportId => {
       this.onTypeRapportChange(typeRapportId);
+    });
+    // Écoute le changement de catégorie pour filtrer les articles en conséquence
+    this.rapportForm.get('id_categorie_article')?.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(categorieId => {
+      this.onCategorieChange(categorieId);
     });
   }
 
@@ -212,6 +218,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
 
       // NOUVEAUX Champs spécifiques au rapport d'état de stock
       id_Article_etat: [{ value: null, disabled: true }],
+      id_categorie_article: [{ value: null, disabled: true }],
       qte_min_etat: [{ value: null, disabled: true }],
       qte_max_etat: [{ value: null, disabled: true }],
     });
@@ -247,6 +254,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showIndividuelFilters = false;
         this.rapportForm.get('id_Article_entree')?.enable();
         this.rapportForm.get('id_fournisseur_entree')?.enable();
+        this.rapportForm.get('id_categorie_article')?.enable();
         console.log('onTypeRapportChange: Showing entry filters.');
         break;
 
@@ -257,6 +265,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showIndividuelFilters = false;
         this.rapportForm.get('id_Article_sortie')?.enable();
         this.rapportForm.get('id_employe_sortie')?.enable();
+        this.rapportForm.get('id_categorie_article')?.enable();
         console.log('onTypeRapportChange: Showing exit filters.');
         break;
 
@@ -266,6 +275,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showStockStatusFilters = true;
         this.showIndividuelFilters = false;
         this.rapportForm.get('id_Article_etat')?.enable();
+        this.rapportForm.get('id_categorie_article')?.enable();
         this.rapportForm.get('qte_min_etat')?.enable();
         this.rapportForm.get('qte_max_etat')?.enable();
         this.rapportForm.get('qte_min_etat')?.setValidators(Validators.min(0));
@@ -280,8 +290,8 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         this.showStockStatusFilters = false;
         this.showIndividuelFilters = true;
         this.rapportForm.get('id_Article_entree')?.enable();
-        /* this.rapportForm.get('id_fournisseur_entree')?.enable(); */
-        console.log('onTypeRapportChange: Showing entry filters.');
+        this.rapportForm.get('id_categorie_article')?.enable();
+        console.log('onTypeRapportChange: Showing individuel filters.');
         break;
 
       default:
@@ -337,6 +347,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
     this.showExitFilters = false;
     this.showStockStatusFilters = false;
     this.showIndividuelFilters = false;
+    this.filteredArticles = []; // Réinitialiser les articles filtrés
     this.rapportForm.clearValidators(); // Clear group validators as well
     this.rapportForm.updateValueAndValidity();
     this.rows = [];
@@ -346,11 +357,43 @@ export class RapportStockComponent implements OnInit, OnDestroy {
 
   loadFilterData(): void {
     console.log('Loading filter data...');
-    this.articlesService.getAllArticles().pipe(takeUntil(this.destroy$)).subscribe((data: Article[]) => { this.articles = data; console.log('Articles loaded:', data.length); });
+    this.articlesService.getAllArticles().pipe(takeUntil(this.destroy$)).subscribe((data: Article[]) => {
+      this.articles = data;
+      this.filteredArticles = data; // Initialiser avec tous les articles
+      console.log('Articles loaded:', data.length);
+    });
+    this.articlesService.getAllCategories().pipe(takeUntil(this.destroy$)).subscribe((data: Categorie[]) => { this.categories = data; console.log('Categories loaded:', data.length); });
     this.fournisseursService.getAllFournisseurs().pipe(takeUntil(this.destroy$)).subscribe((data: Fournisseur[]) => { this.fournisseurs = data; console.log('Fournisseurs loaded:', data.length); });
     this.typeMouvementService.getAllTypeMouvement().pipe(takeUntil(this.destroy$)).subscribe((data: TypeMouvement[]) => { this.typeMouvements = data; console.log('TypeMouvements loaded:', data.length); });
     this.employesService.getAllEmployes().pipe(takeUntil(this.destroy$)).subscribe((data: Employe[]) => { this.employes = data; console.log('Employes loaded:', data.length); });
     this.bureauxService.getAllBureaux().pipe(takeUntil(this.destroy$)).subscribe((data: Bureau[]) => { this.bureaux = data; console.log('Bureaux loaded:', data.length); });
+  }
+
+  /**
+   * Filtre les articles selon la catégorie sélectionnée.
+   * Réinitialise aussi le champ article sélectionné si la catégorie change.
+   */
+  onCategorieChange(categorieId: number | null): void {
+    // Réinitialiser l'article sélectionné dans tous les champs article possibles
+    this.rapportForm.get('id_Article_entree')?.setValue(null, { emitEvent: false });
+    this.rapportForm.get('id_Article_sortie')?.setValue(null, { emitEvent: false });
+    this.rapportForm.get('id_Article_etat')?.setValue(null, { emitEvent: false });
+
+    if (categorieId) {
+      // Filtrer selon l'id de la catégorie de l'article
+      this.filteredArticles = this.articles.filter(article => {
+        const cat = article.categorie as any;
+        if (!cat) return false;
+        // La catégorie peut être un objet { id, libelle_categorie_article } ou juste un id
+        if (typeof cat === 'object') return cat.id === categorieId;
+        return cat === categorieId;
+      });
+      console.log(`Catégorie ${categorieId} sélectionnée : ${this.filteredArticles.length} article(s) filtré(s).`);
+    } else {
+      // Aucune catégorie : afficher tous les articles
+      this.filteredArticles = [...this.articles];
+      console.log('Aucune catégorie sélectionnée : tous les articles affichés.');
+    }
   }
 
   // NOUVELLE FONCTION UTILITAIRE POUR PARSER LES DATES
@@ -419,6 +462,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         finalFilters.id_type_rapport = 'entree';
         finalFilters.id_Article = filters.id_Article_entree;
         finalFilters.id_fournisseur = filters.id_fournisseur_entree;
+        finalFilters.id_categorie_article = filters.id_categorie_article;
         const typeEntree = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'entrée de stock');
         if (typeEntree) {
             finalFilters.id_type_mouvement = typeEntree.id;
@@ -429,6 +473,7 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         finalFilters.id_type_rapport = 'sortie';
         finalFilters.id_Article = filters.id_Article_sortie;
         finalFilters.id_employe = filters.id_employe_sortie;
+        finalFilters.id_categorie_article = filters.id_categorie_article;
         const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie de stock');
         if (typeSortie) {
             finalFilters.id_type_mouvement = typeSortie.id;
@@ -437,10 +482,11 @@ export class RapportStockComponent implements OnInit, OnDestroy {
         }
     } else if (this.selectedReportTypeId === 'etat_stock') {
         finalFilters.id_article = filters.id_Article_etat;
+        finalFilters.id_categorie_article = filters.id_categorie_article;
         finalFilters.qte_min = filters.qte_min_etat;
         finalFilters.qte_max = filters.qte_max_etat;
 
-    }   else if (this.selectedReportTypeId === 'individuel') {
+    } else if (this.selectedReportTypeId === 'individuel') {
         finalFilters.id_type_rapport = 'individuel';
         finalFilters.id_Article = filters.id_Article_entree;
         /* finalFilters.id_fournisseur = filters.id_fournisseur_entree; */
@@ -562,6 +608,7 @@ apiCall.pipe(takeUntil(this.destroy$)).subscribe(
         finalFilters.id_type_rapport = 'entree';
         finalFilters.id_Article = filters.id_Article_entree;
         finalFilters.id_fournisseur = filters.id_fournisseur_entree;
+        finalFilters.id_categorie_article = filters.id_categorie_article;
         const typeEntree = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'entrée de stock');
         if (typeEntree) finalFilters.id_type_mouvement = typeEntree.id;
 
@@ -569,6 +616,7 @@ apiCall.pipe(takeUntil(this.destroy$)).subscribe(
         finalFilters.id_type_rapport = 'sortie';
         finalFilters.id_Article = filters.id_Article_sortie;
         finalFilters.id_employe = filters.id_employe_sortie;
+        finalFilters.id_categorie_article = filters.id_categorie_article;
         const typeSortie = this.typeMouvements.find(t => t.libelle_type_mouvement?.toLowerCase() === 'sortie de stock');
         if (typeSortie) finalFilters.id_type_mouvement = typeSortie.id;
 
@@ -581,6 +629,7 @@ apiCall.pipe(takeUntil(this.destroy$)).subscribe(
     } else if (this.selectedReportTypeId === 'etat_stock') {
       // Ce rapport est géré différemment, pas besoin de id_type_rapport
       finalFilters.id_article = filters.id_Article_etat;
+      finalFilters.id_categorie_article = filters.id_categorie_article;
       finalFilters.qte_min = filters.qte_min_etat;
       finalFilters.qte_max = filters.qte_max_etat;
     }
