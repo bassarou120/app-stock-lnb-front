@@ -85,10 +85,18 @@
               <hr class="my-4">
               <h5 class="mb-3">Filtres pour le rapport d'Entrée</h5>
 
-              <!-- Article (Optionnel) -->
+              <!-- Catégorie d'article (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="id_Article_entree" class="form-label">Article (Optionnel)</label>
-                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_entree"
+                <label for="id_categorie_article" class="form-label">Catégorie d'article <span class="text-secondary">(Optionnel)</span></label>
+                <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
+                  formControlName="id_categorie_article" [clearable]="true" placeholder="Sélectionnez une catégorie">
+                </ng-select>
+              </div>
+
+              <!-- Article (Optionnel) — filtré selon la catégorie -->
+              <div class="col-md-6 mb-3">
+                <label for="id_Article_entree" class="form-label">Article <span class="text-secondary">(Optionnel)</span></label>
+                <ng-select [items]="filteredArticles" bindLabel="libelle" bindValue="id" formControlName="id_Article_entree"
                   [clearable]="true" placeholder="Sélectionnez un article">
                   <ng-template ng-label-tmp let-item="item">
                     {{item.code_article}} - {{item.libelle}}
@@ -101,7 +109,7 @@
 
               <!-- Fournisseur (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="id_fournisseur_entree" class="form-label">Fournisseur (Optionnel)</label>
+                <label for="id_fournisseur_entree" class="form-label">Fournisseur <span class="text-secondary">(Optionnel)</span></label>
                 <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id"
                   formControlName="id_fournisseur_entree" [clearable]="true" placeholder="Sélectionnez un fournisseur">
                 </ng-select>
@@ -115,10 +123,18 @@
               <hr class="my-4">
               <h5 class="mb-3">Filtres pour le rapport de Sortie</h5>
 
-              <!-- Article (Optionnel) -->
+              <!-- Catégorie d'article (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="id_Article_sortie" class="form-label">Article (Optionnel)</label>
-                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_sortie"
+                <label for="id_categorie_article" class="form-label">Catégorie d'article <span class="text-secondary">(Optionnel)</span></label>
+                <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
+                  formControlName="id_categorie_article" [clearable]="true" placeholder="Sélectionnez une catégorie">
+                </ng-select>
+              </div>
+
+              <!-- Article (Optionnel) — filtré selon la catégorie -->
+              <div class="col-md-6 mb-3">
+                <label for="id_Article_sortie" class="form-label">Article <span class="text-secondary">(Optionnel)</span></label>
+                <ng-select [items]="filteredArticles" bindLabel="libelle" bindValue="id" formControlName="id_Article_sortie"
                   [clearable]="true" placeholder="Sélectionnez un article">
                   <ng-template ng-label-tmp let-item="item">
                     {{item.code_article}} - {{item.libelle}}
@@ -129,9 +145,9 @@
                 </ng-select>
               </div>
 
-              <!-- Employé (Optionnel) - Si les sorties sont liées à un employé -->
+              <!-- Employé (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="id_employe_sortie" class="form-label">Employé (Optionnel)</label>
+                <label for="id_employe_sortie" class="form-label">Employé <span class="text-secondary">(Optionnel)</span></label>
                 <ng-select [items]="employes" bindLabel="nom" bindValue="id" formControlName="id_employe_sortie"
                   [clearable]="true" placeholder="Sélectionnez un employé">
                   <ng-template ng-label-tmp let-item="item">
@@ -151,10 +167,18 @@
               <hr class="my-4">
               <h5 class="mb-3">Filtres pour le rapport d'État de Stock</h5>
 
-              <!-- Article (Optionnel) -->
+              <!-- Catégorie d'article (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="id_Article_etat" class="form-label">Article (Optionnel)</label>
-                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_etat"
+                <label for="id_categorie_article" class="form-label">Catégorie d'article <span class="text-secondary">(Optionnel)</span></label>
+                <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
+                  formControlName="id_categorie_article" [clearable]="true" placeholder="Sélectionnez une catégorie">
+                </ng-select>
+              </div>
+
+              <!-- Article (Optionnel) — filtré selon la catégorie -->
+              <div class="col-md-6 mb-3">
+                <label for="id_Article_etat" class="form-label">Article <span class="text-secondary">(Optionnel)</span></label>
+                <ng-select [items]="filteredArticles" bindLabel="libelle" bindValue="id" formControlName="id_Article_etat"
                   [clearable]="true" placeholder="Sélectionnez un article">
                   <ng-template ng-label-tmp let-item="item">
                     {{item.code_article}} - {{item.libelle}}
@@ -199,10 +223,18 @@
               <hr class="my-4">
               <h5 class="mb-3">Filtres pour le rapport Individuel</h5>
 
-              <!-- Article (Optionnel) -->
+              <!-- Catégorie d'article (Optionnel) -->
               <div class="col-md-6 mb-3">
-                <label for="id_Article_entree" class="form-label">Article </label>
-                <ng-select [items]="articles" bindLabel="libelle" bindValue="id" formControlName="id_Article_entree"
+                <label for="id_categorie_article" class="form-label">Catégorie d'article <span class="text-secondary">(Optionnel)</span></label>
+                <ng-select [items]="categories" bindLabel="libelle_categorie_article" bindValue="id"
+                  formControlName="id_categorie_article" [clearable]="true" placeholder="Sélectionnez une catégorie">
+                </ng-select>
+              </div>
+
+              <!-- Article — filtré selon la catégorie -->
+              <div class="col-md-6 mb-3">
+                <label for="id_Article_entree" class="form-label">Article</label>
+                <ng-select [items]="filteredArticles" bindLabel="libelle" bindValue="id" formControlName="id_Article_entree"
                   [clearable]="true" placeholder="Sélectionnez un article">
                   <ng-template ng-label-tmp let-item="item">
                     {{item.code_article}} - {{item.libelle}}
@@ -212,16 +244,8 @@
                   </ng-template>
                 </ng-select>
               </div>
-
-              <!-- Fournisseur (Optionnel) -->
-<!--               <div class="col-md-6 mb-3">
-                <label for="id_fournisseur_entree" class="form-label">Fournisseur (Optionnel)</label>
-                <ng-select [items]="fournisseurs" bindLabel="nom" bindValue="id"
-                  formControlName="id_fournisseur_entree" [clearable]="true" placeholder="Sélectionnez un fournisseur">
-                </ng-select>
-              </div> -->
             </div>
-            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT D'ENTRÉE -->
+            <!-- Fin FILTRES SPÉCIFIQUES AU RAPPORT INDIVIDUEL -->
 
 
 
@@ -282,6 +306,11 @@
                 </ng-template>
               </ngx-datatable-column>
               <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+              <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ getCategorieLabel(row.article?.categorie) }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
               <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column>
               <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column>
@@ -307,6 +336,11 @@
               <ngx-datatable-column name="Code Mouvement" prop="code_mouvement"></ngx-datatable-column>
               <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
               <!-- <ngx-datatable-column name="Code Article" prop="article.code"></ngx-datatable-column> -->
+              <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ getCategorieLabel(row.article?.categorie) }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="Quantité" prop="qte"></ngx-datatable-column>
               <!-- <ngx-datatable-column name="Prix Unitaire" prop="prixUnitaire"></ngx-datatable-column> -->
               <!-- <ngx-datatable-column name="Unité de mesure" prop="unite_de_mesure.libelle"></ngx-datatable-column> -->
@@ -335,6 +369,11 @@
               </ngx-datatable-column>
               <ngx-datatable-column name="Article" prop="article.libelle"></ngx-datatable-column>
               <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+              <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                  {{ getCategorieLabel(row.article?.categorie) }}
+                </ng-template>
+              </ngx-datatable-column>
               <ngx-datatable-column name="CMP">
                 <ng-template let-row="row" ngx-datatable-cell-template>
                   {{ row.stock_actuel?.cmp }}
@@ -405,6 +444,11 @@
                   </ng-template>
                 </ngx-datatable-column>
                 <ngx-datatable-column name="Code Article" prop="article.code_article"></ngx-datatable-column>
+                <ngx-datatable-column name="Catégorie">
+                <ng-template let-row="row" ngx-datatable-cell-template>
+                    {{ getCategorieLabel(row.article?.categorie) }}
+                  </ng-template>
+                </ngx-datatable-column>
                 <ngx-datatable-column name="Stock Init." prop="stock_initial_ligne"></ngx-datatable-column>
                 <ngx-datatable-column name="Entrées" prop="entrees"></ngx-datatable-column>
                 <ngx-datatable-column name="Sorties" prop="sorties"></ngx-datatable-column>

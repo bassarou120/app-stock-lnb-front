@@ -154,84 +154,86 @@ setupModalReset(): void {
 
 
 
-  onClickSubmitAddEmploye () {
-      console.log(this.addEmploye.value);
-
-      // 1. Vérifier si une soumission est déjà en cours
-      if (this.isAdding) {
-          console.warn('Ajout d\'employé déjà en cours. Opération annulée.');
-          return;
-      }
-
-      // 2. Valider le formulaire
-      if (this.addEmploye.invalid) {
-          this.markFormGroupTouched(this.addEmploye);
-          Swal.fire({
-            title: 'Erreur',
-            text: 'Désolé, le formulaire n\'est pas bien renseigné',
-            icon: 'error',
-            confirmButtonText: 'Réessayer',
-            confirmButtonColor: '#d33'
-          });
-          return;
-      }
-
-      // 3. Activer l'indicateur de chargement
-      this.isAdding = true;
-
-      this.employeService.saveEmploye(this.addEmploye.value).subscribe({
-          next: (data: any) => {
-              this.loadEmployes();
-              
-              // NOTE IMPORTANTE : this.addEmploye.reset(); est retiré d'ici, 
-              // il sera exécuté par l'écouteur 'hidden.bs.modal' après la fermeture.
-
-              // 1. FERMETURE DU MODAL (Succès)
-              const modal = document.getElementById('add_employe');
-              // @ts-ignore
-              const bsModal = bootstrap.Modal.getInstance(modal);
-              bsModal?.hide();
-
-              // 2. AFFICHAGE DE L'ALERTE DE SUCCÈS (après un court délai)
-              setTimeout(() => {
-                  this.alertAjoutVisible = true;
-                  setTimeout(() => {
-                      this.alertAjoutVisible = false;
-                  }, 5000); // MODIFIÉ : 5 secondes pour une meilleure lisibilité
-              }, 300); // MODIFIÉ : 300ms pour un affichage plus rapide
-          },
-          error: (error: any) => {
-              console.error('Erreur lors de l\'ajout de l\'employe :', error);
-              
-              // 1. FERMETURE DU MODAL (Échec)
-              const modal = document.getElementById('add_employe');
-              // @ts-ignore
-              const bsModal = bootstrap.Modal.getInstance(modal);
-              bsModal?.hide(); 
-
-              // 2. GESTION DU MESSAGE D'ERREUR
-              let errorMessage = 'Une erreur s\'est produite. Veuillez réessayer.';
-
-              if (error.status === 422 && error.error) {
-                  const validationErrors = error.error; 
-                  this.isAdding = false;
-                  
-                  if (validationErrors.telephone) {
-                      errorMessage = validationErrors.telephone[0]; 
-                  } else if (validationErrors.email) {
-                      errorMessage = validationErrors.email[0]; 
-                  }
-              }
-
-              // 3. AFFICHAGE DE L'ALERTE D'ERREUR TEMPORAIRE (Vous devez implémenter cette méthode)
-              // L'alerte d'erreur devrait apparaître après la fermeture du modal, si votre implémentation le gère.
-              this.afficherErreurTemporaire(errorMessage); 
-          },
-          complete: () => {
-              // 4. Désactiver l'indicateur de chargement
-              this.isAdding = false;
-          }
+  onClickSubmitAddEmploye() {
+    console.log(this.addEmploye.value);
+  
+    // 1. Vérifier si une soumission est déjà en cours
+    if (this.isAdding) {
+      console.warn('Ajout d\'employé déjà en cours. Opération annulée.');
+      return;
+    }
+  
+    // 2. Valider le formulaire
+    if (this.addEmploye.invalid) {
+      this.markFormGroupTouched(this.addEmploye);
+      Swal.fire({
+        title: 'Erreur',
+        text: 'Désolé, le formulaire n\'est pas bien renseigné',
+        icon: 'error',
+        confirmButtonText: 'Réessayer',
+        confirmButtonColor: '#d33'
       });
+      return;
+    }
+  
+    // 3. Activer l'indicateur de chargement
+    this.isAdding = true;
+  
+    this.employeService.saveEmploye(this.addEmploye.value).subscribe({
+      next: (data: any) => {
+        this.loadEmployes();
+  
+        // NOTE IMPORTANTE : this.addEmploye.reset(); est retiré d'ici, 
+        // il sera exécuté par l'écouteur 'hidden.bs.modal' après la fermeture.
+  
+        // 1. FERMETURE DU MODAL (Succès)
+        const modal = document.getElementById('add_employe');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+  
+        // 2. AFFICHAGE DE L'ALERTE DE SUCCÈS (après un court délai)
+        setTimeout(() => {
+          this.alertAjoutVisible = true;
+          setTimeout(() => {
+            this.alertAjoutVisible = false;
+          }, 5000); // MODIFIÉ : 5 secondes pour une meilleure lisibilité
+        }, 300); // MODIFIÉ : 300ms pour un affichage plus rapide
+      },
+      error: (error: any) => {
+        console.error('Erreur lors de l\'ajout de l\'employe :', error);
+  
+        // 1. FERMETURE DU MODAL (Échec)
+        const modal = document.getElementById('add_employe');
+        // @ts-ignore
+        const bsModal = bootstrap.Modal.getInstance(modal);
+        bsModal?.hide();
+  
+        // 2. GESTION DU MESSAGE D'ERREUR
+        let errorMessage = 'Une erreur s\'est produite. Veuillez réessayer.';
+  
+        if (error.status === 422 && error.error) {
+          const validationErrors = error.error;
+          this.isAdding = false;
+  
+          // AJOUT ICI : Gestion de l'erreur d'unicité Nom + Prénom
+          if (validationErrors.nom) {
+            errorMessage = validationErrors.nom[0];
+          } else if (validationErrors.telephone) {
+            errorMessage = validationErrors.telephone[0];
+          } else if (validationErrors.email) {
+            errorMessage = validationErrors.email[0];
+          }
+        }
+  
+        // 3. AFFICHAGE DE L'ALERTE D'ERREUR TEMPORAIRE
+        this.afficherErreurTemporaire(errorMessage);
+      },
+      complete: () => {
+        // 4. Désactiver l'indicateur de chargement
+        this.isAdding = false;
+      }
+    });
   }
 
 private afficherErreurTemporaire(message: string): void {
