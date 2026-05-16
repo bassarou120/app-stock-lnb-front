@@ -488,7 +488,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
         case 'annulation ticket':
             filters.date_debut = this.formatDate(this.rapportForm.get('date_debut_annulation_t')?.value);
             filters.date_fin = this.formatDate(this.rapportForm.get('date_fin_annulation_t')?.value);
-            filters.coupon_id = this.rapportForm.get('coupon_id_annulation')?.value;
+            filters.coupon_ticket_id = this.rapportForm.get('coupon_id_annulation')?.value;
             filters.compagnie_petrolier_id = this.rapportForm.get('compagnie_petrolier_id_annulation')?.value;
             break;
 
@@ -667,6 +667,7 @@ export class RapportTicketComponent implements OnInit, OnDestroy {
 
 
   downloadRapportTicketPDF(): void {
+    console.log('compagnie:', this.rapportForm.get('compagnie_petrolier_id_entree')?.value);
     console.log('--- Tentative d\'impression du rapport de ticket PDF ---');
     console.log('Form isValid before API call (PDF):', this.rapportForm.valid);
     console.log('Form errors (PDF):', this.rapportForm.errors);

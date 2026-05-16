@@ -194,6 +194,7 @@ export interface TypeMouvement {
 export interface Categorie {
   id: number;
   libelle_categorie_article: string;
+  libelle?: string;
   valeur: string;
   taux: number;
   created_at: string;
@@ -204,6 +205,7 @@ export interface Article {
   id: number;
   id_cat: number;
   cat?: Categorie;
+  categorie?: Categorie | string;
   libelle: string;
   description: number;
   created_at: string;
@@ -271,6 +273,7 @@ export interface MouvementStock {
   article?: {
     libelle: string;
     code_article: string;
+    categorie?: Categorie | string;
   };
   bureau?: {
     libelle_bureau: string;
